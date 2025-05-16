@@ -1,158 +1,114 @@
 
-import { useState, useRef, useEffect } from 'react';
-import { ProfileData } from "@/contexts/ProfileContext";
-import { useProfile } from '@/contexts/ProfileContext';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface Card3DProps {
-  profileData?: ProfileData | null;
   className?: string;
 }
 
-const Card3D = ({ className = "" }: Card3DProps) => {
-  const { profile } = useProfile();
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
+const Card3D: React.FC<Card3DProps> = ({ className = "" }) => {
+  const [rotate, setRotate] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current || isFlipped) return;
-
-    const card = cardRef.current;
-    const rect = card.getBoundingClientRect();
-    const cardCenterX = rect.left + rect.width / 2;
-    const cardCenterY = rect.top + rect.height / 2;
-
-    const mouseX = e.clientX - cardCenterX;
-    const mouseY = e.clientY - cardCenterY;
-
-    // Calculate rotation (limited to subtle movement)
-    const rotateY = mouseX * 0.05; // Adjust the multiplier for more/less rotation
-    const rotateX = -mouseY * 0.05; // Negative to make the card tilt toward the mouse
-
-    setRotateX(rotateX);
-    setRotateY(rotateY);
+    if (!cardRef.current) return;
+    
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = (y - centerY) / 10;
+    const rotateY = (centerX - x) / 10;
+    
+    setRotate({ x: rotateX, y: rotateY });
   };
 
   const handleMouseLeave = () => {
-    // Reset rotation when mouse leaves
-    if (!isFlipped) {
-      setRotateX(0);
-      setRotateY(0);
-    }
+    setRotate({ x: 0, y: 0 });
+    setIsHovered(false);
   };
 
-  const handleClick = () => {
-    setIsFlipped(!isFlipped);
+  const handleMouseEnter = () => {
+    setIsHovered(true);
   };
-
-  useEffect(() => {
-    if (isFlipped) {
-      setRotateY(180);
-      setRotateX(0);
-    } else {
-      setRotateY(0);
-      setRotateX(0);
-    }
-  }, [isFlipped]);
-
-  if (!profile) {
-    return null;
-  }
 
   return (
-    <div className={`perspective-1000 ${className}`} onClick={handleClick}>
-      <div 
-        ref={cardRef}
-        className="relative w-80 h-48 transition-transform duration-700 ease-out transform-3d preserve-3d cursor-pointer"
-        style={{ 
-          transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
-          transition: 'transform 0.2s ease-out',
+    <div
+      ref={cardRef}
+      className={`relative w-64 h-40 ${className}`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handleMouseEnter}
+      style={{ perspective: '1000px' }}
+    >
+      <motion.div
+        className="w-full h-full rounded-xl bg-gradient-to-br from-scan-blue via-scan-blue-light to-scan-blue-dark shadow-lg overflow-hidden"
+        animate={{ 
+          rotateX: rotate.x, 
+          rotateY: rotate.y,
+          boxShadow: isHovered 
+            ? '0 20px 40px rgba(0, 0, 0, 0.2), 0 0 20px rgba(30, 174, 219, 0.4)' 
+            : '0 10px 20px rgba(0, 0, 0, 0.1), 0 0 10px rgba(30, 174, 219, 0.2)'
         }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
+        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        style={{
+          transformStyle: 'preserve-3d',
+        }}
       >
-        {/* Front of the card */}
-        <div 
-          className={`absolute w-full h-full rounded-xl p-6 backface-hidden ${
-            isFlipped ? 'opacity-0' : 'opacity-100'
-          }`}
-          style={{
-            background: 'linear-gradient(135deg, #1EAEDB 0%, #33C3F0 100%)',
-            boxShadow: '0 8px 32px 0 rgba(30, 174, 219, 0.3)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-          }}
-        >
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="font-bold text-white text-xl">{profile.name}</h3>
-              <p className="text-white/80 text-sm mt-1">{profile.title}</p>
-            </div>
-            <div className="text-white bg-white/20 rounded-lg h-10 w-10 flex items-center justify-center">
-              ST
-            </div>
+        <div className="absolute inset-0 bg-[radial-gradient(farthest-corner_at_top_right,rgba(255,255,255,0.4),transparent_70%)]" />
+        
+        {/* Card Content */}
+        <div className="relative p-6 flex flex-col h-full">
+          {/* QR Code */}
+          <div className="w-16 h-16 bg-white rounded-lg mb-3 flex items-center justify-center">
+            <svg viewBox="0 0 100 100" className="w-12 h-12 text-scan-blue">
+              <rect x="10" y="10" width="30" height="30" fill="currentColor" />
+              <rect x="60" y="10" width="30" height="30" fill="currentColor" />
+              <rect x="10" y="60" width="30" height="30" fill="currentColor" />
+              <rect x="60" y="60" width="10" height="10" fill="currentColor" />
+              <rect x="80" y="60" width="10" height="10" fill="currentColor" />
+              <rect x="60" y="80" width="10" height="10" fill="currentColor" />
+              <rect x="80" y="80" width="10" height="10" fill="currentColor" />
+            </svg>
           </div>
           
-          <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
-            <div>
-              <p className="text-white/80 text-xs">{profile.email}</p>
-              <p className="text-white/80 text-xs">{profile.phone}</p>
-              <p className="text-white/80 text-xs">{profile.website}</p>
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 h-16 w-16">
-              {/* QR placeholder */}
-              <div className="bg-white h-full w-full grid grid-cols-3 grid-rows-3 gap-0.5 p-0.5 rounded">
-                {[...Array(9)].map((_, i) => (
-                  <div key={i} className={`bg-scan-blue ${i % 2 === 0 ? 'opacity-80' : 'opacity-50'}`}></div>
-                ))}
-              </div>
-            </div>
+          <div className="text-white mt-auto">
+            <p className="text-sm font-medium opacity-80">Jane Smith</p>
+            <h3 className="text-base font-bold">Marketing Director</h3>
+          </div>
+          
+          {/* Dots */}
+          <div className="absolute bottom-5 right-5 flex space-x-1">
+            <div className="w-2 h-2 rounded-full bg-blue-300"></div>
+            <div className="w-2 h-2 rounded-full bg-indigo-300"></div>
+            <div className="w-2 h-2 rounded-full bg-scan-mint"></div>
           </div>
         </div>
-
-        {/* Back of the card */}
-        <div 
-          className={`absolute w-full h-full rounded-xl p-6 backface-hidden rotate-y-180 ${
-            isFlipped ? 'opacity-100' : 'opacity-0'
-          }`}
-          style={{
-            background: 'linear-gradient(135deg, #F2FCE2 0%, #D3FCBE 100%)',
-            boxShadow: '0 8px 32px 0 rgba(30, 174, 219, 0.3)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-          }}
-        >
-          <div className="flex flex-col items-center justify-center h-full">
-            <div className="text-scan-blue text-4xl font-bold">ScanToTap</div>
-            <p className="text-scan-dark/70 text-sm mt-2">Scan to connect</p>
-            <div className="mt-4 bg-white rounded-lg p-2 w-24 h-24">
-              {/* QR placeholder - larger on the back */}
-              <div className="bg-white h-full w-full grid grid-cols-5 grid-rows-5 gap-0.5 rounded">
-                {[...Array(25)].map((_, i) => (
-                  <div key={i} className={`bg-scan-blue ${i % 3 === 0 ? 'opacity-90' : 'opacity-60'}`}></div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <style jsx>{`
-        .perspective-1000 {
-          perspective: 1000px;
+      </motion.div>
+      
+      {/* Reflection effect */}
+      <div 
+        className="absolute w-full h-20 bottom-[-20px] left-0"
+        style={{ 
+          backgroundImage: 'linear-gradient(to bottom, rgba(30, 174, 219, 0.2), transparent)',
+          transform: 'rotateX(180deg) translateY(20px)',
+          opacity: 0.4,
+          filter: 'blur(4px)',
+        }}
+      ></div>
+      
+      <style>
+        {`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-5px); }
         }
-        .transform-3d {
-          transform-style: preserve-3d;
-        }
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        .preserve-3d {
-          transform-style: preserve-3d;
-        }
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

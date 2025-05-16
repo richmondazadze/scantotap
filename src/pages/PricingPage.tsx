@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
@@ -14,21 +15,25 @@ interface PlanFeature {
 interface PricingPlan {
   name: string;
   price: string;
+  period: string;
   description: string;
   features: PlanFeature[];
   ctaText: string;
+  ctaLink: string;
   highlighted?: boolean;
+  badge?: string;
 }
 
 const PricingPage = () => {
   const pricingPlans: PricingPlan[] = [
     {
-      name: "Digital",
-      price: "Free",
+      name: "Free Card",
+      price: "$0",
+      period: "forever",
       description: "Perfect for casual networking",
       features: [
-        { name: "Digital profile page", included: true },
-        { name: "Custom QR code", included: true },
+        { name: "Basic digital profile", included: true },
+        { name: "Standard QR code", included: true },
         { name: "Up to 5 social links", included: true },
         { name: "Basic analytics", included: true },
         { name: "Email support", included: true },
@@ -36,52 +41,40 @@ const PricingPage = () => {
         { name: "Premium materials", included: false },
         { name: "Custom branding", included: false },
       ],
-      ctaText: "Get Started",
+      ctaText: "Start Free",
+      ctaLink: "/dashboard",
     },
     {
-      name: "Premium",
-      price: "$49",
+      name: "Premium Card",
+      price: "$15",
+      period: "one-time",
       description: "One-time payment for professionals",
       features: [
-        { name: "Digital profile page", included: true },
-        { name: "Custom QR code", included: true },
+        { name: "Advanced digital profile", included: true },
+        { name: "Custom QR design", included: true },
         { name: "Unlimited social links", included: true },
         { name: "Advanced analytics", included: true },
         { name: "Priority support", included: true },
         { name: "Physical smart card", included: true },
         { name: "Premium materials", included: true },
-        { name: "Custom branding", included: true },
+        { name: "NFC compatibility", included: true },
       ],
-      ctaText: "Order Your Card",
+      ctaText: "Upgrade to Premium",
+      ctaLink: "/dashboard",
       highlighted: true,
-    },
-    {
-      name: "Team",
-      price: "$199",
-      description: "Perfect for small teams (5 cards)",
-      features: [
-        { name: "Digital profile pages", included: true },
-        { name: "Custom QR codes", included: true },
-        { name: "Unlimited social links", included: true },
-        { name: "Team analytics", included: true },
-        { name: "Dedicated support", included: true },
-        { name: "Physical smart cards (5)", included: true },
-        { name: "Premium materials", included: true },
-        { name: "Custom branding", included: true },
-      ],
-      ctaText: "Contact Sales",
-    },
+      badge: "Popular",
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-scan-mint/20">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-blue-50 to-scan-mint/20">
       <Navigation />
 
       {/* Pricing header */}
       <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl sm:text-5xl font-bold">
-            Simple, Transparent <span className="text-gradient">Pricing</span>
+            Simple, Transparent <span className="bg-gradient-to-r from-scan-blue via-indigo-500 to-purple-500 bg-clip-text text-transparent">Pricing</span>
           </h1>
           <p className="mt-6 text-lg text-gray-600">
             Choose the perfect plan for your networking needs. No subscriptions, just a one-time payment for your premium smart business card.
@@ -92,31 +85,29 @@ const PricingPage = () => {
       {/* Pricing cards */}
       <section className="pb-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {pricingPlans.map((plan) => (
               <div
                 key={plan.name}
-                className={`relative rounded-2xl overflow-hidden ${
+                className={`relative rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-2 ${
                   plan.highlighted
-                    ? "bg-gradient-to-br from-scan-blue to-scan-blue-dark text-white scale-105 shadow-xl"
-                    : "bg-white/50 backdrop-blur-sm border border-white/50 shadow-lg"
+                    ? "bg-gradient-to-br from-scan-blue to-indigo-600 text-white shadow-xl shadow-indigo-500/20"
+                    : "bg-white/80 backdrop-blur-sm border border-white/80 shadow-lg"
                 }`}
               >
-                {plan.highlighted && (
-                  <div className="absolute top-0 left-0 right-0 bg-scan-blue-dark text-white text-center py-1 text-xs font-semibold">
-                    MOST POPULAR
-                  </div>
+                {plan.badge && (
+                  <Badge className="absolute top-4 right-4 bg-white text-scan-blue hover:bg-white/90">
+                    {plan.badge}
+                  </Badge>
                 )}
                 
-                <div className="p-8 pt-12">
+                <div className="p-8">
                   <h3 className="text-2xl font-bold mb-1">{plan.name}</h3>
                   <div className="flex items-end mb-5">
                     <span className="text-4xl font-bold">{plan.price}</span>
-                    {plan.price !== "Free" && (
-                      <span className={plan.highlighted ? "text-white/70" : "text-gray-500"}>
-                        &nbsp;one-time
-                      </span>
-                    )}
+                    <span className={plan.highlighted ? "text-white/70 ml-1" : "text-gray-500 ml-1"}>
+                      {plan.period}
+                    </span>
                   </div>
                   <p className={`mb-6 ${plan.highlighted ? "text-white/80" : "text-gray-600"}`}>
                     {plan.description}
@@ -126,12 +117,16 @@ const PricingPage = () => {
                     {plan.features.map((feature) => (
                       <div key={feature.name} className="flex items-center">
                         {feature.included ? (
-                          <Check 
-                            className={`mr-3 ${plan.highlighted ? "text-white" : "text-scan-blue"}`} 
-                            size={18} 
-                          />
+                          <div className={`p-1 rounded-full mr-3 ${plan.highlighted ? "bg-white/20" : "bg-scan-blue/10"}`}>
+                            <Check 
+                              className={plan.highlighted ? "text-white" : "text-scan-blue"} 
+                              size={16} 
+                            />
+                          </div>
                         ) : (
-                          <X className="mr-3 text-gray-400" size={18} />
+                          <div className="p-1 rounded-full mr-3 bg-gray-100">
+                            <X className="text-gray-400" size={16} />
+                          </div>
                         )}
                         <span className={feature.included ? "" : "text-gray-400"}>
                           {feature.name}
@@ -140,12 +135,12 @@ const PricingPage = () => {
                     ))}
                   </div>
                   
-                  <Link to="/dashboard">
+                  <Link to={plan.ctaLink}>
                     <Button
-                      className={`w-full ${
+                      className={`w-full rounded-xl ${
                         plan.highlighted 
                           ? "bg-white hover:bg-gray-100 text-scan-blue" 
-                          : ""
+                          : "bg-gradient-to-r from-scan-blue to-scan-blue-light text-white"
                       }`}
                       variant={plan.highlighted ? "default" : "default"}
                     >
@@ -163,7 +158,10 @@ const PricingPage = () => {
               Looking for bulk orders of 10+ cards or custom designs for your organization?
               We offer special enterprise packages tailored to your needs.
             </p>
-            <Button variant="outline" className="mt-6">
+            <Button 
+              variant="outline" 
+              className="mt-6 rounded-xl border-scan-blue text-scan-blue hover:bg-scan-blue/10"
+            >
               Contact Our Sales Team
             </Button>
           </div>
@@ -171,7 +169,7 @@ const PricingPage = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-scan-blue/5">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white/30 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
           
@@ -179,7 +177,7 @@ const PricingPage = () => {
             <div className="glass-card p-6">
               <h3 className="text-lg font-semibold mb-2">How does the smart card work?</h3>
               <p className="text-gray-600">
-                Our smart business cards feature a QR code that can be scanned with any smartphone camera. 
+                Our smart business cards feature a QR code and NFC technology that can be scanned with any smartphone. 
                 When scanned, it opens your digital profile page where you can showcase all your professional information.
               </p>
             </div>
@@ -195,7 +193,7 @@ const PricingPage = () => {
             <div className="glass-card p-6">
               <h3 className="text-lg font-semibold mb-2">How long does shipping take?</h3>
               <p className="text-gray-600">
-                Standard shipping takes 7-10 business days. We also offer expedited options at checkout for faster delivery.
+                Standard shipping takes 5-7 business days. We also offer expedited options at checkout for faster delivery.
               </p>
             </div>
             

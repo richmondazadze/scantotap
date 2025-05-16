@@ -70,12 +70,16 @@ export default {
 					dark: '#0FA0CE',
 				},
 				'scan-mint': '#F2FCE2',
+				'scan-indigo': '#6366F1',
+				'scan-purple': '#8B5CF6',
 				'scan-dark': '#1A1F2C',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				xl: '1rem',
+				'2xl': '1.5rem',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -110,14 +114,22 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'float': 'float 5s ease-in-out infinite',
 				'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
-				'card-flip': 'card-flip 0.6s ease-out forwards'
+				'card-flip': 'card-flip 0.6s ease-out forwards',
+				'fade-in': 'fadeIn 0.6s ease-out forwards',
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 				'blue-mint-gradient': 'linear-gradient(135deg, #1EAEDB 0%, #F2FCE2 100%)',
+				'blue-indigo-gradient': 'linear-gradient(135deg, #1EAEDB 0%, #6366F1 100%)',
+				'indigo-purple-gradient': 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+				'hero-gradient': 'linear-gradient(135deg, #1EAEDB 0%, #6366F1 50%, #8B5CF6 100%)',
+				'card-gradient': 'linear-gradient(145deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.3) 100%)',
+				'cta-gradient': 'linear-gradient(135deg, #4F46E5 0%, #1EAEDB 100%)',
 			},
 			boxShadow: {
 				'glass': '0 8px 32px 0 rgba(30, 174, 219, 0.15)',
+				'card': '0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 2px 10px -3px rgba(0, 0, 0, 0.05)',
+				'button': '0 4px 14px 0 rgba(30, 174, 219, 0.39)',
 			}
 		}
 	},

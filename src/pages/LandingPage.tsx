@@ -7,13 +7,15 @@ import Footer from "@/components/Footer";
 import Card3D from "@/components/Card3D";
 import {
   ArrowRight,
-  Smartphone,
+  User,
   CreditCard,
   QrCode,
   Link as LinkIcon,
-  User,
   Globe,
   Phone,
+  Shield,
+  Smartphone,
+  Share2,
 } from "lucide-react";
 
 const LandingPage = () => {
@@ -44,7 +46,7 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-scan-mint/20">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-blue-50 to-scan-mint/20">
       <Navigation />
       
       {/* Hero section */}
@@ -52,26 +54,34 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row items-center">
             <div className="w-full lg:w-1/2 lg:pr-12">
+              <div className="mb-4">
+                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-scan-blue/10 text-scan-blue">
+                  Digital Identity Platform
+                </span>
+              </div>
               <h1 className="text-5xl sm:text-6xl font-bold leading-tight">
                 Your Digital Identity, <br />
-                <span className="text-gradient">One Tap Away</span>
+                <span className="bg-gradient-to-r from-scan-blue via-indigo-500 to-purple-500 bg-clip-text text-transparent">
+                  One Tap Away
+                </span>
               </h1>
               <p className="mt-6 text-lg text-gray-600 max-w-lg">
-                Connect instantly with a smart business card that blends physical elegance with digital convenience. 
-                Share your full professional profile with a simple tap or scan.
+                Connect offline to online in one scan. Bridge your physical and 
+                digital presence seamlessly.
               </p>
               <div className="mt-10 flex flex-wrap gap-4">
                 <Link to="/dashboard">
-                  <Button size="lg" className="group">
-                    Create Your Profile
+                  <Button 
+                    size="lg" 
+                    className="group bg-gradient-to-r from-scan-blue to-scan-blue-dark hover:opacity-90 rounded-xl shadow-lg shadow-scan-blue/20"
+                  >
+                    Reserve Your Card
                     <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
                   </Button>
                 </Link>
-                <Link to="/pricing">
-                  <Button variant="outline" size="lg">
-                    View Pricing
-                  </Button>
-                </Link>
+                <Button variant="outline" size="lg" className="rounded-xl">
+                  Learn More
+                </Button>
               </div>
             </div>
             <div className="w-full lg:w-1/2 mt-12 lg:mt-0 flex justify-center">
@@ -84,99 +94,100 @@ const LandingPage = () => {
       </section>
 
       {/* How it works section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-scan-blue/5">
+      <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 bg-white/40">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold">How It Works</h2>
             <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
-              Three simple steps to transform how you network and connect with others
+              Three simple steps to connect your offline and online presence
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 shadow-md border border-white/50 transform hover:translate-y-[-5px] transition-all">
-              <div className="bg-scan-blue/10 w-14 h-14 rounded-full flex items-center justify-center mb-6">
-                <User className="text-scan-blue" size={24} />
+            {[
+              {
+                icon: <User className="text-indigo-500" size={24} />,
+                title: "Create your profile",
+                description: "Build your digital identity with links, bio, and contact information"
+              },
+              {
+                icon: <CreditCard className="text-indigo-500" size={24} />,
+                title: "Get your QR card",
+                description: "Receive your personalized card with a unique QR code"
+              },
+              {
+                icon: <Share2 className="text-indigo-500" size={24} />,
+                title: "Share your identity in 1 scan",
+                description: "Connect with anyone instantly by having them scan your card"
+              }
+            ].map((step, i) => (
+              <div 
+                key={step.title}
+                className="glass-card p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
+              >
+                <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto">
+                  {step.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-center">{step.title}</h3>
+                <p className="text-gray-600 text-center">
+                  {step.description}
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Create Your Profile</h3>
-              <p className="text-gray-600">
-                Build your digital identity with links, bio, contact info, and personalization options.
-              </p>
-            </div>
-
-            <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 shadow-md border border-white/50 transform hover:translate-y-[-5px] transition-all">
-              <div className="bg-scan-blue/10 w-14 h-14 rounded-full flex items-center justify-center mb-6">
-                <QrCode className="text-scan-blue" size={24} />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Get Your QR Code</h3>
-              <p className="text-gray-600">
-                We generate a unique QR code that links directly to your professional profile.
-              </p>
-            </div>
-
-            <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 shadow-md border border-white/50 transform hover:translate-y-[-5px] transition-all">
-              <div className="bg-scan-blue/10 w-14 h-14 rounded-full flex items-center justify-center mb-6">
-                <CreditCard className="text-scan-blue" size={24} />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Receive Your Card</h3>
-              <p className="text-gray-600">
-                Get a premium smart business card with your QR code elegantly printed on it.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Features section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold">Powerful Features</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold">Features</h2>
             <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
-              Everything you need to make lasting connections in the digital age
+              Everything you need to create and share your digital identity
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               { 
-                icon: <QrCode className="text-scan-blue" size={24} />, 
-                title: "Dynamic QR Codes",
-                description: "Update your information anytime without needing a new physical card."
-              },
-              { 
-                icon: <LinkIcon className="text-scan-blue" size={24} />, 
-                title: "All Your Links",
-                description: "Display your social media, portfolio, resume, and custom links in one place."
+                icon: <User className="text-scan-blue" size={24} />, 
+                title: "Clean UI",
+                description: "Intuitive and modern interface for easy profile management"
               },
               { 
                 icon: <Smartphone className="text-scan-blue" size={24} />, 
-                title: "Mobile Optimization",
-                description: "Your profile looks perfect on any device, ensuring a great experience."
+                title: "Mobile Optimized",
+                description: "Perfect experience on any device, especially on mobile"
               },
               { 
-                icon: <Globe className="text-scan-blue" size={24} />, 
-                title: "Custom Domain",
-                description: "Use your own domain for a truly professional touchpoint."
+                icon: <Shield className="text-scan-blue" size={24} />, 
+                title: "Secure",
+                description: "End-to-end encryption and privacy controls for your data"
               },
               { 
-                icon: <Phone className="text-scan-blue" size={24} />, 
-                title: "Contact Integration",
-                description: "Visitors can save your contact details directly to their phone."
+                icon: <QrCode className="text-scan-blue" size={24} />, 
+                title: "QR/NFC Technology",
+                description: "Multiple scanning options for maximum compatibility"
               },
               { 
                 icon: <CreditCard className="text-scan-blue" size={24} />, 
-                title: "Premium Materials",
-                description: "High-quality cards that make a lasting impression with NFC technology."
+                title: "Printed Card",
+                description: "High-quality physical cards delivered to your door"
+              },
+              { 
+                icon: <Globe className="text-scan-blue" size={24} />, 
+                title: "Global Sharing",
+                description: "Connect with anyone, anywhere in the world instantly"
               }
             ].map((feature, i) => (
               <div
                 key={feature.title}
                 ref={(el) => (featureCardRefs.current[i] = el)}
-                className="glass-card p-6 opacity-0"
+                className="glass-card p-6 opacity-0 transition-all duration-300 hover:shadow-lg hover:border-scan-blue/30 group"
                 style={{ animationDelay: `${i * 100}ms` }}
               >
-                <div className="bg-scan-blue/10 w-12 h-12 rounded-full flex items-center justify-center mb-5">
+                <div className="bg-scan-blue/10 w-14 h-14 rounded-full flex items-center justify-center mb-5 group-hover:bg-scan-blue/20 transition-colors">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
@@ -188,15 +199,19 @@ const LandingPage = () => {
       </section>
 
       {/* CTA section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-scan-blue to-scan-blue-light text-white">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-indigo-600 via-blue-600 to-scan-blue text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold">Ready to Transform How You Connect?</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold">Ready to Transform Your Networking?</h2>
           <p className="mt-6 text-lg text-white/80 max-w-2xl mx-auto">
-            Join thousands of professionals who are making meaningful connections with ScanToTap's smart business cards.
+            Join thousands of professionals who are connecting in a smarter way
           </p>
           <div className="mt-10">
             <Link to="/dashboard">
-              <Button size="lg" variant="secondary" className="text-scan-blue">
+              <Button 
+                size="lg" 
+                variant="secondary" 
+                className="text-indigo-600 hover:bg-white hover:text-indigo-700 transition-colors rounded-xl"
+              >
                 Reserve Your Card
                 <ArrowRight className="ml-2" size={18} />
               </Button>
