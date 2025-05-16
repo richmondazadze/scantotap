@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import {
   Drawer,
   DrawerClose,
@@ -45,13 +46,14 @@ const Navigation = () => {
     { name: 'How It Works', path: '/#how-it-works', action: () => scrollToSection('how-it-works') },
     { name: 'Features', path: '/#features', action: () => scrollToSection('features') },
     { name: 'Pricing', path: '/pricing', action: () => {} },
+    { name: 'Contact', path: '/contact', action: () => {} },
   ];
 
   return (
     <nav 
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-white/10 backdrop-blur-lg border-b border-white/20 py-3' 
+          ? 'bg-white/10 dark:bg-black/20 backdrop-blur-lg border-b border-white/20 py-3' 
           : 'bg-transparent py-5'
       }`}
     >
@@ -75,8 +77,8 @@ const Navigation = () => {
                     }}
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                       isActive(link.path)
-                        ? 'text-scan-blue border-b-2 border-scan-blue' 
-                        : 'text-foreground hover:text-scan-blue hover:bg-scan-blue/10'
+                        ? 'text-scan-blue dark:text-scan-blue-light border-b-2 border-scan-blue dark:border-scan-blue-light' 
+                        : 'text-foreground hover:text-scan-blue dark:hover:text-scan-blue-light hover:bg-scan-blue/10'
                     }`}
                   >
                     {link.name}
@@ -86,26 +88,26 @@ const Navigation = () => {
             </div>
           </div>
 
-          <div className="hidden md:block">
-            <div className="flex items-center space-x-4">
-              <Link to="/dashboard">
-                <Button variant="ghost">Sign In</Button>
-              </Link>
-              <Link to="/dashboard">
-                <Button 
-                  className="bg-gradient-to-r from-scan-blue to-scan-blue-light hover:opacity-90 transition-opacity"
-                >
-                  Get Started
-                </Button>
-              </Link>
-            </div>
+          <div className="hidden md:flex items-center space-x-4">
+            <ThemeSwitcher />
+            <Link to="/dashboard">
+              <Button variant="ghost">Sign In</Button>
+            </Link>
+            <Link to="/dashboard">
+              <Button 
+                className="bg-gradient-to-r from-scan-blue to-scan-purple hover:opacity-90 transition-opacity"
+              >
+                Get Started
+              </Button>
+            </Link>
           </div>
 
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center">
+            <ThemeSwitcher />
             <Drawer>
               <DrawerTrigger asChild>
                 <button
-                  className="inline-flex items-center justify-center p-2 rounded-md text-primary focus:outline-none"
+                  className="inline-flex items-center justify-center p-2 rounded-md text-primary focus:outline-none ml-2"
                   aria-expanded="false"
                 >
                   <Menu size={24} />
@@ -133,7 +135,7 @@ const Navigation = () => {
                           }
                         }}
                         className={`px-3 py-4 rounded-md text-lg font-medium border-b border-gray-100 ${
-                          isActive(link.path) ? 'text-scan-blue' : 'text-foreground'
+                          isActive(link.path) ? 'text-scan-blue dark:text-scan-blue-light' : 'text-foreground'
                         }`}
                       >
                         {link.name}
@@ -144,7 +146,7 @@ const Navigation = () => {
                         <Button variant="outline" className="w-full">Sign In</Button>
                       </Link>
                       <Link to="/dashboard" className="w-full block">
-                        <Button className="w-full bg-gradient-to-r from-scan-blue to-scan-blue-light">
+                        <Button className="w-full bg-gradient-to-r from-scan-blue to-scan-purple">
                           Get Started
                         </Button>
                       </Link>

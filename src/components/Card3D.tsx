@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface Card3DProps {
@@ -46,7 +46,7 @@ const Card3D: React.FC<Card3DProps> = ({ className = "" }) => {
       style={{ perspective: '1000px' }}
     >
       <motion.div
-        className="w-full h-full rounded-xl bg-gradient-to-br from-scan-blue via-scan-blue-light to-scan-blue-dark shadow-lg overflow-hidden"
+        className="w-full h-full rounded-xl bg-gradient-to-br from-scan-blue via-scan-indigo to-scan-purple shadow-lg overflow-hidden"
         animate={{ 
           rotateX: rotate.x, 
           rotateY: rotate.y,
@@ -85,7 +85,7 @@ const Card3D: React.FC<Card3DProps> = ({ className = "" }) => {
           <div className="absolute bottom-5 right-5 flex space-x-1">
             <div className="w-2 h-2 rounded-full bg-blue-300"></div>
             <div className="w-2 h-2 rounded-full bg-indigo-300"></div>
-            <div className="w-2 h-2 rounded-full bg-scan-mint"></div>
+            <div className="w-2 h-2 rounded-full bg-purple-300"></div>
           </div>
         </div>
       </motion.div>
@@ -100,15 +100,6 @@ const Card3D: React.FC<Card3DProps> = ({ className = "" }) => {
           filter: 'blur(4px)',
         }}
       ></div>
-      
-      <style>
-        {`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-5px); }
-        }
-        `}
-      </style>
     </div>
   );
 };

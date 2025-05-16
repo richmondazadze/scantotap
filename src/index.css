@@ -19,7 +19,7 @@
     --primary: 197 79% 49%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 132 82% 94%;
+    --secondary: 260 84% 81%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
@@ -60,7 +60,7 @@
     --primary: 197 79% 49%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 132 82% 94%;
+    --secondary: 260 84% 70%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
@@ -105,7 +105,7 @@
   }
   
   .text-gradient {
-    @apply text-transparent bg-clip-text bg-blue-mint-gradient;
+    @apply text-transparent bg-clip-text bg-blue-purple-gradient;
   }
 
   /* Animation classes */

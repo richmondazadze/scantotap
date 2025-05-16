@@ -69,9 +69,12 @@ export default {
 					light: '#33C3F0',
 					dark: '#0FA0CE',
 				},
-				'scan-mint': '#F2FCE2',
+				'scan-purple': {
+					DEFAULT: '#8B5CF6',
+					light: '#A78BFA',
+					dark: '#7C3AED',
+				},
 				'scan-indigo': '#6366F1',
-				'scan-purple': '#8B5CF6',
 				'scan-dark': '#1A1F2C',
 			},
 			borderRadius: {
@@ -119,7 +122,7 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-				'blue-mint-gradient': 'linear-gradient(135deg, #1EAEDB 0%, #F2FCE2 100%)',
+				'blue-purple-gradient': 'linear-gradient(135deg, #1EAEDB 0%, #8B5CF6 100%)',
 				'blue-indigo-gradient': 'linear-gradient(135deg, #1EAEDB 0%, #6366F1 100%)',
 				'indigo-purple-gradient': 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
 				'hero-gradient': 'linear-gradient(135deg, #1EAEDB 0%, #6366F1 50%, #8B5CF6 100%)',
