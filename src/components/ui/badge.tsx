@@ -22,6 +22,8 @@ const badgeVariants = cva(
           "border-transparent bg-scan-purple text-white",
         blue:
           "border-transparent bg-scan-blue text-white",
+        gradient:
+          "border-transparent bg-blue-purple-gradient text-white",
       },
     },
     defaultVariants: {

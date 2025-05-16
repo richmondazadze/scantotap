@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/drawer";
 
 const Navigation = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
@@ -37,7 +36,6 @@ const Navigation = () => {
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
     }
-    setIsOpen(false);
   };
 
   // Navigation links configuration
@@ -53,7 +51,7 @@ const Navigation = () => {
     <nav 
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-white/10 dark:bg-black/20 backdrop-blur-lg border-b border-white/20 py-3' 
+          ? 'glassmorphism py-3 shadow-sm border-b border-white/10' 
           : 'bg-transparent py-5'
       }`}
     >
@@ -102,12 +100,12 @@ const Navigation = () => {
             </Link>
           </div>
 
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-4">
             <ThemeSwitcher />
             <Drawer>
               <DrawerTrigger asChild>
                 <button
-                  className="inline-flex items-center justify-center p-2 rounded-md text-primary focus:outline-none ml-2"
+                  className="inline-flex items-center justify-center p-2 rounded-md text-primary focus:outline-none"
                   aria-expanded="false"
                 >
                   <Menu size={24} />

@@ -16,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 197 79% 49%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 260 84% 81%;
@@ -33,7 +33,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 197 79% 49%;
+    --ring: 217 91% 60%;
 
     --radius: 0.75rem;
 
@@ -57,7 +57,7 @@
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 197 79% 49%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 260 84% 70%;
@@ -74,7 +74,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 197 79% 49%;
+    --ring: 217 91% 60%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -104,6 +104,10 @@
     @apply bg-white/20 backdrop-blur-md rounded-2xl border border-white/20 shadow-glass;
   }
   
+  .dark .glass-card {
+    @apply bg-scan-dark/40 border-white/10;
+  }
+  
   .text-gradient {
     @apply text-transparent bg-clip-text bg-blue-purple-gradient;
   }
@@ -129,7 +133,7 @@
   }
 
   .hover-glow {
-    @apply transition-all duration-300 hover:shadow-xl hover:shadow-scan-blue/20;
+    @apply transition-all duration-300 hover:shadow-glow-blue dark:hover:shadow-glow-purple;
   }
 
   .story-link {
@@ -151,6 +155,23 @@
   .card-3d:hover .card-3d-inner {
     transform: rotateY(5deg) rotateX(5deg);
   }
+  
+  /* Glassmorphism utilities */
+  .glassmorphism {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 dark:bg-scan-dark/30 dark:border-white/10;
+  }
+  
+  .glassmorphism-card {
+    @apply glassmorphism rounded-2xl shadow-glass transition-all hover:shadow-xl;
+  }
+  
+  .premium-card {
+    @apply rounded-2xl bg-gradient-to-br from-scan-blue to-scan-purple p-[2px] shadow-premium transition-all;
+  }
+  
+  .premium-card-inner {
+    @apply rounded-[calc(1rem-2px)] bg-white dark:bg-scan-dark h-full w-full p-6;
+  }
 }
 
 @keyframes float {
@@ -161,11 +182,11 @@
 @keyframes pulse-glow {
   0%, 100% { 
     opacity: 1;
-    box-shadow: 0 0 20px 2px rgba(30, 174, 219, 0.3) 
+    box-shadow: 0 0 20px 2px rgba(59, 130, 246, 0.3);
   }
   50% { 
     opacity: 0.8;
-    box-shadow: 0 0 30px 4px rgba(30, 174, 219, 0.5) 
+    box-shadow: 0 0 30px 4px rgba(59, 130, 246, 0.5);
   }
 }
 

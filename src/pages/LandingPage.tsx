@@ -46,7 +46,7 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-blue-50 to-purple-50 dark:from-scan-dark dark:to-indigo-950/40">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50/50 to-purple-50/50 dark:from-scan-dark dark:via-scan-dark/95 dark:to-scan-dark/90">
       <Navigation />
       
       {/* Hero section */}
@@ -75,17 +75,23 @@ const LandingPage = () => {
                     size="lg" 
                     radius="xl"
                     variant="gradient"
-                    className="group shadow-lg shadow-scan-blue/20"
+                    animation="glow"
+                    className="group shadow-lg"
                   >
                     Reserve Your Card
-                    <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+                    <ArrowRight className="ml-1 group-hover:translate-x-1 transition-transform" size={18} />
                   </Button>
                 </Link>
                 <Link to="#how-it-works" onClick={(e) => {
                   e.preventDefault();
                   document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
                 }}>
-                  <Button variant="outline" size="lg" radius="xl">
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    radius="xl"
+                    animation="scale"
+                  >
                     Learn More
                   </Button>
                 </Link>
@@ -130,9 +136,9 @@ const LandingPage = () => {
             ].map((step, i) => (
               <div 
                 key={step.title}
-                className="glass-card p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:bg-white/5 dark:border-white/10"
+                className="glassmorphism-card p-8 transition-all duration-300 hover:-translate-y-2"
               >
-                <div className="bg-scan-purple/10 dark:bg-scan-purple/20 w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto">
+                <div className="bg-blue-purple-gradient w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto shadow-lg">
                   {step.icon}
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-center">{step.title}</h3>
@@ -191,10 +197,10 @@ const LandingPage = () => {
               <div
                 key={feature.title}
                 ref={(el) => (featureCardRefs.current[i] = el)}
-                className="glass-card p-6 opacity-0 transition-all duration-300 hover:shadow-lg hover:border-scan-blue/30 group dark:bg-white/5 dark:border-white/10"
+                className="glassmorphism-card p-6 opacity-0 hover:border-scan-blue/20 group"
                 style={{ animationDelay: `${i * 100}ms` }}
               >
-                <div className="bg-scan-blue/10 dark:bg-scan-blue/20 w-14 h-14 rounded-full flex items-center justify-center mb-5 group-hover:bg-scan-blue/20 dark:group-hover:bg-scan-blue/30 transition-colors">
+                <div className="bg-gradient-to-br from-scan-blue/20 to-scan-purple/20 dark:from-scan-blue/10 dark:to-scan-purple/10 w-14 h-14 rounded-full flex items-center justify-center mb-5 group-hover:bg-blue-purple-gradient group-hover:text-white transition-colors">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
@@ -218,6 +224,7 @@ const LandingPage = () => {
                 size="lg" 
                 variant="secondary" 
                 radius="xl"
+                animation="scale"
                 className="text-scan-purple hover:bg-white hover:text-scan-purple-dark transition-colors"
               >
                 Reserve Your Card

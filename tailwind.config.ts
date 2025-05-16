@@ -63,19 +63,19 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// ScanToTap custom colors
+				// ScanToTap custom colors - refined to blue and purple
 				'scan-blue': {
-					DEFAULT: '#1EAEDB',
-					light: '#33C3F0',
-					dark: '#0FA0CE',
+					DEFAULT: '#3B82F6', // Updated to match your specified blue
+					light: '#60A5FA',
+					dark: '#2563EB',
 				},
 				'scan-purple': {
-					DEFAULT: '#8B5CF6',
+					DEFAULT: '#8B5CF6', // Updated to match your specified purple
 					light: '#A78BFA',
 					dark: '#7C3AED',
 				},
 				'scan-indigo': '#6366F1',
-				'scan-dark': '#1A1F2C',
+				'scan-dark': '#111827', // Updated to match your charcoal color
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -100,16 +100,24 @@ export default {
 				'pulse-glow': {
 					'0%, 100%': { 
 						opacity: '1',
-						boxShadow: '0 0 20px 2px rgba(30, 174, 219, 0.3)' 
+						boxShadow: '0 0 20px 2px rgba(59, 130, 246, 0.3)' // Updated to blue
 					},
 					'50%': { 
 						opacity: '0.8',
-						boxShadow: '0 0 30px 4px rgba(30, 174, 219, 0.5)' 
+						boxShadow: '0 0 30px 4px rgba(59, 130, 246, 0.5)' // Updated to blue 
 					}
 				},
 				'card-flip': {
 					'0%': { transform: 'rotateY(0deg)' },
 					'100%': { transform: 'rotateY(180deg)' }
+				},
+				'border-glow': {
+					'0%, 100%': { 
+						borderColor: 'rgba(59, 130, 246, 0.6)' // Blue glow
+					},
+					'50%': { 
+						borderColor: 'rgba(139, 92, 246, 0.6)' // Purple glow
+					}
 				}
 			},
 			animation: {
@@ -119,20 +127,24 @@ export default {
 				'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
 				'card-flip': 'card-flip 0.6s ease-out forwards',
 				'fade-in': 'fadeIn 0.6s ease-out forwards',
+				'border-glow': 'border-glow 3s infinite ease-in-out',
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-				'blue-purple-gradient': 'linear-gradient(135deg, #1EAEDB 0%, #8B5CF6 100%)',
-				'blue-indigo-gradient': 'linear-gradient(135deg, #1EAEDB 0%, #6366F1 100%)',
+				'blue-purple-gradient': 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+				'blue-indigo-gradient': 'linear-gradient(135deg, #3B82F6 0%, #6366F1 100%)',
 				'indigo-purple-gradient': 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
-				'hero-gradient': 'linear-gradient(135deg, #1EAEDB 0%, #6366F1 50%, #8B5CF6 100%)',
+				'hero-gradient': 'linear-gradient(135deg, #3B82F6 0%, #6366F1 50%, #8B5CF6 100%)',
 				'card-gradient': 'linear-gradient(145deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.3) 100%)',
-				'cta-gradient': 'linear-gradient(135deg, #4F46E5 0%, #1EAEDB 100%)',
+				'cta-gradient': 'linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%)',
 			},
 			boxShadow: {
-				'glass': '0 8px 32px 0 rgba(30, 174, 219, 0.15)',
+				'glass': '0 8px 32px 0 rgba(59, 130, 246, 0.15)',
 				'card': '0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 2px 10px -3px rgba(0, 0, 0, 0.05)',
-				'button': '0 4px 14px 0 rgba(30, 174, 219, 0.39)',
+				'button': '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
+				'premium': '0 0 15px 2px rgba(139, 92, 246, 0.3)',
+				'glow-blue': '0 0 15px rgba(59, 130, 246, 0.5)',
+				'glow-purple': '0 0 15px rgba(139, 92, 246, 0.5)',
 			}
 		}
 	},

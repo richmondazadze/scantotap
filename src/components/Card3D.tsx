@@ -51,8 +51,8 @@ const Card3D: React.FC<Card3DProps> = ({ className = "" }) => {
           rotateX: rotate.x, 
           rotateY: rotate.y,
           boxShadow: isHovered 
-            ? '0 20px 40px rgba(0, 0, 0, 0.2), 0 0 20px rgba(30, 174, 219, 0.4)' 
-            : '0 10px 20px rgba(0, 0, 0, 0.1), 0 0 10px rgba(30, 174, 219, 0.2)'
+            ? '0 20px 40px rgba(0, 0, 0, 0.2), 0 0 20px rgba(59, 130, 246, 0.4)' 
+            : '0 10px 20px rgba(0, 0, 0, 0.1), 0 0 10px rgba(59, 130, 246, 0.2)'
         }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         style={{
@@ -94,7 +94,7 @@ const Card3D: React.FC<Card3DProps> = ({ className = "" }) => {
       <div 
         className="absolute w-full h-20 bottom-[-20px] left-0"
         style={{ 
-          backgroundImage: 'linear-gradient(to bottom, rgba(30, 174, 219, 0.2), transparent)',
+          backgroundImage: 'linear-gradient(to bottom, rgba(59, 130, 246, 0.2), transparent)',
           transform: 'rotateX(180deg) translateY(20px)',
           opacity: 0.4,
           filter: 'blur(4px)',
