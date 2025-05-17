@@ -58,7 +58,7 @@ const Navigation = () => {
     <nav 
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'glassmorphism py-3 shadow-sm border-b border-white/10' 
+          ? 'bg-white/30 backdrop-blur-xl border border-white/30 shadow-lg dark:bg-scan-dark/40 dark:border-white/20 py-3' 
           : 'bg-transparent py-5'
       }`}
     >

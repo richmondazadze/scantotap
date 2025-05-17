@@ -5,24 +5,22 @@ export default function Scan2TapLogo() {
   return (
     <div className="flex items-center space-x-3 sm:space-x-4">
       <div className="relative">
-        {/* Intensified Glow for Light Mode */}
+        {/* Stable Glow for Light Mode (no scale animation) */}
         <motion.div
-          initial={{ opacity: 1, scale: 0.98 }}
-          animate={{ 
-            opacity: [1, 1.15, 1], 
-            scale: [0.98, 1.12, 0.98] 
-          }}
-          transition={{ 
-            duration: 2.5, 
-            repeat: Infinity, 
-            repeatType: "mirror", 
-            ease: "easeInOut" 
+          initial={{ opacity: 1 }}
+          animate={{ opacity: [1, 1.15, 1] }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            repeatType: "mirror",
+            ease: "easeInOut"
           }}
           className="absolute inset-0 z-0 rounded-xl pointer-events-none dark:hidden"
           style={{
             background: "radial-gradient(circle at 75% 25%, #3B82F6 0%, #8B5CF6 100%)",
             filter: "blur(48px)",
             opacity: 1,
+            willChange: "opacity"
           }}
         />
         {/* No glow in dark mode (hidden) */}
