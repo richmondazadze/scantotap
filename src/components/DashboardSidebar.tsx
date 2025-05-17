@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -49,7 +48,7 @@ const DashboardSidebar = () => {
           {/* Logo */}
           <div className="p-4 border-b border-white/20">
             <Link to="/" className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-gradient">ScanToTap</h1>
+              <h1 className="text-2xl font-bold text-gradient">Scan2Tap</h1>
             </Link>
           </div>
 

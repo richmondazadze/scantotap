@@ -1,22 +1,31 @@
 import { QrCode } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Scan2TapLogo() {
   return (
     <div className="flex items-center space-x-3 sm:space-x-4">
       <div className="relative">
-        {/* Blue-to-purple gradient background matching hero */}
-        <div className="absolute inset-0 rounded-xl blur-[6px] opacity-90 transition-colors duration-300"
+        {/* Intensified Glow for Light Mode */}
+        <motion.div
+          initial={{ opacity: 1, scale: 0.98 }}
+          animate={{ 
+            opacity: [1, 1.15, 1], 
+            scale: [0.98, 1.12, 0.98] 
+          }}
+          transition={{ 
+            duration: 2.5, 
+            repeat: Infinity, 
+            repeatType: "mirror", 
+            ease: "easeInOut" 
+          }}
+          className="absolute inset-0 z-0 rounded-xl pointer-events-none dark:hidden"
           style={{
-            background:
-              'linear-gradient(90deg, #3B82F6 0%, #8B5CF6 100%)',
+            background: "radial-gradient(circle at 75% 25%, #3B82F6 0%, #8B5CF6 100%)",
+            filter: "blur(48px)",
+            opacity: 1,
           }}
         />
-        <div className="absolute inset-0 rounded-xl blur-[6px] opacity-80 transition-colors duration-300 dark:opacity-90 dark:block hidden"
-          style={{
-            background:
-              'linear-gradient(90deg, #111827 0%, #6366F1 100%)',
-          }}
-        />
+        {/* No glow in dark mode (hidden) */}
         <img
           src="/logo.png"
           alt="Scan2Tap Logo"

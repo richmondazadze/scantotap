@@ -92,7 +92,7 @@ const Footer = () => {
                           <p>Last updated: May 16, 2025</p>
                           
                           <h3 className="text-lg font-semibold">1. Data Collection</h3>
-                          <p>We collect personal information that you voluntarily provide when creating your ScanToTap profile, including your name, email address, profile image, contact information, and any links you choose to add to your profile.</p>
+                          <p>We collect personal information that you voluntarily provide when creating your Scan2Tap profile, including your name, email address, profile image, contact information, and any links you choose to add to your profile.</p>
                           
                           <h3 className="text-lg font-semibold">2. QR Code Access</h3>
                           <p>When someone scans your QR code, we collect basic analytics data such as time of scan, approximate location (city/country level), and device type. This information is used to provide you with insights about your profile's visibility.</p>
@@ -131,22 +131,22 @@ const Footer = () => {
                           <p>Last updated: May 16, 2025</p>
                           
                           <h3 className="text-lg font-semibold">1. Acceptance of Terms</h3>
-                          <p>By accessing or using ScanToTap services, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
+                          <p>By accessing or using Scan2Tap services, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
                           
                           <h3 className="text-lg font-semibold">2. User Accounts</h3>
-                          <p>You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. You must immediately notify ScanToTap of any unauthorized use of your account.</p>
+                          <p>You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. You must immediately notify Scan2Tap of any unauthorized use of your account.</p>
                           
                           <h3 className="text-lg font-semibold">3. Identity Ownership</h3>
                           <p>You retain all rights to the content you add to your profile. By using our services, you grant us a license to display and process this content as needed to provide our services.</p>
                           
                           <h3 className="text-lg font-semibold">4. Prohibited Content</h3>
-                          <p>You may not use ScanToTap to share illegal, harmful, threatening, abusive, harassing, defamatory, or otherwise objectionable content.</p>
+                          <p>You may not use Scan2Tap to share illegal, harmful, threatening, abusive, harassing, defamatory, or otherwise objectionable content.</p>
                           
                           <h3 className="text-lg font-semibold">5. Service Modifications</h3>
-                          <p>ScanToTap reserves the right to modify or discontinue the service at any time, with or without notice.</p>
+                          <p>Scan2Tap reserves the right to modify or discontinue the service at any time, with or without notice.</p>
                           
                           <h3 className="text-lg font-semibold">6. Termination</h3>
-                          <p>ScanToTap may terminate your access to the service, without cause or notice, which may result in the deletion of all information associated with your account.</p>
+                          <p>Scan2Tap may terminate your access to the service, without cause or notice, which may result in the deletion of all information associated with your account.</p>
                           
                           <h3 className="text-lg font-semibold">7. Contact</h3>
                           <p>If you have any questions about these Terms, please contact us at terms@scantotap.com.</p>

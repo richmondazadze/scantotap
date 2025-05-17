@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -172,10 +171,10 @@ const ProfilePage = () => {
         
         <div className="text-center mt-10">
           <p className="text-xs text-gray-500">
-            Powered by <span className="text-scan-blue font-semibold">ScanToTap</span>
+            Powered by <span className="text-scan-blue font-semibold">Scan2Tap</span>
           </p>
           <p className="text-xs text-gray-500 mt-1">
-            Create your own digital business card at <a href="/" className="text-scan-blue hover:underline">scantotap.com</a>
+            Create your own digital business card at <a href="/" className="text-scan-blue hover:underline">scan2tap.com</a>
           </p>
         </div>
       </div>
