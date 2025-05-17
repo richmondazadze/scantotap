@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import * as SwitchPrimitives from "@radix-ui/react-switch"
 import { Moon, Sun } from "lucide-react"
@@ -19,12 +18,12 @@ const Switch = React.forwardRef<
   >
     <SwitchPrimitives.Thumb
       className={cn(
-        "pointer-events-none flex items-center justify-center block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+        "pointer-events-none flex items-center justify-center h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
       )}
     >
       {props.checked ? 
-        <Moon className="h-3 w-3 text-scan-purple" /> : 
-        <Sun className="h-3 w-3 text-scan-blue" />
+        <Moon className="h-4 w-4 text-scan-purple" /> : 
+        <Sun className="h-4 w-4 text-scan-blue" />
       }
     </SwitchPrimitives.Thumb>
   </SwitchPrimitives.Root>

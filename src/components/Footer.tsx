@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -9,7 +8,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Twitter, Linkedin, Instagram, FileText, Shield } from "lucide-react";
+import { Twitter, Linkedin, Instagram, FileText, Shield, QrCode } from "lucide-react";
+import Scan2TapLogo from "@/components/Scan2TapLogo";
 
 const Footer = () => {
   return (
@@ -17,11 +17,11 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <Link to="/" className="flex-shrink-0">
-              <h2 className="text-2xl font-bold text-gradient">ScanToTap</h2>
+            <Link to="/" className="flex-shrink-0 flex items-center gap-2">
+              <Scan2TapLogo />
             </Link>
             <p className="mt-4 text-sm text-gray-300 max-w-md">
-              Your digital identity, one tap away. ScanToTap helps professionals connect instantly with a smart business card that's as unique as you are.
+              Your digital identity, one tap away. Scan2Tap helps professionals connect instantly with a smart business card that's as unique as you are.
             </p>
             <div className="mt-6 space-x-4 flex">
               <a href="#" className="text-scan-blue-light hover:text-scan-blue transition-colors hover:scale-110 transform">
@@ -162,7 +162,7 @@ const Footer = () => {
 
         <div className="mt-12 pt-8 border-t border-gray-800">
           <p className="text-sm text-gray-400">
-            © {new Date().getFullYear()} ScanToTap. All rights reserved.
+            © {new Date().getFullYear()} Scan2Tap. All rights reserved.
           </p>
         </div>
       </div>

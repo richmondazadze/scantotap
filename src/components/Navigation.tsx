@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, QrCode } from "lucide-react";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import {
   Drawer,
@@ -10,6 +9,8 @@ import {
   DrawerContent,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import Scan2TapLogo from "@/components/Scan2TapLogo";
+import { motion } from "framer-motion";
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,6 +33,12 @@ const Navigation = () => {
 
   // Scroll to section when clicking on anchor links
   const scrollToSection = (sectionId: string) => {
+    // If we're not on the home page, navigate to home first
+    if (location.pathname !== '/') {
+      window.location.href = `/#${sectionId}`;
+      return;
+    }
+    
     const section = document.getElementById(sectionId);
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
@@ -58,8 +65,8 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-gradient">ScanToTap</h1>
+            <Link to="/" className="flex-shrink-0 flex items-center gap-2">
+              <Scan2TapLogo />
             </Link>
             <div className="hidden md:block ml-10">
               <div className="flex items-center space-x-6">
@@ -73,13 +80,27 @@ const Navigation = () => {
                         link.action();
                       }
                     }}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 relative group ${
                       isActive(link.path)
-                        ? 'text-scan-blue dark:text-scan-blue-light border-b-2 border-scan-blue dark:border-scan-blue-light' 
-                        : 'text-foreground hover:text-scan-blue dark:hover:text-scan-blue-light hover:bg-scan-blue/10'
+                        ? 'text-scan-blue dark:text-scan-blue-light' 
+                        : 'text-foreground hover:text-scan-blue dark:hover:text-scan-blue-light'
                     }`}
                   >
                     {link.name}
+                    {isActive(link.path) && (
+                      <motion.div
+                        layoutId="activeTab"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    )}
+                    <motion.div
+                      className="absolute inset-0 rounded-md bg-scan-blue/5 dark:bg-scan-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      initial={false}
+                      animate={{ opacity: isActive(link.path) ? 1 : 0 }}
+                    />
                   </Link>
                 ))}
               </div>
@@ -114,8 +135,8 @@ const Navigation = () => {
               <DrawerContent className="h-[85vh]">
                 <div className="px-4 py-6">
                   <div className="flex items-center justify-between mb-6">
-                    <Link to="/" className="flex-shrink-0">
-                      <h1 className="text-2xl font-bold text-gradient">ScanToTap</h1>
+                    <Link to="/" className="flex-shrink-0 flex items-center gap-2">
+                      <Scan2TapLogo />
                     </Link>
                     <DrawerClose>
                       <X size={24} />
@@ -132,11 +153,27 @@ const Navigation = () => {
                             link.action();
                           }
                         }}
-                        className={`px-3 py-4 rounded-md text-lg font-medium border-b border-gray-100 ${
-                          isActive(link.path) ? 'text-scan-blue dark:text-scan-blue-light' : 'text-foreground'
+                        className={`px-3 py-4 rounded-md text-lg font-medium relative group ${
+                          isActive(link.path) 
+                            ? 'text-scan-blue dark:text-scan-blue-light' 
+                            : 'text-foreground'
                         }`}
                       >
                         {link.name}
+                        {isActive(link.path) && (
+                          <motion.div
+                            layoutId="mobileActiveTab"
+                            className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-scan-blue via-scan-purple to-scan-blue"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.3 }}
+                          />
+                        )}
+                        <motion.div
+                          className="absolute inset-0 rounded-md bg-scan-blue/5 dark:bg-scan-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          initial={false}
+                          animate={{ opacity: isActive(link.path) ? 1 : 0 }}
+                        />
                       </Link>
                     ))}
                     <div className="pt-4 pb-3 space-y-4">
