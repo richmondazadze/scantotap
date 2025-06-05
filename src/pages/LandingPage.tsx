@@ -100,7 +100,7 @@ const LandingPage = () => {
       <motion.section 
         ref={heroRef}
         style={{ y: heroY, opacity: heroOpacity }}
-        className="flex items-center min-h-screen pt-12 pb-2 px-4 sm:px-6 lg:px-8 overflow-visible relative z-20"
+        className="flex items-center min-h-screen pt-24 sm:pt-20 md:pt-16 pb-2 px-4 sm:px-6 lg:px-8 overflow-visible relative z-20"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center justify-center w-full">
           <motion.div 
@@ -115,9 +115,9 @@ const LandingPage = () => {
               transition={{ duration: 0.4, delay: 0.4 }}
               className="mb-4 w-full flex justify-center"
             >
-              <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-scan-blue/10 text-scan-blue dark:bg-scan-blue/20 dark:text-scan-blue-light">
-                Digital Identity Platform
-              </span>
+                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-scan-blue/10 text-scan-blue dark:bg-scan-blue/20 dark:text-scan-blue-light">
+                  Digital Identity Platform
+                </span>
             </motion.div>
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
@@ -125,10 +125,10 @@ const LandingPage = () => {
               transition={{ duration: 0.6, delay: 0.6 }}
               className="text-4xl md:text-6xl font-bold leading-tight text-center w-full"
             >
-              Your Digital Identity, <br />
-              <span className="bg-gradient-to-r from-scan-blue via-indigo-500 to-scan-purple bg-clip-text text-transparent">
-                One Tap Away
-              </span>
+                Your Digital Identity, <br />
+                <span className="bg-gradient-to-r from-scan-blue via-indigo-500 to-scan-purple bg-clip-text text-transparent">
+                  One Tap Away
+                </span>
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
@@ -145,13 +145,13 @@ const LandingPage = () => {
               className="mt-10 flex flex-col sm:flex-row flex-wrap gap-4 w-full justify-center"
             >
               <Link to="/dashboard" className="w-full sm:w-auto">
-                <Button 
-                  size="lg" 
-                  radius="xl"
-                  variant="gradient"
-                  animation="glow"
+                  <Button 
+                    size="lg" 
+                    radius="xl"
+                    variant="gradient"
+                    animation="glow"
                   className="group shadow-lg hover:scale-105 hover:shadow-2xl hover:ring-2 hover:ring-scan-blue/30 transition-transform w-full sm:w-auto"
-                >
+                  >
                   <span className="flex items-center">
                     Reserve Your Card
                     <motion.span
@@ -162,22 +162,22 @@ const LandingPage = () => {
                       <ArrowRight size={18} />
                     </motion.span>
                   </span>
-                </Button>
-              </Link>
+                  </Button>
+                </Link>
               <Link to="#how-it-works" className="w-full sm:w-auto" onClick={(e) => {
-                e.preventDefault();
-                document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
-              }}>
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  radius="xl"
-                  animation="scale"
+                  e.preventDefault();
+                  document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                }}>
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    radius="xl"
+                    animation="scale"
                   className="hover:scale-105 hover:shadow-md hover:ring-1 hover:ring-scan-blue/30 transition-transform w-full sm:w-auto"
-                >
-                  Learn More
-                </Button>
-              </Link>
+                  >
+                    Learn More
+                  </Button>
+                </Link>
             </motion.div>
           </motion.div>
           <motion.div 
@@ -204,7 +204,7 @@ const LandingPage = () => {
               }}
             />
           </motion.div>
-        </div>
+              </div>
       </motion.section>
 
       {/* 3D Aesthetic Futuristic Gradient Divider (after hero) */}
@@ -481,18 +481,18 @@ const LandingPage = () => {
           >
             <Link to="/dashboard">
               <Button 
-                size="lg"
+                size="lg" 
                 variant="default"
                 radius="xl"
-                className="bg-white text-scan-blue font-bold shadow-xl hover:bg-scan-white hover:text-blue hover:scale-105 hover:shadow-2xl transition-transform px-10 py-5 text-lg border border-scan-blue"
+                className="bg-white text-scan-blue font-bold shadow-xl hover:bg-scan-white hover:text-blue hover:scale-105 hover:shadow-2xl transition-transform px-10 py-5 text-1.5xs border border-scan-blue"
               >
                 <motion.span
                   initial={{ x: 0 }}
                   whileHover={{ x: 5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                   className="flex items-center"
-                >
-                  Reserve Your Card
+              >
+                Reserve Your Card
                   <ArrowRight className="ml-2 text-scan-blue" size={24} />
                 </motion.span>
               </Button>
@@ -504,7 +504,7 @@ const LandingPage = () => {
       {/* Gradient Fade Divider for Smooth Transition to Footer */}
       <div className="w-full h-3 -mt-3 relative z-10">
         <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-transparent to-[#111827] dark:to-[#0a0a23]" />
-      </div>
+        </div>
 
       <Footer />
     </div>

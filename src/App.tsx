@@ -14,34 +14,67 @@ import NotFound from "./pages/NotFound";
 import { ProfileProvider } from "./contexts/ProfileContext";
 import React from "react";
 import ScrollToTop from "./ScrollToTop";
+import { AuthProvider } from "./contexts/AuthContext";
+import AuthPage from "./pages/AuthPage";
+import QRCodePage from './pages/QRCodePage';
+import DashboardLayout from './pages/DashboardLayout';
+import DashboardProfile from './pages/DashboardProfile';
+import DashboardQR from './pages/DashboardQR';
+import DashboardOrder from './pages/DashboardOrder';
+import DashboardShipping from './pages/DashboardShipping';
+import DashboardSettings from './pages/DashboardSettings';
 
 // Create a client
 const queryClient = new QueryClient();
+
+// Add global styles for scroll behavior
+const globalStyles = `
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    overflow-x: hidden;
+    min-height: 100vh;
+    position: relative;
+  }
+`;
 
 const App = () => {
   return (
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
+        <AuthProvider>
         <ProfileProvider>
           <ThemeProvider attribute="class" defaultTheme="light">
             <TooltipProvider>
+                <style>{globalStyles}</style>
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                <ScrollToTop />
+                  <ScrollToTop />
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/pricing" element={<PricingPage />} />
                   <Route path="/contact" element={<ContactPage />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/dashboard" element={<DashboardLayout />}>
+                      <Route path="profile" element={<DashboardProfile />} />
+                      <Route path="qr" element={<DashboardQR />} />
+                      <Route path="order" element={<DashboardOrder />} />
+                      <Route path="shipping" element={<DashboardShipping />} />
+                      <Route path="settings" element={<DashboardSettings />} />
+                      <Route index element={<DashboardProfile />} />
+                    </Route>
                   <Route path="/profile/:id" element={<ProfilePage />} />
                   <Route path="/admin" element={<AdminPage />} />
+                    <Route path="/auth" element={<AuthPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
             </TooltipProvider>
           </ThemeProvider>
         </ProfileProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </React.StrictMode>
   );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, QrCode } from "lucide-react";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -11,10 +11,13 @@ import {
 } from "@/components/ui/drawer";
 import Scan2TapLogo from "@/components/Scan2TapLogo";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { session } = useAuth();
+  const navigate = useNavigate();
 
   // Add scroll event listener to change navigation style
   useEffect(() => {
@@ -48,8 +51,6 @@ const Navigation = () => {
   // Navigation links configuration
   const navLinks = [
     { name: 'Home', path: '/', action: () => {} },
-    { name: 'How It Works', path: '/#how-it-works', action: () => scrollToSection('how-it-works') },
-    { name: 'Features', path: '/#features', action: () => scrollToSection('features') },
     { name: 'Pricing', path: '/pricing', action: () => {} },
     { name: 'Contact', path: '/contact', action: () => {} },
   ];
@@ -64,11 +65,13 @@ const Navigation = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
+          <div className="flex items-center flex-shrink-0">
             <Link to="/" className="flex-shrink-0 flex items-center gap-2">
               <Scan2TapLogo />
             </Link>
-            <div className="hidden md:block ml-10">
+          </div>
+
+          <div className="hidden md:flex flex-1 justify-center">
               <div className="flex items-center space-x-6">
                 {navLinks.map((link) => (
                   <Link 
@@ -80,45 +83,41 @@ const Navigation = () => {
                         link.action();
                       }
                     }}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 relative group ${
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 relative group ${
                       isActive(link.path)
-                        ? 'text-scan-blue dark:text-scan-blue-light' 
-                        : 'text-foreground hover:text-scan-blue dark:hover:text-scan-blue-light'
+                      ? 'text-scan-blue dark:text-scan-blue-light' 
+                      : 'text-foreground hover:text-scan-blue dark:hover:text-scan-blue-light'
                     }`}
                   >
                     {link.name}
-                    {isActive(link.path) && (
-                      <motion.div
-                        layoutId="activeTab"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    )}
+                  {isActive(link.path) && (
                     <motion.div
-                      className="absolute inset-0 rounded-md bg-scan-blue/5 dark:bg-scan-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      initial={false}
-                      animate={{ opacity: isActive(link.path) ? 1 : 0 }}
+                      layoutId="activeTab"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
                     />
+                  )}
+                  <motion.div
+                    className="absolute inset-0 rounded-md bg-scan-blue/5 dark:bg-scan-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    initial={false}
+                    animate={{ opacity: isActive(link.path) ? 1 : 0 }}
+                  />
                   </Link>
                 ))}
-              </div>
             </div>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
             <ThemeSwitcher />
-            <Link to="/dashboard">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-            <Link to="/dashboard">
+            <Button variant="ghost" onClick={() => navigate(session ? "/dashboard" : "/auth")}>Sign In</Button>
               <Button 
                 className="bg-gradient-to-r from-scan-blue to-scan-purple hover:opacity-90 transition-opacity"
+              onClick={() => navigate(session ? "/dashboard" : "/auth")}
               >
                 Get Started
               </Button>
-            </Link>
           </div>
 
           <div className="md:hidden flex items-center gap-4">
@@ -132,8 +131,8 @@ const Navigation = () => {
                   <Menu size={24} />
                 </button>
               </DrawerTrigger>
-              <DrawerContent className="h-[85vh]">
-                <div className="px-4 py-6">
+              <DrawerContent className="max-h-[90vh] pb-8">
+                <div className="px-4 pt-6 pb-2">
                   <div className="flex items-center justify-between mb-6">
                     <Link to="/" className="flex-shrink-0 flex items-center gap-2">
                       <Scan2TapLogo />
@@ -176,15 +175,11 @@ const Navigation = () => {
                         />
                       </Link>
                     ))}
-                    <div className="pt-4 pb-3 space-y-4">
-                      <Link to="/dashboard" className="w-full block">
-                        <Button variant="outline" className="w-full">Sign In</Button>
-                      </Link>
-                      <Link to="/dashboard" className="w-full block">
-                        <Button className="w-full bg-gradient-to-r from-scan-blue to-scan-purple">
+                    <div className="pt-4 pb-0 space-y-4">
+                      <Button variant="outline" className="w-full" onClick={() => navigate(session ? "/dashboard" : "/auth")}>Sign In</Button>
+                      <Button className="w-full bg-gradient-to-r from-scan-blue to-scan-purple" onClick={() => navigate(session ? "/dashboard" : "/auth")}>
                           Get Started
                         </Button>
-                      </Link>
                     </div>
                   </div>
                 </div>

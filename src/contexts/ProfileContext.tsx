@@ -1,95 +1,66 @@
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from './AuthContext';
 
-import React, { createContext, useState, useContext } from "react";
-
-export type SocialLink = {
-  platform: string;
-  url: string;
-  icon: string;
-};
-
-export type ProfileData = {
+interface Profile {
   id: string;
+  user_id: string;
+  slug?: string;
   name: string;
-  title: string;
-  bio: string;
-  avatar: string;
-  links: SocialLink[];
-  email: string;
-  phone: string;
-  website: string;
-  location: string;
-};
+  title?: string;
+  bio?: string;
+  avatar_url?: string;
+  links?: any[];
+  created_at?: string;
+  updated_at?: string;
+  phone?: string;
+}
 
-type ProfileContextType = {
-  profile: ProfileData | null;
-  updateProfile: (data: Partial<ProfileData>) => void;
-  updateLink: (index: number, link: SocialLink) => void;
-  addLink: (link: SocialLink) => void;
-  removeLink: (index: number) => void;
-};
-
-const defaultProfile: ProfileData = {
-  id: "user1",
-  name: "Alex Johnson",
-  title: "Product Designer & Developer",
-  bio: "Creating digital experiences that blend innovation with usability. Passionate about UI/UX and emerging technologies.",
-  avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80",
-  links: [
-    { platform: "linkedin", url: "https://linkedin.com/in/alexjohnson", icon: "linkedin" },
-    { platform: "twitter", url: "https://twitter.com/alexjohnson", icon: "twitter" },
-    { platform: "github", url: "https://github.com/alexjohnson", icon: "github" },
-    { platform: "dribbble", url: "https://dribbble.com/alexjohnson", icon: "dribbble" }
-  ],
-  email: "alex@example.com",
-  phone: "+1 (555) 123-4567",
-  website: "https://alexjohnson.design",
-  location: "San Francisco, CA"
-};
+interface ProfileContextType {
+  profile: Profile | null;
+  loading: boolean;
+  refreshProfile: () => void;
+  setProfile: (profile: Profile) => void;
+}
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
-export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [profile, setProfile] = useState<ProfileData | null>(defaultProfile);
+export function ProfileProvider({ children }: { children: ReactNode }) {
+  const { session } = useAuth();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const updateProfile = (data: Partial<ProfileData>) => {
-    setProfile(prev => prev ? { ...prev, ...data } : null);
+  const fetchProfile = async () => {
+    if (!session?.user.id) return;
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+    if (!error && data) setProfile(data);
+    setLoading(false);
   };
 
-  const updateLink = (index: number, link: SocialLink) => {
-    setProfile(prev => {
-      if (!prev) return prev;
-      const newLinks = [...prev.links];
-      newLinks[index] = link;
-      return { ...prev, links: newLinks };
-    });
-  };
-
-  const addLink = (link: SocialLink) => {
-    setProfile(prev => {
-      if (!prev) return prev;
-      return { ...prev, links: [...prev.links, link] };
-    });
-  };
-
-  const removeLink = (index: number) => {
-    setProfile(prev => {
-      if (!prev) return prev;
-      const newLinks = prev.links.filter((_, i) => i !== index);
-      return { ...prev, links: newLinks };
-    });
-  };
+  useEffect(() => {
+    if (session?.user.id) {
+      fetchProfile();
+    } else {
+      setProfile(null);
+      setLoading(false);
+    }
+    // eslint-disable-next-line
+  }, [session?.user.id]);
 
   return (
-    <ProfileContext.Provider value={{ profile, updateProfile, updateLink, addLink, removeLink }}>
+    <ProfileContext.Provider value={{ profile, loading, refreshProfile: fetchProfile, setProfile }}>
       {children}
     </ProfileContext.Provider>
   );
-};
+}
 
-export const useProfile = () => {
+export function useProfile() {
   const context = useContext(ProfileContext);
-  if (context === undefined) {
-    throw new Error('useProfile must be used within a ProfileProvider');
-  }
+  if (!context) throw new Error('useProfile must be used within a ProfileProvider');
   return context;
-};
+}
