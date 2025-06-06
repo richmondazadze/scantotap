@@ -1,3 +1,5 @@
+import { supabase } from '../src/integrations/supabase/client';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
@@ -13,9 +15,16 @@ export default async function handler(req, res) {
   // Handle charge.success event
   if (event.event === 'charge.success') {
     const reference = event.data.reference;
-    // TODO: Update the order in your database to 'confirmed' using the reference
-    // Example: await updateOrderStatus(reference, 'confirmed');
-    console.log(`Order with reference ${reference} marked as confirmed.`);
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: 'confirmed' })
+      .eq('reference', reference);
+
+    if (error) {
+      console.error(`Failed to update order status for reference ${reference}:`, error);
+    } else {
+      console.log(`Order with reference ${reference} marked as confirmed.`);
+    }
   }
 
   // You can handle other event types as needed
