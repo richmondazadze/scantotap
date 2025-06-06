@@ -9,7 +9,7 @@ const DashboardNavbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 h-16 flex items-center justify-between px-6 bg-white/70 dark:bg-scan-dark/80 backdrop-blur-xl border-b border-white/20 dark:border-scan-blue/30 shadow-sm">
       <div className="flex items-center gap-3">
-        <Link to="/dashboard" className="flex items-center gap-2">
+        <Link to="/dashboard/profile" className="flex items-center gap-2">
           <div className="h-8 w-8 flex items-center">
             <Scan2TapLogo />
           </div>

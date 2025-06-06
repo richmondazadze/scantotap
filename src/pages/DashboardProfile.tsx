@@ -136,18 +136,18 @@ export default function DashboardProfile() {
         toast.success('Profile created successfully!');
       } else {
         // Update existing profile
-        const { data, error } = await supabase.from('profiles').update({
-          name,
-          title,
-          bio,
-          avatar_url: avatarUrl,
-          links,
-          slug,
+      const { data, error } = await supabase.from('profiles').update({
+        name,
+        title,
+        bio,
+        avatar_url: avatarUrl,
+        links,
+        slug,
           phone,
-        }).eq('id', profile.id).select().single();
-        if (error) throw error;
-        setProfile(data);
-        toast.success('Profile updated!');
+      }).eq('id', profile.id).select().single();
+      if (error) throw error;
+      setProfile(data);
+      toast.success('Profile updated!');
       }
     } catch (err: any) {
       toast.error(err.message || 'Failed to save profile');
@@ -413,7 +413,7 @@ export default function DashboardProfile() {
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium truncate">{link.label}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{link.url}</div>
-                </div>
+            </div>
                 <Button 
             type="button"
                   variant="ghost" 
@@ -477,7 +477,7 @@ export default function DashboardProfile() {
                 </Button>
               </motion.div>
             ))}
-          </div>
+      </div>
         </motion.div>
 
       {/* Save Button */}

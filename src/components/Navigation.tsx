@@ -111,10 +111,10 @@ const Navigation = () => {
 
           <div className="hidden md:flex items-center space-x-4">
             <ThemeSwitcher />
-            <Button variant="ghost" onClick={() => navigate(session ? "/dashboard" : "/auth")}>Sign In</Button>
+            <Button variant="ghost" onClick={() => navigate(session ? "/dashboard/profile" : "/auth")}>Sign In</Button>
               <Button 
                 className="bg-gradient-to-r from-scan-blue to-scan-purple hover:opacity-90 transition-opacity"
-              onClick={() => navigate(session ? "/dashboard" : "/auth")}
+              onClick={() => navigate(session ? "/dashboard/profile" : "/auth")}
               >
                 Get Started
               </Button>
@@ -176,8 +176,8 @@ const Navigation = () => {
                       </Link>
                     ))}
                     <div className="pt-4 pb-0 space-y-4">
-                      <Button variant="outline" className="w-full" onClick={() => navigate(session ? "/dashboard" : "/auth")}>Sign In</Button>
-                      <Button className="w-full bg-gradient-to-r from-scan-blue to-scan-purple" onClick={() => navigate(session ? "/dashboard" : "/auth")}>
+                      <Button variant="outline" className="w-full" onClick={() => navigate(session ? "/dashboard/profile" : "/auth")}>Sign In</Button>
+                      <Button className="w-full bg-gradient-to-r from-scan-blue to-scan-purple" onClick={() => navigate(session ? "/dashboard/profile" : "/auth")}>
                           Get Started
                         </Button>
                     </div>

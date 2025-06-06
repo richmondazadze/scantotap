@@ -44,12 +44,30 @@ export const LightLogin = () => {
     e.preventDefault();
     setLoading(true);
     resetMessages();
+    // Check if user already exists in the database
+    const { data: existingUser, error: userCheckError } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', email)
+      .single();
+    if (existingUser) {
+      setError('An account with this email already exists. Please sign in instead.');
+      setLoading(false);
+      return;
+    }
+    if (userCheckError && userCheckError.code !== 'PGRST116') { // PGRST116: No rows found
+      setError('An error occurred while checking for existing account. Please try again.');
+      setLoading(false);
+      return;
+    }
+    // Proceed with sign up if user does not exist
     const { error } = await supabase.auth.signUp({
       email,
       password,
     });
-    if (error) setError(error.message);
-    else setSuccess('Check your email to confirm your account!');
+    if (error) {
+      setError(error.message);
+    } else setSuccess('Check your email to confirm your account!');
     setLoading(false);
   };
 
@@ -285,7 +303,21 @@ export const LightLogin = () => {
               </div>
 
               {error && (
-                <div className="text-red-500 text-sm text-center">{error}</div>
+                <div className="text-red-500 text-sm text-center">
+                  {error}
+                  {error.includes('already exists') && (
+                    <>
+                      <br />
+                      <button
+                        type="button"
+                        className="text-blue-600 hover:underline mt-2"
+                        onClick={() => { setMode('sign-in'); resetMessages(); }}
+                      >
+                        Sign in instead
+                      </button>
+                    </>
+                  )}
+                </div>
               )}
               {success && (
                 <div className="text-green-600 text-sm text-center">{success}</div>
@@ -387,7 +419,7 @@ export const LightLogin = () => {
                 {/* Apple logo from public directory */}
                 <img src="/Apple_logo_black.svg" alt="Apple logo" className="w-5 h-5 object-contain" />
                 <span className="whitespace-nowrap">Apple ID</span>
-            </button>
+              </button>
           </div>
 
           <div className="p-0 mt-6">

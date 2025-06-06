@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import PricingPage from "./pages/PricingPage";
 import ContactPage from "./pages/ContactPage";
@@ -88,8 +88,8 @@ const App = () => {
                       <Route path="order" element={<DashboardOrder />} />
                       <Route path="shipping" element={<DashboardShipping />} />
                       <Route path="settings" element={<DashboardSettings />} />
-                      <Route index element={<DashboardProfile />} />
                     </Route>
+                  <Route path="/dashboard" element={<Navigate to="/dashboard/profile" replace />} />
                   <Route path="/profile/:id" element={<ProfilePage />} />
                   <Route path="/admin" element={<AdminPage />} />
                     <Route path="/auth" element={<AuthPage />} />

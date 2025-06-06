@@ -9,7 +9,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (session) {
-      navigate('/dashboard', { replace: true });
+      navigate('/dashboard/profile', { replace: true });
     }
   }, [session, navigate]);
 

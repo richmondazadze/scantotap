@@ -394,18 +394,18 @@ const ProfilePage = () => {
                           >
                             <Copy className="w-4 h-4" />
                           </Button>
-                        </div>
-                      )}
-                      
+                </div>
+              )}
+              
                       {profile.email && (
                         <div className="flex items-center gap-3 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                           <div className="w-10 h-10 flex-shrink-0 bg-purple-500 rounded-lg flex items-center justify-center">
                             <Mail className="w-5 h-5 text-white" />
-                          </div>
+                  </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm text-gray-600 dark:text-gray-400">Email Address</p>
                             <p className="font-semibold text-base sm:text-lg truncate">{profile.email}</p>
-                          </div>
+                  </div>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -414,9 +414,9 @@ const ProfilePage = () => {
                           >
                             <Copy className="w-4 h-4" />
                           </Button>
-                        </div>
-                      )}
-                    </div>
+                </div>
+              )}
+        </div>
         
                     {/* Action Buttons */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

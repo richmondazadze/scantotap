@@ -144,7 +144,7 @@ const LandingPage = () => {
               transition={{ duration: 0.6, delay: 1 }}
               className="mt-10 flex flex-col sm:flex-row flex-wrap gap-4 w-full justify-center"
             >
-              <Link to="/dashboard" className="w-full sm:w-auto">
+              <Link to="/dashboard/profile" className="w-full sm:w-auto">
                   <Button 
                     size="lg" 
                     radius="xl"
@@ -316,7 +316,7 @@ const LandingPage = () => {
             viewport={{ once: true }}
             className="flex justify-center mt-12"
           >
-            <Link to="/dashboard">
+            <Link to="/dashboard/profile">
               <Button 
                 size="lg" 
                 variant="gradient" 
@@ -479,7 +479,7 @@ const LandingPage = () => {
             viewport={{ once: true }}
             className="mt-10"
           >
-            <Link to="/dashboard">
+            <Link to="/dashboard/profile">
               <Button 
                 size="lg" 
                 variant="default"
