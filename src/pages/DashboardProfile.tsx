@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabaseClient';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { motion } from 'framer-motion';
 import { Camera, Plus, X, Phone } from 'lucide-react';
@@ -26,6 +27,10 @@ const SOCIAL_PRESETS = [
 export default function DashboardProfile() {
   const { session, loading: authLoading } = useAuthGuard();
   const { profile, loading: profileLoading, setProfile } = useProfile();
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // State declarations
   const [name, setName] = useState(profile?.name || '');
   const [title, setTitle] = useState(profile?.title || '');
   const [bio, setBio] = useState(profile?.bio || '');
@@ -36,13 +41,17 @@ export default function DashboardProfile() {
   const [slug, setSlug] = useState(profile?.slug || '');
   const [slugAvailable, setSlugAvailable] = useState(true);
   const [checkingSlug, setCheckingSlug] = useState(false);
-  const slugCheckTimeout = useRef<NodeJS.Timeout | null>(null);
-  const avatarTriggerRef = useRef<HTMLDivElement>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showSocialDialog, setShowSocialDialog] = useState(false);
   const [selectedSocial, setSelectedSocial] = useState(null);
   const [socialInput, setSocialInput] = useState('');
   const [phone, setPhone] = useState(profile?.phone || '');
 
+  const slugCheckTimeout = useRef<NodeJS.Timeout | null>(null);
+  const avatarTriggerRef = useRef<HTMLDivElement>(null);
+
+  // Effect to update form fields when profile changes
   useEffect(() => {
     if (profile) {
       setName(profile.name || '');
@@ -54,6 +63,55 @@ export default function DashboardProfile() {
       setPhone(profile.phone || '');
     }
   }, [profile]);
+
+  // Effect to check for unsaved changes
+  useEffect(() => {
+    if (profile) {
+      const hasChanges = 
+        name !== profile.name ||
+        title !== profile.title ||
+        bio !== profile.bio ||
+        avatarUrl !== profile.avatar_url ||
+        JSON.stringify(links) !== JSON.stringify(profile.links) ||
+        slug !== profile.slug ||
+        phone !== profile.phone;
+      
+      setHasUnsavedChanges(hasChanges);
+    }
+  }, [name, title, bio, avatarUrl, links, slug, phone, profile]);
+
+  // Effect to handle beforeunload
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
+
+  // Effect to handle navigation
+  useEffect(() => {
+    const handleNavigation = (e: PopStateEvent) => {
+      if (hasUnsavedChanges) {
+        const confirmNavigation = window.confirm('You have unsaved changes. Do you want to continue without saving?');
+        if (!confirmNavigation) {
+          e.preventDefault();
+          window.history.pushState(null, '', location.pathname);
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handleNavigation);
+    return () => {
+      window.removeEventListener('popstate', handleNavigation);
+    };
+  }, [hasUnsavedChanges, location]);
 
   // Slug (username) availability check
   useEffect(() => {
@@ -153,6 +211,7 @@ export default function DashboardProfile() {
       toast.error(err.message || 'Failed to save profile');
     }
     setSaving(false);
+    setHasUnsavedChanges(false);
   };
 
   const handleRemoveAvatar = async () => {
