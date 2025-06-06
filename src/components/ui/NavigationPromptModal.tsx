@@ -27,10 +27,10 @@ export const NavigationPromptModal: React.FC<NavigationPromptModalProps> = ({
     <DialogContent className="max-w-[95vw] sm:max-w-lg p-4 sm:p-6 rounded-2xl">
       <DialogHeader>
         <div className="flex flex-col items-center gap-2 mb-2">
-          <span className="bg-yellow-100 rounded-full p-3 mb-1 flex items-center justify-center">
-            <AlertTriangle className="text-yellow-500 w-8 h-8" />
+          <span className="bg-gradient-to-br from-scan-blue to-scan-purple rounded-full p-3 mb-1 flex items-center justify-center shadow-lg">
+            <AlertTriangle className="text-white w-8 h-8" />
           </span>
-          <DialogTitle className="text-center text-lg sm:text-xl font-bold">Unsaved Changes</DialogTitle>
+          <DialogTitle className="text-center text-lg sm:text-xl font-bold text-scan-blue dark:text-scan-blue-light">Unsaved Changes</DialogTitle>
         </div>
         <DialogDescription className="text-center text-base sm:text-sm text-gray-600 dark:text-gray-300 mb-2">
           You have unsaved changes. Do you want to save before leaving?
@@ -40,7 +40,8 @@ export const NavigationPromptModal: React.FC<NavigationPromptModalProps> = ({
         <Button
           variant="default"
           onClick={onSave}
-          className="w-full sm:w-auto h-12 text-base font-semibold"
+          className="w-full sm:w-auto h-12 text-base font-semibold bg-scan-blue hover:bg-scan-purple text-white border-0"
+          style={{ background: 'linear-gradient(90deg, var(--scan-blue, #2563eb), var(--scan-purple, #7c3aed))' }}
         >
           Save Changes
         </Button>
@@ -54,7 +55,7 @@ export const NavigationPromptModal: React.FC<NavigationPromptModalProps> = ({
         <Button
           variant="outline"
           onClick={onCancel}
-          className="w-full sm:w-auto h-12 text-base font-semibold"
+          className="w-full sm:w-auto h-12 text-base font-semibold border-scan-blue text-scan-blue dark:text-scan-blue-light"
         >
           Cancel
         </Button>
