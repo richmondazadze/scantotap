@@ -1,6 +1,6 @@
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useProfile } from '@/contexts/ProfileContext';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import AvatarUploader from '@/components/AvatarUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabaseClient';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { usePrompt } from '@/hooks/usePrompt';
 
 import { motion } from 'framer-motion';
 import { Camera, Plus, X, Phone } from 'lucide-react';
@@ -51,6 +52,27 @@ export default function DashboardProfile() {
   const slugCheckTimeout = useRef<NodeJS.Timeout | null>(null);
   const avatarTriggerRef = useRef<HTMLDivElement>(null);
 
+  // Block React Router navigation if there are unsaved changes
+  usePrompt(
+    hasUnsavedChanges,
+    'You have unsaved changes. Do you want to continue without saving?'
+  );
+
+  // Handle browser/tab close only
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
+
   // Effect to update form fields when profile changes
   useEffect(() => {
     if (profile) {
@@ -79,39 +101,6 @@ export default function DashboardProfile() {
       setHasUnsavedChanges(hasChanges);
     }
   }, [name, title, bio, avatarUrl, links, slug, phone, profile]);
-
-  // Effect to handle beforeunload
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [hasUnsavedChanges]);
-
-  // Effect to handle navigation
-  useEffect(() => {
-    const handleNavigation = (e: PopStateEvent) => {
-      if (hasUnsavedChanges) {
-        const confirmNavigation = window.confirm('You have unsaved changes. Do you want to continue without saving?');
-        if (!confirmNavigation) {
-          e.preventDefault();
-          window.history.pushState(null, '', location.pathname);
-        }
-      }
-    };
-
-    window.addEventListener('popstate', handleNavigation);
-    return () => {
-      window.removeEventListener('popstate', handleNavigation);
-    };
-  }, [hasUnsavedChanges, location]);
 
   // Slug (username) availability check
   useEffect(() => {
