@@ -31,7 +31,7 @@ function useBlocker(shouldBlock, onBlock) {
     const push = navigator.push;
     navigator.push = (...args) => {
       if (shouldBlock()) {
-        onBlock();
+        onBlock(args[0]);
         return;
       }
       return push.apply(navigator, args);
@@ -66,7 +66,6 @@ export default function DashboardProfile() {
   const [socialInput, setSocialInput] = useState('');
   const [phone, setPhone] = useState(profile?.phone || '');
   const [showNavPrompt, setShowNavPrompt] = useState(false);
-  const [pendingAction, setPendingAction] = useState(null);
   const [pendingLocation, setPendingLocation] = useState(null);
 
   const slugCheckTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -75,12 +74,10 @@ export default function DashboardProfile() {
   // Block navigation if there are unsaved changes
   useBlocker(
     () => hasUnsavedChanges,
-    () => {
+    (nextLocation) => {
       setShowNavPrompt(true);
-      setPendingAction(() => () => {
-        // navigation will be handled after user confirms
-      });
-      setPendingLocation(location);
+      setPendingLocation(typeof nextLocation === 'string' ? { pathname: nextLocation } : nextLocation);
+      console.log('Pending location:', nextLocation);
     }
   );
 
@@ -278,20 +275,31 @@ export default function DashboardProfile() {
     await handleSave();
     setShowNavPrompt(false);
     setHasUnsavedChanges(false);
-    if (pendingAction) {
-      pendingAction();
-      setPendingAction(null);
+    if (pendingLocation) {
+      const path = typeof pendingLocation === 'string'
+        ? pendingLocation
+        : pendingLocation.pathname +
+          (pendingLocation.search || '') +
+          (pendingLocation.hash || '');
       setPendingLocation(null);
+      setTimeout(() => navigate(path), 10); // Delay navigation to allow modal to close
     }
   };
   const handleModalDiscard = () => {
     setHasUnsavedChanges(false);
     setShowNavPrompt(false);
-    if (pendingAction) pendingAction();
+    if (pendingLocation) {
+      const path = typeof pendingLocation === 'string'
+        ? pendingLocation
+        : pendingLocation.pathname +
+          (pendingLocation.search || '') +
+          (pendingLocation.hash || '');
+      setPendingLocation(null);
+      setTimeout(() => navigate(path), 10); // Delay navigation to allow modal to close
+    }
   };
   const handleModalCancel = () => {
     setShowNavPrompt(false);
-    setPendingAction(null);
     setPendingLocation(null);
   };
 
