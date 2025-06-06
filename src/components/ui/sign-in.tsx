@@ -34,30 +34,38 @@ export const LightLogin = () => {
     setError(null);
 
     try {
-      // Check if the account exists
-      const { data: existingUser, error: checkError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (checkError) {
-        if (checkError.message.includes('Invalid login credentials')) {
-          setError('Account does not exist. Please sign up.');
-        } else {
-          setError(checkError.message);
-        }
-        return;
-      }
-
-      // If account exists, proceed with sign-in
+      // Attempt to sign in
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        setError(error.message);
+        if (error.message.includes('Invalid login credentials')) {
+          // Check if the email exists in the profiles table
+          const { data: user, error: userCheckError } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('email', email)
+            .single();
+
+          if (user) {
+            setError('Invalid password.');
+          } else if (userCheckError && userCheckError.code === 'PGRST116') {
+            setError('Account does not exist. Please sign up.');
+          } else if (userCheckError) {
+            setError('An error occurred while checking for account. Please try again.');
+          } else {
+            setError('Account does not exist. Please sign up.');
+          }
+        } else {
+          setError(error.message);
+        }
+        setLoading(false);
+        return;
       }
+      // Success: no error
+      // (You may want to redirect or show success here)
     } catch (error) {
       console.error('Error signing in:', error);
       setError('An unexpected error occurred');
