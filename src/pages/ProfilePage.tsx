@@ -146,11 +146,23 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       setLoading(true);
-      const { data } = await supabase
+      // Try to fetch by slug first
+      let { data } = await supabase
         .from('profiles')
         .select('*')
         .eq('slug', id)
         .maybeSingle();
+
+      // If not found, try by id (user id)
+      if (!data) {
+        const { data: dataById } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+        data = dataById;
+      }
+
       setProfile(data);
       setLoading(false);
     };

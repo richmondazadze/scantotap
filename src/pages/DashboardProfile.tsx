@@ -212,12 +212,12 @@ export default function DashboardProfile() {
       } else {
         // Update existing profile
         ({ data, error } = await supabase.from('profiles').update({
-          name,
-          title,
-          bio,
-          avatar_url: avatarUrl,
-          links,
-          slug,
+        name,
+        title,
+        bio,
+        avatar_url: avatarUrl,
+        links,
+        slug,
           phone,
         }).eq('id', profile.id).select().single());
       }
@@ -312,13 +312,13 @@ export default function DashboardProfile() {
         onCancel={handleModalCancel}
       />
       <div className="w-full max-w-6xl xl:max-w-7xl mx-auto flex-1 flex flex-col h-full pb-24 sm:pb-8 gap-4 sm:gap-6 lg:gap-8 mt-4 sm:mt-6 px-4 sm:px-6 lg:px-8 xl:px-16 2xl:px-20 overflow-x-hidden">
-        {/* Profile Info Card */}
+      {/* Profile Info Card */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className={cardBase}
         >
-          <h2 className={cardTitle}>Your Digital Identity</h2>
+        <h2 className={cardTitle}>Your Digital Identity</h2>
           <p className={cardDesc}>Create your unique digital presence that will be displayed when someone scans your QR code.</p>
           
           {!profile && (
@@ -338,15 +338,15 @@ export default function DashboardProfile() {
             <div className="flex flex-col items-center lg:items-start gap-4 w-full lg:w-1/3 xl:w-1/4">
               <div ref={avatarTriggerRef} className="relative group cursor-pointer select-none">
                                 <div className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 xl:w-52 xl:h-52 rounded-full overflow-hidden border-4 border-scan-blue/20 dark:border-scan-blue/30 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 flex items-center justify-center transition-all duration-300 group-hover:border-scan-blue/40 dark:group-hover:border-scan-blue/50">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="Avatar" className="object-cover w-full h-full" />
-                  ) : (
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Avatar" className="object-cover w-full h-full" />
+                ) : (
                     <span className="text-gray-400 text-4xl sm:text-5xl">?</span>
-                  )}
+                )}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <Camera className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                   </div>
-                </div>
+              </div>
                 <AvatarUploader 
                   onUpload={(newUrl) => {
                     // Clean up old avatar when uploading new one
@@ -364,63 +364,63 @@ export default function DashboardProfile() {
                   triggerRef={avatarTriggerRef} 
                 />
                 <div className="flex flex-col items-center mt-2 sm:mt-3 gap-1">
-                {!avatarUrl ? (
-                  <span
+              {!avatarUrl ? (
+                <span
                       className="text-xs sm:text-sm text-scan-blue dark:text-blue-400 font-medium hover:text-scan-blue-dark transition-colors cursor-pointer"
+                  tabIndex={0}
+                  role="button"
+                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && avatarTriggerRef.current?.click()}
+                >
+                  Upload a photo
+                </span>
+              ) : (
+                <>
+                  <span
+                        className="text-xs sm:text-sm text-scan-blue dark:text-blue-400 font-medium hover:text-scan-blue-dark transition-colors cursor-pointer"
                     tabIndex={0}
                     role="button"
                     onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && avatarTriggerRef.current?.click()}
                   >
-                    Upload a photo
+                    Change photo
                   </span>
-                ) : (
-                  <>
-                    <span
-                        className="text-xs sm:text-sm text-scan-blue dark:text-blue-400 font-medium hover:text-scan-blue-dark transition-colors cursor-pointer"
-                      tabIndex={0}
-                      role="button"
-                      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && avatarTriggerRef.current?.click()}
-                    >
-                      Change photo
-                    </span>
-                    <button
-                      type="button"
+                  <button
+                    type="button"
                         className="text-xs text-red-500 hover:text-red-700 transition-colors"
-                      onClick={handleRemoveAvatar}
-                    >
-                      Remove photo
-                    </button>
-                  </>
-                )}
-              </div>
+                    onClick={handleRemoveAvatar}
+                  >
+                    Remove photo
+                  </button>
+                </>
+              )}
             </div>
+          </div>
             </div>
 
-            {/* Profile Fields */}
+          {/* Profile Fields */}
             <div className="flex-1 space-y-3 sm:space-y-4">
-              <div>
+            <div>
                 <label className="block text-xs sm:text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-200">Full Name</label>
-                <Input
+              <Input
                   className="w-full bg-white/95 dark:bg-[#1A1D24]/90 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-scan-blue/30 focus:border-scan-blue/50 transition-all text-sm shadow-sm"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
+                value={name}
+                onChange={e => setName(e.target.value)}
+                required
+              />
+            </div>
+            <div>
                 <label className="block text-xs sm:text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-200">Title / Role</label>
-                <Input
+              <Input
                   className="w-full bg-white/95 dark:bg-[#1A1D24]/90 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-scan-blue/30 focus:border-scan-blue/50 transition-all text-sm shadow-sm"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                />
-              </div>
-              <div>
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+              />
+            </div>
+            <div>
                 <label className="block text-xs sm:text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-200">Bio</label>
-                <Textarea
+              <Textarea
                   className="w-full bg-white/95 dark:bg-[#1A1D24]/90 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-scan-blue/30 focus:border-scan-blue/50 transition-all min-h-[100px] text-sm shadow-sm"
-                  value={bio}
-                  onChange={e => setBio(e.target.value)}
+                value={bio}
+                onChange={e => setBio(e.target.value)}
                   rows={4}
                 />
               </div>
@@ -468,14 +468,14 @@ export default function DashboardProfile() {
           </div>
         </motion.div>
 
-        {/* Social Links Card */}
+      {/* Social Links Card */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className={cardBase}
         >
-          <h3 className={cardTitle}>Social Links</h3>
+        <h3 className={cardTitle}>Social Links</h3>
           <p className={cardDesc}>Add your social profiles and websites to create a complete digital presence.</p>
 
           {/* Preset Social Icons */}
@@ -591,7 +591,7 @@ export default function DashboardProfile() {
                     <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{link.url}</div>
                   </div>
                   <Button 
-                    type="button" 
+            type="button"
                     variant="ghost" 
                     size="icon"
                     className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 h-8 w-8 sm:h-9 sm:w-9" 
@@ -604,20 +604,20 @@ export default function DashboardProfile() {
         </div>
           </motion.div>
 
-        {/* Save Button */}
+      {/* Save Button */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="flex justify-center sm:justify-end mt-2 mb-4 sm:mb-0"
         >
-          <Button
-            onClick={handleSave}
+        <Button
+          onClick={handleSave}
             className="h-10 sm:h-12 px-6 sm:px-8 bg-gradient-to-r from-scan-blue to-scan-purple text-white font-medium rounded-xl shadow-lg hover:shadow-xl hover:from-scan-blue-dark hover:to-scan-purple/80 transition-all text-xs sm:text-sm"
-            disabled={saving}
-          >
+          disabled={saving}
+        >
             {saving ? 'Saving...' : (!profile ? 'Create Profile' : 'Save Changes')}
-          </Button>
+        </Button>
         </motion.div>
         
       </div>
