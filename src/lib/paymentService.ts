@@ -92,15 +92,10 @@ export const paymentService = {
   // Verify payment on the backend
   async verifyPayment(reference: string): Promise<PaymentResponse> {
     try {
-      // Use environment-specific URL
-      const baseUrl = import.meta.env.PROD 
-        ? import.meta.env.VITE_API_BASE_URL || 'https://your-api-domain.com'
-        : 'http://localhost:3001';
+      // Always use the Vercel serverless function endpoint
+      const endpoint = '/api/verify-payment';
       
-      console.log(`Verifying payment with reference: ${reference}`);
-      console.log(`Using API base URL: ${baseUrl}`);
-      
-      const response = await fetch(`${baseUrl}/api/verify-payment`, {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,12 +104,10 @@ export const paymentService = {
       });
 
       if (!response.ok) {
-        console.error(`HTTP error! status: ${response.status}`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Payment verification response:', data);
       
       if (data.success) {
         return {
@@ -129,15 +122,12 @@ export const paymentService = {
         };
       }
     } catch (error) {
-      console.error('Payment verification error:', error);
-      
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
         return {
           success: false,
-          error: 'Unable to connect to payment verification server. Please ensure the server is running.'
+          error: 'Unable to connect to payment verification server. Please ensure the serverless function is deployed.'
         };
       }
-      
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to verify payment'
@@ -149,7 +139,7 @@ export const paymentService = {
   generateReference(): string {
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 15);
-    return `tap-verse-${timestamp}-${random}`;
+    return `scan2tap-${timestamp}-${random}`;
   },
 
   // Convert amount to pesewas (Paystack uses smallest currency unit for GHS)

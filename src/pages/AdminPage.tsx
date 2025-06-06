@@ -10,6 +10,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { orderService } from '@/lib/orderService';
+import AdminNavbar from '@/components/AdminNavbar';
+import AdminFooter from '@/components/AdminFooter';
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  FunnelChart,
+  Funnel,
+  LabelList
+} from 'recharts';
 import {
   Users,
   Package,
@@ -18,7 +40,6 @@ import {
   Eye,
   Download,
   RefreshCw,
-  LogOut,
   User,
   Phone,
   Mail,
@@ -27,7 +48,12 @@ import {
   DollarSign,
   ShoppingCart,
   Star,
-  Activity
+  Activity,
+  Copy,
+  BarChart3,
+  PieChart as PieChartIcon,
+  Clock,
+  Filter
 } from 'lucide-react';
 
 interface Profile {
@@ -46,14 +72,22 @@ interface Profile {
 interface Order {
   id: string;
   order_number: string;
+  user_id: string;
   customer_first_name: string;
   customer_last_name: string;
   customer_email: string;
+  customer_phone?: string;
   total: number;
   status: string;
   created_at: string;
+  updated_at?: string;
   design_name: string;
+  material_name: string;
   quantity: number;
+  shipping_address: string;
+  shipping_city: string;
+  shipping_state: string;
+  shipping_country: string;
 }
 
 const AdminPage = () => {
@@ -70,12 +104,49 @@ const AdminPage = () => {
     activeProfiles: 0,
     topDesigns: [] as { design_name: string; count: number }[],
     recentSignups: 0,
-    avgOrderValue: 0
+    avgOrderValue: 0,
+    paidOrders: 0,
+    pendingOrders: 0,
+    pendingRevenue: 0
   });
+
+  // Chart data states
+  const [revenueTimelineData, setRevenueTimelineData] = useState<Array<{date: string, revenue: number}>>([]);
+  const [orderStatusData, setOrderStatusData] = useState<Array<{name: string, value: number, fill: string}>>([]);
+  const [userGrowthData, setUserGrowthData] = useState<Array<{date: string, newUsers: number, totalUsers: number}>>([]);
+  const [designPopularityData, setDesignPopularityData] = useState<Array<{name: string, value: number, fill: string}>>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
   const [newOrderStatus, setNewOrderStatus] = useState('');
+
+  // Helper function to get user profile for an order
+  const getUserProfile = (userId: string) => {
+    return profiles.find(profile => profile.id === userId);
+  };
+
+  // Helper function to format order status for display
+  const formatOrderStatus = (status: string) => {
+    switch (status) {
+      case 'pending': return 'Pending Payment';
+      case 'confirmed': return 'Payment Confirmed';
+      case 'processing': return 'Processing';
+      case 'shipped': return 'Shipped';
+      case 'delivered': return 'Delivered';
+      case 'cancelled': return 'Cancelled';
+      default: return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  };
+
+  // Available status options for updating orders
+  const statusOptions = [
+    { value: 'pending', label: 'Pending Payment' },
+    { value: 'confirmed', label: 'Payment Confirmed' },
+    { value: 'processing', label: 'Processing' },
+    { value: 'shipped', label: 'Shipped' },
+    { value: 'delivered', label: 'Delivered' },
+    { value: 'cancelled', label: 'Cancelled' }
+  ];
 
   // Check if already authenticated on mount
   useEffect(() => {
@@ -144,10 +215,15 @@ const AdminPage = () => {
       // Calculate stats
       const totalUsers = profilesData?.length || 0;
       const totalOrders = ordersData?.length || 0;
-      const totalRevenue = ordersData?.reduce((sum, order) => sum + order.total, 0) || 0;
+      
+      // FIXED: Only count revenue from successfully paid orders
+      const paidStatuses = ['confirmed', 'processing', 'shipped', 'delivered'];
+      const paidOrders = ordersData?.filter(order => paidStatuses.includes(order.status)) || [];
+      const totalRevenue = paidOrders.reduce((sum, order) => sum + order.total, 0);
+      
       const activeProfiles = profilesData?.filter(p => p.links && p.links.length > 0).length || 0;
       
-      // Calculate top designs from real order data
+      // Calculate top designs from real order data (still use all orders for design popularity)
       const designCounts = ordersData?.reduce((acc, order) => {
         const design = order.design_name || 'Unknown';
         const quantity = Number(order.quantity) || 1;
@@ -167,8 +243,8 @@ const AdminPage = () => {
         new Date(p.created_at) > thirtyDaysAgo
       ).length || 0;
 
-      // Calculate average order value
-      const avgOrderValue = totalOrders > 0 ? Number(totalRevenue) / totalOrders : 0;
+      // FIXED: Calculate average order value from paid orders only
+      const avgOrderValue = paidOrders.length > 0 ? Number(totalRevenue) / paidOrders.length : 0;
 
       setStats({
         totalUsers,
@@ -177,8 +253,14 @@ const AdminPage = () => {
         activeProfiles,
         topDesigns,
         recentSignups,
-        avgOrderValue
+        avgOrderValue,
+        paidOrders: paidOrders.length,
+        pendingOrders: ordersData?.filter(order => order.status === 'pending').length || 0,
+        pendingRevenue: ordersData?.filter(order => order.status === 'pending').reduce((sum, order) => sum + order.total, 0) || 0
       });
+
+      // Process chart data
+      processChartData(ordersData || [], profilesData || []);
 
     } catch (error) {
       console.error('Error loading admin data:', error);
@@ -238,6 +320,108 @@ const AdminPage = () => {
     }
   };
 
+  // Helper function to shorten order number for display
+  const shortenOrderNumber = (orderNumber: string) => {
+    if (orderNumber.length > 20) {
+      // Show first 10 characters + "..." + last 4 characters for better readability
+      return orderNumber.substring(0, 10) + '...' + orderNumber.substring(orderNumber.length - 4);
+    }
+    return orderNumber;
+  };
+
+  // Helper function to copy order number
+  const copyOrderNumber = (orderNumber: string) => {
+    navigator.clipboard.writeText(orderNumber);
+    toast.success('Order number copied to clipboard');
+  };
+
+  // Process data for charts
+  const processChartData = (orders: Order[], profiles: Profile[]) => {
+    // 1. Revenue Timeline - Group orders by date and calculate daily revenue
+    const revenueByDate = orders
+      .filter(order => ['confirmed', 'processing', 'shipped', 'delivered'].includes(order.status))
+      .reduce((acc, order) => {
+        const date = new Date(order.created_at).toISOString().split('T')[0];
+        acc[date] = (acc[date] || 0) + order.total;
+        return acc;
+      }, {} as Record<string, number>);
+
+    const revenueTimeline = Object.entries(revenueByDate)
+      .map(([date, revenue]) => ({ date, revenue }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .slice(-30); // Last 30 days
+
+    setRevenueTimelineData(revenueTimeline);
+
+    // 2. Order Status Pipeline - Count orders by status
+    const statusCounts = orders.reduce((acc, order) => {
+      const status = order.status || 'pending';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const statusColors = {
+      pending: '#fbbf24',
+      confirmed: '#3b82f6', 
+      processing: '#8b5cf6',
+      shipped: '#6366f1',
+      delivered: '#10b981',
+      cancelled: '#ef4444'
+    };
+
+    const orderStatus = Object.entries(statusCounts).map(([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value,
+      fill: statusColors[name as keyof typeof statusColors] || '#6b7280'
+    }));
+
+    setOrderStatusData(orderStatus);
+
+    // 3. User Growth Chart - Track new signups over time
+    const userGrowthByDate = profiles.reduce((acc, profile) => {
+      const date = new Date(profile.created_at).toISOString().split('T')[0];
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const sortedDates = Object.keys(userGrowthByDate).sort();
+    let cumulativeUsers = 0;
+    
+    const userGrowth = sortedDates
+      .slice(-30) // Last 30 days
+      .map(date => {
+        const newUsers = userGrowthByDate[date];
+        cumulativeUsers += newUsers;
+        return {
+          date,
+          newUsers,
+          totalUsers: cumulativeUsers
+        };
+      });
+
+    setUserGrowthData(userGrowth);
+
+    // 4. Design Popularity Pie Chart
+    const designCounts = orders.reduce((acc, order) => {
+      const design = order.design_name || 'Unknown';
+      acc[design] = (acc[design] || 0) + (order.quantity || 1);
+      return acc;
+    }, {} as Record<string, number>);
+
+    const designColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16', '#f97316'];
+    
+    const designPopularity = Object.entries(designCounts)
+      .map(([name, value], index) => ({
+        name,
+        value,
+        fill: designColors[index % designColors.length]
+      }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8); // Top 8 designs
+
+    setDesignPopularityData(designPopularity);
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center px-4">
@@ -293,7 +477,9 @@ const AdminPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pb-24 sm:pb-8">
+      <AdminNavbar onLogout={handleLogout} />
+      
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8">
         
         {/* Header */}
         <motion.div
@@ -302,7 +488,7 @@ const AdminPage = () => {
           className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 sm:mb-8"
         >
           <div className="text-center lg:text-left">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">Analytics Overview</h1>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">Manage and monitor your digital business card platform</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
@@ -313,11 +499,7 @@ const AdminPage = () => {
               className="w-full sm:w-auto"
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            <Button variant="outline" onClick={handleLogout} className="w-full sm:w-auto">
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
+              Refresh Data
             </Button>
           </div>
         </motion.div>
@@ -382,6 +564,167 @@ const AdminPage = () => {
                   <p className="text-xl sm:text-2xl font-bold">{stats.activeProfiles}</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Analytics Charts */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8"
+        >
+          {/* Revenue Timeline */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <Clock className="w-5 h-5 text-scan-blue" />
+                Revenue Timeline
+              </CardTitle>
+              <CardDescription className="text-sm">
+                Daily revenue over the last 30 days
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={revenueTimelineData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="date" 
+                      tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    />
+                    <YAxis tickFormatter={(value) => `₵${value}`} />
+                    <Tooltip 
+                      formatter={(value) => [`₵${value}`, 'Revenue']}
+                      labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="revenue" 
+                      stroke="#3b82f6" 
+                      strokeWidth={2}
+                      dot={{ fill: '#3b82f6' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Order Status Pipeline */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <Filter className="w-5 h-5 text-scan-blue" />
+                Order Status Pipeline
+              </CardTitle>
+              <CardDescription className="text-sm">
+                Distribution of orders by status
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={orderStatusData} layout="horizontal">
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" />
+                    <YAxis dataKey="name" type="category" width={80} />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#3b82f6">
+                      {orderStatusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* User Growth Chart */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <BarChart3 className="w-5 h-5 text-scan-blue" />
+                User Growth
+              </CardTitle>
+              <CardDescription className="text-sm">
+                New signups vs total users over time
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={userGrowthData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="date" 
+                      tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    />
+                    <YAxis />
+                    <Tooltip 
+                      labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="totalUsers" 
+                      stackId="1"
+                      stroke="#3b82f6" 
+                      fill="#3b82f6" 
+                      fillOpacity={0.6}
+                      name="Total Users"
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="newUsers" 
+                      stackId="2"
+                      stroke="#10b981" 
+                      fill="#10b981" 
+                      fillOpacity={0.8}
+                      name="New Users"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Design Popularity Pie Chart */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <PieChartIcon className="w-5 h-5 text-scan-blue" />
+                Design Popularity
+              </CardTitle>
+              <CardDescription className="text-sm">
+                Most popular design choices
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={designPopularityData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {designPopularityData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+        </div>
             </CardContent>
           </Card>
         </motion.div>
@@ -514,90 +857,173 @@ const AdminPage = () => {
                   {orders.length === 0 ? (
                     <p className="text-gray-500 text-center py-6 text-sm">No orders found</p>
                   ) : (
-                    orders.map((order) => (
+                    orders.map((order) => {
+                      const userProfile = getUserProfile(order.user_id);
+                      return (
                       <div key={order.id} className="border rounded-lg p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
-                          <div className="min-w-0">
-                            <h4 className="font-semibold text-sm sm:text-base truncate">{order.order_number}</h4>
-                            <p className="text-xs sm:text-sm text-gray-600 truncate">
-                              {order.customer_first_name} {order.customer_last_name}
-                            </p>
-                          </div>
-                          <div className="text-left sm:text-right flex-shrink-0 flex flex-col gap-2">
-                            <p className="font-semibold text-sm sm:text-base">₵{Number(order.total).toFixed(2)}</p>
-                            <div className="flex items-center gap-2">
-                              <Badge className={`text-xs ${getStatusColor(order.status || 'pending')}`}>
-                                {order.status || 'pending'}
-                              </Badge>
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button 
-                                    variant="ghost" 
+                        <div className="flex flex-col gap-4">
+                          {/* Order Header */}
+                          <div className="flex flex-col gap-3">
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                  <h4 className="font-semibold text-sm sm:text-base truncate flex-shrink-0" title={order.order_number}>
+                                    {shortenOrderNumber(order.order_number)}
+                                  </h4>
+                                  <Button
+                                    variant="ghost"
                                     size="sm"
-                                    onClick={() => {
-                                      setSelectedOrder(order);
-                                      setNewOrderStatus(order.status || 'pending');
-                                    }}
-                                    className="h-6 px-2 text-xs"
+                                    onClick={() => copyOrderNumber(order.order_number)}
+                                    className="text-xs h-6 px-2 flex-shrink-0"
+                                    title="Copy full order number"
                                   >
-                                    Update
+                                    <Copy className="w-3 h-3" />
                                   </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>Update Order Status</DialogTitle>
-                                    <DialogDescription>
-                                      Update the status for order {order.order_number}
-                                    </DialogDescription>
-                                  </DialogHeader>
-                                  <div className="space-y-4">
-                                    <div>
-                                      <label className="text-sm font-medium">Order Status</label>
-                                      <Select value={newOrderStatus} onValueChange={setNewOrderStatus}>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="pending">Pending</SelectItem>
-                                          <SelectItem value="confirmed">Confirmed</SelectItem>
-                                          <SelectItem value="processing">Processing</SelectItem>
-                                          <SelectItem value="shipped">Shipped</SelectItem>
-                                          <SelectItem value="delivered">Delivered</SelectItem>
-                                          <SelectItem value="cancelled">Cancelled</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                    <div className="flex gap-2">
-                                      <Button 
-                                        onClick={updateOrderStatus}
-                                        disabled={updatingOrderStatus || newOrderStatus === order.status}
-                                        className="flex-1"
-                                      >
-                                        {updatingOrderStatus ? 'Updating...' : 'Update Status'}
-                                      </Button>
-                                    </div>
-                                  </div>
-                                </DialogContent>
-                              </Dialog>
+                                </div>
+                                <p className="text-xs sm:text-sm text-gray-600 truncate">
+                                  {order.customer_first_name} {order.customer_last_name}
+                                </p>
+                                {userProfile && (
+                                  <p className="text-xs text-blue-600 truncate">
+                                    Profile: {userProfile.name} (@{userProfile.slug})
+                                  </p>
+                                )}
+                              </div>
+                              <div className="text-left sm:text-right flex-shrink-0">
+                                <Badge className={`text-xs mb-1 ${getStatusColor(order.status || 'pending')}`}>
+                                  {formatOrderStatus(order.status || 'pending')}
+                                </Badge>
+                                <p className="font-semibold text-sm sm:text-base">₵{Number(order.total).toFixed(2)}</p>
+                                <p className="text-xs text-gray-500">
+                                  {new Date(order.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-gray-500">
-                          <span className="flex items-center gap-1 truncate">
-                            <Mail className="w-3 h-3 flex-shrink-0" />
-                            <span className="truncate">{order.customer_email}</span>
-                          </span>
-                          <span className="flex items-center gap-1 truncate">
-                            <Package className="w-3 h-3 flex-shrink-0" />
-                            <span className="truncate">{order.design_name} x{order.quantity}</span>
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3 flex-shrink-0" />
-                            {new Date(order.created_at).toLocaleDateString()}
-                            </span>
+
+                          {/* Order Details Grid */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                            {/* Product Details */}
+                            <div className="space-y-1">
+                              <h5 className="font-medium text-gray-900 dark:text-gray-100">Product</h5>
+                              <p className="text-gray-600">Design: {order.design_name}</p>
+                              <p className="text-gray-600">Material: {order.material_name || 'Standard'}</p>
+                              <p className="text-gray-600">Quantity: {order.quantity}</p>
+                            </div>
+
+                            {/* Contact Info */}
+                            <div className="space-y-1">
+                              <h5 className="font-medium text-gray-900 dark:text-gray-100">Contact</h5>
+                              <p className="text-gray-600 truncate">
+                                <Mail className="w-3 h-3 inline mr-1" />
+                                {order.customer_email}
+                              </p>
+                              {order.customer_phone && (
+                                <p className="text-gray-600">
+                                  <Phone className="w-3 h-3 inline mr-1" />
+                                  {order.customer_phone}
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Shipping Address */}
+                            <div className="space-y-1">
+                              <h5 className="font-medium text-gray-900 dark:text-gray-100">Shipping</h5>
+                              <p className="text-gray-600">{order.shipping_address}</p>
+                              <p className="text-gray-600">
+                                {order.shipping_city}, {order.shipping_state}
+                              </p>
+                              <p className="text-gray-600">{order.shipping_country}</p>
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedOrder(order);
+                                    setNewOrderStatus(order.status || 'pending');
+                                  }}
+                                  className="text-xs"
+                                >
+                                  <Package className="w-3 h-3 mr-1" />
+                                  Update Status
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-md">
+                                <div className="space-y-4">
+                                  <div className="space-y-2">
+                                    <h4 className="font-medium">Update Order Status</h4>
+                                    <p className="text-sm text-gray-600">
+                                      Order: {order.order_number}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                      Customer: {order.customer_first_name} {order.customer_last_name}
+                                    </p>
+                                  </div>
+                                  
+                                  <div className="space-y-2">
+                                    <label className="text-sm font-medium">New Status</label>
+                                    <Select value={newOrderStatus} onValueChange={setNewOrderStatus}>
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {statusOptions.map((option) => (
+                                          <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  <div className="flex gap-2">
+                                    <Button 
+                                      onClick={updateOrderStatus}
+                                      disabled={updatingOrderStatus || newOrderStatus === order.status}
+                                      className="flex-1"
+                                    >
+                                      {updatingOrderStatus ? 'Updating...' : 'Update Status'}
+                                    </Button>
+                                  </div>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+
+                            {userProfile && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => window.open(`/profile/${userProfile.slug}`, '_blank')}
+                                className="text-xs"
+                              >
+                                <Eye className="w-3 h-3 mr-1" />
+                                View Profile
+                              </Button>
+                            )}
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const orderInfo = `Order: ${order.order_number}\nCustomer: ${order.customer_first_name} ${order.customer_last_name}\nEmail: ${order.customer_email}\nTotal: ₵${order.total.toFixed(2)}`;
+                                navigator.clipboard.writeText(orderInfo);
+                                toast.success('Order details copied to clipboard');
+                              }}
+                              className="text-xs"
+                            >
+                              <Copy className="w-3 h-3 mr-1" />
+                              Copy Details
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    ))
+                    )})
                   )}
                 </div>
               </CardContent>
@@ -645,7 +1071,8 @@ const AdminPage = () => {
                   <div className="space-y-2 text-xs sm:text-sm text-gray-600">
                     <p>• {stats.totalUsers} total users</p>
                     <p>• {stats.recentSignups} new users (30 days)</p>
-                    <p>• ₵{stats.totalRevenue.toFixed(2)} total revenue</p>
+                    <p className="text-green-600 font-medium">• ₵{stats.totalRevenue.toFixed(2)} confirmed revenue ({stats.paidOrders} orders)</p>
+                    <p className="text-yellow-600">• ₵{stats.pendingRevenue.toFixed(2)} pending revenue ({stats.pendingOrders} orders)</p>
                     <p>• ₵{stats.avgOrderValue.toFixed(2)} avg order value</p>
                     <p>• {stats.activeProfiles} active profiles</p>
                   </div>
@@ -680,6 +1107,8 @@ const AdminPage = () => {
         </motion.div>
 
       </div>
+
+      <AdminFooter />
     </div>
   );
 };

@@ -248,7 +248,7 @@ export default function DashboardQR() {
           <CardHeader>
             <CardTitle className="text-lg">Maximize Your Digital Presence</CardTitle>
             <CardDescription>
-              Unlock the full potential of your Tap Verse digital identity
+              Unlock the full potential of your SCAN2TAP digital identity
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -297,7 +297,11 @@ export const orderService = {
         pending: data?.filter(order => ['pending', 'confirmed', 'processing'].includes(order.status)).length || 0,
         shipped: data?.filter(order => order.status === 'shipped').length || 0,
         delivered: data?.filter(order => order.status === 'delivered').length || 0,
-        totalRevenue: data?.reduce((sum, order) => sum + parseFloat(order.total), 0) || 0
+        totalRevenue: data?.reduce((sum, order) => {
+          // Only count revenue from successfully paid orders
+          const paidStatuses = ['confirmed', 'processing', 'shipped', 'delivered'];
+          return paidStatuses.includes(order.status) ? sum + parseFloat(order.total) : sum;
+        }, 0) || 0
       };
 
       return { success: true, stats };

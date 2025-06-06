@@ -1,117 +1,166 @@
-# Welcome to your Lovable project
+# SCAN2TAP - Digital Business Card Platform
 
-## Project info
-## info
+## Overview
+SCAN2TAP is a comprehensive digital business card platform that combines physical elegance with digital convenience. Create, manage, and share your professional identity with a modern, interactive digital business card.
 
-**URL**: https://lovable.dev/projects/f1c33639-bbfd-4e03-994c-a2b4ed8f83e0
+## Features
 
-## How can I edit this code?
+### Core Features
+- **Digital Business Cards**: Create and customize your digital identity
+- **QR Code Generation**: Generate unique QR codes for instant sharing
+- **Profile Management**: Complete profile creation and editing
+- **Social Media Integration**: Connect all your social media profiles
+- **Contact Management**: Share contact information via vCard
+- **Analytics**: Track profile views and engagement
 
-There are several ways of editing your application.
+### User Features
+- **Profile Customization**
+  - Custom avatars with Supabase Storage
+  - Professional titles and bios
+  - Social media links
+  - Contact information
+  - Custom themes and colors
 
-**Use Lovable**
+- **QR Code System**
+  - Dynamic QR code generation
+  - Customizable QR code styles
+  - Download and sharing functionality
+  - Analytics tracking
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f1c33639-bbfd-4e03-994c-a2b4ed8f83e0) and start prompting.
+- **Contact Management**
+  - WhatsApp integration
+  - Email contact
+  - Phone number sharing
+  - vCard export
+  - One-tap contact saving
 
-Changes made via Lovable will be committed automatically to this repo.
+### Admin Features
+- **Dashboard Overview**
+  - Real-time statistics
+  - System health monitoring
+  - User analytics
+  - Revenue tracking
 
-**Use your preferred IDE**
+- **User Management**
+  - Complete user profiles
+  - Link analytics
+  - Search functionality
+  - Data export
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Order Management**
+  - Order tracking
+  - Status updates
+  - Payment verification
+  - Shipping management
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Tech Stack
 
-Follow these steps:
+### Frontend
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui
+- Framer Motion
+- React Router
+- React Icons
 
+### Backend
+- Supabase
+  - Authentication
+  - Database
+  - Storage
+  - Real-time subscriptions
+
+### Payment Processing
+- Paystack Integration
+  - Ghana Cedi (GHS) support
+  - Secure payment verification
+  - Order status tracking
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+- Supabase account
+- Paystack account (for payments)
+
+### Installation
+
+1. Clone the repository:
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Create environment file with admin credentials
-cp .env.example .env
-# Edit .env and add your Supabase credentials and admin login
-
-# Step 5: Start the development server with auto-reloading and an instant preview.
-npm run dev
+git clone <repository-url>
+cd tap-verse-digital-id
 ```
 
-## Admin Access
+2. Install dependencies:
+```sh
+npm install
+```
 
-This application includes an admin dashboard at `/admin` with the following features:
+3. Set up environment variables:
+```sh
+cp .env.example .env
+```
 
-- **Authentication**: Secure login with environment-based credentials
-- **User Management**: View all user profiles with search and export capabilities
-- **Order Management**: Track and manage all orders with detailed information
-- **Analytics**: Platform statistics including revenue, active users, and system health
-- **Data Export**: Export user and order data to CSV files
-
-### Admin Setup
-
-1. Create a `.env` file in the project root with the following variables:
-
+4. Configure your `.env` file:
 ```env
 # Supabase Configuration
-VITE_SUPABASE_URL=your_supabase_url_here
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+VITE_PUBLIC_SUPABASE_URL=your_supabase_url
+VITE_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Paystack Configuration
+VITE_PAYSTACK_PUBLIC_KEY=your_paystack_public_key
 
 # Admin Configuration
 VITE_ADMIN_USERNAME=admin
-VITE_ADMIN_PASSWORD=admin123
-
-# Development
-VITE_NODE_ENV=development
+VITE_ADMIN_PASSWORD=your_secure_admin_password
 ```
 
-2. Navigate to `/admin` and login with the credentials set in your environment variables
-3. Default credentials (if not set): Username: `admin`, Password: `admin123`
+5. Start the development server:
+```sh
+npm run dev
+```
 
-### Admin Features
+## Database Setup
 
-- **Dashboard Overview**: Real-time statistics and system health monitoring
-- **User Profiles**: Complete user management with profile viewing and link analytics
-- **Order Tracking**: Comprehensive order management with status updates
-- **Data Export**: CSV export functionality for reporting and analysis
-- **Responsive Design**: Mobile-friendly admin interface
-- **Authentication**: Persistent login with secure logout functionality
+1. Create a new Supabase project
+2. Run the following migrations in order:
+   - `001_create_profiles_table.sql`
+   - `002_create_orders_table.sql`
+   - `004_user_settings.sql`
+   - `005_add_email_to_profiles.sql`
+   - `006_add_email_trigger.sql`
 
-**Edit a file directly in GitHub**
+## Deployment
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Frontend Deployment
+1. Build the application:
+```sh
+npm run build
+```
 
-**Use GitHub Codespaces**
+2. Deploy to your preferred platform (Vercel, Netlify, etc.)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Backend Configuration
+1. Set up Supabase project
+2. Configure storage buckets
+3. Set up RLS policies
+4. Configure authentication
 
-## What technologies are used for this project?
+## Contributing
 
-This project is built with:
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## License
 
-## How can I deploy this project?
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-Simply open [Lovable](https://lovable.dev/projects/f1c33639-bbfd-4e03-994c-a2b4ed8f83e0) and click on Share -> Publish.
+## Support
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+For support, email support@scan2tap.com or join our Discord community.

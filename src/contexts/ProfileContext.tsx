@@ -14,6 +14,7 @@ interface Profile {
   created_at?: string;
   updated_at?: string;
   phone?: string;
+  email?: string;
 }
 
 interface ProfileContextType {

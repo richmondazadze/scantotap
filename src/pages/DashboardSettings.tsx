@@ -246,7 +246,7 @@ export default function DashboardSettings() {
       console.error('Error resetting profile:', error);
       toast.error('Failed to reset profile. Please try again.');
     } finally {
-      setLoading(false);
+    setLoading(false);
     }
   };
 

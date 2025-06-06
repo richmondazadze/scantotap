@@ -1,7 +1,7 @@
-# Tap Verse Digital ID - Deployment Guide
+# SCAN2TAP - Deployment Guide
 
 ## Overview
-Tap Verse Digital ID is a comprehensive digital business card platform with QR code generation, order management, and payment processing via Paystack.
+SCAN2TAP is a comprehensive digital business card platform with QR code generation, order management, and payment processing via Paystack.
 
 ## Features Implemented
 ✅ **Authentication & Authorization**

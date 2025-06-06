@@ -1,9 +1,13 @@
 import { QrCode } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function Scan2TapLogo() {
+interface Scan2TapLogoProps {
+  compact?: boolean;
+}
+
+export default function Scan2TapLogo({ compact = false }: Scan2TapLogoProps) {
   return (
-    <div className="flex items-center space-x-3 sm:space-x-4">
+    <div className={`flex items-center ${compact ? 'space-x-1' : 'space-x-3 sm:space-x-4'}`}>
       <div className="relative">
         {/* Stable Glow for Light Mode (no scale animation) */}
         <motion.div
@@ -27,7 +31,11 @@ export default function Scan2TapLogo() {
         <img
           src="/logo.png"
           alt="Scan2Tap Logo"
-          className="h-10 sm:h-12 w-auto max-w-[180px] object-contain drop-shadow-md relative z-10"
+          className={`${
+            compact 
+              ? 'h-6 sm:h-8 w-auto max-w-[120px]' 
+              : 'h-10 sm:h-12 w-auto max-w-[180px]'
+          } object-contain drop-shadow-md relative z-10`}
           style={{ display: 'block' }}
         />
       </div>

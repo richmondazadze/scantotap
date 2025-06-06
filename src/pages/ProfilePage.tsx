@@ -357,8 +357,8 @@ const ProfilePage = () => {
           {/* Contact & Actions */}
           <div className="space-y-6">
             
-            {/* Phone Number */}
-            {profile.phone && (
+            {/* Contact Information */}
+            {(profile.phone || profile.email) && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -371,40 +371,105 @@ const ProfilePage = () => {
                       Contact Information
                     </CardTitle>
                     <CardDescription>
-                      Get in touch directly
+                      Get in touch directly through multiple channels
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div className="w-10 h-10 bg-scan-blue rounded-lg flex items-center justify-center">
-                        <Phone className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Phone Number</p>
-                        <p className="font-semibold text-lg">{profile.phone}</p>
-          </div>
-        </div>
+                    {/* Contact Details */}
+                    <div className="grid grid-cols-1 gap-4">
+                      {profile.phone && (
+                        <div className="flex items-center gap-3 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <div className="w-10 h-10 flex-shrink-0 bg-scan-blue rounded-lg flex items-center justify-center">
+                            <Phone className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Phone Number</p>
+                            <p className="font-semibold text-base sm:text-lg truncate">{profile.phone}</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(profile.phone)}
+                            className="opacity-70 hover:opacity-100 flex-shrink-0"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                      
+                      {profile.email && (
+                        <div className="flex items-center gap-3 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <div className="w-10 h-10 flex-shrink-0 bg-purple-500 rounded-lg flex items-center justify-center">
+                            <Mail className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Email Address</p>
+                            <p className="font-semibold text-base sm:text-lg truncate">{profile.email}</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(profile.email)}
+                            className="opacity-70 hover:opacity-100 flex-shrink-0"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
         
-          <div className="grid grid-cols-2 gap-3">
-                      <a
-                        href={`tel:${profile.phone}`}
-                        className="w-full"
-                      >
-                        <Button className="w-full bg-scan-blue hover:bg-scan-blue/90">
-                          <Phone className="w-4 h-4 mr-2" />
-                          Call Now
-                        </Button>
-                      </a>
+                    {/* Action Buttons */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {profile.phone && (
+                        <a
+                          href={`tel:${profile.phone}`}
+                          className="w-full"
+                        >
+                          <Button className="w-full bg-scan-blue hover:bg-scan-blue/90">
+                            <Phone className="w-4 h-4 mr-2" />
+                            Call Now
+                          </Button>
+                        </a>
+                      )}
+                      
+                      {profile.email && (
+                        <a
+                          href={`mailto:${profile.email}`}
+                          className="w-full"
+                        >
+                          <Button className="w-full bg-purple-500 hover:bg-purple-600">
+                            <Mail className="w-4 h-4 mr-2" />
+                            Send Email
+                          </Button>
+                        </a>
+                      )}
+                      
+                      {profile.phone && (
+                        <a
+                          href={`https://wa.me/${profile.phone.replace(/\D/g, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full"
+                        >
+                          <Button variant="outline" className="w-full border-green-500 text-green-600 hover:bg-green-50">
+                            <FaWhatsapp className="w-4 h-4 mr-2" />
+                            WhatsApp
+                          </Button>
+                        </a>
+                      )}
+                      
                       <Button
                         variant="outline"
                         onClick={() => {
-                          // Create vCard content
+                          // Create enhanced vCard content
                           const vCard = `BEGIN:VCARD
 VERSION:3.0
 FN:${profile.name}
-TEL;TYPE=CELL:${profile.phone}
+${profile.phone ? `TEL;TYPE=CELL:${profile.phone}` : ''}
+${profile.email ? `EMAIL:${profile.email}` : ''}
 ${profile.title ? `TITLE:${profile.title}` : ''}
 ${profile.bio ? `NOTE:${profile.bio}` : ''}
+${profile.links && profile.links.length > 0 ? `URL:${profile.links[0].url}` : ''}
 END:VCARD`;
                           
                           // Create blob and download link
@@ -497,36 +562,77 @@ END:VCARD`;
                     Connect with me on social platforms
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {socialLinks.map((link: any, idx: number) => {
-                    const key = (link.platform || link.label || '').toLowerCase();
-                    const Icon = SOCIAL_ICON_MAP[key] || FaLink;
-                    return (
-                      <motion.a
-                        key={idx}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.7 + idx * 0.1 }}
-                        className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-scan-blue hover:bg-scan-blue/5 transition-all group cursor-pointer"
-                      >
-                        <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 group-hover:bg-scan-blue group-hover:text-white rounded-lg flex items-center justify-center transition-all">
-                          <Icon className="w-6 h-6" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                            {link.platform || link.label}
-                          </p>
-                          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
-                            {extractSocialUsername(link.url)}
-                          </p>
-                        </div>
-                        <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-scan-blue" />
-                      </motion.a>
-                    );
-                  })}
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    {socialLinks.map((link: any, idx: number) => {
+                      const key = (link.platform || link.label || '').toLowerCase();
+                      const Icon = SOCIAL_ICON_MAP[key] || FaLink;
+                      
+                      // Define platform-specific colors
+                      const getPlatformColor = (platform: string) => {
+                        const colors: Record<string, { bg: string; hover: string; text: string }> = {
+                          instagram: { bg: 'bg-gradient-to-br from-purple-500 to-pink-500', hover: 'hover:from-purple-600 hover:to-pink-600', text: 'text-white' },
+                          twitter: { bg: 'bg-sky-500', hover: 'hover:bg-sky-600', text: 'text-white' },
+                          x: { bg: 'bg-black', hover: 'hover:bg-gray-800', text: 'text-white' },
+                          linkedin: { bg: 'bg-blue-600', hover: 'hover:bg-blue-700', text: 'text-white' },
+                          facebook: { bg: 'bg-blue-700', hover: 'hover:bg-blue-800', text: 'text-white' },
+                          github: { bg: 'bg-gray-800', hover: 'hover:bg-gray-900', text: 'text-white' },
+                          whatsapp: { bg: 'bg-green-500', hover: 'hover:bg-green-600', text: 'text-white' },
+                          youtube: { bg: 'bg-red-600', hover: 'hover:bg-red-700', text: 'text-white' },
+                          snapchat: { bg: 'bg-yellow-400', hover: 'hover:bg-yellow-500', text: 'text-black' },
+                          tiktok: { bg: 'bg-black', hover: 'hover:bg-gray-800', text: 'text-white' },
+                          spotify: { bg: 'bg-green-600', hover: 'hover:bg-green-700', text: 'text-white' },
+                        };
+                        return colors[platform] || { bg: 'bg-gray-500', hover: 'hover:bg-gray-600', text: 'text-white' };
+                      };
+                      
+                      const platformColors = getPlatformColor(key);
+                      
+                      return (
+                        <motion.a
+                          key={idx}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.7 + idx * 0.1 }}
+                          className="group cursor-pointer"
+                        >
+                          <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-transparent hover:shadow-xl transition-all duration-300 p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center text-center group-hover:scale-105">
+                            {/* Icon Container */}
+                            <div className={`w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-xl ${platformColors.bg} ${platformColors.hover} ${platformColors.text} flex items-center justify-center transition-all duration-300 mb-3 group-hover:scale-110 shadow-lg`}>
+                              <Icon className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+                            </div>
+                            
+                            {/* Platform Name */}
+                            <h3 className="font-semibold text-sm sm:text-base lg:text-lg text-gray-900 dark:text-gray-100 mb-1 capitalize">
+                              {link.platform || link.label}
+                            </h3>
+                            
+                            {/* Username */}
+                            <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-400 truncate w-full">
+                              @{extractSocialUsername(link.url)}
+                            </p>
+                            
+                            {/* External Link Icon */}
+                            <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                              <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-scan-blue" />
+                            </div>
+                          </div>
+                        </motion.a>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Add empty space if odd number of social links */}
+                  {socialLinks.length % 2 !== 0 && (
+                    <div className="mt-4 text-center">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        More social connections coming soon...
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>

@@ -354,7 +354,7 @@ export default function DashboardShipping() {
                     onClick={() => {
                       const subject = `Order ${order.order_number} - Support Request`;
                       const body = `Hi, I have a question about my order ${order.order_number}. `;
-                      window.location.href = `mailto:support@tapverse.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                      window.location.href = `mailto:support@scan2tap.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                     }}
                   >
                     <Mail className="w-4 h-4 mr-1" />
