@@ -3,6 +3,15 @@
 import React, { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Scan2TapLogo from "@/components/Scan2TapLogo";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { FileText, Shield } from "lucide-react";
 
 export const LightLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -68,7 +77,7 @@ export const LightLogin = () => {
         <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-blue-100 via-blue-50 to-transparent opacity-40 blur-3xl -mt-20"></div>
         <div className="p-8">
           <div className="flex flex-col items-center mb-8">
-            <div className="bg-white p-4 rounded-2xl shadow-lg mb-6">
+            <div className="mb-6">
               <Scan2TapLogo />
             </div>
             <div className="p-0">
@@ -202,12 +211,77 @@ export const LightLogin = () => {
                   className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   required
                 />
-                <label htmlFor="terms" className="text-xs text-gray-600 select-none">
-                  I agree to the
-                  <a href="#" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline mx-1">Terms and Conditions</a>
-                  and
-                  <a href="#" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline mx-1">Privacy Policy</a>
-                </label>
+                <span className="text-xs text-gray-600 select-none">
+                  I agree to the{' '}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button type="button" className="text-blue-600 hover:underline mx-1 inline-flex items-center gap-1">
+                        Terms and Conditions
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl glassmorphism">
+                      <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                          <FileText size={20} className="text-scan-blue" />
+                          Terms of Service
+                        </DialogTitle>
+                        <DialogDescription className="mt-4">
+                          <div className="text-left space-y-4">
+                            <p>Last updated: May 16, 2025</p>
+                            <h3 className="text-lg font-semibold">1. Acceptance of Terms</h3>
+                              <p>By accessing or using Scan2Tap services, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
+                            <h3 className="text-lg font-semibold">2. User Accounts</h3>
+                              <p>You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. You must immediately notify Scan2Tap of any unauthorized use of your account.</p>
+                            <h3 className="text-lg font-semibold">3. Identity Ownership</h3>
+                            <p>You retain all rights to the content you add to your profile. By using our services, you grant us a license to display and process this content as needed to provide our services.</p>
+                            <h3 className="text-lg font-semibold">4. Prohibited Content</h3>
+                              <p>You may not use Scan2Tap to share illegal, harmful, threatening, abusive, harassing, defamatory, or otherwise objectionable content.</p>
+                            <h3 className="text-lg font-semibold">5. Service Modifications</h3>
+                              <p>Scan2Tap reserves the right to modify or discontinue the service at any time, with or without notice.</p>
+                            <h3 className="text-lg font-semibold">6. Termination</h3>
+                              <p>Scan2Tap may terminate your access to the service, without cause or notice, which may result in the deletion of all information associated with your account.</p>
+                            <h3 className="text-lg font-semibold">7. Contact</h3>
+                            <p>If you have any questions about these Terms, please contact us at terms@scantotap.com.</p>
+                          </div>
+                        </DialogDescription>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
+                  {' '}and{' '}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button type="button" className="text-blue-600 hover:underline mx-1 inline-flex items-center gap-1">
+                        Privacy Policy
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl glassmorphism">
+                      <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                          <Shield size={20} className="text-scan-blue" />
+                          Privacy Policy
+                        </DialogTitle>
+                        <DialogDescription className="mt-4">
+                          <div className="text-left space-y-4">
+                            <p>Last updated: May 16, 2025</p>
+                            <h3 className="text-lg font-semibold">1. Data Collection</h3>
+                              <p>We collect personal information that you voluntarily provide when creating your Scan2Tap profile, including your name, email address, profile image, contact information, and any links you choose to add to your profile.</p>
+                            <h3 className="text-lg font-semibold">2. QR Code Access</h3>
+                            <p>When someone scans your QR code, we collect basic analytics data such as time of scan, approximate location (city/country level), and device type. This information is used to provide you with insights about your profile's visibility.</p>
+                            <h3 className="text-lg font-semibold">3. Data Usage</h3>
+                            <p>The information we collect is used to provide and improve our services, process transactions, send notifications about your account, and provide customer support.</p>
+                            <h3 className="text-lg font-semibold">4. Third-Party Sharing</h3>
+                            <p>We do not share your personal information with third parties except as necessary to provide our services (such as processing payments or shipping cards) or as required by law.</p>
+                            <h3 className="text-lg font-semibold">5. Data Security</h3>
+                            <p>We implement appropriate security measures to protect against unauthorized access, alteration, disclosure, or destruction of your personal information.</p>
+                            <h3 className="text-lg font-semibold">6. Contact Us</h3>
+                            <p>If you have questions about this Privacy Policy, please contact us at privacy@scantotap.com.</p>
+                          </div>
+                        </DialogDescription>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
+                  .
+                </span>
               </div>
 
               {error && (
@@ -310,18 +384,10 @@ export const LightLogin = () => {
               onClick={() => handleOAuth("apple")}
               disabled={loading}
             >
-                {/* Apple SVG */}
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="text-gray-700"
-                >
-                  <path d="M16.365 1.43c0 1.14-.93 2.07-2.07 2.07-.04 0-.08 0-.12-.01-.09-1.09.95-2.13 2.07-2.06.08 0 .12.01.12.01zm3.67 5.62c-1.13-1.36-2.8-1.52-3.36-1.52-.16 0-.32.01-.46.03-.44.06-.85.18-1.21.36-.36.18-.7.44-1.01.77-.31.33-.6.74-.86 1.22-.26.48-.48 1.01-.66 1.59-.18.58-.32 1.19-.41 1.83-.09.64-.13 1.29-.13 1.95 0 1.13.18 2.19.54 3.18.36.99.85 1.87 1.47 2.65.62.78 1.32 1.39 2.1 1.83.78.44 1.6.66 2.47.66.87 0 1.69-.22 2.47-.66.78-.44 1.48-1.05 2.1-1.83.62-.78 1.11-1.66 1.47-2.65.36-.99.54-2.05.54-3.18 0-.66-.04-1.31-.13-1.95-.09-.64-.23-1.25-.41-1.83-.18-.58-.4-1.11-.66-1.59-.26-.48-.55-.89-.86-1.22-.31-.33-.65-.59-1.01-.77-.36-.18-.77-.3-1.21-.36-.14-.02-.3-.03-.46-.03-.56 0-2.23.16-3.36 1.52zm-3.67 13.13c-.04 0-.08 0-.12-.01-1.12-.07-2.16-.97-2.07-2.06.04 0 .08.01.12.01 1.12.07 2.16.97 2.07 2.06z" fill="#000"/>
-                </svg>
+                {/* Apple logo from public directory */}
+                <img src="/Apple_logo_black.svg" alt="Apple logo" className="w-5 h-5 object-contain" />
                 <span className="whitespace-nowrap">Apple ID</span>
-              </button>
+            </button>
           </div>
 
           <div className="p-0 mt-6">
