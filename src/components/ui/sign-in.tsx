@@ -25,19 +25,45 @@ export const LightLogin = () => {
 
   const resetMessages = () => {
     setError(null);
-    setSuccess(null);
+    setSuccess(null)
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    resetMessages();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) setError(error.message);
-    setLoading(false);
+    setError(null);
+
+    try {
+      // Check if the account exists
+      const { data: existingUser, error: checkError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (checkError) {
+        if (checkError.message.includes('Invalid login credentials')) {
+          setError('Account does not exist. Please sign up.');
+        } else {
+          setError(checkError.message);
+        }
+        return;
+      }
+
+      // If account exists, proceed with sign-in
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
+      }
+    } catch (error) {
+      console.error('Error signing in:', error);
+      setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -305,18 +331,6 @@ export const LightLogin = () => {
               {error && (
                 <div className="text-red-500 text-sm text-center">
                   {error}
-                  {error.includes('already exists') && (
-                    <>
-                      <br />
-                      <button
-                        type="button"
-                        className="text-blue-600 hover:underline mt-2"
-                        onClick={() => { setMode('sign-in'); resetMessages(); }}
-                      >
-                        Sign in instead
-                      </button>
-                    </>
-                  )}
                 </div>
               )}
               {success && (

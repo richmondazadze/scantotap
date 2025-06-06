@@ -123,15 +123,15 @@ export default function DashboardQR() {
         className="flex-1"
       >
         <Card className="overflow-hidden">
-          <CardHeader>
+        <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <QrCode className="w-5 h-5" />
               QR Code Preview
             </CardTitle>
-            <CardDescription>
+          <CardDescription>
               Anyone can scan this code to view your digital business card
-            </CardDescription>
-          </CardHeader>
+          </CardDescription>
+        </CardHeader>
           <CardContent className="space-y-6">
             {/* QR Code Section */}
             <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 items-start">
@@ -139,10 +139,10 @@ export default function DashboardQR() {
               <div className="w-full lg:w-1/2 flex justify-center">
                                   <div className="w-full max-w-xs p-4 sm:p-6">
                     <div className="w-full h-full max-w-[240px] sm:max-w-[280px] max-h-[240px] sm:max-h-[280px] mx-auto">
-                    <QRCodeGenerator 
-                      profileUrl={profileUrl} 
-                      username={profile.slug || profile.id}
-                    />
+            <QRCodeGenerator 
+              profileUrl={profileUrl} 
+              username={profile.slug || profile.id} 
+            />
                   </div>
                 </div>
               </div>
@@ -301,9 +301,9 @@ export default function DashboardQR() {
                   </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
 
         {/* Statistics or Features */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
