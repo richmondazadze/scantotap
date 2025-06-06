@@ -1,8 +1,8 @@
+import React, { useImperativeHandle, forwardRef, useRef, useState, useEffect } from "react";
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from "@/components/ui/button";
 import { Download, Settings2, Save, Undo2 } from "lucide-react";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -28,12 +28,17 @@ const DEFAULT_STYLE = {
 
 const LOCAL_STORAGE_KEY = "scan2tap_qr_style";
 
-const QRCodeGenerator = ({ profileUrl, username }: QRCodeGeneratorProps) => {
+const QRCodeGenerator = forwardRef(function QRCodeGenerator(
+  { profileUrl, username }: QRCodeGeneratorProps,
+  ref
+) {
   const [size, setSize] = useState(DEFAULT_STYLE.size);
   const [fgColor, setFgColor] = useState(DEFAULT_STYLE.fgColor);
   const [bgColor, setBgColor] = useState(DEFAULT_STYLE.bgColor);
   const [logoSize, setLogoSize] = useState(DEFAULT_STYLE.logoSize);
   const [showSettings, setShowSettings] = useState(false);
+
+  const svgRef = useRef<SVGSVGElement>(null);
 
   // Load saved style on mount
   useEffect(() => {
@@ -67,37 +72,51 @@ const QRCodeGenerator = ({ profileUrl, username }: QRCodeGeneratorProps) => {
   };
 
   const downloadQRCode = () => {
-    const svg = document.getElementById("qr-code-svg");
+    const svg = svgRef.current;
     if (!svg) return;
 
-    const svgData = new XMLSerializer().serializeToString(svg);
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svg);
+
     const canvas = document.createElement("canvas");
+    canvas.width = svg.width.baseVal.value || 256;
+    canvas.height = svg.height.baseVal.value || 256;
     const ctx = canvas.getContext("2d");
-    const img = new Image();
+    const img = new window.Image();
 
     img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx?.drawImage(img, 0, 0);
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+      ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
       const pngFile = canvas.toDataURL("image/png");
 
       const downloadLink = document.createElement("a");
       downloadLink.download = `scan2tap-${username}.png`;
       downloadLink.href = pngFile;
+      document.body.appendChild(downloadLink);
       downloadLink.click();
+      document.body.removeChild(downloadLink);
 
       toast.success("QR Code downloaded", {
         description: "You can now share your digital card with others.",
       });
     };
 
-    img.src = "data:image/svg+xml;base64," + btoa(svgData);
+    img.onerror = () => {
+      toast.error("Failed to generate QR code image.");
+    };
+
+    img.src = "data:image/svg+xml;base64," + window.btoa(unescape(encodeURIComponent(svgString)));
   };
+
+  useImperativeHandle(ref, () => ({
+    downloadQRCode,
+  }));
 
   return (
     <div className="flex flex-col items-center space-y-6">
       <div className="p-4 bg-white rounded-lg shadow-lg relative">
         <QRCodeSVG
+          ref={svgRef}
           id="qr-code-svg"
           value={profileUrl}
           size={size}
@@ -203,6 +222,6 @@ const QRCodeGenerator = ({ profileUrl, username }: QRCodeGeneratorProps) => {
       </div>
     </div>
   );
-};
+});
 
 export default QRCodeGenerator; 

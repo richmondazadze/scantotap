@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useProfile } from '@/contexts/ProfileContext';
@@ -21,6 +21,8 @@ export default function DashboardQR() {
   useAuthGuard(); // Ensure user is authenticated
   const { profile } = useProfile();
   const [loading, setLoading] = useState(false);
+  const qrRef = useRef<any>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   if (!profile) {
     return (
@@ -48,15 +50,11 @@ export default function DashboardQR() {
   };
 
   // Download QR code
-  const downloadQRCode = async () => {
-    setLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('QR Code downloaded');
-    } catch (error) {
-      toast.error('Failed to download QR code');
-    } finally {
-      setLoading(false);
+  const downloadQRCode = () => {
+    if (qrRef.current && qrRef.current.downloadQRCode) {
+      qrRef.current.downloadQRCode();
+    } else {
+      toast.error("QR code not ready.");
     }
   };
 
@@ -140,6 +138,7 @@ export default function DashboardQR() {
                                   <div className="w-full max-w-xs p-4 sm:p-6">
                     <div className="w-full h-full max-w-[240px] sm:max-w-[280px] max-h-[240px] sm:max-h-[280px] mx-auto">
             <QRCodeGenerator 
+              ref={qrRef}
               profileUrl={profileUrl} 
               username={profile.slug || profile.id} 
             />
