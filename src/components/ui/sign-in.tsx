@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import Scan2TapLogo from "@/components/Scan2TapLogo";
 
 export const LightLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,6 +12,7 @@ export const LightLogin = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [mode, setMode] = useState<'sign-in' | 'sign-up' | 'forgot'>('sign-in');
+  const [agreed, setAgreed] = useState(false);
 
   const resetMessages = () => {
     setError(null);
@@ -52,7 +54,7 @@ export const LightLogin = () => {
     setLoading(false);
   };
 
-  const handleOAuth = async (provider: "google" | "github") => {
+  const handleOAuth = async (provider: "google" | "apple") => {
     setLoading(true);
     resetMessages();
     const { error } = await supabase.auth.signInWithOAuth({ provider });
@@ -67,19 +69,7 @@ export const LightLogin = () => {
         <div className="p-8">
           <div className="flex flex-col items-center mb-8">
             <div className="bg-white p-4 rounded-2xl shadow-lg mb-6">
-              {/* You can replace this SVG with a Lucide icon if you prefer */}
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 110 106"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M100.83 28.63L66.86 3.95c-7.25-5.26-17.07-5.26-24.35 0L8.54 28.63C1.29 33.89-1.76 43.23 1.01 51.77l12.98 39.93c2.77 8.53 10.72 14.3 19.7 14.3h41.97c8.98 0 16.93-5.76 19.7-14.3l12.98-39.93c2.77-8.53-.28-17.88-7.53-23.14ZM64.81 63.13l-10.13 18.55-10.13-18.55-18.55-10.13 18.55-10.13 10.13-18.55 10.13 18.55 18.55 10.13-18.55 10.13Z"
-                  fill="#3B82F6"
-                />
-              </svg>
+              <Scan2TapLogo />
             </div>
             <div className="p-0">
               <h2 className="text-2xl font-bold text-gray-900 text-center">
@@ -203,6 +193,23 @@ export const LightLogin = () => {
                 </div>
               </div>
 
+              <div className="flex items-center space-x-2">
+                <input
+                  id="terms"
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={e => setAgreed(e.target.checked)}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  required
+                />
+                <label htmlFor="terms" className="text-xs text-gray-600 select-none">
+                  I agree to the
+                  <a href="#" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline mx-1">Terms and Conditions</a>
+                  and
+                  <a href="#" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline mx-1">Privacy Policy</a>
+                </label>
+              </div>
+
               {error && (
                 <div className="text-red-500 text-sm text-center">{error}</div>
               )}
@@ -213,7 +220,7 @@ export const LightLogin = () => {
               <button
                 type="submit"
                 className="w-full h-12 bg-gradient-to-t from-blue-600 via-blue-500 to-blue-400 hover:from-blue-700 hover:via-blue-600 hover:to-blue-500 text-white font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-blue-100 active:scale-[0.98] inline-flex items-center justify-center whitespace-nowrap text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                disabled={loading}
+                disabled={loading || !agreed}
               >
                 {loading ? "Signing Up..." : "Sign Up"}
               </button>
@@ -300,10 +307,10 @@ export const LightLogin = () => {
             <button
               type="button"
               className="h-12 bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-black rounded-lg flex items-center justify-center gap-2 border bg-background inline-flex whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-              onClick={() => handleOAuth("github")}
+              onClick={() => handleOAuth("apple")}
               disabled={loading}
             >
-                {/* GitHub SVG */}
+                {/* Apple SVG */}
                 <svg
                   width="18"
                   height="18"
@@ -311,12 +318,9 @@ export const LightLogin = () => {
                   fill="none"
                   className="text-gray-700"
                 >
-                  <path
-                    d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.6.113.82-.26.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.386-1.332-1.755-1.332-1.755-1.087-.744.084-.729.084-.729 1.205.085 1.84 1.236 1.84 1.236 1.07 1.835 2.809 1.305 3.493.997.108-.776.42-1.305.763-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.627-5.373-12-12-12z"
-                    fill="#24292F"
-                  />
+                  <path d="M16.365 1.43c0 1.14-.93 2.07-2.07 2.07-.04 0-.08 0-.12-.01-.09-1.09.95-2.13 2.07-2.06.08 0 .12.01.12.01zm3.67 5.62c-1.13-1.36-2.8-1.52-3.36-1.52-.16 0-.32.01-.46.03-.44.06-.85.18-1.21.36-.36.18-.7.44-1.01.77-.31.33-.6.74-.86 1.22-.26.48-.48 1.01-.66 1.59-.18.58-.32 1.19-.41 1.83-.09.64-.13 1.29-.13 1.95 0 1.13.18 2.19.54 3.18.36.99.85 1.87 1.47 2.65.62.78 1.32 1.39 2.1 1.83.78.44 1.6.66 2.47.66.87 0 1.69-.22 2.47-.66.78-.44 1.48-1.05 2.1-1.83.62-.78 1.11-1.66 1.47-2.65.36-.99.54-2.05.54-3.18 0-.66-.04-1.31-.13-1.95-.09-.64-.23-1.25-.41-1.83-.18-.58-.4-1.11-.66-1.59-.26-.48-.55-.89-.86-1.22-.31-.33-.65-.59-1.01-.77-.36-.18-.77-.3-1.21-.36-.14-.02-.3-.03-.46-.03-.56 0-2.23.16-3.36 1.52zm-3.67 13.13c-.04 0-.08 0-.12-.01-1.12-.07-2.16-.97-2.07-2.06.04 0 .08.01.12.01 1.12.07 2.16.97 2.07 2.06z" fill="#000"/>
                 </svg>
-                <span className="whitespace-nowrap">GitHub</span>
+                <span className="whitespace-nowrap">Apple ID</span>
               </button>
           </div>
 
