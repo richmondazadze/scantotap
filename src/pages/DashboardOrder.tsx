@@ -349,7 +349,7 @@ export default function DashboardOrder() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full mb-24 sm:mb-16 gap-8 mt-6 px-6">
+    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full mb-24 sm:mb-16 gap-6 sm:gap-8 mt-4 sm:mt-6 px-4 sm:px-6">
       {!showOrderForm ? (
         <>
           {/* Header */}
@@ -358,10 +358,10 @@ export default function DashboardOrder() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <h1 className="text-4xl font-bold text-scan-blue dark:text-scan-blue-light mb-3">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-scan-blue dark:text-scan-blue-light mb-3 px-2">
               {isEditMode ? 'Modify Your Order' : 'Order Your Digital Business Card'}
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 px-2">
               {isEditMode 
                 ? 'Update your order details and retry payment'
                 : 'Choose your design, customize your card, and get it delivered to your door'
@@ -369,9 +369,9 @@ export default function DashboardOrder() {
             </p>
           </motion.div>
 
-          <div className="grid xl:grid-cols-3 lg:grid-cols-2 gap-8">
+          <div className="grid xl:grid-cols-3 lg:grid-cols-2 gap-6 lg:gap-8">
             {/* Left Column - Design Selection */}
-            <div className="xl:col-span-2 lg:col-span-1 space-y-8">
+            <div className="xl:col-span-2 lg:col-span-1 space-y-6 lg:space-y-8">
               {/* Card Designs */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -389,11 +389,11 @@ export default function DashboardOrder() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                       {CARD_DESIGNS.map((design) => (
                         <div
                           key={design.id}
-                          className={`relative cursor-pointer rounded-lg border-2 p-6 transition-all ${
+                          className={`relative cursor-pointer rounded-lg border-2 p-4 sm:p-6 transition-all ${
                             selectedDesign.id === design.id
                               ? 'border-scan-blue bg-scan-blue/5'
                               : 'border-gray-200 hover:border-gray-300'
@@ -421,14 +421,14 @@ export default function DashboardOrder() {
                             material={selectedMaterial}
                             className="mb-4"
                           />
-                          <h3 className="font-semibold mb-2 text-lg">{design.name}</h3>
-                          <p className="text-sm text-gray-600 mb-3">{design.description}</p>
-                          <div className="text-xl font-bold text-scan-blue">₵{design.price}</div>
+                          <h3 className="font-semibold mb-2 text-base sm:text-lg">{design.name}</h3>
+                          <p className="text-xs sm:text-sm text-gray-600 mb-3">{design.description}</p>
+                          <div className="text-lg sm:text-xl font-bold text-scan-blue">₵{design.price}</div>
                           <div className="mt-2 space-y-1">
                             {design.features.map((feature, idx) => (
                               <div key={idx} className="flex items-center gap-1 text-xs text-gray-600">
-                                <Check className="w-3 h-3 text-green-500" />
-                                {feature}
+                                <Check className="w-3 h-3 text-green-500 flex-shrink-0" />
+                                <span className="leading-tight">{feature}</span>
                               </div>
                             ))}
                           </div>
@@ -456,11 +456,11 @@ export default function DashboardOrder() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
                       {MATERIALS.map((material) => (
                         <div
                           key={material.id}
-                          className={`cursor-pointer rounded-lg border-2 p-6 transition-all ${
+                          className={`cursor-pointer rounded-lg border-2 p-4 sm:p-6 transition-all ${
                             selectedMaterial.id === material.id
                               ? 'border-scan-blue bg-scan-blue/5'
                               : 'border-gray-200 hover:border-gray-300'
@@ -472,9 +472,9 @@ export default function DashboardOrder() {
                             isSelected={selectedMaterial.id === material.id}
                             onClick={() => setSelectedMaterial(material)}
                           />
-                          <h3 className="font-semibold mb-2 text-lg mt-4">{material.name}</h3>
-                          <p className="text-sm text-gray-600 mb-3">{material.description}</p>
-                          <div className="text-base font-medium">
+                          <h3 className="font-semibold mb-2 text-base sm:text-lg mt-4">{material.name}</h3>
+                          <p className="text-xs sm:text-sm text-gray-600 mb-3">{material.description}</p>
+                          <div className="text-sm sm:text-base font-medium">
                             {material.priceModifier > 0 ? `+₵${material.priceModifier}` : 'Included'}
                           </div>
                         </div>
@@ -531,7 +531,7 @@ export default function DashboardOrder() {
             </div>
 
             {/* Right Column - Preview & Order */}
-            <div className="space-y-8">
+            <div className="space-y-6 lg:space-y-8">
               {/* Card Preview */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -613,26 +613,26 @@ export default function DashboardOrder() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>{selectedDesign.name} × {quantity}</span>
-                        <span>${(basePrice * quantity).toFixed(2)}</span>
+                        <span>₵{(basePrice * quantity).toFixed(2)}</span>
                       </div>
                       {materialPrice > 0 && (
                         <div className="flex justify-between text-sm">
                           <span>{selectedMaterial.name} upgrade × {quantity}</span>
-                          <span>${(materialPrice * quantity).toFixed(2)}</span>
+                          <span>₵{(materialPrice * quantity).toFixed(2)}</span>
                         </div>
                       )}
                       <div className="flex justify-between text-sm">
                         <span>Shipping</span>
-                        <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+                        <span>{shipping === 0 ? 'Free' : `₵${shipping.toFixed(2)}`}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span>Tax</span>
-                        <span>${tax.toFixed(2)}</span>
+                        <span>₵{tax.toFixed(2)}</span>
                       </div>
                       <Separator />
                       <div className="flex justify-between font-bold">
                         <span>Total</span>
-                        <span>${total.toFixed(2)}</span>
+                        <span>₵{total.toFixed(2)}</span>
                       </div>
                     </div>
 
@@ -645,7 +645,7 @@ export default function DashboardOrder() {
                     </Button>
 
                     <div className="text-xs text-gray-500 text-center">
-                      <div className="flex items-center justify-center gap-4">
+                      <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
                         <div className="flex items-center gap-1">
                           <Shield className="w-3 h-3" />
                           Secure Payment
@@ -667,7 +667,7 @@ export default function DashboardOrder() {
       <motion.div
           initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl mx-auto w-full"
+          className="max-w-4xl mx-auto w-full px-2 sm:px-0"
         >
           <Card>
             <CardHeader>
@@ -679,11 +679,11 @@ export default function DashboardOrder() {
                 }
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 p-4 sm:p-6">
               {/* Personal Information */}
               <div>
                 <h3 className="font-semibold mb-3">Personal Information</h3>
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">First Name *</label>
                     <Input
@@ -733,7 +733,7 @@ export default function DashboardOrder() {
                       placeholder="123 Main Street"
                     />
                   </div>
-                  <div className="grid md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">City *</label>
                       <Input
@@ -774,9 +774,9 @@ export default function DashboardOrder() {
               </div>
 
               {/* Order Summary */}
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <h3 className="font-semibold mb-3">Order Summary</h3>
-                <div className="space-y-2 text-sm">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 sm:p-4">
+                <h3 className="font-semibold mb-3 text-sm sm:text-base">Order Summary</h3>
+                <div className="space-y-2 text-xs sm:text-sm">
                                         <div className="flex justify-between">
                         <span>{selectedDesign.name} × {quantity}</span>
                         <span>₵{(basePrice * quantity).toFixed(2)}</span>
@@ -804,39 +804,41 @@ export default function DashboardOrder() {
               </div>
 
               {/* Payment Security Notice */}
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Shield className="w-4 h-4 text-blue-600" />
-                  <span className="font-medium text-blue-900 dark:text-blue-100">Secure Payment</span>
+                  <span className="font-medium text-blue-900 dark:text-blue-100 text-sm sm:text-base">Secure Payment</span>
                 </div>
-                <p className="text-sm text-blue-800 dark:text-blue-200">
+                <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
                   Your payment is processed securely through Paystack. We never store your payment information.
                 </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button 
                   variant="outline" 
                   onClick={() => setShowOrderForm(false)}
-                  className="flex-1"
+                  className="w-full sm:flex-1 order-2 sm:order-1"
                 >
                   Back to Design
                 </Button>
                 <Button 
                   onClick={handlePlaceOrder}
                   disabled={isSubmittingOrder}
-                  className="flex-1 bg-gradient-to-r from-scan-blue to-scan-purple"
+                  className="w-full sm:flex-1 bg-gradient-to-r from-scan-blue to-scan-purple order-1 sm:order-2"
                 >
                   {isSubmittingOrder ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processing Payment...
+                      <span className="hidden sm:inline">Processing Payment...</span>
+                      <span className="sm:hidden">Processing...</span>
                     </>
                   ) : (
                     <>
                       <Zap className="w-4 h-4 mr-2" />
-                      Pay ₵{total.toFixed(2)} with Paystack
+                      <span className="hidden sm:inline">Pay ₵{total.toFixed(2)} with Paystack</span>
+                      <span className="sm:hidden">Pay ₵{total.toFixed(2)}</span>
                     </>
                   )}
                 </Button>
