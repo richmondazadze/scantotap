@@ -52,6 +52,14 @@ export interface Order extends OrderData {
 }
 
 export const orderService = {
+  // Generate a unique order number as fallback
+  generateOrderNumber(): string {
+    const timestamp = Date.now().toString();
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    const userId = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `ORD-${timestamp}-${userId}-${random}`;
+  },
+
   // Create a new order
   async createOrder(orderData: OrderData): Promise<{ success: boolean; order?: Order; error?: string }> {
     try {
@@ -61,7 +69,8 @@ export const orderService = {
         return { success: false, error: 'User not authenticated' };
       }
 
-      const { data, error } = await supabase
+      // Try creating the order with database-generated order number first
+      let { data, error } = await supabase
         .from('orders')
         .insert([{
           user_id: user.id,
@@ -69,6 +78,31 @@ export const orderService = {
         }])
         .select()
         .single();
+
+      // If there's a unique constraint error, try with a fallback order number
+      if (error && error.message.includes('duplicate key value violates unique constraint')) {
+        console.log('Database order number generation failed, using fallback...');
+        
+        // Generate a fallback order number
+        const fallbackOrderNumber = this.generateOrderNumber();
+        
+        const { data: retryData, error: retryError } = await supabase
+          .from('orders')
+          .insert([{
+            user_id: user.id,
+            order_number: fallbackOrderNumber,
+            ...orderData
+          }])
+          .select()
+          .single();
+
+        if (retryError) {
+          console.error('Error creating order with fallback:', retryError);
+          return { success: false, error: retryError.message };
+        }
+
+        return { success: true, order: retryData };
+      }
 
       if (error) {
         console.error('Error creating order:', error);
@@ -133,6 +167,35 @@ export const orderService = {
       return { success: true, order: data };
     } catch (error) {
       console.error('Error fetching order:', error);
+      return { success: false, error: 'An unexpected error occurred' };
+    }
+  },
+
+  // Update order details
+  async updateOrder(orderId: string, orderData: Partial<OrderData>): Promise<{ success: boolean; order?: Order; error?: string }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return { success: false, error: 'User not authenticated' };
+      }
+
+      const { data, error } = await supabase
+        .from('orders')
+        .update(orderData)
+        .eq('id', orderId)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating order:', error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, order: data };
+    } catch (error) {
+      console.error('Error updating order:', error);
       return { success: false, error: 'An unexpected error occurred' };
     }
   },

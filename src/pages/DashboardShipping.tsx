@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { orderService, type Order, formatOrderStatus, getStatusColor } from '@/lib/orderService';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,7 @@ import {
 } from 'lucide-react';
 
 export default function DashboardShipping() {
+  useAuthGuard(); // Ensure user is authenticated
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -96,7 +98,7 @@ export default function DashboardShipping() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-full flex-1 pb-6 w-full px-4">
+      <div className="flex justify-center items-center h-full flex-1 pb-24 sm:pb-6 w-full px-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
             <RefreshCw className="w-8 h-8 mx-auto mb-4 text-gray-400 animate-spin" />
@@ -108,7 +110,7 @@ export default function DashboardShipping() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-12 sm:pb-16 gap-8 mt-6 px-6">
+    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-24 sm:pb-18 gap-8 mt-6 px-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -220,7 +222,7 @@ export default function DashboardShipping() {
                     <Badge variant="secondary" className={getStatusColor(order.status)}>
                       {formatOrderStatus(order.status)}
                     </Badge>
-                    <span className="text-lg font-bold">${order.total.toFixed(2)}</span>
+                    <span className="text-lg font-bold">₵{order.total.toFixed(2)}</span>
                   </div>
                 </div>
               </CardHeader>
@@ -262,20 +264,20 @@ export default function DashboardShipping() {
                     <div className="text-sm space-y-1 text-gray-600">
                       <div className="flex justify-between">
                         <span>Subtotal:</span>
-                        <span>${order.subtotal.toFixed(2)}</span>
+                        <span>₵{order.subtotal.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Shipping:</span>
-                        <span>{order.shipping === 0 ? 'Free' : `$${order.shipping.toFixed(2)}`}</span>
+                        <span>{order.shipping === 0 ? 'Free' : `₵${order.shipping.toFixed(2)}`}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Tax:</span>
-                        <span>${order.tax.toFixed(2)}</span>
+                        <span>₵{order.tax.toFixed(2)}</span>
                       </div>
                       <Separator className="my-1" />
                       <div className="flex justify-between font-semibold">
                         <span>Total:</span>
-                        <span>${order.total.toFixed(2)}</span>
+                        <span>₵{order.total.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
@@ -375,9 +377,6 @@ export default function DashboardShipping() {
           ))
         )}
       </motion.div>
-      <div className="block sm:hidden border-b border-gray-200 mb-12"></div>
-      <br></br>
-      
     </div>
   );
 } 

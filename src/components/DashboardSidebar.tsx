@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   User, 
   Settings, 
@@ -7,7 +7,8 @@ import {
   CreditCard, 
   Package, 
   Menu, 
-  X 
+  X,
+  LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -15,13 +16,23 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const DashboardSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/'); // Redirect to homepage after successful sign out
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   const sidebarItems = [
     { name: 'Profile', path: '/dashboard/profile', icon: User },
     { name: 'QR Code', path: '/dashboard/qr', icon: QrCode },
-    { name: 'Order Card', path: '/dashboard/order', icon: CreditCard },
+    { name: 'Order', path: '/dashboard/order', icon: CreditCard },
     { name: 'Shipping', path: '/dashboard/shipping', icon: Package },
     { name: 'Settings', path: '/dashboard/settings', icon: Settings },
   ];
@@ -37,6 +48,18 @@ const DashboardSidebar = () => {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X /> : <Menu />}
+        </Button>
+      </div>
+
+      {/* Mobile sign out button - top right */}
+      <div className="lg:hidden fixed top-4 right-4 z-30">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="bg-white/20 dark:bg-scan-dark/60 backdrop-blur-md hover:bg-white/30 dark:hover:bg-scan-dark/80 text-red-500 dark:text-red-400"
+          onClick={handleSignOut}
+        >
+          <LogOut size={20} />
         </Button>
       </div>
 
@@ -78,7 +101,7 @@ const DashboardSidebar = () => {
 
           {/* Account section */}
           <div className="p-4 border-t border-white/20 dark:border-scan-blue/30">
-            <Button variant="outline" className="w-full mt-4" size="sm" onClick={signOut}>
+            <Button variant="outline" className="w-full mt-4" size="sm" onClick={handleSignOut}>
               Sign Out
             </Button>
           </div>
@@ -113,6 +136,15 @@ const DashboardSidebar = () => {
             </Link>
           );
         })}
+        
+        {/* Sign Out button for mobile bottom nav */}
+        <button
+          onClick={handleSignOut}
+          className="flex flex-col items-center justify-center flex-1 px-1 py-1 transition-all text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300"
+        >
+          <LogOut size={26} />
+          <span className="text-xs mt-1">Sign Out</span>
+        </button>
       </nav>
     </>
   );

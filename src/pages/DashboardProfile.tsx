@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useState, useEffect, useRef } from 'react';
 import AvatarUploader from '@/components/AvatarUploader';
@@ -24,7 +24,7 @@ const SOCIAL_PRESETS = [
 ];
 
 export default function DashboardProfile() {
-  const { session, loading: authLoading } = useAuth();
+  const { session, loading: authLoading } = useAuthGuard();
   const { profile, loading: profileLoading, setProfile } = useProfile();
   const [name, setName] = useState(profile?.name || '');
   const [title, setTitle] = useState(profile?.title || '');
@@ -99,9 +99,6 @@ export default function DashboardProfile() {
   if (authLoading || profileLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
-  if (!session) {
-    return null;
-  }
 
   const handleAddLink = () => {
     if (newLink.label && newLink.url) {
@@ -159,13 +156,28 @@ export default function DashboardProfile() {
   };
 
   const handleRemoveAvatar = async () => {
+    // Delete the old avatar from storage if it exists
+    if (avatarUrl && profile?.id) {
+      try {
+        // Extract file path from URL
+        const url = new URL(avatarUrl);
+        const filePath = url.pathname.split('/').slice(-2).join('/'); // Get 'avatars/filename'
+        
+        // Delete from Supabase storage
+        await supabase.storage.from('avatars').remove([filePath]);
+      } catch (error) {
+        console.log('Could not delete old avatar:', error);
+        // Continue even if deletion fails
+      }
+    }
+
     setAvatarUrl("");
     // Also update the profile in the database to remove the avatar_url
     try {
       await supabase.from('profiles').update({ avatar_url: '' }).eq('id', profile.id);
-      // Optionally, refresh profile context here if needed
+      toast.success('Avatar removed successfully!');
     } catch (err) {
-      // Optionally, show a toast error
+      toast.error('Failed to remove avatar. Please try again.');
     }
   };
 
@@ -211,7 +223,22 @@ export default function DashboardProfile() {
                   <Camera className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 </div>
               </div>
-              <AvatarUploader onUpload={setAvatarUrl} triggerRef={avatarTriggerRef} />
+              <AvatarUploader 
+                onUpload={(newUrl) => {
+                  // Clean up old avatar when uploading new one
+                  if (avatarUrl && avatarUrl !== newUrl) {
+                    try {
+                      const url = new URL(avatarUrl);
+                      const filePath = url.pathname.split('/').slice(-2).join('/');
+                      supabase.storage.from('avatars').remove([filePath]);
+                    } catch (error) {
+                      console.log('Could not delete old avatar:', error);
+                    }
+                  }
+                  setAvatarUrl(newUrl);
+                }} 
+                triggerRef={avatarTriggerRef} 
+              />
               <div className="flex flex-col items-center mt-2 sm:mt-3 gap-1">
               {!avatarUrl ? (
                 <span
@@ -468,8 +495,7 @@ export default function DashboardProfile() {
           {saving ? 'Saving...' : (!profile ? 'Create Profile' : 'Save Changes')}
         </Button>
       </motion.div>
-      <div className="block sm:hidden border-b border-gray-200 mb-4"></div>
-      <br />
+      
     </div>
   );
 } 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useProfile } from '@/contexts/ProfileContext';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,7 +48,7 @@ interface UserSettings {
 }
 
 export default function DashboardSettings() {
-  const { session } = useAuth();
+  const { session } = useAuthGuard();
   const { refreshProfile } = useProfile();
   
   // State management
@@ -275,7 +275,7 @@ export default function DashboardSettings() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-12 sm:pb-16 gap-4 sm:gap-6 lg:gap-8 mt-4 sm:mt-6 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
+            <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-24 sm:pb-16 gap-4 sm:gap-6 lg:gap-8 mt-4 sm:mt-6 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -544,24 +544,24 @@ export default function DashboardSettings() {
                             Clear your profile information but keep your account and email
                           </p>
                           <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
-                            <AlertDialogTrigger asChild>
+              <AlertDialogTrigger asChild>
                               <Button variant="outline" size="sm" className="w-full sm:w-auto">
                                 <RefreshCw className="w-4 h-4 mr-2" />
                                 Reset Profile
                               </Button>
-                            </AlertDialogTrigger>
+              </AlertDialogTrigger>
                             <AlertDialogContent className="mx-4 w-[calc(100vw-2rem)] max-w-md">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Reset Profile?</AlertDialogTitle>
-                                <AlertDialogDescription>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Reset Profile?</AlertDialogTitle>
+                  <AlertDialogDescription>
                                   This will clear your profile information (name, title, bio, avatar, links) but keep your account and email. This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
                               <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
                                 <AlertDialogCancel disabled={loading} className="w-full sm:w-auto">
                                   Cancel
                                 </AlertDialogCancel>
-                                <AlertDialogAction asChild>
+                  <AlertDialogAction asChild>
                                   <Button 
                                     variant="destructive" 
                                     onClick={handleResetProfile} 
@@ -569,12 +569,12 @@ export default function DashboardSettings() {
                                     className="w-full sm:w-auto"
                                   >
                                     {loading ? 'Resetting...' : 'Yes, Reset Profile'}
-                                  </Button>
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
+                    </Button>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
                       </div>
                     </div>
                   </div>
@@ -680,7 +680,7 @@ export default function DashboardSettings() {
               </Card>
             </div>
           )}
-        </motion.div>
+      </motion.div>
       </div>
 
       {/* Mobile Save Button - Fixed Above Bottom Nav */}
@@ -701,8 +701,6 @@ export default function DashboardSettings() {
       {/* Mobile Bottom Spacing for main nav */}
       <div className="sm:hidden h-20" />
 
-      <div className="block sm:hidden border-b border-gray-200 mb-12"></div>
-      <br></br>
     </div>
   );
-}
+} 

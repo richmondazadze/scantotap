@@ -38,6 +38,31 @@ const globalStyles = `
     min-height: 100vh;
     position: relative;
   }
+  
+  /* Enhanced mobile scroll behavior */
+  @supports (scroll-behavior: smooth) {
+    * {
+      scroll-behavior: smooth;
+    }
+  }
+  
+  /* Improve webkit scrolling on iOS */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Add momentum scrolling for mobile */
+  .overflow-y-auto, .overflow-auto {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Ensure proper bottom padding for mobile nav */
+  @media (max-width: 1023px) {
+    .lg\\:pb-8 {
+      padding-bottom: 6rem !important;
+    }
+  }
 `;
 
 const App = () => {

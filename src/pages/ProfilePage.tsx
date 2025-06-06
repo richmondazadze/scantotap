@@ -22,7 +22,12 @@ import {
   Share2,
   Copy,
   CheckCircle,
-  Loader2
+  Loader2,
+  Shield,
+  Crown,
+  Star,
+  Zap,
+  UserCheck
 } from 'lucide-react';
 
 const SOCIAL_ICON_MAP: Record<string, any> = {
@@ -43,6 +48,82 @@ const SOCIAL_ICON_LIST = [
   'twitter', 'facebook', 'instagram', 'spotify', 'linkedin', 'github', 'whatsapp', 'youtube', 'snapchat', 'tiktok', 'x'
 ];
 
+// Generate dynamic colors based on user name
+const generateUserColors = (name: string) => {
+  if (!name) return { primary: '#3B82F6', secondary: '#1E40AF', gradient: 'from-blue-500 to-blue-600' };
+  
+  const colors = [
+    { primary: '#3B82F6', secondary: '#1E40AF', gradient: 'from-blue-500 to-blue-600' }, // Blue
+    { primary: '#8B5CF6', secondary: '#7C3AED', gradient: 'from-purple-500 to-purple-600' }, // Purple
+    { primary: '#10B981', secondary: '#059669', gradient: 'from-emerald-500 to-emerald-600' }, // Emerald
+    { primary: '#F59E0B', secondary: '#D97706', gradient: 'from-amber-500 to-amber-600' }, // Amber
+    { primary: '#EF4444', secondary: '#DC2626', gradient: 'from-red-500 to-red-600' }, // Red
+    { primary: '#06B6D4', secondary: '#0891B2', gradient: 'from-cyan-500 to-cyan-600' }, // Cyan
+    { primary: '#84CC16', secondary: '#65A30D', gradient: 'from-lime-500 to-lime-600' }, // Lime
+    { primary: '#EC4899', secondary: '#DB2777', gradient: 'from-pink-500 to-pink-600' }, // Pink
+    { primary: '#6366F1', secondary: '#4F46E5', gradient: 'from-indigo-500 to-indigo-600' }, // Indigo
+    { primary: '#F97316', secondary: '#EA580C', gradient: 'from-orange-500 to-orange-600' }, // Orange
+  ];
+  
+  // Use first character's char code to select color
+  const index = name.charCodeAt(0) % colors.length;
+  return colors[index];
+};
+
+// Generate initials from name
+const generateInitials = (name: string) => {
+  if (!name) return 'U';
+  const words = name.trim().split(' ');
+  if (words.length === 1) {
+    return words[0].charAt(0).toUpperCase();
+  }
+  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+};
+
+// Determine user status and badge
+const getUserStatus = (profile: any) => {
+  const hasLinks = profile.links && profile.links.length > 0;
+  const hasPhone = !!profile.phone;
+  const hasTitle = !!profile.title;
+  const hasBio = !!profile.bio;
+  
+  const completionScore = [hasLinks, hasPhone, hasTitle, hasBio].filter(Boolean).length;
+  
+  if (completionScore === 4) {
+    return { 
+      label: 'Verified Pro', 
+      icon: Crown, 
+      color: 'bg-gradient-to-r from-yellow-400 to-yellow-500',
+      textColor: 'text-yellow-600',
+      borderColor: 'border-yellow-400'
+    };
+  } else if (completionScore >= 3) {
+    return { 
+      label: 'Verified', 
+      icon: Shield, 
+      color: 'bg-gradient-to-r from-green-400 to-green-500',
+      textColor: 'text-green-600',
+      borderColor: 'border-green-400'
+    };
+  } else if (completionScore >= 2) {
+    return { 
+      label: 'Active', 
+      icon: Sparkles, 
+      color: 'bg-gradient-to-r from-blue-400 to-blue-500',
+      textColor: 'text-blue-600',
+      borderColor: 'border-blue-400'
+    };
+  } else {
+    return { 
+      label: 'Basic', 
+      icon: UserCheck, 
+      color: 'bg-gradient-to-r from-gray-400 to-gray-500',
+      textColor: 'text-gray-600',
+      borderColor: 'border-gray-400'
+    };
+  }
+};
+
 // Helper to extract username/handle from a social URL
 function extractSocialUsername(url: string) {
   if (!url) return '';
@@ -59,6 +140,8 @@ const ProfilePage = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -120,6 +203,11 @@ const ProfilePage = () => {
   const socialLinks = (profile.links || []).filter((link: any) => SOCIAL_ICON_LIST.includes((link.platform || link.label || '').toLowerCase()));
   const mainLinks = (profile.links || []).filter((link: any) => !SOCIAL_ICON_LIST.includes((link.platform || link.label || '').toLowerCase()));
 
+  // Get dynamic user data
+  const userColors = generateUserColors(profile.name || '');
+  const userInitials = generateInitials(profile.name || '');
+  const userStatus = getUserStatus(profile);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Background Pattern */}
@@ -128,7 +216,7 @@ const ProfilePage = () => {
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-scan-purple/5 rounded-full blur-2xl"></div>
       </div>
 
-      <div className="relative z-10 w-full max-w-4xl mx-auto flex-1 flex flex-col min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 w-full max-w-3xl lg:max-w-3xl mx-auto flex-1 flex flex-col min-h-screen py-6 sm:py-8 lg:py-12 px-4 sm:px-6 lg:px-8">
         
         {/* Header Section */}
         <motion.div
@@ -137,27 +225,63 @@ const ProfilePage = () => {
           className="mb-8"
         >
           <Card className="overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50">
-            <div className="bg-gradient-to-r from-scan-blue to-scan-purple p-8 text-white">
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                {/* Avatar */}
+            <div className="relative p-8 text-white bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/bcc.jpg)' }}>
+              {/* Dark overlay for text readability */}
+              <div className="absolute inset-0 bg-black/40"></div>
+              
+              {/* Animated background elements */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute top-4 right-4 w-32 h-32 bg-white/5 rounded-full blur-2xl animate-pulse"></div>
+                <div className="absolute bottom-4 left-4 w-24 h-24 bg-white/5 rounded-full blur-xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+          </div>
+          
+              <div className="relative z-10 flex flex-col items-center gap-6 lg:gap-8">
+                {/* Dynamic Avatar */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="relative"
+                  className="relative flex-shrink-0"
                 >
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-4 border-white/20 shadow-2xl bg-white">
+                  {/* Main avatar container */}
+                  <div className="relative w-36 h-36 sm:w-40 sm:h-40 lg:w-44 lg:h-44 xl:w-48 xl:h-48 rounded-full overflow-hidden shadow-2xl">
                     <Avatar className="h-full w-full">
-                      <AvatarImage src={profile.avatar_url} alt={profile.name || 'Profile photo'} />
-                      <AvatarFallback className="text-2xl font-bold text-scan-blue bg-white">
-                        {profile.name?.charAt(0)}
+                      {profile.avatar_url && !imageError ? (
+                        <AvatarImage 
+                          src={profile.avatar_url} 
+                          alt={profile.name || 'Profile photo'}
+                          onLoad={() => setImageLoading(false)}
+                          onError={() => {
+                            setImageError(true);
+                            setImageLoading(false);
+                          }}
+                          className="object-cover"
+                        />
+                      ) : null}
+                      <AvatarFallback 
+                        className={`text-3xl sm:text-4xl lg:text-5xl font-bold text-white bg-gradient-to-br ${userColors.gradient} flex items-center justify-center`}
+                      >
+                        {imageLoading && profile.avatar_url && !imageError ? (
+                          <Loader2 className="w-8 h-8 lg:w-10 lg:h-10 animate-spin" />
+                        ) : (
+                          userInitials
+                        )}
                       </AvatarFallback>
-                    </Avatar>
+            </Avatar>
                   </div>
-                  <Badge className="absolute -top-2 -right-2 bg-green-500 border-2 border-white">
-                    <Sparkles className="w-3 h-3 mr-1" />
-                    Active
-                  </Badge>
+
+                  {/* Dynamic status badge */}
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                    className="absolute -top-2 -right-2"
+                  >
+                    <Badge className={`${userStatus.color} text-white border-2 border-white shadow-lg hover:scale-110 transition-all cursor-help`}>
+                      <userStatus.icon className="w-3 h-3 mr-1" />
+                      {userStatus.label}
+                    </Badge>
+                  </motion.div>
                 </motion.div>
 
                 {/* Profile Info */}
@@ -165,51 +289,72 @@ const ProfilePage = () => {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="flex-1 text-center sm:text-left"
+                  className="flex-1 text-center"
                 >
-                  <h1 className="text-3xl sm:text-4xl font-bold mb-2 tracking-tight">
-                    {profile.name}
-                  </h1>
+                  <div className="flex items-center justify-center gap-3 mb-3 lg:mb-4">
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight leading-tight">
+                      {profile.name}
+                    </h1>
+                    {userStatus.label === 'Verified Pro' && (
+                      <motion.div
+                        initial={{ rotate: 0 }}
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Star className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-yellow-300 fill-current" />
+                      </motion.div>
+                    )}
+                  </div>
+              
                   {profile.title && (
-                    <p className="text-xl text-white/90 font-medium mb-3">
+                    <p className="text-lg sm:text-xl lg:text-2xl text-white/90 font-medium mb-3 lg:mb-4">
                       {profile.title}
                     </p>
                   )}
                   {profile.bio && (
-                    <p className="text-white/80 text-base leading-relaxed max-w-md">
+                    <p className="text-sm sm:text-base lg:text-lg text-white/80 leading-relaxed max-w-lg lg:max-w-2xl">
                       {profile.bio}
                     </p>
                   )}
 
+                  {/* Professional tagline or connection encouragement */}
+                  {(mainLinks.length > 0 || socialLinks.length > 0) && (
+                    <div className="mt-6 lg:mt-8">
+                      <p className="text-sm sm:text-base lg:text-lg text-white/80 font-medium">
+                        Let's connect and explore opportunities together
+                      </p>
+                </div>
+              )}
+              
                   {/* Share Button */}
-                  <div className="mt-4 flex justify-center sm:justify-start">
+                  <div className="mt-6 lg:mt-8 flex justify-center">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => copyToClipboard(window.location.href)}
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm"
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm text-sm lg:text-base px-4 py-2 lg:px-6 lg:py-3"
                     >
                       {copied ? (
                         <>
-                          <CheckCircle className="w-4 h-4 mr-2" />
+                          <CheckCircle className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
                           Copied!
                         </>
                       ) : (
                         <>
-                          <Share2 className="w-4 h-4 mr-2" />
+                          <Share2 className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
                           Share Profile
                         </>
                       )}
                     </Button>
                   </div>
                 </motion.div>
-              </div>
+                </div>
             </div>
           </Card>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Left Column - Contact & Actions */}
+        <div className="space-y-6 lg:space-y-8">
+          {/* Contact & Actions */}
           <div className="space-y-6">
             
             {/* Phone Number */}
@@ -237,10 +382,10 @@ const ProfilePage = () => {
                       <div className="flex-1">
                         <p className="text-sm text-gray-600 dark:text-gray-400">Phone Number</p>
                         <p className="font-semibold text-lg">{profile.phone}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3">
+          </div>
+        </div>
+        
+          <div className="grid grid-cols-2 gap-3">
                       <a
                         href={`tel:${profile.phone}`}
                         className="w-full"
@@ -307,9 +452,9 @@ END:VCARD`;
                     {mainLinks.map((link: any, idx: number) => (
                       <motion.a
                         key={idx}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.6 + idx * 0.1 }}
@@ -324,18 +469,18 @@ END:VCARD`;
                               <ExternalLink className="w-4 h-4 text-scan-blue group-hover:text-white" />
                             </div>
                             <span className="font-medium">{link.platform || link.label}</span>
-                          </div>
+                </div>
                           <ExternalLink className="w-4 h-4 opacity-50" />
                         </Button>
                       </motion.a>
-                    ))}
+            ))}
                   </CardContent>
                 </Card>
               </motion.div>
             )}
           </div>
 
-          {/* Right Column - Social Links */}
+          {/* Social Links */}
           {socialLinks.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -387,7 +532,7 @@ END:VCARD`;
             </motion.div>
           )}
         </div>
-
+        
         {/* Footer */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -399,9 +544,9 @@ END:VCARD`;
           <div className="flex items-center justify-center gap-3 mb-4">
             <img src="/fav.png" alt="Scan2Tap logo" className="h-6 w-6" />
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              Powered by <span className="text-scan-blue font-semibold">Scan2Tap</span>
+            Powered by <span className="text-scan-blue font-semibold">Scan2Tap</span>
             </span>
-          </div>
+        </div>
           <a 
             href="/" 
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-scan-blue/10 text-scan-blue hover:bg-scan-blue/20 transition-all text-sm font-medium"

@@ -33,9 +33,52 @@ cd <YOUR_PROJECT_NAME>
 # Step 3: Install the necessary dependencies.
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Create environment file with admin credentials
+cp .env.example .env
+# Edit .env and add your Supabase credentials and admin login
+
+# Step 5: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
+
+## Admin Access
+
+This application includes an admin dashboard at `/admin` with the following features:
+
+- **Authentication**: Secure login with environment-based credentials
+- **User Management**: View all user profiles with search and export capabilities
+- **Order Management**: Track and manage all orders with detailed information
+- **Analytics**: Platform statistics including revenue, active users, and system health
+- **Data Export**: Export user and order data to CSV files
+
+### Admin Setup
+
+1. Create a `.env` file in the project root with the following variables:
+
+```env
+# Supabase Configuration
+VITE_SUPABASE_URL=your_supabase_url_here
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+
+# Admin Configuration
+VITE_ADMIN_USERNAME=admin
+VITE_ADMIN_PASSWORD=admin123
+
+# Development
+VITE_NODE_ENV=development
+```
+
+2. Navigate to `/admin` and login with the credentials set in your environment variables
+3. Default credentials (if not set): Username: `admin`, Password: `admin123`
+
+### Admin Features
+
+- **Dashboard Overview**: Real-time statistics and system health monitoring
+- **User Profiles**: Complete user management with profile viewing and link analytics
+- **Order Tracking**: Comprehensive order management with status updates
+- **Data Export**: CSV export functionality for reporting and analysis
+- **Responsive Design**: Mobile-friendly admin interface
+- **Authentication**: Persistent login with secure logout functionality
 
 **Edit a file directly in GitHub**
 

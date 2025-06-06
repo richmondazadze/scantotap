@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useProfile } from '@/contexts/ProfileContext';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 
 export default function DashboardQR() {
+  useAuthGuard(); // Ensure user is authenticated
   const { profile } = useProfile();
   const [loading, setLoading] = useState(false);
 
@@ -76,7 +78,7 @@ export default function DashboardQR() {
   };
 
   return (
-    <div className="w-full max-w-5xl xl:max-w-6xl mx-auto flex-1 flex flex-col pb-20 sm:pb-16 gap-4 sm:gap-6 mt-4 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
+            <div className="w-full max-w-5xl xl:max-w-6xl mx-auto flex-1 flex flex-col pb-24 sm:pb-16 gap-4 sm:gap-6 mt-4 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -334,9 +336,6 @@ export default function DashboardQR() {
           </Card>
         </div>
       </motion.div>
-
-      <div className="block sm:hidden border-b border-gray-200 mb-4"></div>
-      <br />
     </div>
   );
 } 

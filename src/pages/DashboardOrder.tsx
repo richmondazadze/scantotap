@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useProfile } from '@/contexts/ProfileContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { orderService, type OrderData } from '@/lib/orderService';
+import { orderService, type OrderData, type Order } from '@/lib/orderService';
+import { paymentService, type PaymentData } from '@/lib/paymentService';
 import { CardDesignPreview } from '@/components/CardDesignPreview';
 import { CardMaterialShowcase } from '@/components/CardMaterialShowcase';
 import { 
@@ -23,7 +25,8 @@ import {
   Zap,
   Shield,
   Sparkles,
-  Loader2
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 
 // Card design options
@@ -70,7 +73,16 @@ const COLOR_SCHEMES = [
 ];
 
 export default function DashboardOrder() {
+  useAuthGuard(); // Ensure user is authenticated
   const { profile } = useProfile();
+  
+  // Check if we're editing an existing order
+  const urlParams = new URLSearchParams(window.location.search);
+  const editOrderId = urlParams.get('edit');
+  const [isEditMode, setIsEditMode] = useState(!!editOrderId);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [loadingOrder, setLoadingOrder] = useState(!!editOrderId);
+  
   const [selectedDesign, setSelectedDesign] = useState(CARD_DESIGNS[1]); // Default to Premium
   const [selectedMaterial, setSelectedMaterial] = useState(MATERIALS[0]);
   const [selectedColor, setSelectedColor] = useState(COLOR_SCHEMES[0]);
@@ -88,9 +100,67 @@ export default function DashboardOrder() {
     city: '',
     state: '',
     zipCode: '',
-    country: 'United States',
+    country: 'Ghana',
     specialInstructions: ''
   });
+
+  // Load order if in edit mode
+  useEffect(() => {
+    const loadOrderForEdit = async () => {
+      if (!editOrderId) {
+        setLoadingOrder(false);
+        return;
+      }
+
+      try {
+        const result = await orderService.getOrder(editOrderId);
+        if (result.success && result.order) {
+          const order = result.order;
+          setEditingOrder(order);
+          
+          // Only allow editing pending orders
+          if (order.status !== 'pending') {
+            toast.error('Only pending orders can be modified');
+            window.location.href = '/dashboard/shipping';
+            return;
+          }
+          
+          // Populate form with existing order data
+          setSelectedDesign(CARD_DESIGNS.find(d => d.id === order.design_id) || CARD_DESIGNS[1]);
+          setSelectedMaterial(MATERIALS.find(m => m.id === order.material_id) || MATERIALS[0]);
+          setSelectedColor(COLOR_SCHEMES.find(c => c.id === order.color_scheme_id) || COLOR_SCHEMES[0]);
+          setQuantity(order.quantity);
+          
+          setOrderForm({
+            firstName: order.customer_first_name,
+            lastName: order.customer_last_name,
+            email: order.customer_email,
+            phone: order.customer_phone || '',
+            address: order.shipping_address,
+            city: order.shipping_city,
+            state: order.shipping_state,
+            zipCode: order.shipping_zip_code,
+            country: order.shipping_country,
+            specialInstructions: order.special_instructions || ''
+          });
+          
+          // Go directly to order form
+          setShowOrderForm(true);
+        } else {
+          toast.error('Order not found');
+          window.location.href = '/dashboard/shipping';
+        }
+      } catch (error) {
+        console.error('Error loading order:', error);
+        toast.error('Failed to load order');
+        window.location.href = '/dashboard/shipping';
+      } finally {
+        setLoadingOrder(false);
+      }
+    };
+
+    loadOrderForEdit();
+  }, [editOrderId]);
 
   // Calculate total price
   const basePrice = selectedDesign.price;
@@ -122,7 +192,6 @@ export default function DashboardOrder() {
     setIsSubmittingOrder(true);
     
     try {
-      // Prepare order data
       const orderData: OrderData = {
         // Design details
         design_id: selectedDesign.id,
@@ -162,31 +231,83 @@ export default function DashboardOrder() {
         special_instructions: orderForm.specialInstructions || undefined,
       };
 
-      // Create order in database
-      const result = await orderService.createOrder(orderData);
+      let orderResult;
       
-      if (result.success && result.order) {
-        toast.success(`Order ${result.order.order_number} placed successfully! You will receive a confirmation email shortly.`);
-        
-        // Reset form
-        setShowOrderForm(false);
-        setOrderForm({
-          firstName: '',
-          lastName: '',
-          email: '',
-          phone: '',
-          address: '',
-          city: '',
-          state: '',
-          zipCode: '',
-          country: 'United States',
-          specialInstructions: ''
-        });
-        
-        // Optional: Redirect to shipping page to track order
-        // window.location.href = '/dashboard/shipping';
+      if (isEditMode && editingOrder) {
+        // Update existing order
+        orderResult = await orderService.updateOrder(editingOrder.id, orderData);
+        if (!orderResult.success || !orderResult.order) {
+          toast.error(orderResult.error || 'Failed to update order. Please try again.');
+          return;
+        }
       } else {
-        toast.error(result.error || 'Failed to place order. Please try again.');
+        // Create new order
+        orderResult = await orderService.createOrder(orderData);
+        if (!orderResult.success || !orderResult.order) {
+          toast.error(orderResult.error || 'Failed to create order. Please try again.');
+          return;
+        }
+      }
+
+      // Prepare payment data
+      const paymentReference = paymentService.generateReference();
+      const paymentData: PaymentData = {
+        email: orderForm.email,
+        amount: paymentService.toPesewas(total), // Convert to pesewas
+        currency: 'GHS',
+        reference: paymentReference,
+        orderId: orderResult.order.id,
+        customerName: `${orderForm.firstName} ${orderForm.lastName}`,
+        phone: orderForm.phone,
+      };
+
+      // Process payment with Paystack
+      const paymentResult = await paymentService.processPayment(paymentData);
+      
+      if (paymentResult.success) {
+        // Payment successful - verify payment
+        const verificationResult = await paymentService.verifyPayment(paymentResult.reference!);
+        
+        if (verificationResult.success) {
+          // Update order status to confirmed
+          await orderService.updateOrderStatus(orderResult.order.id, 'confirmed');
+          
+          const actionText = isEditMode ? 'updated and confirmed' : 'confirmed';
+          toast.success(`Payment successful! Order ${orderResult.order.order_number} has been ${actionText}. You will receive a confirmation email shortly.`);
+          
+          // Reset form and edit mode
+          setShowOrderForm(false);
+          setIsEditMode(false);
+          setEditingOrder(null);
+          setOrderForm({
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            address: '',
+            city: '',
+            state: '',
+            zipCode: '',
+            country: 'Ghana',
+            specialInstructions: ''
+          });
+          
+          // Clear URL parameters
+          window.history.replaceState({}, document.title, window.location.pathname);
+          
+          // Redirect to shipping page to track order
+          setTimeout(() => {
+            window.location.href = '/dashboard/shipping';
+          }, 2000);
+        } else {
+          toast.error('Payment verification failed. Please contact support.');
+        }
+      } else {
+        // Payment failed or cancelled
+        if (paymentResult.error !== 'Payment was cancelled') {
+          toast.error(paymentResult.error || 'Payment processing failed. Please try again.');
+        }
+        // Order remains in pending status for retry
       }
     } catch (error) {
       console.error('Error placing order:', error);
@@ -196,9 +317,23 @@ export default function DashboardOrder() {
     }
   };
 
+  if (loadingOrder) {
+    return (
+      <div className="flex justify-center items-center h-full flex-1 pb-24 sm:pb-6 w-full px-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6 text-center">
+            <RefreshCw className="w-12 h-12 mx-auto mb-4 text-gray-400 animate-spin" />
+            <h3 className="text-lg font-semibold mb-2">Loading Order</h3>
+            <p className="text-gray-600 mb-4">Please wait while we load your order details...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (!profile) {
     return (
-      <div className="flex justify-center items-center h-full flex-1 pb-6 w-full px-4">
+      <div className="flex justify-center items-center h-full flex-1 pb-24 sm:pb-6 w-full px-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
             <User className="w-12 h-12 mx-auto mb-4 text-gray-400" />
@@ -214,7 +349,7 @@ export default function DashboardOrder() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full mb-12 sm:mb-16 gap-8 mt-6 px-6">
+    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full mb-24 sm:mb-16 gap-8 mt-6 px-6">
       {!showOrderForm ? (
         <>
           {/* Header */}
@@ -224,10 +359,13 @@ export default function DashboardOrder() {
             className="text-center"
           >
             <h1 className="text-4xl font-bold text-scan-blue dark:text-scan-blue-light mb-3">
-              Order Your Digital Business Card
+              {isEditMode ? 'Modify Your Order' : 'Order Your Digital Business Card'}
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300">
-              Choose your design, customize your card, and get it delivered to your door
+              {isEditMode 
+                ? 'Update your order details and retry payment'
+                : 'Choose your design, customize your card, and get it delivered to your door'
+              }
             </p>
           </motion.div>
 
@@ -285,7 +423,7 @@ export default function DashboardOrder() {
                           />
                           <h3 className="font-semibold mb-2 text-lg">{design.name}</h3>
                           <p className="text-sm text-gray-600 mb-3">{design.description}</p>
-                          <div className="text-xl font-bold text-scan-blue">${design.price}</div>
+                          <div className="text-xl font-bold text-scan-blue">₵{design.price}</div>
                           <div className="mt-2 space-y-1">
                             {design.features.map((feature, idx) => (
                               <div key={idx} className="flex items-center gap-1 text-xs text-gray-600">
@@ -337,7 +475,7 @@ export default function DashboardOrder() {
                           <h3 className="font-semibold mb-2 text-lg mt-4">{material.name}</h3>
                           <p className="text-sm text-gray-600 mb-3">{material.description}</p>
                           <div className="text-base font-medium">
-                            {material.priceModifier > 0 ? `+$${material.priceModifier}` : 'Included'}
+                            {material.priceModifier > 0 ? `+₵${material.priceModifier}` : 'Included'}
                           </div>
                         </div>
                       ))}
@@ -526,16 +664,19 @@ export default function DashboardOrder() {
         </>
       ) : (
         /* Order Form */
-        <motion.div
+      <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        animate={{ opacity: 1, y: 0 }}
           className="max-w-4xl mx-auto w-full"
         >
           <Card>
             <CardHeader>
-              <CardTitle>Checkout</CardTitle>
+              <CardTitle>{isEditMode ? 'Update Order' : 'Checkout'}</CardTitle>
               <CardDescription>
-                Complete your order information
+                {isEditMode 
+                  ? 'Modify your order details and complete payment'
+                  : 'Complete your order information'
+                }
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -574,7 +715,7 @@ export default function DashboardOrder() {
                       type="tel"
                       value={orderForm.phone}
                       onChange={(e) => handleOrderFormChange('phone', e.target.value)}
-                      placeholder="+1 (555) 123-4567"
+                      placeholder="+233 20 123 4567"
                     />
                   </div>
                 </div>
@@ -598,7 +739,7 @@ export default function DashboardOrder() {
                       <Input
                         value={orderForm.city}
                         onChange={(e) => handleOrderFormChange('city', e.target.value)}
-                        placeholder="New York"
+                        placeholder="Accra"
                       />
                     </div>
                     <div>
@@ -606,7 +747,7 @@ export default function DashboardOrder() {
                       <Input
                         value={orderForm.state}
                         onChange={(e) => handleOrderFormChange('state', e.target.value)}
-                        placeholder="NY"
+                        placeholder="Greater Accra"
                       />
                     </div>
                     <div>
@@ -614,7 +755,7 @@ export default function DashboardOrder() {
                       <Input
                         value={orderForm.zipCode}
                         onChange={(e) => handleOrderFormChange('zipCode', e.target.value)}
-                        placeholder="10001"
+                        placeholder="00233"
                       />
                     </div>
                   </div>
@@ -636,30 +777,41 @@ export default function DashboardOrder() {
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                 <h3 className="font-semibold mb-3">Order Summary</h3>
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>{selectedDesign.name} × {quantity}</span>
-                    <span>${(basePrice * quantity).toFixed(2)}</span>
-                  </div>
-                  {materialPrice > 0 && (
-                    <div className="flex justify-between">
-                      <span>{selectedMaterial.name} upgrade</span>
-                      <span>${(materialPrice * quantity).toFixed(2)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span>Shipping</span>
-                    <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tax</span>
-                    <span>${tax.toFixed(2)}</span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between font-bold">
-                    <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
-                  </div>
+                                        <div className="flex justify-between">
+                        <span>{selectedDesign.name} × {quantity}</span>
+                        <span>₵{(basePrice * quantity).toFixed(2)}</span>
+                      </div>
+                      {materialPrice > 0 && (
+                        <div className="flex justify-between">
+                          <span>{selectedMaterial.name} upgrade</span>
+                          <span>₵{(materialPrice * quantity).toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <span>Shipping</span>
+                        <span>{shipping === 0 ? 'Free' : `₵${shipping.toFixed(2)}`}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Tax</span>
+                        <span>₵{tax.toFixed(2)}</span>
+                      </div>
+                      <Separator />
+                      <div className="flex justify-between font-bold">
+                        <span>Total</span>
+                        <span>₵{total.toFixed(2)}</span>
+                      </div>
                 </div>
+              </div>
+
+              {/* Payment Security Notice */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="w-4 h-4 text-blue-600" />
+                  <span className="font-medium text-blue-900 dark:text-blue-100">Secure Payment</span>
+                </div>
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  Your payment is processed securely through Paystack. We never store your payment information.
+                </p>
               </div>
 
               {/* Action Buttons */}
@@ -679,23 +831,21 @@ export default function DashboardOrder() {
                   {isSubmittingOrder ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Placing Order...
+                      Processing Payment...
                     </>
                   ) : (
                     <>
                       <Zap className="w-4 h-4 mr-2" />
-                      Place Order
+                      Pay ₵{total.toFixed(2)} with Paystack
                     </>
                   )}
                 </Button>
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+      </motion.div>
       )}
 
-      <div className="block sm:hidden border-b border-gray-200 mb-12"></div>
-      <br></br>
     </div>
   );
-}
+} 

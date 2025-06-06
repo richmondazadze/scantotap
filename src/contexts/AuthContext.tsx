@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   session: Session | null;
@@ -27,7 +28,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = async () => {
+    try {
     await supabase.auth.signOut();
+      // The auth state change will handle clearing the session
+      // Redirect to homepage will be handled by the component using this context
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   return (
