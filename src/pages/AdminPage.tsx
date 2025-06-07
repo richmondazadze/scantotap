@@ -198,6 +198,12 @@ const AdminPage = () => {
         .select('*')
         .order('created_at', { ascending: false });
 
+      // Debug logs
+      console.log('DEBUG: profilesData', profilesData);
+      console.log('DEBUG: profilesError', profilesError);
+      console.log('DEBUG: ordersData', ordersData);
+      console.log('DEBUG: ordersError', ordersError);
+
       if (profilesError) {
         console.error('Error loading profiles:', profilesError);
         toast.error('Failed to load user profiles');
