@@ -520,63 +520,64 @@ const AdminPage = () => {
         </motion.div>
 
         {/* Stats Cards */}
-        <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-4 sm:gap-6 mb-6">
-          <Col numColSpan={1}>
-            <Card className="h-full">
-              <CardContent className="pt-4 sm:pt-6">
-                <Flex>
-                  <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
+        <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-4 sm:gap-6 mb-6 mt-6 sm:mt-0">
+          <Col numColSpan={1} className="flex flex-col items-center text-center">
+            <Card className="h-full w-full">
+              <CardContent className="pt-4 sm:pt-6 flex flex-col items-center">
+                <Flex className="flex-col items-center">
+                  <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center mb-2">
                     <Users className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                   </div>
-                  <div className="ml-4">
-                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Users</Text>
-                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalUsers}</Metric>
-                  </div>
+                  <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Users</Text>
+                  <Metric className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalUsers}</Metric>
                 </Flex>
               </CardContent>
             </Card>
           </Col>
-          <Col numColSpan={1}>
-            <Card className="h-full">
-              <CardContent className="pt-4 sm:pt-6">
-                <Flex>
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+          <div className="block sm:hidden w-full flex justify-center my-2">
+            <div className="h-6 border-l-2 border-gray-200" style={{ height: 32 }} />
+          </div>
+          <Col numColSpan={1} className="flex flex-col items-center text-center">
+            <Card className="h-full w-full">
+              <CardContent className="pt-4 sm:pt-6 flex flex-col items-center">
+                <Flex className="flex-col items-center">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-2">
                     <ShoppingCart className="w-6 h-6 text-green-600" />
                   </div>
-                  <div className="ml-4">
-                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Orders</Text>
-                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalOrders}</Metric>
-                  </div>
+                  <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Orders</Text>
+                  <Metric className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.totalOrders}</Metric>
                 </Flex>
               </CardContent>
             </Card>
           </Col>
-          <Col numColSpan={1}>
-            <Card className="h-full">
-              <CardContent className="pt-4 sm:pt-6">
-                <Flex>
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+          <div className="block sm:hidden w-full flex justify-center my-2">
+            <div className="h-6 border-l-2 border-gray-200" style={{ height: 32 }} />
+          </div>
+          <Col numColSpan={1} className="flex flex-col items-center text-center">
+            <Card className="h-full w-full">
+              <CardContent className="pt-4 sm:pt-6 flex flex-col items-center">
+                <Flex className="flex-col items-center">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
                     <DollarSign className="w-6 h-6 text-purple-600" />
                   </div>
-                  <div className="ml-4">
-                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</Text>
-                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">₵{stats.totalRevenue.toFixed(2)}</Metric>
-              </div>
+                  <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</Text>
+                  <Metric className="text-2xl font-bold text-gray-900 dark:text-white mt-1">₵{stats.totalRevenue.toFixed(2)}</Metric>
                 </Flex>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
           </Col>
-          <Col numColSpan={1}>
-            <Card className="h-full">
-              <CardContent className="pt-4 sm:pt-6">
-                <Flex>
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+          <div className="block sm:hidden w-full flex justify-center my-2">
+            <div className="h-6 border-l-2 border-gray-200" style={{ height: 32 }} />
+          </div>
+          <Col numColSpan={1} className="flex flex-col items-center text-center">
+            <Card className="h-full w-full">
+              <CardContent className="pt-4 sm:pt-6 flex flex-col items-center">
+                <Flex className="flex-col items-center">
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-2">
                     <Activity className="w-6 h-6 text-orange-600" />
                   </div>
-                  <div className="ml-4">
-                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Profiles</Text>
-                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{stats.activeProfiles}</Metric>
-        </div>
+                  <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Profiles</Text>
+                  <Metric className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.activeProfiles}</Metric>
                 </Flex>
               </CardContent>
             </Card>
@@ -584,63 +585,67 @@ const AdminPage = () => {
         </Grid>
 
         {/* Order Status Cards */}
+        <div className="mb-2 sm:mb-4 mt-4 sm:mt-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center">Order Status Overview</h3>
+        </div>
         <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-4 sm:gap-6 mb-6">
-          <Col numColSpan={1}>
-            <Card className="h-full">
-              <CardContent className="pt-4 sm:pt-6">
-                <Flex>
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+          <Col numColSpan={1} className="flex flex-col items-center text-center">
+            <Card className="h-full w-full">
+              <CardContent className="pt-4 sm:pt-6 flex flex-col items-center">
+                <Flex className="flex-col items-center">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
                     <DollarSign className="w-6 h-6 text-blue-600" />
                   </div>
-                  <div className="ml-4">
-                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Payment Confirmed</Text>
-                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{orderStatusData.find(s => s.name === 'Confirmed')?.value || 0}</Metric>
-                  </div>
+                  <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Payment Confirmed</Text>
+                  <Metric className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{orderStatusData.find(s => s.name === 'Confirmed')?.value || 0}</Metric>
                 </Flex>
               </CardContent>
             </Card>
           </Col>
-          <Col numColSpan={1}>
-            <Card className="h-full">
-              <CardContent className="pt-4 sm:pt-6">
-                <Flex>
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+          <div className="block sm:hidden w-full flex justify-center my-2">
+            <div className="h-6 border-l-2 border-gray-200" style={{ height: 32 }} />
+          </div>
+          <Col numColSpan={1} className="flex flex-col items-center text-center">
+            <Card className="h-full w-full">
+              <CardContent className="pt-4 sm:pt-6 flex flex-col items-center">
+                <Flex className="flex-col items-center">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
                     <BarChart3 className="w-6 h-6 text-purple-600" />
                   </div>
-                  <div className="ml-4">
-                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Processing Orders</Text>
-                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{orderStatusData.find(s => s.name === 'Processing')?.value || 0}</Metric>
-                  </div>
+                  <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Processing Orders</Text>
+                  <Metric className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{orderStatusData.find(s => s.name === 'Processing')?.value || 0}</Metric>
                 </Flex>
               </CardContent>
             </Card>
           </Col>
-          <Col numColSpan={1}>
-            <Card className="h-full">
-              <CardContent className="pt-4 sm:pt-6">
-                <Flex>
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+          <div className="block sm:hidden w-full flex justify-center my-2">
+            <div className="h-6 border-l-2 border-gray-200" style={{ height: 32 }} />
+          </div>
+          <Col numColSpan={1} className="flex flex-col items-center text-center">
+            <Card className="h-full w-full">
+              <CardContent className="pt-4 sm:pt-6 flex flex-col items-center">
+                <Flex className="flex-col items-center">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
                     <Package className="w-6 h-6 text-blue-600" />
                   </div>
-                  <div className="ml-4">
-                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Shipped Orders</Text>
-                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{orderStatusData.find(s => s.name === 'Shipped')?.value || 0}</Metric>
-                  </div>
+                  <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Shipped Orders</Text>
+                  <Metric className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{orderStatusData.find(s => s.name === 'Shipped')?.value || 0}</Metric>
                 </Flex>
               </CardContent>
             </Card>
           </Col>
-          <Col numColSpan={1}>
-            <Card className="h-full">
-              <CardContent className="pt-4 sm:pt-6">
-                <Flex>
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+          <div className="block sm:hidden w-full flex justify-center my-2">
+            <div className="h-6 border-l-2 border-gray-200" style={{ height: 32 }} />
+          </div>
+          <Col numColSpan={1} className="flex flex-col items-center text-center">
+            <Card className="h-full w-full">
+              <CardContent className="pt-4 sm:pt-6 flex flex-col items-center">
+                <Flex className="flex-col items-center">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-2">
                     <TrendingUp className="w-6 h-6 text-green-600" />
                   </div>
-                  <div className="ml-4">
-                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Delivered Orders</Text>
-                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{orderStatusData.find(s => s.name === 'Delivered')?.value || 0}</Metric>
-                  </div>
+                  <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Delivered Orders</Text>
+                  <Metric className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{orderStatusData.find(s => s.name === 'Delivered')?.value || 0}</Metric>
                 </Flex>
               </CardContent>
             </Card>
