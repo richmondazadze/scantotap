@@ -583,6 +583,70 @@ const AdminPage = () => {
           </Col>
         </Grid>
 
+        {/* Order Status Cards */}
+        <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-4 sm:gap-6 mb-6">
+          <Col numColSpan={1}>
+            <Card className="h-full">
+              <CardContent className="pt-4 sm:pt-6">
+                <Flex>
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Payment Confirmed</Text>
+                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{orderStatusData.find(s => s.name === 'Confirmed')?.value || 0}</Metric>
+                  </div>
+                </Flex>
+              </CardContent>
+            </Card>
+          </Col>
+          <Col numColSpan={1}>
+            <Card className="h-full">
+              <CardContent className="pt-4 sm:pt-6">
+                <Flex>
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <BarChart3 className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div className="ml-4">
+                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Processing Orders</Text>
+                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{orderStatusData.find(s => s.name === 'Processing')?.value || 0}</Metric>
+                  </div>
+                </Flex>
+              </CardContent>
+            </Card>
+          </Col>
+          <Col numColSpan={1}>
+            <Card className="h-full">
+              <CardContent className="pt-4 sm:pt-6">
+                <Flex>
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Package className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Shipped Orders</Text>
+                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{orderStatusData.find(s => s.name === 'Shipped')?.value || 0}</Metric>
+                  </div>
+                </Flex>
+              </CardContent>
+            </Card>
+          </Col>
+          <Col numColSpan={1}>
+            <Card className="h-full">
+              <CardContent className="pt-4 sm:pt-6">
+                <Flex>
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div className="ml-4">
+                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Delivered Orders</Text>
+                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{orderStatusData.find(s => s.name === 'Delivered')?.value || 0}</Metric>
+                  </div>
+                </Flex>
+              </CardContent>
+            </Card>
+          </Col>
+        </Grid>
+
         {/* Analytics Charts */}
         <Grid numItems={1} numItemsLg={2} className="gap-4 sm:gap-6 mb-6">
           <Col numColSpan={1}>
