@@ -438,24 +438,24 @@ export const LightLogin = () => {
               <div className="flex-1 h-px bg-gray-200"></div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              className="h-12 bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-blue-600 rounded-lg flex items-center justify-center gap-2 border bg-background inline-flex whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-              onClick={() => handleOAuth("google")}
-              disabled={loading}
-            >
+            <div className="flex justify-center">
+              <button
+                type="button"
+                className="h-12 px-6 bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:shadow-md rounded-lg flex items-center justify-center gap-3 border bg-background inline-flex whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                onClick={() => handleOAuth("google")}
+                disabled={loading}
+              >
                 {loading ? (
-                  <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" role="status" aria-label="Loading" />
                 ) : (
                   <>
                     {/* Google SVG */}
                     <svg
-                      width="18"
-                      height="18"
+                      width="20"
+                      height="20"
                       viewBox="0 0 24 24"
                       fill="none"
-                      className="text-gray-700"
+                      className="text-gray-700 transition-transform duration-200 group-hover:scale-110"
                     >
                       <path
                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -474,39 +474,11 @@ export const LightLogin = () => {
                         fill="#EA4335"
                       />
                     </svg>
-                    <span className="whitespace-nowrap">Google</span>
+                    <span className="whitespace-nowrap font-medium">Google</span>
                   </>
                 )}
               </button>
-
-            <button
-              type="button"
-              className="h-12 bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-black rounded-lg flex items-center justify-center gap-2 border bg-background inline-flex whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-              onClick={() => handleOAuth("apple")}
-              disabled={loading}
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
-              ) : (
-                <>
-                  {/* Apple SVG */}
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="text-gray-700"
-                  >
-                    <path
-                      d="M17.05 20.28c-.98.95-2.05.88-3.08.41-1.09-.47-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.41C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.19 2.31-.89 3.51-.84 1.54.07 2.7.61 3.44 1.57-3.14 1.88-2.29 5.13.22 6.41-.65 1.29-1.52 2.58-2.25 4.03zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                  <span className="whitespace-nowrap">Apple ID</span>
-                </>
-              )}
-            </button>
-          </div>
+            </div>
 
           <div className="p-0 mt-6">
             <p className="text-sm text-center text-gray-500 w-full">
