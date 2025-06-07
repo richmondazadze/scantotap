@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -145,7 +144,10 @@ export default {
 				'premium': '0 0 15px 2px rgba(139, 92, 246, 0.3)',
 				'glow-blue': '0 0 15px rgba(59, 130, 246, 0.5)',
 				'glow-purple': '0 0 15px rgba(139, 92, 246, 0.5)',
-			}
+			},
+			fontFamily: {
+				'poetsen-one': ['"Poetsen One"', 'sans-serif'],
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

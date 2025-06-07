@@ -22,7 +22,7 @@ const DashboardNavbar = () => {
               <AvatarImage src={profile.avatar_url} alt={profile.name} />
               <AvatarFallback>{profile.name?.charAt(0) || '?'}</AvatarFallback>
             </Avatar>
-            <span className="font-medium text-base text-gray-800 dark:text-white max-w-[120px] truncate">{profile.name || 'User'}</span>
+            <span className="font-bold font-poetsen-one text-base text-gray-800 dark:text-white max-w-[120px] truncate">{profile.name || 'User'}</span>
           </div>
         )}
       </div>
