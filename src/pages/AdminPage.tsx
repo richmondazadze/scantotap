@@ -13,25 +13,23 @@ import { orderService } from '@/lib/orderService';
 import AdminNavbar from '@/components/AdminNavbar';
 import AdminFooter from '@/components/AdminFooter';
 import {
-  LineChart,
-  Line,
   AreaChart,
-  Area,
   BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  FunnelChart,
-  Funnel,
-  LabelList
-} from 'recharts';
+  Title,
+  Text,
+  Tab,
+  TabList,
+  TabGroup,
+  TabPanel,
+  TabPanels,
+  Metric,
+  Grid,
+  Col,
+  Flex,
+  ProgressBar,
+  List,
+  ListItem
+} from '@tremor/react';
 import {
   Users,
   Package,
@@ -55,6 +53,9 @@ import {
   Clock,
   Filter
 } from 'lucide-react';
+import { ResponsivePie } from '@nivo/pie';
+import { ResponsiveLine } from '@nivo/line';
+import { Chart } from 'react-google-charts';
 
 interface Profile {
   id: string;
@@ -119,6 +120,22 @@ const AdminPage = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
   const [newOrderStatus, setNewOrderStatus] = useState('');
+
+  // Custom color schemes for charts
+  const chartColors = {
+    revenue: ["#1e3a8a", "#2563eb", "#0e7490"], // deep blue, blue, teal
+    status: ["#059669", "#0ea5e9", "#2563eb", "#1e3a8a", "#334155", "#64748b"], // green, blue, navy, slate
+    design: [
+      "#1e3a8a", // blue-900
+      "#2563eb", // blue-600
+      "#0e7490", // teal-700
+      "#059669", // green-600
+      "#334155", // slate-800
+      "#64748b", // slate-500
+      "#0ea5e9", // sky-500
+      "#0369a1"  // cyan-800
+    ]
+  };
 
   // Helper function to get user profile for an order
   const getUserProfile = (userId: string) => {
@@ -197,12 +214,6 @@ const AdminPage = () => {
         .from('orders')
         .select('*')
         .order('created_at', { ascending: false });
-
-      // Debug logs
-      console.log('DEBUG: profilesData', profilesData);
-      console.log('DEBUG: profilesError', profilesError);
-      console.log('DEBUG: ordersData', ordersData);
-      console.log('DEBUG: ordersError', ordersError);
 
       if (profilesError) {
         console.error('Error loading profiles:', profilesError);
@@ -293,11 +304,9 @@ const AdminPage = () => {
 
   const updateOrderStatus = async () => {
     if (!selectedOrder || !newOrderStatus) return;
-    
     setUpdatingOrderStatus(true);
     try {
-      const result = await orderService.updateOrderStatus(selectedOrder.id, newOrderStatus as any);
-      
+      const result = await orderService.adminUpdateOrderStatus(selectedOrder.id, newOrderStatus as any);
       if (result.success) {
         toast.success(`Order ${selectedOrder.order_number} status updated to ${newOrderStatus}`);
         setSelectedOrder(null);
@@ -429,7 +438,7 @@ const AdminPage = () => {
   };
 
   if (!isAuthenticated) {
-    return (
+  return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -511,229 +520,141 @@ const AdminPage = () => {
         </motion.div>
 
         {/* Stats Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8"
-        >
-          <Card>
-            <CardContent className="pt-4 sm:pt-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm text-gray-600">Total Users</p>
-                  <p className="text-xl sm:text-2xl font-bold">{stats.totalUsers}</p>
-                </div>
+        <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-4 sm:gap-6 mb-6">
+          <Col numColSpan={1}>
+            <Card className="h-full">
+              <CardContent className="pt-4 sm:pt-6">
+                <Flex>
+                  <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
+                    <Users className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div className="ml-4">
+                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Users</Text>
+                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalUsers}</Metric>
+                  </div>
+                </Flex>
+              </CardContent>
+            </Card>
+          </Col>
+          <Col numColSpan={1}>
+            <Card className="h-full">
+              <CardContent className="pt-4 sm:pt-6">
+                <Flex>
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <ShoppingCart className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div className="ml-4">
+                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Orders</Text>
+                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalOrders}</Metric>
+                  </div>
+                </Flex>
+              </CardContent>
+            </Card>
+          </Col>
+          <Col numColSpan={1}>
+            <Card className="h-full">
+              <CardContent className="pt-4 sm:pt-6">
+                <Flex>
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div className="ml-4">
+                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</Text>
+                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">₵{stats.totalRevenue.toFixed(2)}</Metric>
               </div>
+                </Flex>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardContent className="pt-4 sm:pt-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm text-gray-600">Total Orders</p>
-                  <p className="text-xl sm:text-2xl font-bold">{stats.totalOrders}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-4 sm:pt-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm text-gray-600">Total Revenue</p>
-                  <p className="text-lg sm:text-2xl font-bold">₵{stats.totalRevenue.toFixed(2)}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-4 sm:pt-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm text-gray-600">Active Profiles</p>
-                  <p className="text-xl sm:text-2xl font-bold">{stats.activeProfiles}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+          </Col>
+          <Col numColSpan={1}>
+            <Card className="h-full">
+              <CardContent className="pt-4 sm:pt-6">
+                <Flex>
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <Activity className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div className="ml-4">
+                    <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Profiles</Text>
+                    <Metric className="text-2xl font-bold text-gray-900 dark:text-white">{stats.activeProfiles}</Metric>
+        </div>
+                </Flex>
+              </CardContent>
+            </Card>
+          </Col>
+        </Grid>
 
         {/* Analytics Charts */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8"
-        >
-          {/* Revenue Timeline */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <Clock className="w-5 h-5 text-scan-blue" />
-                Revenue Timeline
-              </CardTitle>
-              <CardDescription className="text-sm">
-                Daily revenue over the last 30 days
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={revenueTimelineData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="date" 
-                      tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    />
-                    <YAxis tickFormatter={(value) => `₵${value}`} />
-                    <Tooltip 
-                      formatter={(value) => [`₵${value}`, 'Revenue']}
-                      labelFormatter={(label) => new Date(label).toLocaleDateString()}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="revenue" 
-                      stroke="#3b82f6" 
-                      strokeWidth={2}
-                      dot={{ fill: '#3b82f6' }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Order Status Pipeline */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <Filter className="w-5 h-5 text-scan-blue" />
-                Order Status Pipeline
-              </CardTitle>
-              <CardDescription className="text-sm">
-                Distribution of orders by status
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={orderStatusData} layout="horizontal">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" width={80} />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="#3b82f6">
-                      {orderStatusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* User Growth Chart */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <BarChart3 className="w-5 h-5 text-scan-blue" />
-                User Growth
-              </CardTitle>
-              <CardDescription className="text-sm">
-                New signups vs total users over time
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={userGrowthData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="date" 
-                      tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    />
-                    <YAxis />
-                    <Tooltip 
-                      labelFormatter={(label) => new Date(label).toLocaleDateString()}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="totalUsers" 
-                      stackId="1"
-                      stroke="#3b82f6" 
-                      fill="#3b82f6" 
-                      fillOpacity={0.6}
-                      name="Total Users"
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="newUsers" 
-                      stackId="2"
-                      stroke="#10b981" 
-                      fill="#10b981" 
-                      fillOpacity={0.8}
-                      name="New Users"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Design Popularity Pie Chart */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <PieChartIcon className="w-5 h-5 text-scan-blue" />
-                Design Popularity
-              </CardTitle>
-              <CardDescription className="text-sm">
-                Most popular design choices
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={designPopularityData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {designPopularityData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-        </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        <Grid numItems={1} numItemsLg={2} className="gap-4 sm:gap-6 mb-6">
+          <Col numColSpan={1}>
+            <Card className="h-full">
+              <CardHeader>
+                <Title className="text-lg font-semibold text-gray-900 dark:text-white">Revenue Timeline</Title>
+                <Text className="text-sm text-gray-600 dark:text-gray-400">Daily revenue over the last 30 days</Text>
+              </CardHeader>
+              <CardContent>
+                <div style={{ height: 300 }}>
+                  <Chart
+                    chartType="LineChart"
+                    width="100%"
+                    height="100%"
+                    data={[
+                      ["Date", "Revenue"],
+                      ...revenueTimelineData.map(d => [d.date, d.revenue])
+                    ]}
+                    options={{
+                      legend: { position: 'bottom', textStyle: { color: '#222', fontSize: 14 } },
+                      hAxis: { title: 'Date', textStyle: { color: '#222' }, titleTextStyle: { color: '#222' } },
+                      vAxis: { title: 'Revenue (₵)', textStyle: { color: '#222' }, titleTextStyle: { color: '#222' } },
+                      backgroundColor: 'transparent',
+                      colors: ['#6366f1'],
+                      chartArea: { left: 60, top: 40, width: '80%', height: '70%' },
+                      pointSize: 5,
+                      lineWidth: 3,
+                      fontName: 'inherit',
+                    }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </Col>
+          <Col numColSpan={1}>
+            <Card className="h-full">
+              <CardHeader>
+                <Title className="text-lg font-semibold text-gray-900 dark:text-white">Most Popular Designs</Title>
+                <Text className="text-sm text-gray-600 dark:text-gray-400">Order count by design</Text>
+              </CardHeader>
+              <CardContent>
+                <div style={{ height: 300 }}>
+                  <Chart
+                    chartType="PieChart"
+                    width="100%"
+                    height="100%"
+                    data={[
+                      ["Design", "Orders"],
+                      ...designPopularityData.map(d => [d.name, d.value])
+                    ]}
+                    options={{
+                      legend: { position: 'bottom', textStyle: { color: '#222', fontSize: 14 } },
+                      backgroundColor: 'transparent',
+                      chartArea: { left: 20, top: 20, width: '90%', height: '80%' },
+                      fontName: 'inherit',
+                      slices: designPopularityData.reduce((acc, d, i) => {
+                        acc[i] = { color: chartColors.design[i % chartColors.design.length] };
+                        return acc;
+                      }, {}),
+                      pieSliceText: 'percentage',
+                      pieSliceTextStyle: {
+                        color: '#fff',
+                        fontSize: 20,
+                        bold: true,
+                      },
+                    }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </Col>
+        </Grid>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
           
@@ -961,6 +882,10 @@ const AdminPage = () => {
                                 </Button>
                               </DialogTrigger>
                               <DialogContent className="sm:max-w-md">
+                                <DialogTitle>Update Order Status</DialogTitle>
+                                <DialogDescription>
+                                  Change the status of this order for tracking and fulfillment.
+                                </DialogDescription>
                                 <div className="space-y-4">
                                   <div className="space-y-2">
                                     <h4 className="font-medium">Update Order Status</h4>
@@ -971,7 +896,6 @@ const AdminPage = () => {
                                       Customer: {order.customer_first_name} {order.customer_last_name}
                                     </p>
                                   </div>
-                                  
                                   <div className="space-y-2">
                                     <label className="text-sm font-medium">New Status</label>
                                     <Select value={newOrderStatus} onValueChange={setNewOrderStatus}>
@@ -987,7 +911,6 @@ const AdminPage = () => {
                                       </SelectContent>
                                     </Select>
                                   </div>
-
                                   <div className="flex gap-2">
                                     <Button 
                                       onClick={updateOrderStatus}

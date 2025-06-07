@@ -236,6 +236,29 @@ export const orderService = {
     }
   },
 
+  // Admin: Update order status for any order (no user_id restriction)
+  async adminUpdateOrderStatus(orderId: string, status: Order['status']): Promise<{ success: boolean; error?: string }> {
+    try {
+      const updateData: any = { status };
+      if (status === 'shipped') updateData.shipped_at = new Date().toISOString();
+      if (status === 'delivered') updateData.delivered_at = new Date().toISOString();
+
+      const { error } = await supabase
+        .from('orders')
+        .update(updateData)
+        .eq('id', orderId);
+
+      if (error) {
+        console.error('Error updating order status (admin):', error);
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating order status (admin):', error);
+      return { success: false, error: 'An unexpected error occurred' };
+    }
+  },
+
   // Add tracking number
   async addTrackingNumber(orderId: string, trackingNumber: string): Promise<{ success: boolean; error?: string }> {
     try {

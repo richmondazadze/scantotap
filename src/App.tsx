@@ -94,7 +94,7 @@ const App = () => {
                   <Route path="/profile/:id" element={<ProfilePage />} />
                   <Route path="/admin" element={<AdminPage />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
-                  <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/auth" element={<AuthPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
