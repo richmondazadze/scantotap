@@ -123,7 +123,7 @@ export const LightLogin = () => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/dashboard/profile`,
+          redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -136,7 +136,6 @@ export const LightLogin = () => {
         setError(error.message);
       } else if (data) {
         // The user will be redirected to the OAuth provider
-        // No need to show success message as they'll be redirected
         console.log('OAuth initiated:', data);
       }
     } catch (error) {
