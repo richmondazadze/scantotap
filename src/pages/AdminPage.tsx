@@ -586,7 +586,7 @@ const AdminPage = () => {
 
         {/* Order Status Cards */}
         <div className="mb-2 sm:mb-4 mt-4 sm:mt-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center">Order Status Overview</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white text-center">General Order Status Overview</h3>
         </div>
         <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-4 sm:gap-6 mb-6">
           <Col numColSpan={1} className="flex flex-col items-center text-center">
