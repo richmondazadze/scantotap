@@ -23,6 +23,7 @@ import DashboardQR from './pages/DashboardQR';
 import DashboardOrder from './pages/DashboardOrder';
 import DashboardShipping from './pages/DashboardShipping';
 import DashboardSettings from './pages/DashboardSettings';
+import AuthCallback from './pages/AuthCallback';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -92,7 +93,8 @@ const App = () => {
                   <Route path="/dashboard" element={<Navigate to="/dashboard/profile" replace />} />
                   <Route path="/profile/:id" element={<ProfilePage />} />
                   <Route path="/admin" element={<AdminPage />} />
-                    <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/auth/callback" element={<AuthCallback />} />
+                  <Route path="/auth" element={<AuthPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
