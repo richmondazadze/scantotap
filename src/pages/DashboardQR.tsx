@@ -84,7 +84,7 @@ export default function DashboardQR() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-8 sm:pb-16 gap-8 mt-6 px-4 sm:px-6">
+    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-8 sm:pb-16 gap-8 mt-6 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 overflow-x-hidden">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -142,9 +142,9 @@ export default function DashboardQR() {
           </CardHeader>
           <CardContent className="p-6 sm:p-8 lg:p-10 space-y-8 sm:space-y-10">
             {/* QR Code Section */}
-            <div className="flex flex-col xl:flex-row gap-8 sm:gap-10 lg:gap-12 items-start">
+            <div className="flex flex-col xl:flex-row gap-8 sm:gap-10 lg:gap-12 items-start overflow-x-hidden">
               {/* QR Code Display */}
-              <div className="w-full xl:w-1/2 flex justify-center">
+              <div className="w-full xl:w-1/2 flex justify-center min-w-0">
                 <div className="w-full max-w-sm p-6 sm:p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-lg">
                   <div className="w-full aspect-square max-w-[300px] sm:max-w-[320px] mx-auto">
                     <QRCodeGenerator 
@@ -157,7 +157,7 @@ export default function DashboardQR() {
               </div>
 
               {/* Info Section */}
-              <div className="w-full xl:w-1/2 space-y-6 sm:space-y-8">
+              <div className="w-full xl:w-1/2 space-y-6 sm:space-y-8 min-w-0">
                 {/* Profile URL */}
                 <div className="space-y-3 sm:space-y-4">
                   <label className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300">
@@ -167,7 +167,7 @@ export default function DashboardQR() {
                     <Input 
                       value={profileUrl} 
                       readOnly 
-                      className="text-xs sm:text-sm bg-gray-50 dark:bg-gray-800/50 font-mono min-w-0 flex-1 rounded-xl border-gray-200 dark:border-gray-700 py-3 sm:py-4"
+                      className="text-xs sm:text-sm bg-gray-50 dark:bg-gray-800/50 font-mono min-w-0 flex-1 rounded-xl border-gray-200 dark:border-gray-700 py-3 sm:py-4 overflow-hidden"
                     />
                     <Button 
                       variant="outline" 
