@@ -8,7 +8,7 @@ export default function DashboardLayout() {
       <DashboardSidebar />
       <div className="lg:pl-64 flex-1 flex flex-col h-full">
         <DashboardNavbar />
-        <main className="flex-1 flex flex-col h-full px-2 sm:px-6 md:px-8 pt-28 pb-10 overflow-auto overflow-x-hidden">
+        <main className="flex-1 flex flex-col h-full px-4 sm:px-6 md:px-8 pt-20 pb-32 lg:pb-10 overflow-auto overflow-x-hidden">
           <div className="w-full flex-1 flex flex-col h-full overflow-x-hidden">
             <Outlet />
           </div>

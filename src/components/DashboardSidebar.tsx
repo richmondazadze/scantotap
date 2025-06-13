@@ -41,6 +41,13 @@ const DashboardSidebar = () => {
     { name: 'Settings', path: '/dashboard/settings', icon: Settings, description: 'Account preferences', mobileLabel: 'Settings' },
   ];
 
+  // Haptic feedback simulation
+  const triggerHaptic = () => {
+    if (navigator.vibrate) {
+      navigator.vibrate(10); // Light haptic feedback
+    }
+  };
+
   const sidebarVariants = {
     open: {
       x: 0,
@@ -263,8 +270,8 @@ const DashboardSidebar = () => {
           {/* Floating glow effects */}
           <div className="absolute -top-2 left-1/4 w-16 h-1 bg-gradient-to-r from-scan-blue/20 to-scan-purple/20 rounded-full blur-sm" />
           
-          <nav className="relative px-4 py-3">
-            <div className="flex justify-around items-center">
+          <nav className="relative px-2 pt-2 pb-3" style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
+            <div className="flex justify-around items-center max-w-sm mx-auto">
               {sidebarItems.map((item, index) => {
                 const isActive = location.pathname === item.path;
                 return (
@@ -276,7 +283,9 @@ const DashboardSidebar = () => {
                   >
                     <Link
                       to={item.path}
-                      className="relative flex flex-col items-center justify-center px-3 py-2 rounded-2xl transition-all duration-300 group min-w-[60px]"
+                      className="relative flex flex-col items-center justify-center px-2 py-2 rounded-2xl transition-all duration-300 group min-w-[58px] min-h-[58px]"
+                      aria-label={`Navigate to ${item.name}`}
+                      onClick={triggerHaptic}
                     >
                       {/* Active background with enhanced styling */}
                       {isActive && (
@@ -297,7 +306,7 @@ const DashboardSidebar = () => {
                       {/* Icon container with enhanced styling */}
                       <motion.div
                         className={cn(
-                          "relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 mb-1",
+                          "relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 mb-1",
                           isActive 
                             ? "bg-white/20 shadow-lg" 
                             : "bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 group-hover:from-scan-blue/20 group-hover:to-scan-purple/20"
@@ -309,7 +318,7 @@ const DashboardSidebar = () => {
                         transition={{ duration: 0.4, ease: "easeInOut" }}
                       >
                         <item.icon 
-                          size={22} 
+                          size={20} 
                           className={cn(
                             "relative z-10 transition-all duration-300",
                             isActive 
@@ -354,6 +363,14 @@ const DashboardSidebar = () => {
                           transition={{ type: "spring", stiffness: 300, damping: 20 }}
                         />
                       )}
+                      
+                      {/* Ripple effect on tap */}
+                      <motion.div
+                        className="absolute inset-0 bg-white/10 rounded-2xl"
+                        initial={{ scale: 0, opacity: 0 }}
+                        whileTap={{ scale: 1.2, opacity: 1 }}
+                        transition={{ duration: 0.2 }}
+                      />
                     </Link>
                   </motion.div>
                 );
@@ -366,8 +383,12 @@ const DashboardSidebar = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <button
-                  onClick={handleSignOut}
-                  className="relative flex flex-col items-center justify-center px-3 py-2 rounded-2xl transition-all duration-300 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 group min-w-[60px]"
+                  onClick={() => {
+                    triggerHaptic();
+                    handleSignOut();
+                  }}
+                  className="relative flex flex-col items-center justify-center px-2 py-2 rounded-2xl transition-all duration-300 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 group min-w-[58px] min-h-[58px]"
+                  aria-label="Sign out of your account"
                 >
                   {/* Hover background */}
                   <motion.div
@@ -375,16 +396,24 @@ const DashboardSidebar = () => {
                   />
                   
                   <motion.div
-                    className="relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 mb-1 bg-gradient-to-br from-red-50/30 to-red-100/20 dark:from-red-950/20 dark:to-red-900/10 group-hover:from-red-100/50 group-hover:to-red-200/30 dark:group-hover:from-red-900/30 dark:group-hover:to-red-800/20"
+                    className="relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 mb-1 bg-gradient-to-br from-red-50/30 to-red-100/20 dark:from-red-950/20 dark:to-red-900/10 group-hover:from-red-100/50 group-hover:to-red-200/30 dark:group-hover:from-red-900/30 dark:group-hover:to-red-800/20"
                     whileHover={{ rotate: 12, scale: 1.1 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   >
-                    <LogOut size={20} className="relative z-10" />
+                    <LogOut size={18} className="relative z-10" />
                   </motion.div>
                   
                   <span className="text-xs font-semibold transition-all duration-300 relative z-10 text-center leading-tight">
                     Exit
                   </span>
+                  
+                  {/* Ripple effect on tap */}
+                  <motion.div
+                    className="absolute inset-0 bg-red-100/20 rounded-2xl"
+                    initial={{ scale: 0, opacity: 0 }}
+                    whileTap={{ scale: 1.2, opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                  />
                 </button>
               </motion.div>
             </div>

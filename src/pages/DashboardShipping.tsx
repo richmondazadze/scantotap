@@ -114,7 +114,7 @@ export default function DashboardShipping() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-24 sm:pb-18 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-8 sm:pb-18 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

@@ -84,14 +84,14 @@ export default function DashboardQR() {
   };
 
   return (
-            <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col pb-24 sm:pb-16 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 overflow-x-hidden">
+    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-8 sm:pb-16 gap-8 mt-6 px-4 sm:px-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center sm:text-left"
       >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
           <div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-3">
               Your QR Code
@@ -129,29 +129,29 @@ export default function DashboardQR() {
         className="flex-1"
       >
         <Card className="overflow-hidden rounded-3xl shadow-xl bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl">
-        <CardHeader className="p-6 sm:p-8 lg:p-10">
+          <CardHeader className="p-6 sm:p-8 lg:p-10">
             <CardTitle className="flex items-center gap-3 text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-xl flex items-center justify-center">
                 <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-scan-blue" />
               </div>
               QR Code Preview
             </CardTitle>
-          <CardDescription className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed mt-2">
+            <CardDescription className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed mt-2">
               Anyone can scan this code to view your digital business card
-          </CardDescription>
-        </CardHeader>
+            </CardDescription>
+          </CardHeader>
           <CardContent className="p-6 sm:p-8 lg:p-10 space-y-8 sm:space-y-10">
             {/* QR Code Section */}
             <div className="flex flex-col xl:flex-row gap-8 sm:gap-10 lg:gap-12 items-start">
               {/* QR Code Display */}
               <div className="w-full xl:w-1/2 flex justify-center">
-                                  <div className="w-full max-w-sm p-6 sm:p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-lg">
-                    <div className="w-full aspect-square max-w-[300px] sm:max-w-[320px] mx-auto">
-            <QRCodeGenerator 
-              ref={qrRef}
-              profileUrl={profileUrl} 
-              username={profile.slug || profile.id} 
-            />
+                <div className="w-full max-w-sm p-6 sm:p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-lg">
+                  <div className="w-full aspect-square max-w-[300px] sm:max-w-[320px] mx-auto">
+                    <QRCodeGenerator 
+                      ref={qrRef}
+                      profileUrl={profileUrl} 
+                      username={profile.slug || profile.id} 
+                    />
                   </div>
                 </div>
               </div>
@@ -163,29 +163,29 @@ export default function DashboardQR() {
                   <label className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300">
                     Your Profile URL
                   </label>
-                                      <div className="flex gap-2 sm:gap-3">
-                      <Input 
-                        value={profileUrl} 
-                        readOnly 
-                        className="text-xs sm:text-sm bg-gray-50 dark:bg-gray-800/50 font-mono min-w-0 flex-1 rounded-xl border-gray-200 dark:border-gray-700 py-3 sm:py-4"
-                      />
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => copyToClipboard(profileUrl)}
-                        className="shrink-0 h-10 sm:h-12 px-3 sm:px-4 rounded-xl border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-                      >
-                        <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => window.open(profileUrl, '_blank')}
-                        className="shrink-0 h-10 sm:h-12 px-3 sm:px-4 rounded-xl border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-                      >
-                        View
-                      </Button>
-                    </div>
+                  <div className="flex gap-2 sm:gap-3">
+                    <Input 
+                      value={profileUrl} 
+                      readOnly 
+                      className="text-xs sm:text-sm bg-gray-50 dark:bg-gray-800/50 font-mono min-w-0 flex-1 rounded-xl border-gray-200 dark:border-gray-700 py-3 sm:py-4"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => copyToClipboard(profileUrl)}
+                      className="shrink-0 h-10 sm:h-12 px-3 sm:px-4 rounded-xl border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => window.open(profileUrl, '_blank')}
+                      className="shrink-0 h-10 sm:h-12 px-3 sm:px-4 rounded-xl border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      View
+                    </Button>
+                  </div>
                   <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                     This URL opens your digital business card
                   </p>
@@ -307,9 +307,9 @@ export default function DashboardQR() {
                   </div>
                 </div>
               </div>
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Statistics or Features */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

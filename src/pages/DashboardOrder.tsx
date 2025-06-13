@@ -355,7 +355,7 @@ export default function DashboardOrder() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full mb-24 sm:mb-16 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full mb-8 sm:mb-16 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
       {!showOrderForm ? (
         <>
           {/* Header */}
