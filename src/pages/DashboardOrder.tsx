@@ -28,6 +28,7 @@ import {
   Loader2,
   RefreshCw
 } from 'lucide-react';
+import Loading from '@/components/ui/loading';
 
 // Card design options
 const CARD_DESIGNS = [
@@ -75,6 +76,11 @@ const COLOR_SCHEMES = [
 export default function DashboardOrder() {
   useAuthGuard(); // Ensure user is authenticated
   const { profile } = useProfile();
+  
+  // Card styles - consistent with other dashboard pages
+  const cardBase = 'relative rounded-3xl shadow-lg p-6 sm:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30';
+  const cardTitle = 'text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent';
+  const cardDesc = 'text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed';
   
   // Check if we're editing an existing order
   const urlParams = new URLSearchParams(window.location.search);
@@ -322,7 +328,7 @@ export default function DashboardOrder() {
       <div className="flex justify-center items-center h-full flex-1 pb-24 sm:pb-6 w-full px-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
-            <RefreshCw className="w-12 h-12 mx-auto mb-4 text-gray-400 animate-spin" />
+            <Loading size="lg" text="Loading order details..." />
             <h3 className="text-lg font-semibold mb-2">Loading Order</h3>
             <p className="text-gray-600 mb-4">Please wait while we load your order details...</p>
           </CardContent>
@@ -349,7 +355,7 @@ export default function DashboardOrder() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full mb-24 sm:mb-16 gap-6 sm:gap-8 mt-4 sm:mt-6 px-4 sm:px-6">
+    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full mb-24 sm:mb-16 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
       {!showOrderForm ? (
         <>
           {/* Header */}
@@ -358,10 +364,10 @@ export default function DashboardOrder() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-scan-blue dark:text-scan-blue-light mb-3 px-2">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-3 px-2">
               {isEditMode ? 'Modify Your Order' : 'Order Your Digital Business Card'}
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 px-2">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 px-2 leading-relaxed">
               {isEditMode 
                 ? 'Update your order details and retry payment'
                 : 'Choose your design, customize your card, and get it delivered to your door'
@@ -369,74 +375,84 @@ export default function DashboardOrder() {
             </p>
           </motion.div>
 
-          <div className="grid xl:grid-cols-3 lg:grid-cols-2 gap-6 lg:gap-8">
+          <div className="grid xl:grid-cols-3 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
             {/* Left Column - Design Selection */}
-            <div className="xl:col-span-2 lg:col-span-1 space-y-6 lg:space-y-8">
+            <div className="xl:col-span-2 lg:col-span-1 space-y-6 sm:space-y-8">
               {/* Card Designs */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
+                className={cardBase}
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Sparkles className="w-5 h-5" />
-                      Choose Your Design
-                    </CardTitle>
-                    <CardDescription>
-                      Select the perfect design for your digital business card
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                      {CARD_DESIGNS.map((design) => (
-                        <div
-                          key={design.id}
-                          className={`relative cursor-pointer rounded-lg border-2 p-4 sm:p-6 transition-all ${
-                            selectedDesign.id === design.id
-                              ? 'border-scan-blue bg-scan-blue/5'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                          onClick={() => {
-                            setSelectedDesign(design);
-                            // Auto-select appropriate material based on design
-                            if (design.id === 'metal') {
-                              setSelectedMaterial(MATERIALS.find(m => m.id === 'metal') || MATERIALS[0]);
-                            } else {
-                              setSelectedMaterial(MATERIALS[0]); // Default to plastic for classic and premium
-                            }
-                          }}
-                        >
-                          {design.popular && (
-                            <Badge className="absolute -top-2 -right-2 bg-scan-purple">
-                              <Star className="w-3 h-3 mr-1" />
-                              Popular
-                            </Badge>
-                          )}
+                <h2 className={cardTitle}>Choose Your Design</h2>
+                <p className={cardDesc}>Select the perfect design for your digital business card</p>
+                
+                <div className="space-y-4 sm:space-y-6">
+                  {CARD_DESIGNS.map((design) => (
+                    <div
+                      key={design.id}
+                      className={`relative cursor-pointer rounded-2xl border-2 p-4 sm:p-6 transition-all duration-300 hover:shadow-lg ${
+                        selectedDesign.id === design.id
+                          ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      }`}
+                      onClick={() => {
+                        setSelectedDesign(design);
+                        // Auto-select appropriate material based on design
+                        if (design.id === 'metal') {
+                          setSelectedMaterial(MATERIALS.find(m => m.id === 'metal') || MATERIALS[0]);
+                        } else {
+                          setSelectedMaterial(MATERIALS[0]); // Default to plastic for classic and premium
+                        }
+                      }}
+                    >
+                      {design.popular && (
+                        <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-scan-blue to-scan-purple text-white shadow-lg">
+                          <Star className="w-3 h-3 mr-1 fill-current" />
+                          Popular
+                        </Badge>
+                      )}
+                      
+                      {/* Row layout with card preview on left and details on right */}
+                      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+                        {/* Card Preview */}
+                        <div className="w-full sm:w-48 sm:flex-shrink-0">
                           <CardDesignPreview 
                             design={design}
                             profile={profile}
                             colorScheme={selectedColor}
                             material={selectedMaterial}
-                            className="mb-4"
+                            className="w-full"
                           />
-                          <h3 className="font-semibold mb-2 text-base sm:text-lg">{design.name}</h3>
-                          <p className="text-xs sm:text-sm text-gray-600 mb-3">{design.description}</p>
-                          <div className="text-lg sm:text-xl font-bold text-scan-blue">₵{design.price}</div>
-                          <div className="mt-2 space-y-1">
+                        </div>
+                        
+                        {/* Card Details */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-4">
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-lg sm:text-xl text-gray-900 dark:text-white mb-2">{design.name}</h3>
+                              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">{design.description}</p>
+                            </div>
+                            <div className="text-2xl sm:text-3xl font-bold text-scan-blue sm:text-right">₵{design.price}</div>
+                          </div>
+                          
+                          {/* Features in a more compact layout */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                             {design.features.map((feature, idx) => (
-                              <div key={idx} className="flex items-center gap-1 text-xs text-gray-600">
-                                <Check className="w-3 h-3 text-green-500 flex-shrink-0" />
+                              <div key={idx} className="flex items-center gap-3 text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                                <div className="w-5 h-5 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                                  <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                </div>
                                 <span className="leading-tight">{feature}</span>
                               </div>
                             ))}
                           </div>
                         </div>
-                      ))}
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  ))}
+                </div>
               </motion.div>
 
               {/* Material Selection */}
@@ -444,44 +460,35 @@ export default function DashboardOrder() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
+                className={cardBase}
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Shield className="w-5 h-5" />
-                      Material
-                    </CardTitle>
-                    <CardDescription>
-                      Choose the material for your card
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
-                      {MATERIALS.map((material) => (
-                        <div
-                          key={material.id}
-                          className={`cursor-pointer rounded-lg border-2 p-4 sm:p-6 transition-all ${
-                            selectedMaterial.id === material.id
-                              ? 'border-scan-blue bg-scan-blue/5'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                          onClick={() => setSelectedMaterial(material)}
-                        >
-                          <CardMaterialShowcase 
-                            material={material}
-                            isSelected={selectedMaterial.id === material.id}
-                            onClick={() => setSelectedMaterial(material)}
-                          />
-                          <h3 className="font-semibold mb-2 text-base sm:text-lg mt-4">{material.name}</h3>
-                          <p className="text-xs sm:text-sm text-gray-600 mb-3">{material.description}</p>
-                          <div className="text-sm sm:text-base font-medium">
-                            {material.priceModifier > 0 ? `+₵${material.priceModifier}` : 'Included'}
-                          </div>
-                        </div>
-                      ))}
+                <h2 className={cardTitle}>Material</h2>
+                <p className={cardDesc}>Choose the material for your card</p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  {MATERIALS.map((material) => (
+                    <div
+                      key={material.id}
+                      className={`cursor-pointer rounded-2xl border-2 p-4 sm:p-6 transition-all duration-300 hover:shadow-lg ${
+                        selectedMaterial.id === material.id
+                          ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      }`}
+                      onClick={() => setSelectedMaterial(material)}
+                    >
+                      <CardMaterialShowcase 
+                        material={material}
+                        isSelected={selectedMaterial.id === material.id}
+                        onClick={() => setSelectedMaterial(material)}
+                      />
+                      <h3 className="font-semibold mb-2 text-base sm:text-lg mt-4 text-gray-900 dark:text-white">{material.name}</h3>
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">{material.description}</p>
+                      <div className="text-sm sm:text-base font-medium text-scan-blue">
+                        {material.priceModifier > 0 ? `+₵${material.priceModifier}` : 'Included'}
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  ))}
+                </div>
               </motion.div>
 
               {/* Color Selection */}
@@ -489,81 +496,73 @@ export default function DashboardOrder() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
+                className={cardBase}
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Color Scheme</CardTitle>
-                    <CardDescription>
-                      Pick a color scheme that matches your brand
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-                      {COLOR_SCHEMES.map((color) => (
-                        <div
-                          key={color.id}
-                          className={`cursor-pointer rounded-lg border-2 p-3 sm:p-4 transition-all ${
-                            selectedColor.id === color.id
-                              ? 'border-scan-blue bg-scan-blue/5'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                          onClick={() => setSelectedColor(color)}
-                        >
-                          <div className="flex justify-center gap-1 mb-2 sm:mb-3">
-                            <div 
-                              className="w-4 h-4 sm:w-5 sm:h-5 rounded-full"
-                              style={{ backgroundColor: color.primary }}
-                            />
-                            <div 
-                              className="w-4 h-4 sm:w-5 sm:h-5 rounded-full"
-                              style={{ backgroundColor: color.secondary }}
-                            />
-                          </div>
-                          <div className="text-xs sm:text-sm font-medium text-center leading-tight">
-                            {color.name}
-                          </div>
-                        </div>
-                      ))}
+                <h2 className={cardTitle}>Color Scheme</h2>
+                <p className={cardDesc}>Pick a color scheme that matches your brand</p>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                  {COLOR_SCHEMES.map((color) => (
+                    <div
+                      key={color.id}
+                      className={`cursor-pointer rounded-2xl border-2 p-3 sm:p-4 transition-all duration-300 hover:shadow-md ${
+                        selectedColor.id === color.id
+                          ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      }`}
+                      onClick={() => setSelectedColor(color)}
+                    >
+                      <div className="flex justify-center gap-1 mb-2 sm:mb-3">
+                        <div 
+                          className="w-5 h-5 sm:w-6 sm:h-6 rounded-full shadow-sm border border-white/20"
+                          style={{ backgroundColor: color.primary }}
+                        />
+                        <div 
+                          className="w-5 h-5 sm:w-6 sm:h-6 rounded-full shadow-sm border border-white/20"
+                          style={{ backgroundColor: color.secondary }}
+                        />
+                      </div>
+                      <div className="text-xs sm:text-sm font-medium text-center leading-tight text-gray-900 dark:text-white">
+                        {color.name}
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  ))}
+                </div>
               </motion.div>
             </div>
 
             {/* Right Column - Preview & Order */}
-            <div className="space-y-6 lg:space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               {/* Card Preview */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
+                className={cardBase}
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Preview</CardTitle>
-                    <CardDescription>
-                      How your card will look
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDesignPreview 
-                      design={selectedDesign}
-                      profile={profile}
-                      colorScheme={selectedColor}
-                      material={selectedMaterial}
-                    />
-                    <div className="mt-3 text-sm text-gray-600">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Package className="w-4 h-4" />
-                        {selectedMaterial.name} Material
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4" />
-                        {selectedDesign.name} Design
-                      </div>
+                <h2 className={cardTitle}>Preview</h2>
+                <p className={cardDesc}>How your card will look</p>
+                
+                <CardDesignPreview 
+                  design={selectedDesign}
+                  profile={profile}
+                  colorScheme={selectedColor}
+                  material={selectedMaterial}
+                />
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="w-8 h-8 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-lg flex items-center justify-center">
+                      <Package className="w-4 h-4 text-scan-blue" />
                     </div>
-                  </CardContent>
-                </Card>
+                    <span>{selectedMaterial.name} Material</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="w-8 h-8 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-lg flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-scan-blue" />
+                    </div>
+                    <span>{selectedDesign.name} Design</span>
+                  </div>
+                </div>
               </motion.div>
 
               {/* Order Summary */}
@@ -571,93 +570,97 @@ export default function DashboardOrder() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
+                className={cardBase}
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Order Summary</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* Quantity */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Quantity</label>
-                      <div className="flex items-center gap-3">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleQuantityChange(-1)}
-                          disabled={quantity <= 1}
-                        >
-                          <Minus className="w-4 h-4" />
-                        </Button>
-                        <span className="w-12 text-center font-medium">{quantity}</span>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleQuantityChange(1)}
-                          disabled={quantity >= 100}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      {quantity >= 5 && (
-                        <div className="mt-2 text-sm text-green-600 flex items-center gap-1">
-                          <Truck className="w-4 h-4" />
+                <h2 className={cardTitle}>Order Summary</h2>
+                
+                <div className="space-y-6">
+                  {/* Quantity */}
+                  <div>
+                    <label className="block text-sm sm:text-base font-semibold mb-3 text-gray-700 dark:text-gray-300">Quantity</label>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleQuantityChange(-1)}
+                        disabled={quantity <= 1}
+                        className="h-10 w-10 rounded-xl border-2"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </Button>
+                      <span className="w-16 text-center font-semibold text-lg">{quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleQuantityChange(1)}
+                        disabled={quantity >= 100}
+                        className="h-10 w-10 rounded-xl border-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    {quantity >= 5 && (
+                      <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
+                        <div className="text-sm text-green-700 dark:text-green-400 flex items-center gap-2">
+                          <div className="w-5 h-5 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center">
+                            <Truck className="w-3 h-3 text-green-600 dark:text-green-400" />
+                          </div>
                           Free shipping on 5+ cards!
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
+                  </div>
 
+                  <Separator />
+
+                  {/* Pricing */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm sm:text-base">
+                      <span className="text-gray-600 dark:text-gray-400">{selectedDesign.name} × {quantity}</span>
+                      <span className="font-medium">₵{(basePrice * quantity).toFixed(2)}</span>
+                    </div>
+                    {materialPrice > 0 && (
+                      <div className="flex justify-between text-sm sm:text-base">
+                        <span className="text-gray-600 dark:text-gray-400">{selectedMaterial.name} upgrade × {quantity}</span>
+                        <span className="font-medium">₵{(materialPrice * quantity).toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm sm:text-base">
+                      <span className="text-gray-600 dark:text-gray-400">Shipping</span>
+                      <span className="font-medium">{shipping === 0 ? 'Free' : `₵${shipping.toFixed(2)}`}</span>
+                    </div>
+                    <div className="flex justify-between text-sm sm:text-base">
+                      <span className="text-gray-600 dark:text-gray-400">Tax</span>
+                      <span className="font-medium">₵{tax.toFixed(2)}</span>
+                    </div>
                     <Separator />
+                    <div className="flex justify-between font-bold text-lg sm:text-xl">
+                      <span>Total</span>
+                      <span className="text-scan-blue">₵{total.toFixed(2)}</span>
+                    </div>
+                  </div>
 
-                    {/* Pricing */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>{selectedDesign.name} × {quantity}</span>
-                        <span>₵{(basePrice * quantity).toFixed(2)}</span>
+                  <Button 
+                    className="w-full h-12 sm:h-14 bg-gradient-to-r from-scan-blue to-scan-purple text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all text-sm sm:text-base"
+                    onClick={() => setShowOrderForm(true)}
+                  >
+                    <CreditCard className="w-5 h-5 mr-2" />
+                    Proceed to Checkout
+                  </Button>
+
+                  <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-center">
+                    <div className="flex items-center justify-center gap-4 flex-wrap">
+                      <div className="flex items-center gap-1">
+                        <Shield className="w-3 h-3" />
+                        Secure Payment
                       </div>
-                      {materialPrice > 0 && (
-                        <div className="flex justify-between text-sm">
-                          <span>{selectedMaterial.name} upgrade × {quantity}</span>
-                          <span>₵{(materialPrice * quantity).toFixed(2)}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between text-sm">
-                        <span>Shipping</span>
-                        <span>{shipping === 0 ? 'Free' : `₵${shipping.toFixed(2)}`}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Tax</span>
-                        <span>₵{tax.toFixed(2)}</span>
-                      </div>
-                      <Separator />
-                      <div className="flex justify-between font-bold">
-                        <span>Total</span>
-                        <span>₵{total.toFixed(2)}</span>
+                      <div className="flex items-center gap-1">
+                        <Truck className="w-3 h-3" />
+                        Fast Shipping
                       </div>
                     </div>
-
-                    <Button 
-                      className="w-full bg-gradient-to-r from-scan-blue to-scan-purple"
-                      onClick={() => setShowOrderForm(true)}
-                    >
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      Proceed to Checkout
-                    </Button>
-
-                    <div className="text-xs text-gray-500 text-center">
-                      <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
-                        <div className="flex items-center gap-1">
-                          <Shield className="w-3 h-3" />
-                          Secure Payment
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Truck className="w-3 h-3" />
-                          Fast Shipping
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </motion.div>
             </div>
           </div>
@@ -830,7 +833,7 @@ export default function DashboardOrder() {
                 >
                   {isSubmittingOrder ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loading size="sm" />
                       <span className="hidden sm:inline">Processing Payment...</span>
                       <span className="sm:hidden">Processing...</span>
                     </>

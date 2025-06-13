@@ -24,6 +24,8 @@ import DashboardOrder from './pages/DashboardOrder';
 import DashboardShipping from './pages/DashboardShipping';
 import DashboardSettings from './pages/DashboardSettings';
 import AuthCallback from './pages/AuthCallback';
+import OnboardingPage from './pages/OnboardingPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -83,18 +85,39 @@ const App = () => {
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/pricing" element={<PricingPage />} />
                   <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/dashboard" element={<DashboardLayout />}>
+                  
+                  {/* Protected Dashboard Routes - Require completed onboarding */}
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute requireOnboarding={true}>
+                      <DashboardLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route index element={<Navigate to="/dashboard/profile" replace />} />
                       <Route path="profile" element={<DashboardProfile />} />
                       <Route path="qr" element={<DashboardQR />} />
                       <Route path="order" element={<DashboardOrder />} />
                       <Route path="shipping" element={<DashboardShipping />} />
                       <Route path="settings" element={<DashboardSettings />} />
                     </Route>
-                  <Route path="/dashboard" element={<Navigate to="/dashboard/profile" replace />} />
+
+                  {/* Public Profile Pages */}
                   <Route path="/profile/:id" element={<ProfilePage />} />
+                  
+                  {/* Admin Route - Protected but doesn't require onboarding */}
                   <Route path="/admin" element={<AdminPage />} />
+                  
+                  {/* Onboarding Route - Protected but doesn't require completed onboarding */}
+                  <Route path="/onboarding" element={
+                    <ProtectedRoute requireOnboarding={false}>
+                      <OnboardingPage />
+                    </ProtectedRoute>
+                  } />
+                  
+                  {/* Auth Routes */}
                   <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/auth" element={<AuthPage />} />
+                  
+                  {/* 404 */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

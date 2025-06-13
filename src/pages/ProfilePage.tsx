@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { supabase } from '@/lib/supabaseClient';
 import { motion } from 'framer-motion';
+import Loading from '@/components/ui/loading';
 import {
   FaInstagram, FaTwitter, FaLinkedin, FaFacebook, FaGithub, FaWhatsapp, FaYoutube, FaSnapchat, FaTiktok, FaLink, FaSpotify
 } from 'react-icons/fa6';
@@ -82,7 +83,8 @@ const generateInitials = (name: string) => {
 
 // Determine user status and badge
 const getUserStatus = (profile: any) => {
-  const hasLinks = profile.links && profile.links.length > 0;
+  const profileLinks = Array.isArray(profile.links) ? profile.links : [];
+  const hasLinks = profileLinks.length > 0;
   const hasPhone = !!profile.phone;
   const hasTitle = !!profile.title;
   const hasBio = !!profile.bio;
@@ -127,12 +129,20 @@ const getUserStatus = (profile: any) => {
 // Helper to extract username/handle from a social URL
 function extractSocialUsername(url: string) {
   if (!url) return '';
+  
   // Remove trailing slash if present
   const cleanUrl = url.endsWith('/') ? url.slice(0, -1) : url;
-  // For WhatsApp, show the number after the last '/'
-  // For other socials, show the last segment after '/'
+  
+  // Get the last segment after '/'
   const parts = cleanUrl.split('/');
-  return parts[parts.length - 1];
+  let username = parts[parts.length - 1];
+  
+  // Remove @ symbol if it exists at the beginning (to avoid double @)
+  if (username.startsWith('@')) {
+    username = username.substring(1);
+  }
+  
+  return username;
 }
 
 const ProfilePage = () => {
@@ -181,9 +191,8 @@ const ProfilePage = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center px-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
-            <Loader2 className="w-8 h-8 mx-auto mb-4 text-scan-blue animate-spin" />
-            <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Loading Profile</h3>
-            <p className="text-gray-600 dark:text-gray-400">Preparing your digital experience...</p>
+            <Loading size="lg" text="Loading Profile" />
+            <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100 mt-4">Preparing your digital experience...</h3>
           </CardContent>
         </Card>
       </div>
@@ -212,8 +221,9 @@ const ProfilePage = () => {
   }
 
   // Extract social links and main links
-  const socialLinks = (profile.links || []).filter((link: any) => SOCIAL_ICON_LIST.includes((link.platform || link.label || '').toLowerCase()));
-  const mainLinks = (profile.links || []).filter((link: any) => !SOCIAL_ICON_LIST.includes((link.platform || link.label || '').toLowerCase()));
+  const profileLinks = Array.isArray(profile.links) ? profile.links : [];
+  const socialLinks = profileLinks.filter((link: any) => SOCIAL_ICON_LIST.includes((link.platform || link.label || '').toLowerCase()));
+  const mainLinks = profileLinks.filter((link: any) => !SOCIAL_ICON_LIST.includes((link.platform || link.label || '').toLowerCase()));
 
   // Get dynamic user data
   const userColors = generateUserColors(profile.name || '');
@@ -221,14 +231,14 @@ const ProfilePage = () => {
   const userStatus = getUserStatus(profile);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-scan-blue/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-scan-purple/5 rounded-full blur-2xl"></div>
       </div>
 
-      <div className="relative z-10 w-full max-w-3xl lg:max-w-3xl mx-auto flex-1 flex flex-col min-h-screen py-6 sm:py-8 lg:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 w-full max-w-3xl lg:max-w-3xl mx-auto flex-1 flex flex-col min-h-screen py-6 sm:py-8 lg:py-12 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
         
         {/* Header Section */}
         <motion.div
@@ -274,7 +284,7 @@ const ProfilePage = () => {
                         className={`text-3xl sm:text-4xl lg:text-5xl font-bold text-white bg-gradient-to-br ${userColors.gradient} flex items-center justify-center`}
                       >
                         {imageLoading && profile.avatar_url && !imageError ? (
-                          <Loader2 className="w-8 h-8 lg:w-10 lg:h-10 animate-spin" />
+                          <Loading size="sm" />
                         ) : (
                           userInitials
                         )}
@@ -481,7 +491,7 @@ ${profile.phone ? `TEL;TYPE=CELL:${profile.phone}` : ''}
 ${profile.email ? `EMAIL:${profile.email}` : ''}
 ${profile.title ? `TITLE:${profile.title}` : ''}
 ${profile.bio ? `NOTE:${profile.bio}` : ''}
-${profile.links && profile.links.length > 0 ? `URL:${profile.links[0].url}` : ''}
+${profileLinks.length > 0 ? `URL:${profileLinks[0].url}` : ''}
 END:VCARD`;
                           
                           // Create blob and download link

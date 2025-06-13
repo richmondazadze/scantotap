@@ -146,7 +146,14 @@ export default {
 				'glow-purple': '0 0 15px rgba(139, 92, 246, 0.5)',
 			},
 			fontFamily: {
-				'poetsen-one': ['"Poetsen One"', 'sans-serif'],
+				sans: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+				heading: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+				poetsen: ['"Poetsen One"', 'cursive'],
+			},
+			fontWeight: {
+				'heading': '700',
+				'medium': '500',
+				'bold': '700',
 			},
 		}
 	},

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from './AuthContext';
+import type { Json } from '@/types/supabase';
 
 interface Profile {
   id: string;
@@ -10,11 +11,12 @@ interface Profile {
   title?: string;
   bio?: string;
   avatar_url?: string;
-  links?: any[];
+  links?: Json;
   created_at?: string;
   updated_at?: string;
   phone?: string;
   email?: string;
+  onboarding_complete?: boolean;
 }
 
 interface ProfileContextType {
@@ -22,6 +24,7 @@ interface ProfileContextType {
   loading: boolean;
   refreshProfile: () => void;
   setProfile: (profile: Profile) => void;
+  createProfile: (profileData: Partial<Profile>) => Promise<Profile | null>;
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -43,6 +46,29 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   };
 
+  const createProfile = async (profileData: Partial<Profile>): Promise<Profile | null> => {
+    if (!session?.user.id) return null;
+    
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert({
+        id: session.user.id,
+        user_id: session.user.id,
+        email: session.user.email,
+        name: '',
+        onboarding_complete: false,
+        ...profileData
+      })
+      .select()
+      .single();
+    
+    if (!error && data) {
+      setProfile(data);
+      return data;
+    }
+    return null;
+  };
+
   useEffect(() => {
     if (session?.user.id) {
       fetchProfile();
@@ -54,7 +80,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   }, [session?.user.id]);
 
   return (
-    <ProfileContext.Provider value={{ profile, loading, refreshProfile: fetchProfile, setProfile }}>
+    <ProfileContext.Provider value={{ profile, loading, refreshProfile: fetchProfile, setProfile, createProfile }}>
       {children}
     </ProfileContext.Provider>
   );

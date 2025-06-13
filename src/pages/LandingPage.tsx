@@ -69,11 +69,11 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-white via-blue-50/50 to-purple-50/50 dark:from-scan-dark dark:via-scan-dark/95 dark:to-scan-dark/90 overflow-hidden" style={{ overscrollBehavior: 'none', backgroundColor: 'inherit' }}>
+    <div className="relative min-h-screen bg-gradient-to-b from-white via-blue-50/50 to-purple-50/50 dark:from-scan-dark dark:via-scan-dark/95 dark:to-scan-dark/90 overflow-x-hidden" style={{ overscrollBehavior: 'none', backgroundColor: 'inherit' }}>
       {/* Top/Bottom overlay fade */}
       {/* Optional mesh blob */}
       <motion.svg 
-        className="absolute -top-20 -left-32 w-[500px] h-[400px] opacity-20 z-0" 
+        className="absolute -top-20 -left-32 w-[300px] h-[250px] sm:w-[500px] sm:h-[400px] opacity-20 z-0" 
         viewBox="0 0 500 400" 
         fill="none"
         animate={{
@@ -100,20 +100,20 @@ const LandingPage = () => {
       <motion.section 
         ref={heroRef}
         style={{ y: heroY, opacity: heroOpacity }}
-        className="flex items-center min-h-screen pt-24 sm:pt-20 md:pt-16 pb-2 px-4 sm:px-6 lg:px-8 overflow-visible relative z-20"
+        className="flex items-center min-h-screen pt-24 sm:pt-20 md:pt-16 pb-2 px-4 sm:px-6 lg:px-8 relative z-20 overflow-x-hidden"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center justify-center w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center justify-center w-full max-w-7xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-col items-center justify-center w-full max-w-2xl mx-auto"
+            className="flex flex-col items-center lg:items-start justify-center w-full"
           >
             <motion.div 
               initial={{ scale: 0.8, opacity: 0 }}
               animate={isHeroInView ? { scale: 1, opacity: 1 } : {}}
               transition={{ duration: 0.4, delay: 0.4 }}
-              className="mb-4 w-full flex justify-center"
+              className="mb-4 w-full flex justify-center lg:justify-start"
             >
                 <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-scan-blue/10 text-scan-blue dark:bg-scan-blue/20 dark:text-scan-blue-light">
                   Digital Identity Platform
@@ -123,7 +123,7 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="text-4xl md:text-6xl font-bold leading-tight text-center w-full"
+              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-center lg:text-left w-full"
             >
                 Your Digital Identity, <br />
                 <span className="bg-gradient-to-r from-scan-blue via-indigo-500 to-scan-purple bg-clip-text text-transparent">
@@ -134,7 +134,7 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.8 }}
-              className="mt-6 text-lg text-gray-600 dark:text-gray-300 max-w-xl text-center w-full"
+              className="mt-4 sm:mt-6 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-xl text-center lg:text-left w-full"
             >
               Connect offline to online in one scan. Bridge your physical and digital presence seamlessly.
             </motion.p>
@@ -142,7 +142,7 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 1 }}
-              className="mt-10 flex flex-col sm:flex-row flex-wrap gap-4 w-full justify-center"
+              className="mt-8 sm:mt-10 flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 w-full justify-center lg:justify-start"
             >
               <Link to="/dashboard/profile" className="w-full sm:w-auto">
                   <Button 
@@ -152,7 +152,7 @@ const LandingPage = () => {
                     animation="glow"
                   className="group shadow-lg hover:scale-105 hover:shadow-2xl hover:ring-2 hover:ring-scan-blue/30 transition-transform w-full sm:w-auto"
                   >
-                  <span className="flex items-center">
+                  <span className="flex items-center justify-center">
                     Reserve Your Card
                     <motion.span
                       whileHover={{ x: 6 }}
@@ -184,12 +184,12 @@ const LandingPage = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={isHeroInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex justify-center items-center w-full"
+            className="flex justify-center items-center w-full mt-8 lg:mt-0"
           >
             <motion.img
               src="/card_model.png"
               alt="Scan2Tap 3D Card Model"
-              className="relative w-80 h-52 sm:w-96 sm:h-64 lg:w-[520px] lg:h-[340px] object-contain rounded-2xl shadow-sm"
+              className="relative w-64 h-40 sm:w-80 sm:h-52 lg:w-96 lg:h-64 xl:w-[520px] xl:h-[340px] object-contain rounded-2xl shadow-sm max-w-full"
               whileHover={{ rotate: -6, scale: 1.15 }}
               style={{ cursor: 'pointer' }}
               animate={{

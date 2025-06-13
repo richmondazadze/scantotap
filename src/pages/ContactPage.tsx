@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Twitter, Linkedin, Instagram, Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
+import Loading from '@/components/ui/loading';
 
 import {
   Form,
@@ -289,7 +290,7 @@ const ContactPage = () => {
                             animate={{ opacity: 1 }}
                             className="flex items-center justify-center"
                           >
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                            <Loading size="sm" />
                             Sending...
                           </motion.div>
                         ) : (

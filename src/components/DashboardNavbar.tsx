@@ -6,6 +6,12 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 const DashboardNavbar = () => {
   const { profile } = useProfile();
 
+  // Extract first name from full name
+  const getFirstName = (fullName: string | null | undefined) => {
+    if (!fullName) return 'User';
+    return fullName.trim().split(' ')[0];
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 h-16 flex items-center justify-between px-6 bg-white/70 dark:bg-scan-dark/80 backdrop-blur-xl border-b border-white/20 dark:border-scan-blue/30 shadow-sm">
       <div className="flex items-center gap-3">
@@ -22,7 +28,7 @@ const DashboardNavbar = () => {
               <AvatarImage src={profile.avatar_url} alt={profile.name} />
               <AvatarFallback>{profile.name?.charAt(0) || '?'}</AvatarFallback>
             </Avatar>
-            <span className="font-bold font-poetsen-one text-base text-gray-800 dark:text-white max-w-[120px] truncate">{profile.name || 'User'}</span>
+            <span className="font-bold font-poetsen-one text-base bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent max-w-[120px] truncate tracking-wide drop-shadow-sm">{getFirstName(profile.name)}</span>
           </div>
         )}
       </div>

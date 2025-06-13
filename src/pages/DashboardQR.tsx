@@ -16,6 +16,7 @@ import {
   Mail,
   MessageSquare
 } from 'lucide-react';
+import Loading from '@/components/ui/loading';
 
 export default function DashboardQR() {
   useAuthGuard(); // Ensure user is authenticated
@@ -28,10 +29,17 @@ export default function DashboardQR() {
     return (
       <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col h-full pb-16 gap-6 mt-6 px-4 overflow-x-hidden">
         <div className="flex justify-center items-center min-h-[400px]">
-          <div className="text-center">
-            <RefreshCw className="w-8 h-8 mx-auto mb-4 text-gray-400 animate-spin" />
-            <p className="text-gray-600 dark:text-gray-300">Loading profile...</p>
-          </div>
+          <Loading size="lg" text="Loading profile..." />
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-12 sm:pb-16 gap-8 mt-6 px-4 sm:px-6">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <Loading size="lg" text="Loading QR code..." />
         </div>
       </div>
     );
@@ -76,37 +84,37 @@ export default function DashboardQR() {
   };
 
   return (
-            <div className="w-full max-w-5xl xl:max-w-6xl mx-auto flex-1 flex flex-col pb-24 sm:pb-16 gap-4 sm:gap-6 mt-4 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
+            <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col pb-24 sm:pb-16 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 overflow-x-hidden">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center sm:text-left"
       >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-scan-blue dark:text-scan-blue-light mb-2">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-3">
               Your QR Code
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
               Share your digital business card with others
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0">
             <Button 
               onClick={downloadQRCode} 
               disabled={loading}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto h-12 px-6 bg-scan-blue hover:bg-scan-blue-dark shadow-lg hover:shadow-xl transition-all rounded-xl font-medium"
             >
-              <Download className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              <Download className={`w-5 h-5 mr-2 ${loading ? 'animate-spin' : ''}`} />
               {loading ? 'Downloading...' : 'Download'}
             </Button>
             <Button 
               variant="outline"
               onClick={shareQRCode}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto h-12 px-6 border-2 border-scan-blue/20 hover:border-scan-blue/40 hover:bg-scan-blue/5 transition-all rounded-xl font-medium"
             >
-              <Share2 className="w-4 h-4 mr-2" />
+              <Share2 className="w-5 h-5 mr-2" />
               Share
             </Button>
           </div>
@@ -120,23 +128,25 @@ export default function DashboardQR() {
         transition={{ delay: 0.1 }}
         className="flex-1"
       >
-        <Card className="overflow-hidden">
-        <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <QrCode className="w-5 h-5" />
+        <Card className="overflow-hidden rounded-3xl shadow-xl bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl">
+        <CardHeader className="p-6 sm:p-8 lg:p-10">
+            <CardTitle className="flex items-center gap-3 text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-xl flex items-center justify-center">
+                <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-scan-blue" />
+              </div>
               QR Code Preview
             </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed mt-2">
               Anyone can scan this code to view your digital business card
           </CardDescription>
         </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="p-6 sm:p-8 lg:p-10 space-y-8 sm:space-y-10">
             {/* QR Code Section */}
-            <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 items-start">
+            <div className="flex flex-col xl:flex-row gap-8 sm:gap-10 lg:gap-12 items-start">
               {/* QR Code Display */}
-              <div className="w-full lg:w-1/2 flex justify-center">
-                                  <div className="w-full max-w-xs p-4 sm:p-6">
-                    <div className="w-full h-full max-w-[240px] sm:max-w-[280px] max-h-[240px] sm:max-h-[280px] mx-auto">
+              <div className="w-full xl:w-1/2 flex justify-center">
+                                  <div className="w-full max-w-sm p-6 sm:p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-lg">
+                    <div className="w-full aspect-square max-w-[300px] sm:max-w-[320px] mx-auto">
             <QRCodeGenerator 
               ref={qrRef}
               profileUrl={profileUrl} 
@@ -147,58 +157,55 @@ export default function DashboardQR() {
               </div>
 
               {/* Info Section */}
-              <div className="w-full lg:w-1/2 space-y-4">
+              <div className="w-full xl:w-1/2 space-y-6 sm:space-y-8">
                 {/* Profile URL */}
-                <div className="space-y-2">
-                  <br></br>
-                  <br></br>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <div className="space-y-3 sm:space-y-4">
+                  <label className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300">
                     Your Profile URL
                   </label>
-                                      <div className="flex gap-2">
+                                      <div className="flex gap-2 sm:gap-3">
                       <Input 
                         value={profileUrl} 
                         readOnly 
-                        className="text-xs sm:text-sm bg-gray-50 dark:bg-gray-800 font-mono min-w-0 flex-1"
+                        className="text-xs sm:text-sm bg-gray-50 dark:bg-gray-800/50 font-mono min-w-0 flex-1 rounded-xl border-gray-200 dark:border-gray-700 py-3 sm:py-4"
                       />
                       <Button 
                         variant="outline" 
                         size="sm"
                         onClick={() => copyToClipboard(profileUrl)}
-                        className="shrink-0"
+                        className="shrink-0 h-10 sm:h-12 px-3 sm:px-4 rounded-xl border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
                       >
-                        <Copy className="w-4 h-4" />
+                        <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
                       </Button>
                       <Button 
                         variant="outline" 
                         size="sm"
                         onClick={() => window.open(profileUrl, '_blank')}
-                        className="shrink-0"
+                        className="shrink-0 h-10 sm:h-12 px-3 sm:px-4 rounded-xl border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
                       >
                         View
                       </Button>
                     </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                     This URL opens your digital business card
                   </p>
                 </div>
 
                 {/* Instructions */}
-                <div className="p-4 bg-scan-blue/5 border border-scan-blue/20 rounded-lg">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
-                    <h4 className="font-medium text-scan-blue">How to use:</h4>
+                <div className="p-6 sm:p-8 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 dark:from-scan-blue/10 dark:to-scan-purple/10 border border-scan-blue/20 dark:border-scan-blue/30 rounded-2xl backdrop-blur-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
+                    <h4 className="font-semibold text-scan-blue dark:text-scan-blue-light text-base sm:text-lg">How to use:</h4>
                     <Button 
                       variant="default" 
                       size="sm"
                       onClick={() => window.open(profileUrl, '_blank')}
-                      className="w-full sm:w-auto bg-scan-blue hover:bg-scan-blue-dark"
+                      className="w-full sm:w-auto bg-scan-blue hover:bg-scan-blue-dark shadow-lg hover:shadow-xl transition-all rounded-xl font-medium h-10 sm:h-12 px-4 sm:px-6"
                     >
                       Preview Your Profile
                     </Button>
                   </div>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                  <ul className="text-sm sm:text-base text-gray-600 dark:text-gray-400 space-y-2 leading-relaxed">
                     <li>• Show the QR code to others to scan</li>
-                    <li>• Download and print on business cards</li>
                     <li>• Share the link via email or messaging</li>
                     <li>• Preview how your profile looks to visitors</li>
                   </ul>

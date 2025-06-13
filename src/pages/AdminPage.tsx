@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { orderService } from '@/lib/orderService';
 import AdminNavbar from '@/components/AdminNavbar';
 import AdminFooter from '@/components/AdminFooter';
+import type { Json } from '@/types/supabase';
 import {
   AreaChart,
   BarChart,
@@ -65,7 +66,7 @@ interface Profile {
   phone?: string;
   avatar_url?: string;
   slug: string;
-  links?: any[];
+  links?: Json;
   created_at: string;
   updated_at: string;
 }
@@ -238,7 +239,10 @@ const AdminPage = () => {
       const paidOrders = ordersData?.filter(order => paidStatuses.includes(order.status)) || [];
       const totalRevenue = paidOrders.reduce((sum, order) => sum + order.total, 0);
       
-      const activeProfiles = profilesData?.filter(p => p.links && p.links.length > 0).length || 0;
+      const activeProfiles = profilesData?.filter(p => {
+        const profileLinks = Array.isArray(p.links) ? p.links : [];
+        return profileLinks.length > 0;
+      }).length || 0;
       
       // Calculate top designs from real order data (still use all orders for design popularity)
       const designCounts = ordersData?.reduce((acc, order) => {
@@ -439,7 +443,7 @@ const AdminPage = () => {
 
   if (!isAuthenticated) {
   return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center px-4 overflow-x-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -491,10 +495,10 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
       <AdminNavbar onLogout={handleLogout} />
       
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8 overflow-x-hidden">
         
         {/* Header */}
         <motion.div
@@ -575,12 +579,12 @@ const AdminPage = () => {
                 <Flex className="flex-col items-center">
                   <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-2">
                     <Activity className="w-6 h-6 text-orange-600" />
-                  </div>
+              </div>
                   <Text className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Profiles</Text>
                   <Metric className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.activeProfiles}</Metric>
                 </Flex>
-              </CardContent>
-            </Card>
+            </CardContent>
+          </Card>
           </Col>
         </Grid>
 
@@ -775,11 +779,14 @@ const AdminPage = () => {
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
                               <h4 className="font-semibold truncate text-sm sm:text-base">{profile.name}</h4>
-                              {profile.links && profile.links.length > 0 && (
-                                <Badge variant="secondary" className="text-xs w-fit">
-                                  {profile.links.length} links
-                                </Badge>
-                              )}
+                              {(() => {
+                                const profileLinks = Array.isArray(profile.links) ? profile.links : [];
+                                return profileLinks.length > 0 && (
+                                  <Badge variant="secondary" className="text-xs w-fit">
+                                    {profileLinks.length} links
+                                  </Badge>
+                                );
+                              })()}
                             </div>
                             {profile.title && (
                               <p className="text-xs sm:text-sm text-gray-600 mb-2 truncate">{profile.title}</p>

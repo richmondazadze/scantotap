@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, 
   Settings, 
@@ -8,7 +9,9 @@ import {
   Package, 
   Menu, 
   X,
-  LogOut
+  LogOut,
+  Sparkles,
+  ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -18,6 +21,7 @@ const DashboardSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const { signOut } = useAuth();
 
   const handleSignOut = async () => {
@@ -30,122 +34,363 @@ const DashboardSidebar = () => {
   };
 
   const sidebarItems = [
-    { name: 'Profile', path: '/dashboard/profile', icon: User },
-    { name: 'QR Code', path: '/dashboard/qr', icon: QrCode },
-    { name: 'Order', path: '/dashboard/order', icon: CreditCard },
-    { name: 'Shipping', path: '/dashboard/shipping', icon: Package },
-    { name: 'Settings', path: '/dashboard/settings', icon: Settings },
+    { name: 'Profile', path: '/dashboard/profile', icon: User, description: 'Manage your profile', mobileLabel: 'Profile' },
+    { name: 'QR Code', path: '/dashboard/qr', icon: QrCode, description: 'Generate & download', mobileLabel: 'QR' },
+    { name: 'Order', path: '/dashboard/order', icon: CreditCard, description: 'Place new orders', mobileLabel: 'Order' },
+    { name: 'Shipping', path: '/dashboard/shipping', icon: Package, description: 'Track deliveries', mobileLabel: 'Shipping' },
+    { name: 'Settings', path: '/dashboard/settings', icon: Settings, description: 'Account preferences', mobileLabel: 'Settings' },
   ];
+
+  const sidebarVariants = {
+    open: {
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        staggerChildren: 0.1,
+        delayChildren: 0.1
+      }
+    },
+    closed: {
+      x: "-100%",
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        staggerChildren: 0.05,
+        staggerDirection: -1
+      }
+    }
+  };
+
+  const itemVariants = {
+    open: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30
+      }
+    },
+    closed: {
+      opacity: 0,
+      x: -20,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30
+      }
+    }
+  };
 
   return (
     <>
-      {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-4 left-4 z-30">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="bg-white/20 dark:bg-scan-dark/60 backdrop-blur-md hover:bg-white/30 dark:hover:bg-scan-dark/80"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X /> : <Menu />}
-        </Button>
-      </div>
+      {/* Desktop Sidebar - hidden on mobile */}
+      <motion.aside 
+        className={cn(
+          "hidden lg:block fixed inset-y-0 left-0 z-40 w-64 bg-gradient-to-br from-white/95 via-white/90 to-gray-50/95 dark:from-[#1A1D24]/95 dark:via-[#1A1D24]/90 dark:to-[#151821]/95 backdrop-blur-2xl border-r border-gray-200/50 dark:border-scan-blue/20 shadow-2xl"
+        )}
+        initial={{ x: 0 }}
+        animate={{ x: 0 }}
+      >
+        <div className="h-full flex flex-col relative overflow-hidden">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-scan-blue/5 via-transparent to-scan-purple/5 dark:from-scan-blue/10 dark:to-scan-purple/10" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-scan-blue/10 to-transparent rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-scan-purple/10 to-transparent rounded-full blur-2xl" />
 
-      {/* Mobile sign out button - top right */}
-      <div className="lg:hidden fixed top-4 right-4 z-30">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="bg-white/20 dark:bg-scan-dark/60 backdrop-blur-md hover:bg-white/30 dark:hover:bg-scan-dark/80 text-red-500 dark:text-red-400"
-          onClick={handleSignOut}
-        >
-          <LogOut size={20} />
-        </Button>
-      </div>
-
-      {/* Sidebar - desktop always visible, mobile conditional */}
-      <aside className={cn(
-        "fixed inset-y-0 left-0 z-20 w-64 bg-white/10 dark:bg-[#181C23] border-r border-gray-200 dark:border-scan-blue/30 transform transition-transform duration-300 ease-in-out",
-        "lg:translate-x-0",
-        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        <div className="h-full flex flex-col">
-          {/* Logo */}
-          <div className="p-4 border-b border-white/20 dark:border-scan-blue/30">
-            <Link to="/" className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-gradient">Scan2Tap</h1>
+          {/* Enhanced Logo Section */}
+          <motion.div 
+            className="relative p-6 border-b border-gray-200/50 dark:border-scan-blue/20"
+            variants={itemVariants}
+          >
+            <Link to="/" className="flex items-center gap-3 group">
+              <motion.div 
+                className="w-10 h-10 bg-gradient-to-br from-scan-blue to-scan-purple rounded-2xl flex items-center justify-center shadow-lg"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <Sparkles className="w-5 h-5 text-white" />
+              </motion.div>
             </Link>
-          </div>
+          </motion.div>
 
-          {/* Nav items */}
-          <nav className="flex-1 px-2 py-6 space-y-1">
-            {sidebarItems.map((item) => {
+          {/* Enhanced Navigation */}
+          <motion.nav 
+            className="flex-1 px-4 py-6 space-y-2 relative z-10"
+            variants={itemVariants}
+          >
+            {sidebarItems.map((item, index) => {
               const isActive = location.pathname === item.path;
               return (
-                <Link
+                <motion.div
                   key={item.name}
-                  to={item.path}
-                  className={cn(
-                    "flex items-center px-4 py-3 rounded-lg transition-all",
-                    isActive
-                      ? "bg-scan-blue text-white shadow-md dark:bg-scan-blue dark:text-white"
-                      : "text-gray-700 dark:text-gray-200 hover:bg-scan-blue/10 dark:hover:bg-scan-blue/20"
-                  )}
+                  variants={itemVariants}
+                  whileHover={{ x: 4 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
-                  <item.icon size={20} className={isActive ? "text-white" : "text-scan-blue dark:text-scan-blue-light"} />
-                  <span className="ml-4 text-sm font-medium">{item.name}</span>
-                </Link>
+                  <Link
+                    to={item.path}
+                    className={cn(
+                      "relative flex items-center px-4 py-4 rounded-2xl transition-all duration-300 group overflow-hidden",
+                      isActive
+                        ? "bg-gradient-to-r from-scan-blue to-scan-purple text-white shadow-lg shadow-scan-blue/25"
+                        : "text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-[#1A1D24]/80 hover:shadow-lg"
+                    )}
+                    onMouseEnter={() => setHoveredItem(item.name)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                  >
+                    {/* Active indicator */}
+                    {isActive && (
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-scan-blue/20 to-scan-purple/20 rounded-2xl"
+                        layoutId="activeTab"
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      />
+                    )}
+                    
+                    {/* Hover effect */}
+                    {hoveredItem === item.name && !isActive && (
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-gray-100/50 to-gray-50/50 dark:from-gray-800/50 dark:to-gray-700/50 rounded-2xl"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      />
+                    )}
+
+                    <div className="relative flex items-center w-full">
+                      <motion.div
+                        className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
+                          isActive 
+                            ? "bg-white/20 shadow-lg" 
+                            : "bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 group-hover:from-scan-blue/20 group-hover:to-scan-purple/20"
+                        )}
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      >
+                        <item.icon 
+                          size={20} 
+                          className={cn(
+                            "transition-all duration-300",
+                            isActive 
+                              ? "text-white" 
+                              : "text-scan-blue dark:text-scan-blue-light group-hover:text-scan-purple"
+                          )} 
+                        />
+                      </motion.div>
+                      
+                      <div className="ml-4 flex-1">
+                        <span className={cn(
+                          "text-sm font-semibold transition-all duration-300",
+                          isActive ? "text-white" : "group-hover:text-gray-900 dark:group-hover:text-white"
+                        )}>
+                          {item.name}
+                        </span>
+                        <p className={cn(
+                          "text-xs mt-0.5 transition-all duration-300",
+                          isActive 
+                            ? "text-white/80" 
+                            : "text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                        )}>
+                          {item.description}
+                        </p>
+                      </div>
+
+                      <motion.div
+                        className={cn(
+                          "opacity-0 transition-all duration-300",
+                          isActive ? "opacity-100" : "group-hover:opacity-60"
+                        )}
+                        animate={{ x: hoveredItem === item.name ? 2 : 0 }}
+                      >
+                        <ChevronRight 
+                          size={16} 
+                          className={isActive ? "text-white" : "text-gray-400"} 
+                        />
+                      </motion.div>
+                    </div>
+                  </Link>
+                </motion.div>
               );
             })}
-          </nav>
+          </motion.nav>
 
-          {/* Account section */}
-          <div className="p-4 border-t border-white/20 dark:border-scan-blue/30">
-            <Button variant="outline" className="w-full mt-4" size="sm" onClick={handleSignOut}>
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Overlay for mobile */}
-      {isMobileMenuOpen && (
-        <div 
-          className="lg:hidden fixed inset-0 bg-black/30 z-10"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* Bottom navigation bar for mobile */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 flex justify-around items-center bg-white/90 dark:bg-[#181C23]/90 border-t border-gray-200 dark:border-scan-blue/30 py-2 shadow-lg lg:hidden">
-        {sidebarItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={cn(
-                "flex flex-col items-center justify-center flex-1 px-1 py-1 transition-all",
-                isActive
-                  ? "text-scan-blue dark:text-scan-blue-light font-semibold"
-                  : "text-gray-500 dark:text-gray-300 hover:text-scan-blue dark:hover:text-scan-blue-light"
-              )}
+          {/* Enhanced Account Section */}
+          <motion.div 
+            className="relative p-6 border-t border-gray-200/50 dark:border-scan-blue/20 bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-[#151821]/50 dark:to-[#1A1D24]/50"
+            variants={itemVariants}
+          >
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <item.icon size={26} />
-              <span className="text-xs mt-1">{item.name}</span>
-            </Link>
-          );
-        })}
-        
-        {/* Sign Out button for mobile bottom nav */}
-        <button
-          onClick={handleSignOut}
-          className="flex flex-col items-center justify-center flex-1 px-1 py-1 transition-all text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300"
-        >
-          <LogOut size={26} />
-          <span className="text-xs mt-1">Sign Out</span>
-        </button>
-      </nav>
+              <Button 
+                variant="outline" 
+                className="w-full h-12 rounded-2xl border-2 border-red-200 dark:border-red-800 bg-gradient-to-r from-red-50 to-red-100/50 dark:from-red-950/20 dark:to-red-900/20 text-red-600 dark:text-red-400 hover:from-red-100 hover:to-red-200/50 dark:hover:from-red-900/30 dark:hover:to-red-800/30 hover:border-red-300 dark:hover:border-red-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl group"
+                onClick={handleSignOut}
+              >
+                <LogOut className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                Sign Out
+              </Button>
+            </motion.div>
+          </motion.div>
+        </div>
+      </motion.aside>
+
+      {/* Enhanced Bottom navigation bar for mobile - massively improved */}
+      <motion.div
+        className="fixed bottom-0 left-0 right-0 z-50 lg:hidden"
+        initial={{ y: 100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
+        {/* Background with glassmorphism */}
+        <div className="relative">
+          {/* Gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-t from-white/95 via-white/90 to-white/80 dark:from-[#1A1D24]/95 dark:via-[#1A1D24]/90 dark:to-[#1A1D24]/80 backdrop-blur-2xl" />
+          
+          {/* Animated gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-scan-blue/5 via-transparent to-scan-purple/5 dark:from-scan-blue/10 dark:to-scan-purple/10" />
+          
+          {/* Top border with gradient */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-200/50 to-transparent dark:via-scan-blue/20" />
+          
+          {/* Floating glow effects */}
+          <div className="absolute -top-2 left-1/4 w-16 h-1 bg-gradient-to-r from-scan-blue/20 to-scan-purple/20 rounded-full blur-sm" />
+          
+          <nav className="relative px-4 py-3">
+            <div className="flex justify-around items-center">
+              {sidebarItems.map((item, index) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <motion.div
+                    key={item.name}
+                    className="flex-1 flex justify-center"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Link
+                      to={item.path}
+                      className="relative flex flex-col items-center justify-center px-3 py-2 rounded-2xl transition-all duration-300 group min-w-[60px]"
+                    >
+                      {/* Active background with enhanced styling */}
+                      {isActive && (
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-br from-scan-blue via-scan-blue to-scan-purple rounded-2xl shadow-lg shadow-scan-blue/30"
+                          layoutId="mobileActiveTab"
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        />
+                      )}
+                      
+                      {/* Hover background */}
+                      {!isActive && (
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-br from-gray-100/50 to-gray-50/30 dark:from-gray-800/30 dark:to-gray-700/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        />
+                      )}
+                      
+                      {/* Icon container with enhanced styling */}
+                      <motion.div
+                        className={cn(
+                          "relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 mb-1",
+                          isActive 
+                            ? "bg-white/20 shadow-lg" 
+                            : "bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 group-hover:from-scan-blue/20 group-hover:to-scan-purple/20"
+                        )}
+                        animate={{ 
+                          scale: isActive ? 1.1 : 1,
+                          rotate: isActive ? [0, -3, 3, 0] : 0
+                        }}
+                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                      >
+                        <item.icon 
+                          size={22} 
+                          className={cn(
+                            "relative z-10 transition-all duration-300",
+                            isActive 
+                              ? "text-white drop-shadow-sm" 
+                              : "text-scan-blue dark:text-scan-blue-light group-hover:text-scan-purple"
+                          )} 
+                        />
+                        
+                        {/* Glow effect for active item */}
+                        {isActive && (
+                          <motion.div
+                            className="absolute inset-0 bg-white/30 rounded-xl blur-sm"
+                            animate={{ opacity: [0.3, 0.6, 0.3] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          />
+                        )}
+                      </motion.div>
+                      
+                      {/* Label with enhanced typography */}
+                      <motion.span 
+                        className={cn(
+                          "text-xs font-semibold transition-all duration-300 relative z-10 text-center leading-tight",
+                          isActive 
+                            ? "text-white drop-shadow-sm" 
+                            : "text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                        )}
+                        animate={{ 
+                          scale: isActive ? 1.05 : 1,
+                          fontWeight: isActive ? 700 : 600
+                        }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {item.mobileLabel}
+                      </motion.span>
+                      
+                      {/* Active indicator dot */}
+                      {isActive && (
+                        <motion.div
+                          className="absolute -top-1 left-1/2 w-1 h-1 bg-white rounded-full shadow-lg"
+                          initial={{ scale: 0, x: "-50%" }}
+                          animate={{ scale: 1, x: "-50%" }}
+                          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        />
+                      )}
+                    </Link>
+                  </motion.div>
+                );
+              })}
+              
+              {/* Enhanced Sign Out button for mobile */}
+              <motion.div
+                className="flex-1 flex justify-center"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <button
+                  onClick={handleSignOut}
+                  className="relative flex flex-col items-center justify-center px-3 py-2 rounded-2xl transition-all duration-300 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 group min-w-[60px]"
+                >
+                  {/* Hover background */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-br from-red-50/50 to-red-100/30 dark:from-red-950/20 dark:to-red-900/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  />
+                  
+                  <motion.div
+                    className="relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 mb-1 bg-gradient-to-br from-red-50/30 to-red-100/20 dark:from-red-950/20 dark:to-red-900/10 group-hover:from-red-100/50 group-hover:to-red-200/30 dark:group-hover:from-red-900/30 dark:group-hover:to-red-800/20"
+                    whileHover={{ rotate: 12, scale: 1.1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  >
+                    <LogOut size={20} className="relative z-10" />
+                  </motion.div>
+                  
+                  <span className="text-xs font-semibold transition-all duration-300 relative z-10 text-center leading-tight">
+                    Exit
+                  </span>
+                </button>
+              </motion.div>
+            </div>
+          </nav>
+        </div>
+      </motion.div>
     </>
   );
 };

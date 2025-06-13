@@ -101,23 +101,18 @@ export default function DashboardSettings() {
     
     setInitialLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .single();
-      
-      if (data && !error) {
-        const loadedSettings = data.settings || settings;
+      // Use localStorage to store settings for now
+      const savedSettings = localStorage.getItem(`user_settings_${session.user.id}`);
+      if (savedSettings) {
+        const loadedSettings = JSON.parse(savedSettings);
         setSettings(loadedSettings);
         setOriginalSettings(loadedSettings);
       } else {
-        // Create default settings if none exist
-        await createDefaultSettings();
+        setOriginalSettings(settings);
       }
     } catch (error) {
       console.error('Error loading settings:', error);
-      await createDefaultSettings();
+      setOriginalSettings(settings);
     } finally {
       setInitialLoading(false);
     }
@@ -125,16 +120,9 @@ export default function DashboardSettings() {
 
   const createDefaultSettings = async () => {
     try {
-      const { error } = await supabase
-        .from('user_settings')
-        .insert({
-          user_id: session?.user?.id,
-          settings: settings,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        });
-      
-      if (!error) {
+      // Store in localStorage for now since user_settings table doesn't exist
+      if (session?.user?.id) {
+        localStorage.setItem(`user_settings_${session.user.id}`, JSON.stringify(settings));
         setOriginalSettings(settings);
       }
     } catch (error) {
@@ -150,15 +138,8 @@ export default function DashboardSettings() {
 
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('user_settings')
-        .upsert({
-          user_id: session.user.id,
-          settings,
-          updated_at: new Date().toISOString(),
-        });
-
-      if (error) throw error;
+      // Store in localStorage for now
+      localStorage.setItem(`user_settings_${session.user.id}`, JSON.stringify(settings));
       
       setOriginalSettings(settings);
       setHasChanges(false);
@@ -260,6 +241,11 @@ export default function DashboardSettings() {
     setActiveSection(sectionId);
     setMobileMenuOpen(false); // Close mobile menu when section changes
   };
+
+  // Card styles - updated to match other dashboard pages
+  const cardBase = 'relative rounded-3xl shadow-lg p-6 sm:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30';
+  const cardTitle = 'text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent';
+  const cardDesc = 'text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed';
 
   if (initialLoading) {
     return (

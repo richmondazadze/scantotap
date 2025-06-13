@@ -24,9 +24,16 @@ import {
   Copy,
   Mail
 } from 'lucide-react';
+import Loading from '@/components/ui/loading';
 
 export default function DashboardShipping() {
   useAuthGuard(); // Ensure user is authenticated
+  
+  // Card styles - consistent with other dashboard pages
+  const cardBase = 'relative rounded-3xl shadow-lg p-6 sm:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30';
+  const cardTitle = 'text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent';
+  const cardDesc = 'text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed';
+  
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -98,31 +105,28 @@ export default function DashboardShipping() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-full flex-1 pb-24 sm:pb-6 w-full px-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6 text-center">
-            <RefreshCw className="w-8 h-8 mx-auto mb-4 text-gray-400 animate-spin" />
-            <p className="text-gray-600">Loading your orders...</p>
-          </CardContent>
-        </Card>
+      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-12 sm:pb-16 gap-8 mt-6 px-4 sm:px-6">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <Loading size="lg" text="Loading shipping information..." />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-24 sm:pb-18 gap-8 mt-6 px-6">
+    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-24 sm:pb-18 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center sm:text-left"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
           <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-scan-blue dark:text-scan-blue-light mb-2">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-3">
               Order Tracking & Shipping
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
               Track your digital business card orders and shipping status
             </p>
           </div>
@@ -130,9 +134,13 @@ export default function DashboardShipping() {
             onClick={handleRefresh} 
             disabled={refreshing}
             variant="outline"
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto h-12 px-6 border-2 border-scan-blue/20 hover:border-scan-blue/40 hover:bg-scan-blue/5 transition-all rounded-xl font-medium"
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? (
+              <Loading size="sm" />
+            ) : (
+              <RefreshCw className="w-5 h-5 mr-2" />
+            )}
             Refresh
           </Button>
         </div>
@@ -143,35 +151,27 @@ export default function DashboardShipping() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
+        className={cardBase}
       >
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="w-5 h-5" />
-              Search Orders
-            </CardTitle>
-            <CardDescription>
-              Search by order number or tracking number
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Enter order number or tracking number..."
-                value={trackingSearch}
-                onChange={(e) => setTrackingSearch(e.target.value)}
-                className="flex-1"
-              />
-              <Button 
-                variant="outline" 
-                onClick={() => setTrackingSearch('')}
-                disabled={!trackingSearch}
-              >
-                Clear
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <h2 className={cardTitle}>Search Orders</h2>
+        <p className={cardDesc}>Search by order number or tracking number</p>
+        
+        <div className="flex gap-3 sm:gap-4">
+          <Input
+            placeholder="Enter order number or tracking number..."
+            value={trackingSearch}
+            onChange={(e) => setTrackingSearch(e.target.value)}
+            className="flex-1 bg-white/95 dark:bg-[#1A1D24]/90 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 sm:py-4 focus:ring-2 focus:ring-scan-blue/30 focus:border-scan-blue/50 transition-all text-sm sm:text-base shadow-sm hover:shadow-md"
+          />
+          <Button 
+            variant="outline" 
+            onClick={() => setTrackingSearch('')}
+            disabled={!trackingSearch}
+            className="h-12 sm:h-14 px-4 sm:px-6 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+          >
+            Clear
+          </Button>
+        </div>
       </motion.div>
 
       {/* Orders List */}
