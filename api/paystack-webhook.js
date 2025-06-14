@@ -1,4 +1,5 @@
 // Paystack Webhook Handler - ES Module version
+// Last updated: 2025-06-14 - Fixed payment_reference column issue
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
@@ -69,55 +70,16 @@ export default async function handler(req, res) {
 
       console.log(`Processing payment confirmation for order ID: ${orderId}, payment reference: ${reference}`);
 
-      // Update order using the order ID from metadata
-      // Also store the payment reference for tracking
-      const updateData = { 
-        status: 'confirmed'
-      };
-
-      // Try to add payment_reference if the column exists
-      // This is optional and will fail silently if column doesn't exist
-      try {
-        updateData.payment_reference = reference;
-      } catch (e) {
-        // Column might not exist yet, that's okay
-      }
-
+      // Update order status to confirmed (without payment_reference for now)
       const { data: updatedOrder, error } = await supabase
         .from('orders')
-        .update(updateData)
+        .update({ status: 'confirmed' })
         .eq('id', orderId)
         .select('id, order_number, status, customer_first_name, customer_last_name')
         .single();
 
       if (error) {
         console.error(`Failed to update order status for order ID ${orderId}:`, error);
-        
-        // If payment_reference column doesn't exist, try without it
-        if (error.message.includes('payment_reference') && error.message.includes('does not exist')) {
-          console.log('payment_reference column does not exist, updating without it...');
-          const { data: retryOrder, error: retryError } = await supabase
-            .from('orders')
-            .update({ status: 'confirmed' })
-            .eq('id', orderId)
-            .select('id, order_number, status, customer_first_name, customer_last_name')
-            .single();
-            
-          if (retryError) {
-            console.error(`Retry failed for order ID ${orderId}:`, retryError);
-            return res.status(500).json({ 
-              success: false, 
-              error: 'Database update failed',
-              details: retryError.message,
-              orderId,
-              reference
-            });
-          }
-          
-          console.log(`Order ${retryOrder.order_number} (ID: ${retryOrder.id}) for ${retryOrder.customer_first_name} ${retryOrder.customer_last_name} marked as confirmed. Payment reference: ${reference}`);
-          return res.status(200).json({ received: true, processed: true });
-        }
-        
         return res.status(500).json({ 
           success: false, 
           error: 'Database update failed',
