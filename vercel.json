@@ -4,11 +4,7 @@
       "runtime": "nodejs18.x"
     }
   },
-  "build": {
-    "env": {
-      "NODE_OPTIONS": "--experimental-modules"
-    }
-  },
+
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
   ]
