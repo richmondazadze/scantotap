@@ -5,7 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { Twitter, Linkedin, Instagram, Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
+import { Twitter, Linkedin, Instagram, Mail, Phone, MapPin, Send, Loader2, MessageCircle, Clock, Users, Sparkles } from "lucide-react";
 import Loading from '@/components/ui/loading';
 
 import {
@@ -57,19 +57,20 @@ const ContactPage = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2
+        staggerChildren: 0.15,
+        delayChildren: 0.2
       }
     }
   };
 
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
       transition: {
-        duration: 0.5,
-        ease: "easeOut"
+        duration: 0.6,
+        ease: [0.25, 0.46, 0.45, 0.94]
       }
     }
   };
@@ -85,108 +86,175 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-blue-50/80 via-white to-purple-50/50 dark:from-scan-dark dark:via-scan-dark/95 dark:to-scan-dark/90 flex flex-col overflow-x-hidden">
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 flex flex-col overflow-x-hidden">
+      {/* Animated background elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{
+            rotate: [0, 360],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{
+            rotate: [360, 0],
+            scale: [1, 1.3, 1],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"
+        />
+      </div>
+
       <Navigation />
-      {/* Animated Gradient Blob */}
-      <motion.svg 
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 0.2, scale: 1 }}
-        transition={{ duration: 1, ease: "easeOut" }}
-        className="absolute -top-32 -left-32 w-[600px] h-[400px] blur-2xl z-0 pointer-events-none" 
-        viewBox="0 0 600 400" 
-        fill="none"
-      >
-        <ellipse cx="300" cy="200" rx="300" ry="200" fill="url(#contact-gradient)" >
-          <animate attributeName="rx" values="300;320;300" dur="8s" repeatCount="indefinite" />
-          <animate attributeName="ry" values="200;220;200" dur="8s" repeatCount="indefinite" />
-        </ellipse>
-        <defs>
-          <radialGradient id="contact-gradient" cx="0" cy="0" r="1" gradientTransform="translate(300 200) scale(300 200)" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#3B82F6" />
-            <stop offset="1" stopColor="#8B5CF6" stopOpacity="0.2" />
-          </radialGradient>
-        </defs>
-      </motion.svg>
 
       <motion.section 
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="pt-32 md:pt-40 pb-24 px-4 sm:px-6 lg:px-8 flex-1 flex items-center justify-center relative z-10"
+        className="pt-24 sm:pt-32 lg:pt-20 pb-16 sm:pb-20 lg:pb-24 px-4 sm:px-6 lg:px-8 flex-1 flex items-center justify-center relative z-10"
       >
         <div className="w-full max-w-7xl">
+          {/* Header Section */}
           <motion.div 
             variants={itemVariants}
-            className="text-center mb-12"
+            className="text-center mt-20 mb-12 sm:mb-16 lg:mb-20"
           >
-            <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-scan-blue dark:text-scan-blue-light font-serif">Contact Us</h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 mb-6"
+            >
+              <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
+              <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                Get in Touch
+              </span>
+            </motion.div>
+            
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              Contact Us
+            </h1>
+            <p className="text-lg sm:text-xl lg:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed">
               Have questions about our digital business cards? We're here to help.
               Send us a message and we'll respond as soon as possible.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
             {/* Contact Information */}
             <motion.div 
               variants={itemVariants}
               className="lg:col-span-1 space-y-6 order-2 lg:order-1"
             >
               <motion.div 
-                whileHover={{ y: -5 }}
-                className="glassmorphism-card rounded-3xl shadow-xl p-8"
+                whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 p-8 lg:p-10 relative overflow-hidden group"
               >
-                <h2 className="text-2xl font-bold mb-6 text-scan-blue dark:text-scan-blue-light">Get in Touch</h2>
-                <div className="space-y-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-scan-blue/10 p-3 rounded-full">
-                      <Mail className="h-6 w-6 text-scan-blue" />
+                {/* Background gradient on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <h2 className="text-2xl sm:text-3xl font-bold mb-8 text-slate-900 dark:text-white relative z-10">Get in Touch</h2>
+                
+                <div className="space-y-8 relative z-10">
+                  <motion.div 
+                    whileHover={{ x: 5 }}
+                    className="flex items-start space-x-4"
+                  >
+                    <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-lg shadow-lg">
+                      <Mail className="h-6 w-6 text-white" />
                     </div>
-                    <div>
-                      <h3 className="font-medium">Email</h3>
-                      <a href="mailto:info@scantotap.com" className="text-gray-600 dark:text-gray-300 hover:text-scan-blue transition-colors">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-1">Email</h3>
+                      <a href="mailto:info@scantotap.com" className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-base">
                         info@scantotap.com
                       </a>
-                      <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">We'll respond within 24 hours</p>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-scan-blue/10 p-3 rounded-full">
-                      <Phone className="h-6 w-6 text-scan-blue" />
+                  <motion.div 
+                    whileHover={{ x: 5 }}
+                    className="flex items-start space-x-4"
+                  >
+                    <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-3 rounded-lg shadow-lg">
+                      <Phone className="h-6 w-6 text-white" />
                     </div>
-                    <div>
-                      <h3 className="font-medium">Phone</h3>
-                      <a href="tel:+15551234567" className="text-gray-600 dark:text-gray-300 hover:text-scan-blue transition-colors">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-1">Phone</h3>
+                      <a href="tel:+15551234567" className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-base">
                         +1 (555) 123-4567
                       </a>
-                      <p className="text-sm text-gray-500">Mon-Fri, 9am-5pm EST</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Mon-Fri, 9am-5pm EST</p>
+                    </div>
+                  </motion.div>
+
+                  <motion.div 
+                    whileHover={{ x: 5 }}
+                    className="flex items-start space-x-4"
+                  >
+                    <div className="bg-gradient-to-br from-green-500 to-teal-600 p-3 rounded-lg shadow-lg">
+                      <MessageCircle className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-1">Live Chat</h3>
+                      <p className="text-slate-600 dark:text-slate-300 text-base">Available 24/7</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Instant support when you need it</p>
+                    </div>
+                  </motion.div>
+                </div>
+
+                <div className="mt-10 pt-8 border-t border-slate-200/50 dark:border-slate-700/50 relative z-10">
+                  <h3 className="text-xl font-semibold mb-6 text-slate-900 dark:text-white">Business Hours</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600 dark:text-slate-300">Monday - Friday</span>
+                      <span className="font-medium text-slate-900 dark:text-white">9:00 AM - 5:00 PM</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600 dark:text-slate-300">Weekend</span>
+                      <span className="font-medium text-slate-900 dark:text-white">Emergency only</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-8 pt-8 border-t border-gray-200 dark:border-white/10">
-                  <h3 className="text-xl font-semibold mb-4">Business Hours</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Monday - Friday</span>
-                      <span className="font-medium">9:00 AM - 5:00 PM</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-8 border-t border-gray-200 dark:border-white/10">
-                  <h3 className="text-xl font-semibold mb-4">Connect with us</h3>
+                <div className="mt-10 pt-8 border-t border-slate-200/50 dark:border-slate-700/50 relative z-10">
+                  <h3 className="text-xl font-semibold mb-6 text-slate-900 dark:text-white">Connect with us</h3>
                   <div className="flex space-x-4">
-                    <Link to="#" className="transition-colors hover:scale-110 hover:text-blue-500">
-                      <Twitter className="h-7 w-7" />
-                    </Link>
-                    <Link to="#" className="transition-colors hover:scale-110 hover:text-blue-700">
-                      <Linkedin className="h-7 w-7" />
-                    </Link>
-                    <Link to="#" className="transition-colors hover:scale-110 hover:text-pink-500">
-                      <Instagram className="h-7 w-7" />
-                    </Link>
+                    <motion.a 
+                      href="#" 
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      <Twitter className="h-6 w-6 text-white" />
+                    </motion.a>
+                    <motion.a 
+                      href="#" 
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      <Linkedin className="h-6 w-6 text-white" />
+                    </motion.a>
+                    <motion.a 
+                      href="#" 
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="p-3 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      <Instagram className="h-6 w-6 text-white" />
+                    </motion.a>
                   </div>
                 </div>
               </motion.div>
@@ -198,12 +266,17 @@ const ContactPage = () => {
               className="lg:col-span-2 order-1 lg:order-2"
             >
               <motion.div 
-                whileHover={{ y: -5 }}
-                className="glassmorphism-card rounded-3xl shadow-xl p-8"
+                whileHover={{ y: -8, scale: 1.01 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 p-8 lg:p-10 relative overflow-hidden group"
               >
-                <h2 className="text-2xl font-bold mb-6 text-scan-blue dark:text-scan-blue-light">Send us a Message</h2>
+                {/* Background gradient on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <h2 className="text-2xl sm:text-3xl font-bold mb-8 text-slate-900 dark:text-white relative z-10">Send us a Message</h2>
+                
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 relative z-10">
                     <motion.div 
                       variants={itemVariants}
                       className="grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -213,14 +286,13 @@ const ContactPage = () => {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="font-semibold">Full Name</FormLabel>
+                            <FormLabel className="font-semibold text-slate-900 dark:text-white text-base">Full Name</FormLabel>
                             <FormControl>
-                              <div className="relative">
-                                <Input placeholder="John Doe" {...field} className="pl-10 focus:ring-2 focus:ring-scan-blue/40" />
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-scan-blue">
-                                  <Mail className="h-5 w-5" />
-                                </span>
-                              </div>
+                              <Input 
+                                placeholder="John Doe" 
+                                {...field} 
+                                className="h-12 rounded-lg border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all duration-300" 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -231,14 +303,14 @@ const ContactPage = () => {
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="font-semibold">Email Address</FormLabel>
+                            <FormLabel className="font-semibold text-slate-900 dark:text-white text-base">Email Address</FormLabel>
                             <FormControl>
-                              <div className="relative">
-                                <Input placeholder="john@example.com" type="email" {...field} className="pl-10 focus:ring-2 focus:ring-scan-blue/40" />
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-scan-blue">
-                                  <Mail className="h-5 w-5" />
-                                </span>
-                              </div>
+                              <Input 
+                                placeholder="john@example.com" 
+                                type="email" 
+                                {...field} 
+                                className="h-12 rounded-lg border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all duration-300" 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -251,9 +323,13 @@ const ContactPage = () => {
                       name="subject"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="font-semibold">Subject</FormLabel>
+                          <FormLabel className="font-semibold text-slate-900 dark:text-white text-base">Subject</FormLabel>
                           <FormControl>
-                            <Input placeholder="How can we help you?" {...field} className="focus:ring-2 focus:ring-scan-blue/40" />
+                            <Input 
+                              placeholder="How can we help you?" 
+                              {...field} 
+                              className="h-12 rounded-lg border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all duration-300" 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -265,11 +341,11 @@ const ContactPage = () => {
                       name="message"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="font-semibold">Message</FormLabel>
+                          <FormLabel className="font-semibold text-slate-900 dark:text-white text-base">Message</FormLabel>
                           <FormControl>
                             <Textarea
                               placeholder="Please provide details about your inquiry..."
-                              className="resize-none h-32 focus:ring-2 focus:ring-scan-blue/40"
+                              className="resize-none h-32 rounded-lg border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all duration-300"
                               {...field}
                             />
                           </FormControl>
@@ -278,11 +354,15 @@ const ContactPage = () => {
                       )}
                     />
 
-                    <motion.div variants={itemVariants}>
+                    <motion.div 
+                      variants={itemVariants}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
                       <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full py-6 text-lg font-bold bg-gradient-to-r from-scan-blue to-scan-purple hover:opacity-90 transition-all rounded-2xl shadow-lg"
+                        className="w-full h-14 text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg border-0"
                       >
                         {isSubmitting ? (
                           <motion.div
@@ -290,8 +370,8 @@ const ContactPage = () => {
                             animate={{ opacity: 1 }}
                             className="flex items-center justify-center"
                           >
-                            <Loading size="sm" />
-                            Sending...
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                            Sending Message...
                           </motion.div>
                         ) : (
                           <motion.div

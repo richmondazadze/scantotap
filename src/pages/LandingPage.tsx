@@ -3,11 +3,9 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import Card3D from "@/components/Card3D";
 import {
   ArrowRight,
   User,
-  CreditCard,
   QrCode,
   Link as LinkIcon,
   Globe,
@@ -15,6 +13,17 @@ import {
   Shield,
   Smartphone,
   Share2,
+  Star,
+  Check,
+  Clock,
+  Zap,
+  TrendingUp,
+
+  Heart,
+  Sparkles,
+  CreditCard,
+  Target,
+  Rocket,
 } from "lucide-react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 
@@ -25,6 +34,18 @@ const LandingPage = () => {
   const isHeroInView = useInView(heroRef, { once: true });
   const featuresRef = useRef(null);
   const isFeaturesInView = useInView(featuresRef, { once: true });
+
+  // Smooth scroll utility
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest'
+      });
+    }
+  };
 
   // Parallax effect for the hero section
   const heroY = useTransform(scrollYProgress, [0, 1], [0, -100]);
@@ -68,295 +89,430 @@ const LandingPage = () => {
     }
   }, []);
 
+
+
+  const testimonials = [
+    {
+      name: "Sarah Chen",
+      role: "Content Creator",
+      company: "@sarahcreates",
+      content: "Finally ditched Linktree! This is so much better - more customization, better analytics, and my audience loves it.",
+      rating: 5,
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face"
+    },
+    {
+      name: "Marcus Rodriguez",
+      role: "Digital Marketer",
+      company: "@marcusmarketing",
+      content: "The analytics are incredible! I can see exactly which content my followers engage with most. Conversion rate up 40%.",
+      rating: 5,
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face"
+    },
+    {
+      name: "Emily Johnson",
+      role: "Small Business Owner",
+      company: "@emilysboutique",
+      content: "Perfect for my business! All my social links, shop, and contact info in one beautiful page. Customers find everything easily.",
+      rating: 5,
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face"
+    }
+  ];
+
+  const features = [
+    {
+      icon: Zap,
+      title: "Lightning Fast Setup",
+      description: "Create your link in bio page in under 2 minutes. No technical skills required.",
+      color: "from-yellow-400 to-orange-500"
+    },
+    {
+      icon: Shield,
+      title: "Privacy Controls",
+      description: "Choose exactly what to show and hide. Your data, your control.",
+      color: "from-green-400 to-blue-500"
+    },
+    {
+      icon: TrendingUp,
+      title: "Analytics & Insights",
+      description: "Track clicks, views, and engagement to grow your audience effectively.",
+      color: "from-purple-400 to-pink-500"
+    },
+    {
+      icon: Smartphone,
+      title: "Mobile First Design",
+      description: "Beautiful, responsive design that looks perfect on every device.",
+      color: "from-blue-400 to-indigo-500"
+    },
+    {
+      icon: Globe,
+      title: "Unlimited Links",
+      description: "Add as many links as you want. No limits, no restrictions.",
+      color: "from-indigo-400 to-purple-500"
+    },
+    {
+      icon: CreditCard,
+      title: "Physical Business Cards",
+      description: "Order premium business cards with your QR code for offline networking.",
+      color: "from-pink-400 to-red-500"
+    }
+  ];
+
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-white via-blue-50/50 to-purple-50/50 dark:from-scan-dark dark:via-scan-dark/95 dark:to-scan-dark/90 overflow-x-hidden" style={{ overscrollBehavior: 'none', backgroundColor: 'inherit' }}>
-      {/* Top/Bottom overlay fade */}
-      {/* Optional mesh blob */}
-      <motion.svg 
-        className="absolute -top-20 -left-32 w-[300px] h-[250px] sm:w-[500px] sm:h-[400px] opacity-20 z-0" 
-        viewBox="0 0 500 400" 
-        fill="none"
-        animate={{
-          scale: [1, 1.1, 1],
-          rotate: [0, 5, 0],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      >
-        <ellipse cx="250" cy="200" rx="250" ry="200" fill="url(#paint0_radial)" />
-        <defs>
-          <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientTransform="translate(250 200) scale(250 200)" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#3B82F6" />
-            <stop offset="1" stopColor="#8B5CF6" stopOpacity="0.2" />
-          </radialGradient>
-        </defs>
-      </motion.svg>
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 overflow-x-hidden scroll-smooth">
+      {/* Animated background elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{
+            rotate: [0, 360],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{
+            rotate: [360, 0],
+            scale: [1, 1.3, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"
+        />
+      </div>
+
       <Navigation />
       
-      {/* Hero section */}
+      {/* Hero Section */}
       <motion.section 
         ref={heroRef}
         style={{ y: heroY, opacity: heroOpacity }}
-        className="flex items-center min-h-screen pt-24 sm:pt-20 md:pt-16 pb-2 px-4 sm:px-6 lg:px-8 relative z-20 overflow-x-hidden"
+        className="relative flex items-center min-h-[80vh] lg:min-h-screen pt-24 sm:pt-32 lg:pt-20 pb-8 sm:pb-10 lg:pb-20 px-4 sm:px-6 lg:px-8 z-10 overflow-x-hidden"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-center justify-center w-full max-w-7xl mx-auto">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-col items-center lg:items-start justify-center w-full"
-          >
-            <motion.div 
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={isHeroInView ? { scale: 1, opacity: 1 } : {}}
-              transition={{ duration: 0.4, delay: 0.4 }}
-              className="mb-4 w-full flex justify-center lg:justify-start"
-            >
-                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-scan-blue/10 text-scan-blue dark:bg-scan-blue/20 dark:text-scan-blue-light">
-                  Digital Identity Platform
-                </span>
-            </motion.div>
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-center lg:text-left w-full font-serif"
-            >
-                Your Digital Identity, <br />
-                <span className="bg-gradient-to-r from-scan-blue via-indigo-500 to-scan-purple bg-clip-text text-transparent">
-                  One Tap Away
-                </span>
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.8 }}
-              className="mt-4 sm:mt-6 text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-xl text-center lg:text-left w-full"
-            >
-              Connect offline to online in one scan. Bridge your physical and digital presence seamlessly.
-            </motion.p>
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 1 }}
-              className="mt-8 sm:mt-10 flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 w-full justify-center lg:justify-start"
-            >
-              <Link to="/dashboard/profile" className="w-full sm:w-auto">
-                  <Button 
-                    size="lg" 
-                    radius="xl"
-                    variant="gradient"
-                    animation="glow"
-                  className="group shadow-lg hover:scale-105 hover:shadow-2xl hover:ring-2 hover:ring-scan-blue/30 transition-transform w-full sm:w-auto"
-                  >
-                  <span className="flex items-center justify-center">
-                    Reserve Your Card
-                    <motion.span
-                      whileHover={{ x: 6 }}
-                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                      className="ml-1 inline-block"
-                    >
-                      <ArrowRight size={18} />
-                    </motion.span>
-                  </span>
-                  </Button>
-                </Link>
-              <Link to="#how-it-works" className="w-full sm:w-auto" onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
-                }}>
-                  <Button 
-                    variant="outline" 
-                    size="lg" 
-                    radius="xl"
-                    animation="scale"
-                  className="hover:scale-105 hover:shadow-md hover:ring-1 hover:ring-scan-blue/30 transition-transform w-full sm:w-auto"
-                  >
-                    Learn More
-                  </Button>
-                </Link>
-            </motion.div>
-          </motion.div>
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={isHeroInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex justify-center items-center w-full mt-8 lg:mt-0"
-          >
-            <motion.img
-              src="/card_model.png"
-              alt="Scan2Tap 3D Card Model"
-              className="relative w-64 h-40 sm:w-80 sm:h-52 lg:w-96 lg:h-64 xl:w-[520px] xl:h-[340px] object-contain rounded-2xl shadow-sm max-w-full"
-              whileHover={{ rotate: -6, scale: 1.15 }}
-              style={{ cursor: 'pointer' }}
-              animate={{
-                y: [0, -16, 0, 16, 0],
-                rotate: [0, 2, 0, -2, 0],
+        <div className="w-full max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left Column - Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={isHeroInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ 
+                duration: 1, 
+                delay: 0.2,
+                type: "spring",
+                stiffness: 100,
+                damping: 15
               }}
-              transition={{
-                duration: 8,
-                repeat: Infinity,
-                repeatType: "mirror",
-                ease: "easeInOut"
-              }}
-            />
-          </motion.div>
-              </div>
-      </motion.section>
+              className="space-y-6 lg:space-y-8"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20"
+              >
+                <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
+                <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                  The Future of Networking
+                </span>
+              </motion.div>
 
-      {/* 3D Aesthetic Futuristic Gradient Divider (after hero) */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true }}
-        className="relative z-10 flex justify-center -mt-10"
-      >
-        <div className="w-full max-w-5xl h-8 flex items-center">
-          <svg width="100%" height="32" viewBox="0 0 1200 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="futuristic-gradient" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#00FFFF" />
-                <stop offset="0.25" stopColor="#4F46E5" />
-                <stop offset="0.5" stopColor="#9333EA" />
-                <stop offset="0.75" stopColor="#4F46E5" />
-                <stop offset="1" stopColor="#00FFFF" />
-              </linearGradient>
-            </defs>
-            <ellipse cx="600" cy="16" rx="580" ry="10" fill="url(#futuristic-gradient)" filter="url(#blur)" opacity="0.85" />
-            <filter id="blur">
-              <feGaussianBlur stdDeviation="6" />
-            </filter>
-          </svg>
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-center lg:text-left"
+              >
+                {/* Mobile version - shorter and more concise */}
+                <span className="block sm:hidden">
+                  Your{" "}
+                  <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                    Digital Identity
+                  </span>
+                  <br />
+                  <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
+                    Link in Bio
+                  </span>
+                  {" "}+{" "}
+                  <span className="bg-gradient-to-r from-green-600 via-teal-600 to-blue-600 bg-clip-text text-transparent">
+                    Cards
+                  </span>
+                </span>
+                
+                {/* Desktop version - full text */}
+                <span className="hidden sm:block">
+                  Your{" "}
+                  <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                    Online Profile
+                  </span>
+                  {" "}+{" "}
+                  <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
+                    Link in Bio
+                  </span>
+                  {" "}+{" "}
+                  <span className="bg-gradient-to-r from-green-600 via-teal-600 to-blue-600 bg-clip-text text-transparent">
+                    Business Cards
+                  </span>
+                </span>
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 0.8 }}
+                className="text-lg sm:text-xl lg:text-2xl text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed text-center lg:text-left"
+              >
+                Create your professional online profile, build the perfect link in bio page, and order premium business cards with QR codes. Everything you need to network like a pro, both online and offline.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 1 }}
+                className="flex flex-col sm:flex-row gap-4 w-full justify-center lg:justify-start"
+              >
+                <Link to="/dashboard/profile" className="w-full sm:w-auto">
+                  <Button
+                    size="lg"
+                    className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 w-full sm:w-auto"
+                  >
+                    Get Started Free
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </motion.div>
+
+              {/* Trust indicators */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 1.2 }}
+                className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 pt-8"
+              >
+                <div className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-green-500" />
+                  <span className="text-sm text-slate-600 dark:text-slate-300">Free forever</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-blue-500" />
+                  <span className="text-sm text-slate-600 dark:text-slate-300">2-minute setup</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-purple-500" />
+                  <span className="text-sm text-slate-600 dark:text-slate-300">Privacy first</span>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Right Column - Visual */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={isHeroInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ 
+                duration: 1, 
+                delay: 0.4,
+                type: "spring",
+                stiffness: 100,
+                damping: 15
+              }}
+              className="relative flex justify-center items-center overflow-hidden px-4 sm:px-0"
+            >
+              <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
+                <motion.img
+                  src="/card_model.png"
+                  alt="Scan2Tap Digital Card"
+                  className="relative w-full h-auto object-contain rounded-xl shadow-l drop-shadow-2xl"
+                  style={{ borderRadius: '12px' }}
+                  animate={{
+                    y: [0, -20, 0],
+                    rotateY: [0, 5, 0, -5, 0],
+                  }}
+                  transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                  whileHover={{
+                    scale: 1.05,
+                    rotateY: 15,
+                  }}
+                />
+
+                {/* Floating elements - contained within image bounds */}
+                <motion.div
+                  animate={{
+                    y: [0, -10, 0],
+                    rotate: [0, 5, 0],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 1
+                  }}
+                  className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white dark:bg-slate-800 rounded-full p-1.5 sm:p-2 md:p-3 shadow-lg"
+                >
+                  <QrCode className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-blue-500" />
+                </motion.div>
+
+                <motion.div
+                  animate={{
+                    y: [0, 10, 0],
+                    rotate: [0, -5, 0],
+                  }}
+                  transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 2
+                  }}
+                  className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 bg-white dark:bg-slate-800 rounded-full p-1.5 sm:p-2 md:p-3 shadow-lg"
+                >
+                  <Share2 className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-purple-500" />
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
         </div>
-      </motion.div>
+      </motion.section>
 
       {/* How it works section */}
       <motion.section 
         id="how-it-works" 
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="pt-10 pb-20 px-4 sm:px-6 lg:px-8 bg-white/40 dark:bg-scan-dark/40"
+        className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 pt-24 sm:pt-32 md:pt-20 overflow-x-hidden"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
+            transition={{ 
+              duration: 0.8,
+              type: "spring",
+              stiffness: 100,
+              damping: 15
+            }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="text-center mb-12 sm:mb-16 lg:mb-20"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold font-serif">How It Works</h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Three simple steps to connect your offline and online presence
-            </p>
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6"
+            >
+              How It <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Works</span>
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              viewport={{ once: true }}
+              className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed"
+            >
+              Get started in minutes with our simple three-step process
+            </motion.p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 md:gap-8 max-w-6xl mx-auto">
             {[
               {
-                icon: <div className="flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-scan-blue/20 to-scan-purple/30 shadow-md mb-4 mx-auto"><User className="text-scan-purple w-10 h-10" /></div>,
-                title: "Create your profile",
-                description: "Build your digital identity with links, bio, and contact information"
+                icon: User,
+                title: "Create Your Page",
+                description: "Build your personalized link in bio page with all your content, links, and social profiles in one place"
               },
               {
-                icon: <div className="flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-scan-blue/20 to-scan-purple/30 shadow-md mb-4 mx-auto"><CreditCard className="text-scan-purple w-10 h-10" /></div>,
-                title: "Get your QR card",
-                description: "Receive your personalized card with a unique QR code"
+                icon: QrCode,
+                title: "Share Everywhere",
+                description: "Get your unique link, QR code, and order physical business cards to share both digitally and in person"
               },
               {
-                icon: <div className="flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-scan-blue/20 to-scan-purple/30 shadow-md mb-4 mx-auto"><Share2 className="text-scan-purple w-10 h-10" /></div>,
-                title: "Share your ID in 1 scan",
-                description: "Connect with anyone instantly by having them scan your card"
+                icon: Rocket,
+                title: "Grow Your Audience",
+                description: "Track clicks, analyze your audience, and optimize your content to maximize engagement and growth"
               }
             ].map((step, i) => (
               <motion.div 
                 key={step.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ 
-                  duration: 0.6, 
+                  duration: 0.8, 
                   delay: i * 0.2,
-                  ease: "easeOut"
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 15
                 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -10 }}
-                className="glassmorphism-card p-8 transition-all duration-300 shadow-xl rounded-2xl flex flex-col items-center"
+                viewport={{ once: true, margin: "-50px" }}
+                whileHover={{ 
+                  y: -10, 
+                  scale: 1.02,
+                  transition: { duration: 0.3 }
+                }}
+                className="relative group"
               >
-                <motion.div
-                  initial={{ scale: 1 }}
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 300,
-                    damping: 20
-                  }}
-                >
-                  {step.icon}
-                </motion.div>
-                <h3 className="text-xl font-semibold mb-3 text-center">{step.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-center text-base md:text-lg">
-                  {step.description}
-                </p>
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-500 border border-slate-200/50 dark:border-slate-700/50 group-hover:border-blue-500/50 h-full flex flex-col relative overflow-hidden">
+                  {/* Animated background gradient on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <div className="flex items-center justify-center w-16 h-16 sm:w-18 sm:h-18 lg:w-20 lg:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6 mx-auto group-hover:scale-110 transition-all duration-300 shadow-lg">
+                    <step.icon className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 text-white" />
+                  </div>
+                  
+                  {/* Desktop number positioning */}
+                  <div className="hidden md:block absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                    {i + 1}
+                  </div>
+                  
+                  {/* Mobile number positioning */}
+                  <div className="md:hidden absolute -top-10 left-1/2 transform -translate-x-1/2 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-base shadow-lg z-20">
+                    {i + 1}
+                  </div>
+                  
+                  <h3 className="text-xl sm:text-2xl font-bold mb-4 text-center relative z-10 text-slate-900 dark:text-white">{step.title}</h3>
+                  <p className="text-slate-600 dark:text-slate-300 text-center leading-relaxed flex-grow relative z-10 text-base sm:text-lg">
+                    {step.description}
+                  </p>
+                </div>
+                
+                {/* Desktop arrows */}
+                {i < 2 && (
+                  <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                    <motion.div
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <ArrowRight className="w-6 h-6 text-slate-400" />
+                    </motion.div>
+                  </div>
+                )}
+                
+                {/* Mobile arrows - vertical */}
+                {i < 2 && (
+                  <div className="md:hidden absolute -bottom-6 left-1/2 transform -translate-x-1/2 z-10">
+                    <motion.div
+                      animate={{ y: [0, 5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      className="w-8 h-8 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-lg border-2 border-blue-500/20"
+                    >
+                      <ArrowRight className="w-5 h-5 text-blue-500 rotate-90" />
+                    </motion.div>
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>
-
-          {/* CTA below cards */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            viewport={{ once: true }}
-            className="flex justify-center mt-12"
-          >
-            <Link to="/dashboard/profile">
-              <Button 
-                size="lg" 
-                variant="gradient" 
-                radius="xl"
-                animation="glow"
-                className="shadow-lg hover:scale-105 hover:shadow-2xl hover:ring-2 hover:ring-scan-blue/30 transition-transform"
-              >
-                Get Started
-              </Button>
-            </Link>
-          </motion.div>
         </div>
       </motion.section>
-
-      {/* 3D Aesthetic Futuristic Gradient Divider (before features) */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true }}
-        className="relative z-10 flex justify-center -mt-10"
-      >
-        <div className="w-full max-w-5xl h-8 flex items-center">
-          <svg width="100%" height="32" viewBox="0 0 1200 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="futuristic-gradient-2" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#00FFFF" />
-                <stop offset="0.25" stopColor="#4F46E5" />
-                <stop offset="0.5" stopColor="#9333EA" />
-                <stop offset="0.75" stopColor="#4F46E5" />
-                <stop offset="1" stopColor="#00FFFF" />
-              </linearGradient>
-            </defs>
-            <ellipse cx="600" cy="16" rx="580" ry="10" fill="url(#futuristic-gradient-2)" filter="url(#blur)" opacity="0.85" />
-            <filter id="blur">
-              <feGaussianBlur stdDeviation="6" />
-            </filter>
-          </svg>
-        </div>
-      </motion.div>
 
       {/* Features section */}
       <motion.section 
@@ -364,147 +520,252 @@ const LandingPage = () => {
         id="features" 
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="pt-10 pb-20 px-4 sm:px-6 lg:px-8"
+        className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50/50 dark:bg-slate-900/50 overflow-x-hidden"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-12 sm:mb-16 lg:mb-20"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold font-serif">Features</h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Everything you need to create and share your digital identity
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6">
+              Powerful <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Features</span>
+            </h2>
+            <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
+              Everything you need to create and share your digital identity professionally
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { 
-                icon: <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-scan-blue/20 to-scan-purple/30 shadow-md mb-4 mx-auto"><User className="text-scan-blue w-8 h-8" /></div>, 
-                title: "Clean UI",
-                description: "Intuitive and modern interface for easy profile management"
-              },
-              { 
-                icon: <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-scan-blue/20 to-scan-purple/30 shadow-md mb-4 mx-auto"><Smartphone className="text-scan-blue w-8 h-8" /></div>, 
-                title: "Mobile Optimized",
-                description: "Perfect experience on any device, especially on mobile"
-              },
-              { 
-                icon: <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-scan-blue/20 to-scan-purple/30 shadow-md mb-4 mx-auto"><Shield className="text-scan-blue w-8 h-8" /></div>, 
-                title: "Secure",
-                description: "End-to-end encryption and privacy controls for your data"
-              },
-              { 
-                icon: <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-scan-blue/20 to-scan-purple/30 shadow-md mb-4 mx-auto"><QrCode className="text-scan-blue w-8 h-8" /></div>, 
-                title: "QR/NFC Technology",
-                description: "Multiple scanning options for maximum compatibility"
-              },
-              { 
-                icon: <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-scan-blue/20 to-scan-purple/30 shadow-md mb-4 mx-auto"><CreditCard className="text-scan-blue w-8 h-8" /></div>, 
-                title: "Printed Card",
-                description: "High-quality physical cards delivered to your door"
-              },
-              { 
-                icon: <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-scan-blue/20 to-scan-purple/30 shadow-md mb-4 mx-auto"><Globe className="text-scan-blue w-8 h-8" /></div>, 
-                title: "Global Sharing",
-                description: "Connect with anyone, anywhere in the world instantly"
-              }
-            ].map((feature, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+            {features.map((feature, i) => (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ 
-                  duration: 0.6, 
+                  duration: 0.8, 
                   delay: i * 0.1,
-                  ease: "easeOut"
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 15
                 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -10 }}
-                className="glassmorphism-card p-8 transition-all duration-300 shadow-xl rounded-2xl flex flex-col items-center"
+                viewport={{ once: true, margin: "-50px" }}
+                whileHover={{ 
+                  y: -15, 
+                  scale: 1.03,
+                  transition: { duration: 0.3, type: "spring", stiffness: 300 }
+                }}
+                className="group relative"
               >
-                <motion.div
-                  initial={{ scale: 1, rotate: 0 }}
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 300,
-                    damping: 20
-                  }}
-                >
-                  {feature.icon}
-                </motion.div>
-                <h3 className="text-xl font-semibold mb-3 text-center">{feature.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-center text-base md:text-lg">{feature.description}</p>
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-500 border border-slate-200/50 dark:border-slate-700/50 group-hover:border-transparent overflow-hidden h-full flex flex-col relative">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-15 transition-opacity duration-500`} />
+                  <motion.div 
+                    className={`flex items-center justify-center w-16 h-16 sm:w-18 sm:h-18 lg:w-20 lg:h-20 bg-gradient-to-br ${feature.color} rounded-2xl mb-6 shadow-lg relative z-10`}
+                    whileHover={{ 
+                      scale: 1.15, 
+                      rotate: 5,
+                      transition: { duration: 0.3, type: "spring", stiffness: 300 }
+                    }}
+                  >
+                    <feature.icon className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 text-white" />
+                  </motion.div>
+                  <h3 className="text-xl sm:text-2xl font-bold mb-4 relative z-10 text-slate-900 dark:text-white">{feature.title}</h3>
+                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed flex-grow relative z-10 text-base sm:text-lg">
+                    {feature.description}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </motion.section>
 
-      {/* Gradient Fade Divider for Smooth Transition to CTA */}
-      <div className="w-full h-3 -mt-3 relative z-10">
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-transparent to-[#6366F1] dark:to-[#6366F1]" />
-      </div>
-
-      {/* CTA section */}
-      <motion.section 
+      {/* Testimonials Section */}
+      <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-scan-blue via-scan-indigo to-scan-purple text-white"
+        className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-x-hidden"
       >
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto text-center"
-        >
-          <h2 className="text-3xl sm:text-4xl font-bold font-serif">Ready to Transform Your Networking?</h2>
-          <p className="mt-6 text-lg text-white/80 max-w-2xl mx-auto">
-            Join thousands of professionals who are connecting in a smarter way
-          </p>
+        <div className="max-w-7xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center mb-12 sm:mb-16 lg:mb-20"
+          >
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6">
+              Loved by <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Professionals</span>
+            </h2>
+            <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
+              See what our users say about transforming their networking experience
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+            {testimonials.map((testimonial, i) => (
+              <motion.div
+                key={testimonial.name}
+                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ 
+                  duration: 0.8, 
+                  delay: i * 0.2,
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 15
+                }}
+                viewport={{ once: true, margin: "-50px" }}
+                whileHover={{ 
+                  y: -8, 
+                  scale: 1.02,
+                  transition: { duration: 0.3 }
+                }}
+                className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-500 border border-slate-200/50 dark:border-slate-700/50 hover:border-blue-500/30 relative overflow-hidden group"
+              >
+                {/* Subtle background gradient on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="flex items-center gap-1 mb-4 relative z-10">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ scale: 0, rotate: -180 }}
+                      whileInView={{ scale: 1, rotate: 0 }}
+                      transition={{ 
+                        duration: 0.5, 
+                        delay: i * 0.1 + 0.3,
+                        type: "spring",
+                        stiffness: 200
+                      }}
+                      viewport={{ once: true }}
+                    >
+                      <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    </motion.div>
+                  ))}
+                </div>
+                <p className="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed relative z-10 text-base sm:text-lg">
+                  "{testimonial.content}"
+                </p>
+                <div className="flex items-center gap-4 relative z-10">
+                  <motion.img
+                    src={testimonial.avatar}
+                    alt={testimonial.name}
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover shadow-lg"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <div>
+                    <div className="font-semibold text-slate-900 dark:text-white text-base sm:text-lg">
+                      {testimonial.name}
+                    </div>
+                    <div className="text-sm sm:text-base text-slate-600 dark:text-slate-300">
+                      {testimonial.role} at {testimonial.company}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      {/* CTA Section */}
+      <motion.section 
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+        className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white relative overflow-hidden"
+      >
+        {/* Background patterns */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }} />
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="max-w-5xl mx-auto text-center relative z-10"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className="mt-10"
+            className="mb-8"
           >
-            <Link to="/dashboard/profile">
-              <Button 
-                size="lg" 
-                variant="default"
-                radius="xl"
-                className="bg-white text-scan-blue font-bold shadow-xl hover:bg-scan-white hover:text-blue hover:scale-105 hover:shadow-2xl transition-transform px-10 py-5 text-1.5xs border border-scan-blue"
-              >
-                <motion.span
-                  initial={{ x: 0 }}
-                  whileHover={{ x: 5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="flex items-center"
-              >
-                Reserve Your Card
-                  <ArrowRight className="ml-2 text-scan-blue" size={24} />
-                </motion.span>
-              </Button>
-            </Link>
+            <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 bg-white/20 rounded-full mb-6">
+              <Target className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+            </div>
+          </motion.div>
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6">
+            Ready to Transform Your Networking?
+          </h2>
+          <p className="text-lg sm:text-xl lg:text-2xl text-white/90 max-w-4xl mx-auto mb-10 leading-relaxed">
+            Join thousands of professionals who are connecting smarter, not harder. Start building your digital presence today.
+          </p>
+          
+                     <motion.div 
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             transition={{ duration: 0.8, delay: 0.4 }}
+             viewport={{ once: true }}
+             className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full"
+           >
+                         <Link to="/dashboard/profile" className="w-full sm:w-auto">
+               <Button
+                 size="lg"
+                 className="bg-white text-blue-600 hover:bg-slate-100 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 font-semibold w-full sm:w-auto"
+               >
+                 <Rocket className="mr-2 w-5 h-5" />
+                 Get Started Free
+               </Button>
+             </Link>
+             <Link to="/pricing" className="w-full sm:w-auto">
+               <Button
+                 variant="outline"
+                 size="lg"
+                 className="bg-blue-600 text-white hover:bg-white hover:text-blue-600 transition-colors px-8 font-semibold w-full sm:w-auto"
+               >
+                 View Pricing
+               </Button>
+             </Link>
+          </motion.div>
+
+                     <motion.div
+             initial={{ opacity: 0 }}
+             whileInView={{ opacity: 1 }}
+             transition={{ duration: 0.8, delay: 0.6 }}
+             viewport={{ once: true }}
+             className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-white/80 text-sm"
+           >
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4" />
+              <span>Free forever plan</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4" />
+              <span>No credit card required</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4" />
+              <span>Setup in 2 minutes</span>
+            </div>
           </motion.div>
         </motion.div>
       </motion.section>
-
-      {/* Gradient Fade Divider for Smooth Transition to Footer */}
-      <div className="w-full h-3 -mt-3 relative z-10">
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-transparent to-[#111827] dark:to-[#0a0a23]" />
-        </div>
 
       <Footer />
     </div>
