@@ -95,6 +95,7 @@ export default function DashboardOrder() {
   const [quantity, setQuantity] = useState(1);
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const [isCancellingOrder, setIsCancellingOrder] = useState(false);
   
   // Order form state
   const [orderForm, setOrderForm] = useState({
@@ -183,6 +184,33 @@ export default function DashboardOrder() {
 
   const handleOrderFormChange = (field: string, value: string) => {
     setOrderForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    if (!window.confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+      return;
+    }
+
+    setIsCancellingOrder(true);
+    
+    try {
+      const result = await orderService.cancelOrder(orderId);
+      
+      if (result.success) {
+        toast.success('Order cancelled successfully');
+        // Redirect to shipping page to see updated status
+        setTimeout(() => {
+          window.location.href = '/dashboard/shipping';
+        }, 1500);
+      } else {
+        toast.error(result.error || 'Failed to cancel order');
+      }
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+      toast.error('An unexpected error occurred while cancelling the order');
+    } finally {
+      setIsCancellingOrder(false);
+    }
   };
 
   const handlePlaceOrder = async () => {

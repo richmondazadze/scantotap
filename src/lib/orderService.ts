@@ -75,7 +75,7 @@ export const orderService = {
         .insert([{
           user_id: user.id,
           ...orderData
-        }])
+        } as any])
         .select()
         .single();
 
@@ -92,7 +92,7 @@ export const orderService = {
             user_id: user.id,
             order_number: fallbackOrderNumber,
             ...orderData
-          }])
+          } as any])
           .select()
           .single();
 
@@ -101,7 +101,7 @@ export const orderService = {
           return { success: false, error: retryError.message };
         }
 
-        return { success: true, order: retryData };
+        return { success: true, order: retryData as Order };
       }
 
       if (error) {
@@ -109,7 +109,7 @@ export const orderService = {
         return { success: false, error: error.message };
       }
 
-      return { success: true, order: data };
+      return { success: true, order: data as Order };
     } catch (error) {
       console.error('Error creating order:', error);
       return { success: false, error: 'An unexpected error occurred' };
@@ -136,7 +136,7 @@ export const orderService = {
         return { success: false, error: error.message };
       }
 
-      return { success: true, orders: data || [] };
+      return { success: true, orders: (data || []) as Order[] };
     } catch (error) {
       console.error('Error fetching orders:', error);
       return { success: false, error: 'An unexpected error occurred' };
@@ -164,7 +164,7 @@ export const orderService = {
         return { success: false, error: error.message };
       }
 
-      return { success: true, order: data };
+      return { success: true, order: data as Order };
     } catch (error) {
       console.error('Error fetching order:', error);
       return { success: false, error: 'An unexpected error occurred' };
@@ -193,9 +193,58 @@ export const orderService = {
         return { success: false, error: error.message };
       }
 
-      return { success: true, order: data };
+      return { success: true, order: data as Order };
     } catch (error) {
       console.error('Error updating order:', error);
+      return { success: false, error: 'An unexpected error occurred' };
+    }
+  },
+
+  // Cancel an order (only allowed for pending and confirmed orders)
+  async cancelOrder(orderId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return { success: false, error: 'User not authenticated' };
+      }
+
+      // First, get the current order to check its status
+      const { data: order, error: fetchError } = await supabase
+        .from('orders')
+        .select('status')
+        .eq('id', orderId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching order for cancellation:', fetchError);
+        return { success: false, error: 'Order not found' };
+      }
+
+      // Only allow cancellation of pending and confirmed orders
+      if (!['pending', 'confirmed'].includes(order.status)) {
+        return { 
+          success: false, 
+          error: `Cannot cancel order with status: ${order.status}. Only pending and confirmed orders can be cancelled.` 
+        };
+      }
+
+      // Update order status to cancelled
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'cancelled' })
+        .eq('id', orderId)
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error cancelling order:', error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error cancelling order:', error);
       return { success: false, error: 'An unexpected error occurred' };
     }
   },
@@ -323,7 +372,7 @@ export const orderService = {
         totalRevenue: data?.reduce((sum, order) => {
           // Only count revenue from successfully paid orders
           const paidStatuses = ['confirmed', 'processing', 'shipped', 'delivered'];
-          return paidStatuses.includes(order.status) ? sum + parseFloat(order.total) : sum;
+          return paidStatuses.includes(order.status) ? sum + Number(order.total) : sum;
         }, 0) || 0
       };
 

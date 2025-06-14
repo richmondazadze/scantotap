@@ -22,7 +22,8 @@ import {
   DollarSign,
   Eye,
   Copy,
-  Mail
+  Mail,
+  Loader2
 } from 'lucide-react';
 import Loading from '@/components/ui/loading';
 
@@ -39,6 +40,7 @@ export default function DashboardShipping() {
   const [refreshing, setRefreshing] = useState(false);
   const [trackingSearch, setTrackingSearch] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
 
   // Load user orders
   const loadOrders = async () => {
@@ -95,6 +97,31 @@ export default function DashboardShipping() {
     // Generic tracking link - in production, this would be carrier-specific
     const trackingUrl = `https://www.google.com/search?q=track+package+${trackingNumber}`;
     window.open(trackingUrl, '_blank');
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    if (!window.confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+      return;
+    }
+
+    setCancellingOrderId(orderId);
+    
+    try {
+      const result = await orderService.cancelOrder(orderId);
+      
+      if (result.success) {
+        toast.success('Order cancelled successfully');
+        // Refresh orders to show updated status
+        await loadOrders();
+      } else {
+        toast.error(result.error || 'Failed to cancel order');
+      }
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+      toast.error('An unexpected error occurred while cancelling the order');
+    } finally {
+      setCancellingOrderId(null);
+    }
   };
 
   // Filter orders based on search
@@ -369,6 +396,28 @@ export default function DashboardShipping() {
                     >
                       <Eye className="w-4 h-4 mr-1" />
                       Modify Order
+                    </Button>
+                  )}
+                  
+                  {(order.status === 'confirmed' || order.status === 'pending') && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleCancelOrder(order.id)}
+                      disabled={cancellingOrderId === order.id}
+                      className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/20"
+                    >
+                      {cancellingOrderId === order.id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                          Cancelling...
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="w-4 h-4 mr-1" />
+                          Cancel Order
+                        </>
+                      )}
                     </Button>
                   )}
                 </div>
