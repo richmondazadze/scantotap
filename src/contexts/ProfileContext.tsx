@@ -17,6 +17,10 @@ interface Profile {
   phone?: string;
   email?: string;
   onboarding_complete?: boolean;
+  social_layout_style?: string;
+  show_email?: boolean;
+  show_phone?: boolean;
+  show_whatsapp?: boolean;
 }
 
 interface ProfileContextType {

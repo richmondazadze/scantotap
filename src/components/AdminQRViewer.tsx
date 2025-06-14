@@ -30,6 +30,7 @@ interface Profile {
   links?: Json;
   created_at: string;
   updated_at: string;
+  social_layout_style?: string;
 }
 
 interface AdminQRViewerProps {

@@ -5,13 +5,14 @@ import AvatarUploader from '@/components/AvatarUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabaseClient';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { processSocialInput, SOCIAL_PLATFORMS, getDisplayUsername } from '@/lib/socialUrlParser';
 
 import { motion } from 'framer-motion';
-import { Camera, Plus, X, Phone, Globe, Link, ExternalLink, Save, AlertCircle, CheckCircle } from 'lucide-react';
+import { Camera, Plus, X, Phone, Globe, Link, ExternalLink, Save, AlertCircle, CheckCircle, Shield, Mail } from 'lucide-react';
 import { FaInstagram, FaTwitter, FaSnapchat, FaTiktok, FaWhatsapp, FaYoutube, FaFacebook, FaLinkedin, FaSpotify, FaPinterest, FaTwitch } from 'react-icons/fa6';
 
 const SOCIAL_PRESETS = [
@@ -53,6 +54,10 @@ export default function DashboardProfile() {
   const [socialInput, setSocialInput] = useState('');
   const [socialPreview, setSocialPreview] = useState({ url: '', username: '', isValid: false });
   const [phone, setPhone] = useState(profile?.phone || '');
+  const [socialLayoutStyle, setSocialLayoutStyle] = useState(profile?.social_layout_style || 'grid');
+  const [showEmail, setShowEmail] = useState(profile?.show_email ?? true);
+  const [showPhone, setShowPhone] = useState(profile?.show_phone ?? true);
+  const [showWhatsapp, setShowWhatsapp] = useState(profile?.show_whatsapp ?? true);
 
   const slugCheckTimeout = useRef<NodeJS.Timeout | null>(null);
   const avatarTriggerRef = useRef<HTMLDivElement>(null);
@@ -99,6 +104,10 @@ export default function DashboardProfile() {
       setLinks(Array.isArray(profile.links) ? profile.links : []);
       setSlug(profile.slug || '');
       setPhone(profile.phone || '');
+      setSocialLayoutStyle(profile.social_layout_style || 'grid');
+      setShowEmail(profile.show_email ?? true);
+      setShowPhone(profile.show_phone ?? true);
+      setShowWhatsapp(profile.show_whatsapp ?? true);
     }
   }, [profile]);
 
@@ -118,12 +127,16 @@ export default function DashboardProfile() {
       slug: slug !== (profile.slug || ''),
       phone: phone !== (profile.phone || ''),
       links: JSON.stringify(links) !== JSON.stringify(profileLinks),
+      socialLayoutStyle: socialLayoutStyle !== (profile.social_layout_style || 'grid'),
+      showEmail: showEmail !== (profile.show_email ?? true),
+      showPhone: showPhone !== (profile.show_phone ?? true),
+      showWhatsapp: showWhatsapp !== (profile.show_whatsapp ?? true),
     };
     const isChanged = Object.values(diffs).some(Boolean);
     console.log('[UnsavedChanges] Field diffs:', diffs);
     console.log('[UnsavedChanges] isChanged:', isChanged);
     setHasUnsavedChanges(isChanged);
-  }, [name, title, bio, avatarUrl, links, slug, phone, profile]);
+  }, [name, title, bio, avatarUrl, links, slug, phone, socialLayoutStyle, showEmail, showPhone, showWhatsapp, profile]);
 
   // Slug (username) availability check
   useEffect(() => {
@@ -181,6 +194,91 @@ export default function DashboardProfile() {
     setSocialInput('');
     setSocialPreview({ url: '', username: '', isValid: false });
     setShowSocialDialog(true);
+  };
+
+  const handleSocialLayoutChange = async (newStyle: string) => {
+    setSocialLayoutStyle(newStyle);
+    
+    // Auto-save to database if profile exists
+    if (profile?.id) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ social_layout_style: newStyle })
+          .eq('id', profile.id);
+        
+        if (error) throw error;
+        
+        // Update the profile context
+        setProfile({ ...profile, social_layout_style: newStyle });
+        
+        toast.success(`Layout changed to ${newStyle === 'grid' ? 'Grid' : 'Horizontal'}`);
+      } catch (err) {
+        console.error('Failed to update layout style:', err);
+        toast.error('Failed to update layout style');
+        // Revert the local state if database update failed
+        setSocialLayoutStyle(profile.social_layout_style || 'grid');
+      }
+    }
+  };
+
+  const handlePrivacySettingChange = async (setting: 'show_email' | 'show_phone' | 'show_whatsapp', value: boolean) => {
+    // Update local state immediately
+    if (setting === 'show_email') {
+      setShowEmail(value);
+    } else if (setting === 'show_phone') {
+      setShowPhone(value);
+      // If hiding phone, also hide WhatsApp
+      if (!value) {
+        setShowWhatsapp(false);
+      }
+    } else if (setting === 'show_whatsapp') {
+      setShowWhatsapp(value);
+    }
+
+    // Auto-save to database if profile exists
+    if (profile?.id) {
+      try {
+        const updateData: any = { [setting]: value };
+        
+        // If hiding phone, also hide WhatsApp
+        if (setting === 'show_phone' && !value) {
+          updateData.show_whatsapp = false;
+        }
+
+        const { error } = await supabase
+          .from('profiles')
+          .update(updateData)
+          .eq('id', profile.id);
+        
+        if (error) throw error;
+        
+        // Update the profile context
+        const updatedProfile = { ...profile, ...updateData };
+        setProfile(updatedProfile);
+        
+        const settingLabels = {
+          show_email: 'Email visibility',
+          show_phone: 'Phone visibility',
+          show_whatsapp: 'WhatsApp visibility'
+        };
+        
+        toast.success(`${settingLabels[setting]} updated`);
+      } catch (err) {
+        console.error('Failed to update privacy setting:', err);
+        toast.error('Failed to update privacy setting');
+        
+        // Revert the local state if database update failed
+        if (setting === 'show_email') {
+          setShowEmail(profile.show_email ?? true);
+        } else if (setting === 'show_phone') {
+          setShowPhone(profile.show_phone ?? true);
+          setShowWhatsapp(profile.show_whatsapp ?? true);
+        } else if (setting === 'show_whatsapp') {
+          setShowWhatsapp(profile.show_whatsapp ?? true);
+        }
+      }
+    }
   };
 
   const handleAddSocial = () => {
@@ -243,6 +341,10 @@ export default function DashboardProfile() {
           links,
           slug,
           phone,
+          social_layout_style: socialLayoutStyle,
+          show_email: showEmail,
+          show_phone: showPhone,
+          show_whatsapp: showWhatsapp,
         }).select().single());
       } else {
         // Update existing profile
@@ -254,6 +356,10 @@ export default function DashboardProfile() {
         links,
         slug,
           phone,
+          social_layout_style: socialLayoutStyle,
+          show_email: showEmail,
+          show_phone: showPhone,
+          show_whatsapp: showWhatsapp,
         }).eq('id', profile.id).select().single());
       }
       if (error) throw error;
@@ -266,6 +372,10 @@ export default function DashboardProfile() {
       setLinks(Array.isArray(data.links) ? data.links : []);
       setSlug(data.slug || '');
       setPhone(data.phone || '');
+      setSocialLayoutStyle(data.social_layout_style || 'grid');
+      setShowEmail(data.show_email ?? true);
+      setShowPhone(data.show_phone ?? true);
+      setShowWhatsapp(data.show_whatsapp ?? true);
       toast.success(profile ? 'Profile updated!' : 'Profile created successfully!');
     } catch (err) {
       toast.error(err.message || 'Failed to save profile');
@@ -430,6 +540,74 @@ export default function DashboardProfile() {
                   type="tel"
                 />
               </div>
+              
+              {/* Privacy Settings */}
+              <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-scan-blue" />
+                  Privacy Settings
+                </h4>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Control what information is visible on your public profile
+                </p>
+                
+                <div className="space-y-4">
+                  {/* Show Email Setting */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                        Show Email Address
+                      </label>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Display your email address on your public profile
+                      </p>
+                    </div>
+                    <Switch
+                      checked={showEmail}
+                      onCheckedChange={(checked) => handlePrivacySettingChange('show_email', checked)}
+                      className="ml-4"
+                    />
+                  </div>
+                  
+                  {/* Show Phone Setting */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                        Show Phone Number
+                      </label>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Display your phone number on your public profile
+                      </p>
+                    </div>
+                    <Switch
+                      checked={showPhone}
+                      onCheckedChange={(checked) => handlePrivacySettingChange('show_phone', checked)}
+                      className="ml-4"
+                    />
+                  </div>
+                  
+                  {/* Show WhatsApp Setting */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <label className={`text-sm font-medium ${!showPhone ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-200'}`}>
+                        Show WhatsApp Link
+                      </label>
+                      <p className={`text-xs mt-1 ${!showPhone ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'}`}>
+                        {!showPhone 
+                          ? 'Automatically disabled when phone number is hidden'
+                          : 'Create a WhatsApp link using your phone number'
+                        }
+                      </p>
+                    </div>
+                    <Switch
+                      checked={showWhatsapp && showPhone}
+                      onCheckedChange={(checked) => handlePrivacySettingChange('show_whatsapp', checked)}
+                      disabled={!showPhone}
+                      className="ml-4"
+                    />
+                  </div>
+                </div>
+              </div>
               <div>
                 <label className="block text-sm sm:text-base font-semibold mb-2 text-gray-700 dark:text-gray-200">Username</label>
                 <div className="relative">
@@ -473,6 +651,46 @@ export default function DashboardProfile() {
         >
         <h3 className={cardTitle}>Social Links</h3>
           <p className={cardDesc}>Add your social profiles and websites to create a complete digital presence.</p>
+
+          {/* Layout Style Toggle */}
+          {socialLinks.length > 0 && (
+            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Profile Display Style</h4>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">Choose how your social media links appear on your profile page</p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleSocialLayoutChange('grid')}
+                  className={`flex-1 p-3 rounded-lg border-2 transition-all ${
+                    socialLayoutStyle === 'grid'
+                      ? 'border-scan-blue bg-scan-blue/10 text-scan-blue'
+                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                  }`}
+                >
+                  <div className="text-center">
+                    <div className="text-lg mb-1">⊞</div>
+                    <div className="text-sm font-medium">Grid Layout</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Square cards in rows</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSocialLayoutChange('horizontal')}
+                  className={`flex-1 p-3 rounded-lg border-2 transition-all ${
+                    socialLayoutStyle === 'horizontal'
+                      ? 'border-scan-blue bg-scan-blue/10 text-scan-blue'
+                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                  }`}
+                >
+                  <div className="text-center">
+                    <div className="text-lg mb-1">☰</div>
+                    <div className="text-sm font-medium">Horizontal Layout</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Full-width cards stacked</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Preset Social Icons */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 mb-8">

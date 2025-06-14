@@ -380,7 +380,7 @@ const ProfilePage = () => {
           <div className="space-y-6">
             
             {/* Contact Information */}
-            {(profile.phone || profile.email) && (
+            {((profile.phone && profile.show_phone !== false) || (profile.email && profile.show_email !== false)) && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -399,7 +399,7 @@ const ProfilePage = () => {
                   <CardContent className="space-y-4">
                     {/* Contact Details */}
                     <div className="grid grid-cols-1 gap-4">
-                      {profile.phone && (
+                      {profile.phone && profile.show_phone !== false && (
                         <div className="flex items-center gap-3 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                           <div className="w-10 h-10 flex-shrink-0 bg-scan-blue rounded-lg flex items-center justify-center">
                             <Phone className="w-5 h-5 text-white" />
@@ -419,7 +419,7 @@ const ProfilePage = () => {
                 </div>
               )}
               
-                      {profile.email && (
+                      {profile.email && profile.show_email !== false && (
                         <div className="flex items-center gap-3 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                           <div className="w-10 h-10 flex-shrink-0 bg-purple-500 rounded-lg flex items-center justify-center">
                             <Mail className="w-5 h-5 text-white" />
@@ -442,7 +442,7 @@ const ProfilePage = () => {
         
                     {/* Action Buttons */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {profile.phone && (
+                      {profile.phone && profile.show_phone !== false && (
                         <a
                           href={`tel:${profile.phone}`}
                           className="w-full"
@@ -454,7 +454,7 @@ const ProfilePage = () => {
                         </a>
                       )}
                       
-                      {profile.email && (
+                      {profile.email && profile.show_email !== false && (
                         <a
                           href={`mailto:${profile.email}`}
                           className="w-full"
@@ -466,7 +466,7 @@ const ProfilePage = () => {
                         </a>
                       )}
                       
-                      {profile.phone && (
+                      {profile.phone && profile.show_phone !== false && profile.show_whatsapp !== false && (
                         <a
                           href={`https://wa.me/${profile.phone.replace(/\D/g, '')}`}
                           target="_blank"
@@ -487,8 +487,8 @@ const ProfilePage = () => {
                           const vCard = `BEGIN:VCARD
 VERSION:3.0
 FN:${profile.name}
-${profile.phone ? `TEL;TYPE=CELL:${profile.phone}` : ''}
-${profile.email ? `EMAIL:${profile.email}` : ''}
+${profile.phone && profile.show_phone !== false ? `TEL;TYPE=CELL:${profile.phone}` : ''}
+${profile.email && profile.show_email !== false ? `EMAIL:${profile.email}` : ''}
 ${profile.title ? `TITLE:${profile.title}` : ''}
 ${profile.bio ? `NOTE:${profile.bio}` : ''}
 ${profileLinks.length > 0 ? `URL:${profileLinks[0].url}` : ''}
@@ -585,7 +585,12 @@ END:VCARD`;
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* Use user's layout preference for both mobile and desktop */}
+                  <div className={`grid gap-4 ${
+                    profile.social_layout_style === 'horizontal' 
+                      ? 'grid-cols-1' 
+                      : 'grid-cols-2'
+                  }`}>
                     {socialLinks.map((link: any, idx: number) => {
                       const key = (link.platform || link.label || '').toLowerCase();
                       const Icon = SOCIAL_ICON_MAP[key] || FaLink;
@@ -619,36 +624,62 @@ END:VCARD`;
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.7 + idx * 0.1 }}
-                          className="group cursor-pointer"
+                          className="group cursor-pointer block"
                         >
-                          <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-transparent hover:shadow-xl transition-all duration-300 p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center text-center group-hover:scale-105">
-                            {/* Icon Container */}
-                            <div className={`w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-xl ${platformColors.bg} ${platformColors.hover} ${platformColors.text} flex items-center justify-center transition-all duration-300 mb-3 group-hover:scale-110 shadow-lg`}>
-                              <Icon className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+                          {profile.social_layout_style === 'horizontal' ? (
+                            /* Horizontal layout for all screen sizes */
+                            <div className="flex items-center p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-transparent hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-2xl">
+                              {/* Horizontal Icon Container */}
+                              <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl ${platformColors.bg} ${platformColors.hover} ${platformColors.text} flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg flex-shrink-0 mr-4 sm:mr-6`}>
+                                <Icon className="w-6 h-6 sm:w-8 sm:h-8" />
+                              </div>
+                              
+                              {/* Horizontal Content */}
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-semibold text-base sm:text-lg lg:text-xl text-gray-900 dark:text-gray-100 mb-1 capitalize">
+                                  {link.platform || link.label}
+                                </h3>
+                                <p className="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-400 truncate">
+                                  @{extractSocialUsername(link.url)}
+                                </p>
+                              </div>
+                              
+                              {/* Horizontal External Link Icon */}
+                              <div className="flex-shrink-0 ml-4 sm:ml-6 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+                                <ExternalLink className="w-5 h-5 sm:w-6 sm:h-6 text-scan-blue" />
+                              </div>
                             </div>
-                            
-                            {/* Platform Name */}
-                            <h3 className="font-semibold text-sm sm:text-base lg:text-lg text-gray-900 dark:text-gray-100 mb-1 capitalize">
-                              {link.platform || link.label}
-                            </h3>
-                            
-                            {/* Username */}
-                            <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-400 truncate w-full">
-                              @{extractSocialUsername(link.url)}
-                            </p>
-                            
-                            {/* External Link Icon */}
-                            <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                              <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-scan-blue" />
+                          ) : (
+                            /* Grid layout - square cards */
+                            <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-transparent hover:shadow-xl transition-all duration-300 p-4 sm:p-6 flex flex-col items-center justify-center text-center group-hover:scale-105">
+                              {/* Grid Icon Container */}
+                              <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl ${platformColors.bg} ${platformColors.hover} ${platformColors.text} flex items-center justify-center transition-all duration-300 mb-3 group-hover:scale-110 shadow-lg`}>
+                                <Icon className="w-6 h-6 sm:w-8 sm:h-8" />
+                              </div>
+                              
+                              {/* Grid Platform Name */}
+                              <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100 mb-1 capitalize">
+                                {link.platform || link.label}
+                              </h3>
+                              
+                              {/* Grid Username */}
+                              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate w-full">
+                                @{extractSocialUsername(link.url)}
+                              </p>
+                              
+                              {/* Grid External Link Icon */}
+                              <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <ExternalLink className="w-4 h-4 text-scan-blue" />
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </motion.a>
                       );
                     })}
                   </div>
                   
-                  {/* Add empty space if odd number of social links */}
-                  {socialLinks.length % 2 !== 0 && (
+                  {/* Add empty space if odd number of social links - only for grid layout */}
+                  {profile.social_layout_style === 'grid' && socialLinks.length % 2 !== 0 && (
                     <div className="mt-4 text-center">
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         More social connections coming soon...

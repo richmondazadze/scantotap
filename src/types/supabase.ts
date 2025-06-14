@@ -247,9 +247,13 @@ export type Database = {
           onboarding_complete: boolean
           phone: string | null
           slug: string | null
+          social_layout_style: string | null
           title: string | null
           updated_at: string
           user_id: string
+          show_email: boolean | null
+          show_phone: boolean | null
+          show_whatsapp: boolean | null
         }
         Insert: {
           avatar_url?: string | null
@@ -262,9 +266,13 @@ export type Database = {
           onboarding_complete?: boolean
           phone?: string | null
           slug?: string | null
+          social_layout_style?: string | null
           title?: string | null
           updated_at?: string
           user_id: string
+          show_email?: boolean | null
+          show_phone?: boolean | null
+          show_whatsapp?: boolean | null
         }
         Update: {
           avatar_url?: string | null
@@ -277,9 +285,13 @@ export type Database = {
           onboarding_complete?: boolean
           phone?: string | null
           slug?: string | null
+          social_layout_style?: string | null
           title?: string | null
           updated_at?: string
           user_id?: string
+          show_email?: boolean | null
+          show_phone?: boolean | null
+          show_whatsapp?: boolean | null
         }
         Relationships: []
       }
