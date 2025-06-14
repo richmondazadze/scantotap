@@ -1,5 +1,5 @@
-// Payment Verification Handler - Self-contained version
-module.exports = async function handler(req, res) {
+// Payment Verification Handler - ES Module version
+export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -19,7 +19,16 @@ module.exports = async function handler(req, res) {
                                process.env.PAYSTACK_SECRET_KEY;
     const { reference } = req.body;
 
+    // Enhanced logging for debugging
+    console.log('Payment verification request:', {
+      reference,
+      hasSecretKey: !!PAYSTACK_SECRET_KEY,
+      method: req.method,
+      body: req.body
+    });
+
     if (!reference) {
+      console.error('No reference provided in request body');
       return res.status(400).json({
         success: false,
         error: 'Payment reference is required'
@@ -27,12 +36,15 @@ module.exports = async function handler(req, res) {
     }
 
     if (!PAYSTACK_SECRET_KEY) {
-      console.error('Missing Paystack secret key');
+      console.error('Missing Paystack secret key - available env vars:', 
+        Object.keys(process.env).filter(key => key.includes('PAYSTACK')));
       return res.status(500).json({
         success: false,
         error: 'Paystack secret key not configured'
       });
     }
+
+    console.log(`Verifying payment with reference: ${reference}`);
 
     const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
       method: 'GET',
@@ -44,7 +56,15 @@ module.exports = async function handler(req, res) {
 
     const data = await response.json();
 
-    if (response.ok && data.status && data.data.status === 'success') {
+    console.log('Paystack API response:', {
+      status: response.status,
+      ok: response.ok,
+      dataStatus: data.status,
+      dataMessage: data.message
+    });
+
+    if (response.ok && data.status && data.data && data.data.status === 'success') {
+      console.log(`Payment verification successful for reference: ${reference}`);
       res.json({
         success: true,
         data: {
@@ -58,16 +78,23 @@ module.exports = async function handler(req, res) {
         }
       });
     } else {
+      console.error('Payment verification failed:', data);
       res.status(400).json({
         success: false,
-        error: data.message || 'Payment verification failed'
+        error: data.message || 'Payment verification failed',
+        details: data
       });
     }
   } catch (error) {
-    console.error('Payment verification error:', error);
+    console.error('Payment verification error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: 'Internal server error',
+      message: error.message
     });
   }
-}; 
+} 
