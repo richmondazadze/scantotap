@@ -1,14 +1,13 @@
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useProfile } from '@/contexts/ProfileContext';
-import { useState, useEffect, useRef, useCallback, useContext } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import AvatarUploader from '@/components/AvatarUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabaseClient';
-import { useNavigate, useLocation, UNSAFE_NavigationContext as NavigationContext } from 'react-router-dom';
-import { NavigationPromptModal } from '@/components/ui/NavigationPromptModal';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { processSocialInput, SOCIAL_PLATFORMS, getDisplayUsername } from '@/lib/socialUrlParser';
 
 import { motion } from 'framer-motion';
@@ -29,23 +28,6 @@ const SOCIAL_PRESETS = [
   { label: 'Pinterest', icon: FaPinterest, placeholder: 'Username or Pinterest URL', key: 'pinterest' },
   { label: 'Twitch', icon: FaTwitch, placeholder: 'Username or Twitch URL', key: 'twitch' },
 ];
-
-function useBlocker(shouldBlock, onBlock) {
-  const { navigator } = useContext(NavigationContext);
-  useEffect(() => {
-    const push = navigator.push;
-    navigator.push = (...args) => {
-      if (shouldBlock()) {
-        onBlock(args[0]);
-        return;
-      }
-      return push.apply(navigator, args);
-    };
-    return () => {
-      navigator.push = push;
-    };
-  }, [shouldBlock, onBlock, navigator]);
-}
 
 export default function DashboardProfile() {
   const { session, loading: authLoading } = useAuthGuard();
@@ -71,34 +53,38 @@ export default function DashboardProfile() {
   const [socialInput, setSocialInput] = useState('');
   const [socialPreview, setSocialPreview] = useState({ url: '', username: '', isValid: false });
   const [phone, setPhone] = useState(profile?.phone || '');
-  const [showNavPrompt, setShowNavPrompt] = useState(false);
-  const [pendingLocation, setPendingLocation] = useState(null);
 
   const slugCheckTimeout = useRef<NodeJS.Timeout | null>(null);
   const avatarTriggerRef = useRef<HTMLDivElement>(null);
 
-  // Block navigation if there are unsaved changes
-  useBlocker(
-    () => hasUnsavedChanges,
-    (nextLocation) => {
-      setShowNavPrompt(true);
-      setPendingLocation(typeof nextLocation === 'string' ? { pathname: nextLocation } : nextLocation);
-      console.log('Pending location:', nextLocation);
-    }
-  );
-
-  // Handle browser/tab close only
+  // Handle browser/tab close and page reload - safer approach
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
-        e.returnValue = '';
-        return '';
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        return 'You have unsaved changes. Are you sure you want to leave?';
       }
     };
+
+    const handlePopState = (e: PopStateEvent) => {
+      if (hasUnsavedChanges) {
+        const confirmLeave = window.confirm('You have unsaved changes. Are you sure you want to leave?');
+        if (!confirmLeave) {
+          // Push the current state back to prevent navigation
+          window.history.pushState(null, '', window.location.href);
+          e.preventDefault();
+          return;
+        }
+      }
+    };
+
     window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+    
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, [hasUnsavedChanges]);
 
@@ -319,47 +305,8 @@ export default function DashboardProfile() {
   const cardTitle = 'text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent font-serif';
   const cardDesc = 'text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed';
 
-  // Modal handlers
-  const handleModalSave = async () => {
-    await handleSave();
-    setShowNavPrompt(false);
-    setHasUnsavedChanges(false);
-    if (pendingLocation) {
-      const path = typeof pendingLocation === 'string'
-        ? pendingLocation
-        : pendingLocation.pathname +
-          (pendingLocation.search || '') +
-          (pendingLocation.hash || '');
-      setPendingLocation(null);
-      setTimeout(() => navigate(path), 10); // Delay navigation to allow modal to close
-    }
-  };
-  const handleModalDiscard = () => {
-    setHasUnsavedChanges(false);
-    setShowNavPrompt(false);
-    if (pendingLocation) {
-      const path = typeof pendingLocation === 'string'
-        ? pendingLocation
-        : pendingLocation.pathname +
-          (pendingLocation.search || '') +
-          (pendingLocation.hash || '');
-      setPendingLocation(null);
-      setTimeout(() => navigate(path), 10); // Delay navigation to allow modal to close
-    }
-  };
-  const handleModalCancel = () => {
-    setShowNavPrompt(false);
-    setPendingLocation(null);
-  };
-
   return (
     <>
-      <NavigationPromptModal
-        open={showNavPrompt}
-        onSave={handleModalSave}
-        onDiscard={handleModalDiscard}
-        onCancel={handleModalCancel}
-      />
       <div className="w-full max-w-7xl mx-auto pb-24 sm:pb-8 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 overflow-x-hidden space-y-6 sm:space-y-8 lg:space-y-10">
       {/* Profile Info Card */}
         <motion.div 

@@ -32,12 +32,12 @@ export default function ProtectedRoute({ children, requireOnboarding = true }: P
 
   // If profile doesn't exist, redirect to onboarding
   if (!profile) {
-    return <Navigate to="/onboarding" replace />;
+    return <Navigate to="/onboarding" state={{ from: location }} replace />;
   }
 
   // If onboarding is required but not completed, redirect to onboarding
   if (requireOnboarding && !profile.onboarding_complete) {
-    return <Navigate to="/onboarding" replace />;
+    return <Navigate to="/onboarding" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

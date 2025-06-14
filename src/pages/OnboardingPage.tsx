@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/contexts/ProfileContext";
 import { supabase } from "@/lib/supabaseClient";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import Scan2TapLogo from "@/components/Scan2TapLogo";
 import { motion, AnimatePresence } from "framer-motion";
@@ -985,58 +985,42 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
 // Main Onboarding Page
 export default function OnboardingPage() {
   const { session } = useAuth();
-  const { profile, refreshProfile, createProfile } = useProfile();
+  const { profile, refreshProfile } = useProfile();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [currentStep, setCurrentStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const navigate = useNavigate();
-
   const totalSteps = 5;
 
-  // Check if user already completed onboarding and handle profile creation
+  // Redirect if already onboarded
   useEffect(() => {
     if (profile?.onboarding_complete) {
-      navigate('/dashboard/profile', { replace: true });
-      return;
+      // Navigate to original intended location or dashboard profile as fallback
+      const from = location.state?.from?.pathname || '/dashboard/profile';
+      navigate(from, { replace: true });
     }
-    
-    // If no profile exists, create one
-    if (session && !profile) {
-      createProfile({
-        name: session.user.email?.split('@')[0] || 'User',
-        email: session.user.email,
-        onboarding_complete: false
-      });
-    }
-  }, [profile, session, navigate, createProfile]);
+  }, [profile, navigate, location]);
 
-  // Handle next step
   const handleNext = async () => {
-    if (currentStep === totalSteps) {
-      // Complete onboarding
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    } else {
       await handleComplete();
-    } else {
-      setCurrentStep(prev => prev + 1);
     }
   };
 
-  // Handle back step
   const handleBack = () => {
-    if (currentStep === 1) {
-      navigate('/');
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
     } else {
-      setCurrentStep(prev => prev - 1);
+      navigate('/', { replace: true });
     }
   };
 
-  // Skip current step (move to next step)
   const handleSkip = () => {
-    if (currentStep === totalSteps) {
-      // On last step, skip means complete with minimal data
-      handleComplete();
-    } else {
-      // Move to next step
-      setCurrentStep(prev => prev + 1);
-    }
+    // Navigate to original intended location or dashboard profile as fallback
+    const from = location.state?.from?.pathname || '/dashboard/profile';
+    navigate(from, { replace: true });
   };
 
   // Complete onboarding
@@ -1139,8 +1123,9 @@ export default function OnboardingPage() {
       // Refresh profile data
       await refreshProfile();
       
-      // Navigate to dashboard
-      navigate('/dashboard/profile', { replace: true });
+      // Navigate to original intended location or dashboard profile as fallback
+      const from = location.state?.from?.pathname || '/dashboard/profile';
+      navigate(from, { replace: true });
       
     } catch (error) {
       console.error('Error completing onboarding:', error);
