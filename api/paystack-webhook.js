@@ -112,4 +112,4 @@ export default async function handler(req, res) {
       error: 'Internal server error' 
     });
   }
-} 
+} // Force deployment Fri Jun 13 23:42:47 CDT 2025
