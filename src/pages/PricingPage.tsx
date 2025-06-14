@@ -109,7 +109,7 @@ const PricingPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-4xl sm:text-5xl font-bold"
+            className="text-4xl sm:text-5xl font-bold font-serif"
           >
             Simple, Transparent <span className="bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent">Pricing</span>
           </motion.h1>
@@ -260,7 +260,7 @@ const PricingPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1 }}
-            className="text-3xl font-bold text-center mb-12"
+            className="text-3xl font-bold text-center mb-12 font-serif"
           >
             Frequently Asked Questions
           </motion.h2>

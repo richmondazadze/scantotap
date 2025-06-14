@@ -314,7 +314,7 @@ const ProfilePage = () => {
                   className="flex-1 text-center"
                 >
                   <div className="flex items-center justify-center gap-3 mb-3 lg:mb-4">
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight leading-tight">
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight leading-tight font-serif">
                       {profile.name}
                     </h1>
                     {userStatus.label === 'Verified Pro' && (

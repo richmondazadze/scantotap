@@ -119,7 +119,7 @@ const ContactPage = () => {
             variants={itemVariants}
             className="text-center mb-12"
           >
-            <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-scan-blue dark:text-scan-blue-light">Contact Us</h1>
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-scan-blue dark:text-scan-blue-light font-serif">Contact Us</h1>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               Have questions about our digital business cards? We're here to help.
               Send us a message and we'll respond as soon as possible.

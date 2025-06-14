@@ -364,7 +364,7 @@ export default function DashboardOrder() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-3 px-2">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-3 px-2 font-serif">
               {isEditMode ? 'Modify Your Order' : 'Order Your Digital Business Card'}
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 px-2 leading-relaxed">
@@ -434,7 +434,7 @@ export default function DashboardOrder() {
                               <h3 className="font-semibold text-lg sm:text-xl text-gray-900 dark:text-white mb-2">{design.name}</h3>
                               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">{design.description}</p>
                             </div>
-                            <div className="text-2xl sm:text-3xl font-bold text-scan-blue sm:text-right">₵{design.price}</div>
+                            <div className="text-2xl sm:text-3xl font-bold font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent sm:text-right tracking-wider">₵{design.price}</div>
                           </div>
                           
                           {/* Features in a more compact layout */}
@@ -483,7 +483,7 @@ export default function DashboardOrder() {
                       />
                       <h3 className="font-semibold mb-2 text-base sm:text-lg mt-4 text-gray-900 dark:text-white">{material.name}</h3>
                       <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">{material.description}</p>
-                      <div className="text-sm sm:text-base font-medium text-scan-blue">
+                      <div className="text-sm sm:text-base font-medium font-mono bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent tracking-wide">
                         {material.priceModifier > 0 ? `+₵${material.priceModifier}` : 'Included'}
                       </div>
                     </div>
@@ -617,26 +617,26 @@ export default function DashboardOrder() {
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm sm:text-base">
                       <span className="text-gray-600 dark:text-gray-400">{selectedDesign.name} × {quantity}</span>
-                      <span className="font-medium">₵{(basePrice * quantity).toFixed(2)}</span>
+                      <span className="font-medium font-mono text-gray-900 dark:text-white tracking-wide">₵{(basePrice * quantity).toFixed(2)}</span>
                     </div>
                     {materialPrice > 0 && (
                       <div className="flex justify-between text-sm sm:text-base">
                         <span className="text-gray-600 dark:text-gray-400">{selectedMaterial.name} upgrade × {quantity}</span>
-                        <span className="font-medium">₵{(materialPrice * quantity).toFixed(2)}</span>
+                        <span className="font-medium font-mono text-gray-900 dark:text-white tracking-wide">₵{(materialPrice * quantity).toFixed(2)}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-sm sm:text-base">
                       <span className="text-gray-600 dark:text-gray-400">Shipping</span>
-                      <span className="font-medium">{shipping === 0 ? 'Free' : `₵${shipping.toFixed(2)}`}</span>
+                      <span className="font-medium font-mono text-gray-900 dark:text-white tracking-wide">{shipping === 0 ? 'Free' : `₵${shipping.toFixed(2)}`}</span>
                     </div>
                     <div className="flex justify-between text-sm sm:text-base">
                       <span className="text-gray-600 dark:text-gray-400">Tax</span>
-                      <span className="font-medium">₵{tax.toFixed(2)}</span>
+                      <span className="font-medium font-mono text-gray-900 dark:text-white tracking-wide">₵{tax.toFixed(2)}</span>
                     </div>
                     <Separator />
-                    <div className="flex justify-between font-bold text-lg sm:text-xl">
+                    <div className="flex justify-between font-bold">
                       <span>Total</span>
-                      <span className="text-scan-blue">₵{total.toFixed(2)}</span>
+                      <span className="font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent font-bold tracking-wider">₵{total.toFixed(2)}</span>
                     </div>
                   </div>
 
@@ -780,28 +780,28 @@ export default function DashboardOrder() {
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 sm:p-4">
                 <h3 className="font-semibold mb-3 text-sm sm:text-base">Order Summary</h3>
                 <div className="space-y-2 text-xs sm:text-sm">
-                                        <div className="flex justify-between">
+                    <div className="flex justify-between">
                         <span>{selectedDesign.name} × {quantity}</span>
-                        <span>₵{(basePrice * quantity).toFixed(2)}</span>
+                        <span className="font-mono text-gray-900 dark:text-white tracking-wide">₵{(basePrice * quantity).toFixed(2)}</span>
                       </div>
                       {materialPrice > 0 && (
                         <div className="flex justify-between">
                           <span>{selectedMaterial.name} upgrade</span>
-                          <span>₵{(materialPrice * quantity).toFixed(2)}</span>
+                          <span className="font-mono text-gray-900 dark:text-white tracking-wide">₵{(materialPrice * quantity).toFixed(2)}</span>
                         </div>
                       )}
                       <div className="flex justify-between">
                         <span>Shipping</span>
-                        <span>{shipping === 0 ? 'Free' : `₵${shipping.toFixed(2)}`}</span>
+                        <span className="font-mono text-gray-900 dark:text-white tracking-wide">{shipping === 0 ? 'Free' : `₵${shipping.toFixed(2)}`}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Tax</span>
-                        <span>₵{tax.toFixed(2)}</span>
+                        <span className="font-mono text-gray-900 dark:text-white tracking-wide">₵{tax.toFixed(2)}</span>
                       </div>
                       <Separator />
                       <div className="flex justify-between font-bold">
                         <span>Total</span>
-                        <span>₵{total.toFixed(2)}</span>
+                        <span className="font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent font-bold tracking-wider">₵{total.toFixed(2)}</span>
                       </div>
                 </div>
               </div>
@@ -840,8 +840,8 @@ export default function DashboardOrder() {
                   ) : (
                     <>
                       <Zap className="w-4 h-4 mr-2" />
-                      <span className="hidden sm:inline">Pay ₵{total.toFixed(2)} with Paystack</span>
-                      <span className="sm:hidden">Pay ₵{total.toFixed(2)}</span>
+                      <span className="hidden sm:inline font-mono tracking-wide">Pay ₵{total.toFixed(2)} with Paystack</span>
+                      <span className="sm:hidden font-mono tracking-wide">Pay ₵{total.toFixed(2)}</span>
                     </>
                   )}
                 </Button>

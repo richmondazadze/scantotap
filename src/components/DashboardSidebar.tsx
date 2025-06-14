@@ -139,8 +139,8 @@ const DashboardSidebar = () => {
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
                   <Link
-                    to={item.path}
-                    className={cn(
+                  to={item.path}
+                  className={cn(
                       "relative flex items-center px-4 py-4 rounded-2xl transition-all duration-300 group overflow-hidden",
                       isActive
                         ? "bg-gradient-to-r from-scan-blue to-scan-purple text-white shadow-lg shadow-scan-blue/25"
@@ -200,7 +200,7 @@ const DashboardSidebar = () => {
                         </span>
                         <p className={cn(
                           "text-xs mt-0.5 transition-all duration-300",
-                          isActive 
+                    isActive
                             ? "text-white/80" 
                             : "text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
                         )}>
@@ -221,7 +221,7 @@ const DashboardSidebar = () => {
                         />
                       </motion.div>
                     </div>
-                  </Link>
+                </Link>
                 </motion.div>
               );
             })}
@@ -242,8 +242,8 @@ const DashboardSidebar = () => {
                 onClick={handleSignOut}
               >
                 <LogOut className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-                Sign Out
-              </Button>
+              Sign Out
+            </Button>
             </motion.div>
           </motion.div>
         </div>

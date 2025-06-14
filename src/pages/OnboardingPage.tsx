@@ -274,7 +274,7 @@ function UsernameStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
 
       <div className="space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-serif">
             Create Your Profile
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400">
@@ -503,7 +503,7 @@ function ProfileStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitti
 
       <div className="space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-serif">
             Add Profile Details
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400">
@@ -665,7 +665,7 @@ function PlatformStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
 
       <div className="space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-serif">
             Which platforms are you on?
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400">
@@ -792,7 +792,7 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
 
       <div className="space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-serif">
             Add Your Links
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400">
@@ -907,7 +907,7 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
 
       <div className="space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-serif">
             Additional Links
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
+import { adminService } from '@/lib/adminService';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,7 @@ import { toast } from 'sonner';
 import { orderService } from '@/lib/orderService';
 import AdminNavbar from '@/components/AdminNavbar';
 import AdminFooter from '@/components/AdminFooter';
+import AdminQRViewer from '@/components/AdminQRViewer';
 import type { Json } from '@/types/supabase';
 import {
   AreaChart,
@@ -52,7 +54,14 @@ import {
   BarChart3,
   PieChart as PieChartIcon,
   Clock,
-  Filter
+  Filter,
+  LogOut,
+  Timer,
+  QrCode,
+  Search,
+  X,
+  SortAsc,
+  SortDesc
 } from 'lucide-react';
 import { ResponsivePie } from '@nivo/pie';
 import { ResponsiveLine } from '@nivo/line';
@@ -97,8 +106,17 @@ const AdminPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sessionTimeRemaining, setSessionTimeRemaining] = useState(0);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  
+  // Search and filtering states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'created_at' | 'slug'>('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [filterBy, setFilterBy] = useState<'all' | 'active' | 'inactive'>('all');
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
+  
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalOrders: 0,
@@ -166,39 +184,198 @@ const AdminPage = () => {
     { value: 'cancelled', label: 'Cancelled' }
   ];
 
-  // Check if already authenticated on mount
+  // Check authentication status and setup session timer
   useEffect(() => {
-    const adminAuth = localStorage.getItem('admin_authenticated');
-    if (adminAuth === 'true') {
-      setIsAuthenticated(true);
-      loadAdminData();
-    }
+    let lastAsyncCheck = 0; // Track last async validation time
+
+    const checkAuth = async () => {
+      // Use sync check for immediate UI update
+      const isSyncAuth = adminService.isAuthenticatedSync();
+      setIsAuthenticated(isSyncAuth);
+      
+      if (isSyncAuth) {
+        setSessionTimeRemaining(adminService.getSessionTimeRemaining());
+        
+        // Then do async validation
+        const isAsyncAuth = await adminService.isAuthenticated();
+        setIsAuthenticated(isAsyncAuth);
+        
+        if (isAsyncAuth) {
+          loadAdminData();
+        }
+      }
+    };
+
+    checkAuth();
+
+    // Set up session timer
+    const sessionTimer = setInterval(async () => {
+      // Use sync check first for immediate response
+      if (adminService.isAuthenticatedSync()) {
+        const timeRemaining = adminService.getSessionTimeRemaining();
+        setSessionTimeRemaining(timeRemaining);
+        
+        // Auto-extend session if needed
+        if (adminService.needsRenewal()) {
+          await adminService.extendSession();
+          toast.success('Session extended automatically');
+        }
+        
+        // Warn when session is about to expire
+        if (timeRemaining <= 5 && timeRemaining > 0) {
+          toast.warning(`Session expires in ${timeRemaining} minutes`);
+        }
+        
+        // Do async validation periodically (every 5 minutes)
+        const now = Date.now();
+        if (!lastAsyncCheck || now - lastAsyncCheck > 5 * 60 * 1000) {
+          const isValid = await adminService.isAuthenticated();
+          if (!isValid) {
+            setIsAuthenticated(false);
+            setSessionTimeRemaining(0);
+          }
+          lastAsyncCheck = now;
+        }
+      } else {
+        setIsAuthenticated(false);
+        setSessionTimeRemaining(0);
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(sessionTimer);
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setLoading(true);
     
-    // Get credentials from environment variables
-    const adminUsername = import.meta.env.VITE_ADMIN_USERNAME || 'admin';
-    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
-    
-    if (username === adminUsername && password === adminPassword) {
-      setIsAuthenticated(true);
-      localStorage.setItem('admin_authenticated', 'true');
-      toast.success('Welcome, Admin!');
-      loadAdminData();
-    } else {
-      toast.error('Invalid credentials');
+    try {
+      const result = await adminService.login(username, password);
+      
+      if (result.success) {
+        setIsAuthenticated(true);
+        setSessionTimeRemaining(adminService.getSessionTimeRemaining());
+        toast.success(`Welcome, ${adminService.getCurrentUser()?.username}!`);
+        loadAdminData();
+      } else {
+        toast.error(result.error || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('An unexpected error occurred');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await adminService.logout();
     setIsAuthenticated(false);
-    localStorage.removeItem('admin_authenticated');
+    setSessionTimeRemaining(0);
     setUsername('');
     setPassword('');
-    toast.success('Logged out successfully');
+  };
+
+  const extendSession = async () => {
+    await adminService.extendSession();
+    setSessionTimeRemaining(adminService.getSessionTimeRemaining());
+  };
+
+  // Search and filtering functions
+  const filteredAndSortedProfiles = () => {
+    let filtered = profiles;
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(profile => 
+        profile.name.toLowerCase().includes(query) ||
+        profile.slug.toLowerCase().includes(query) ||
+        (profile.title && profile.title.toLowerCase().includes(query)) ||
+        (profile.bio && profile.bio.toLowerCase().includes(query)) ||
+        (profile.phone && profile.phone.includes(query))
+      );
+    }
+
+    // Apply activity filter
+    if (filterBy !== 'all') {
+      filtered = filtered.filter(profile => {
+        const profileLinks = Array.isArray(profile.links) ? profile.links : [];
+        const isActive = profileLinks.length > 0;
+        return filterBy === 'active' ? isActive : !isActive;
+      });
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue: string | number;
+      let bValue: string | number;
+
+      switch (sortBy) {
+        case 'name':
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case 'slug':
+          aValue = a.slug.toLowerCase();
+          bValue = b.slug.toLowerCase();
+          break;
+        case 'created_at':
+        default:
+          aValue = new Date(a.created_at).getTime();
+          bValue = new Date(b.created_at).getTime();
+          break;
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      } else {
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      }
+    });
+
+    return filtered;
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSortBy('created_at');
+    setSortOrder('desc');
+    setFilterBy('all');
+    setOrderSearchQuery('');
+  };
+
+  const getSearchResultsText = () => {
+    const filtered = filteredAndSortedProfiles();
+    const total = profiles.length;
+    
+    if (searchQuery.trim() || filterBy !== 'all') {
+      return `Showing ${filtered.length} of ${total} users`;
+    }
+    return `${total} users total`;
+  };
+
+  // Order filtering function
+  const filteredOrders = () => {
+    if (!orderSearchQuery.trim()) {
+      return orders;
+    }
+
+    const query = orderSearchQuery.toLowerCase().trim();
+    return orders.filter(order => {
+      const userProfile = getUserProfile(order.user_id);
+      return (
+        order.order_number.toLowerCase().includes(query) ||
+        order.customer_first_name.toLowerCase().includes(query) ||
+        order.customer_last_name.toLowerCase().includes(query) ||
+        order.customer_email.toLowerCase().includes(query) ||
+        (order.customer_phone && order.customer_phone.includes(query)) ||
+        order.design_name.toLowerCase().includes(query) ||
+        (order.material_name && order.material_name.toLowerCase().includes(query)) ||
+        order.status.toLowerCase().includes(query) ||
+        (userProfile && userProfile.name.toLowerCase().includes(query)) ||
+        (userProfile && userProfile.slug.toLowerCase().includes(query))
+      );
+    });
   };
 
   const loadAdminData = async () => {
@@ -442,51 +619,69 @@ const AdminPage = () => {
   };
 
   if (!isAuthenticated) {
-  return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center px-4 overflow-x-hidden">
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-scan-blue/5 via-white to-scan-purple/5 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
           className="w-full max-w-md"
         >
-          <Card>
-            <CardHeader className="text-center">
-              <div className="w-16 h-16 bg-scan-blue rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-8 h-8 text-white" />
+          <Card className="shadow-2xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl">
+            <CardHeader className="text-center pb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-scan-blue to-scan-purple rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Shield className="w-10 h-10 text-white" />
               </div>
-              <CardTitle className="text-2xl">Admin Access</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent font-serif">
+                Admin Access
+              </CardTitle>
+              <CardDescription className="text-base mt-2">
                 Enter your credentials to access the admin dashboard
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Username</label>
+            <CardContent className="space-y-6 px-8 pb-8">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Username</label>
                 <Input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter username"
+                  placeholder="Enter your username"
+                  className="h-12 text-base border-2 focus:border-scan-blue transition-colors"
                   onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Password</label>
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Password</label>
                 <Input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
+                  placeholder="Enter your password"
+                  className="h-12 text-base border-2 focus:border-scan-blue transition-colors"
                   onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
                 />
               </div>
               <Button 
                 onClick={handleLogin} 
                 disabled={loading || !username || !password}
-                className="w-full bg-scan-blue hover:bg-scan-blue/90"
+                className="w-full h-12 text-base font-semibold bg-gradient-to-r from-scan-blue to-scan-purple hover:from-scan-blue/90 hover:to-scan-purple/90 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
-                {loading ? 'Authenticating...' : 'Login'}
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Authenticating...
+                  </div>
+                ) : (
+                  'Sign In'
+                )}
               </Button>
+              
+              <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Secure admin access • Session expires after 8 hours
+                </p>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
@@ -498,19 +693,42 @@ const AdminPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-x-hidden">
       <AdminNavbar onLogout={handleLogout} />
       
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8 overflow-x-hidden">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-8 overflow-x-hidden">
         
-        {/* Header */}
+        {/* Enhanced Header with Session Management */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 sm:mb-8"
         >
           <div className="text-center lg:text-left">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">Analytics Overview</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white font-serif">Analytics Overview</h1>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">Manage and monitor your digital business card platform</p>
+            
+            {/* Session Info */}
+            <div className="flex items-center gap-4 mt-3 justify-center lg:justify-start">
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <User className="w-4 h-4" />
+                <span>Welcome, {adminService.getCurrentUser()?.username}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <Timer className="w-4 h-4" />
+                <span>{sessionTimeRemaining}m remaining</span>
+              </div>
+            </div>
           </div>
+          
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            {sessionTimeRemaining < 60 && (
+              <Button
+                variant="outline"
+                onClick={extendSession}
+                className="w-full sm:w-auto border-orange-200 text-orange-600 hover:bg-orange-50"
+              >
+                <Clock className="w-4 h-4 mr-2" />
+                Extend Session
+              </Button>
+            )}
             <Button
               variant="outline"
               onClick={() => loadAdminData()}
@@ -519,6 +737,14 @@ const AdminPage = () => {
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh Data
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleLogout}
+              className="w-full sm:w-auto border-red-200 text-red-600 hover:bg-red-50"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
             </Button>
           </div>
         </motion.div>
@@ -739,83 +965,196 @@ const AdminPage = () => {
           >
             <Card>
               <CardHeader className="pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                      <Users className="w-5 h-5 text-scan-blue" />
-                      User Profiles
-                    </CardTitle>
-                    <CardDescription className="text-sm">
-                      Manage all user profiles and their information
-                    </CardDescription>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => exportData(profiles, 'user_profiles')}
-                    disabled={profiles.length === 0}
-                    className="w-full sm:w-auto"
-                  >
-                    <Download className="w-4 h-4 mr-1" />
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                      <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                        <Users className="w-5 h-5 text-scan-blue" />
+                        User Profiles
+                      </CardTitle>
+                      <CardDescription className="text-sm">
+                        Manage all user profiles and their information
+                      </CardDescription>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => exportData(filteredAndSortedProfiles(), 'user_profiles')}
+                      disabled={profiles.length === 0}
+                      className="w-full sm:w-auto"
+                    >
+                      <Download className="w-4 h-4 mr-1" />
                       Export
                     </Button>
+                  </div>
+
+                  {/* Search and Filter Controls */}
+                  <div className="space-y-3">
+                    {/* Search Bar */}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        type="text"
+                        placeholder="Search users by name, slug, title, bio, or phone..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 pr-10 h-10"
+                      />
+                      {searchQuery && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSearchQuery('')}
+                          className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Filter and Sort Controls */}
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                      {/* Activity Filter */}
+                      <Select value={filterBy} onValueChange={(value: 'all' | 'active' | 'inactive') => setFilterBy(value)}>
+                        <SelectTrigger className="w-full sm:w-auto">
+                          <Filter className="w-4 h-4 mr-2" />
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Users</SelectItem>
+                          <SelectItem value="active">Active Profiles</SelectItem>
+                          <SelectItem value="inactive">Inactive Profiles</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      {/* Sort By */}
+                      <Select value={sortBy} onValueChange={(value: 'name' | 'created_at' | 'slug') => setSortBy(value)}>
+                        <SelectTrigger className="w-full sm:w-auto">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="created_at">Sort by Date</SelectItem>
+                          <SelectItem value="name">Sort by Name</SelectItem>
+                          <SelectItem value="slug">Sort by Username</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      {/* Sort Order */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                        className="w-full sm:w-auto gap-2"
+                      >
+                        {sortOrder === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
+                        {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+                      </Button>
+
+                      {/* Clear Filters */}
+                      {(searchQuery || filterBy !== 'all' || sortBy !== 'created_at' || sortOrder !== 'desc') && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={clearSearch}
+                          className="w-full sm:w-auto gap-2 text-gray-500 hover:text-gray-700"
+                        >
+                          <X className="w-4 h-4" />
+                          Clear
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Results Summary */}
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span>{getSearchResultsText()}</span>
+                      {(searchQuery || filterBy !== 'all') && (
+                        <Badge variant="secondary" className="text-xs">
+                          Filtered
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="px-3 sm:px-6">
                 <div className="space-y-3 sm:space-y-4 max-h-80 sm:max-h-96 overflow-y-auto">
-                  {profiles.length === 0 ? (
-                    <p className="text-gray-500 text-center py-6 text-sm">No profiles found</p>
-                  ) : (
-                    profiles.map((profile) => (
-                      <div key={profile.id} className="border rounded-lg p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                        <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                            {profile.avatar_url ? (
-                              <img src={profile.avatar_url} alt="" className="w-full h-full object-cover rounded-lg" />
-                            ) : (
-                              <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
-                              <h4 className="font-semibold truncate text-sm sm:text-base">{profile.name}</h4>
-                              {(() => {
-                                const profileLinks = Array.isArray(profile.links) ? profile.links : [];
-                                return profileLinks.length > 0 && (
-                                  <Badge variant="secondary" className="text-xs w-fit">
-                                    {profileLinks.length} links
-                                  </Badge>
-                                );
-                              })()}
-                            </div>
-                            {profile.title && (
-                              <p className="text-xs sm:text-sm text-gray-600 mb-2 truncate">{profile.title}</p>
-                            )}
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-gray-500">
-                              <span className="flex items-center gap-1 truncate">
-                                <Globe className="w-3 h-3 flex-shrink-0" />
-                                <span className="truncate">/{profile.slug}</span>
-                              </span>
-                              {profile.phone && (
-                                <span className="flex items-center gap-1 truncate">
-                                  <Phone className="w-3 h-3 flex-shrink-0" />
-                                  <span className="truncate">{profile.phone}</span>
-                            </span>
-                              )}
-                              <span className="flex items-center gap-1">
-                                <Calendar className="w-3 h-3 flex-shrink-0" />
-                                {new Date(profile.created_at).toLocaleDateString()}
-                            </span>
-                            </div>
-                          </div>
+                  {filteredAndSortedProfiles().length === 0 ? (
+                    <div className="text-center py-8">
+                      {searchQuery || filterBy !== 'all' ? (
+                        <div className="space-y-2">
+                          <p className="text-gray-500 text-sm">No users match your search criteria</p>
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
-                            onClick={() => window.open(`/profile/${profile.slug}`, '_blank')}
-                            className="flex-shrink-0"
+                            onClick={clearSearch}
+                            className="gap-2"
                           >
-                            <Eye className="w-4 h-4" />
+                            <X className="w-4 h-4" />
+                            Clear filters
+                          </Button>
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 text-sm">No users found</p>
+                      )}
+                    </div>
+                  ) : (
+                    filteredAndSortedProfiles().map((profile) => (
+                      <div key={profile.id} className="border rounded-lg p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-scan-blue to-scan-purple rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base flex-shrink-0">
+                              {profile.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-semibold text-sm sm:text-base truncate">{profile.name}</h4>
+                                {(() => {
+                                  const profileLinks = Array.isArray(profile.links) ? profile.links : [];
+                                  return profileLinks.length > 0 ? (
+                                    <Badge variant="secondary" className="text-xs">
+                                      Active
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="text-xs">
+                                      Inactive
+                                    </Badge>
+                                  );
+                                })()}
+                              </div>
+                              {profile.title && (
+                                <p className="text-xs sm:text-sm text-gray-600 truncate">{profile.title}</p>
+                              )}
+                              <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-gray-500 mt-1">
+                                <span className="flex items-center gap-1">
+                                  <Globe className="w-3 h-3 flex-shrink-0" />
+                                  /{profile.slug}
+                                </span>
+                                {profile.phone && (
+                                  <span className="flex items-center gap-1">
+                                    <Phone className="w-3 h-3 flex-shrink-0" />
+                                    {profile.phone}
+                                  </span>
+                                )}
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3 flex-shrink-0" />
+                                  {new Date(profile.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <AdminQRViewer profile={profile} />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => window.open(`/profile/${profile.slug}`, '_blank')}
+                              className="gap-2"
+                            >
+                              <Eye className="w-4 h-4" />
+                              View Profile
                             </Button>
+                          </div>
                         </div>
                       </div>
                     ))
@@ -833,34 +1172,87 @@ const AdminPage = () => {
           >
             <Card>
               <CardHeader className="pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                      <Package className="w-5 h-5 text-scan-blue" />
-                      Orders
-                    </CardTitle>
-                    <CardDescription className="text-sm">
-                      Track and manage all orders
-                    </CardDescription>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => exportData(orders, 'orders')}
-                    disabled={orders.length === 0}
-                    className="w-full sm:w-auto"
-                  >
-                    <Download className="w-4 h-4 mr-1" />
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                      <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                        <Package className="w-5 h-5 text-scan-blue" />
+                        Orders
+                      </CardTitle>
+                      <CardDescription className="text-sm">
+                        Track and manage all orders
+                      </CardDescription>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => exportData(filteredOrders(), 'orders')}
+                      disabled={filteredOrders().length === 0}
+                      className="w-full sm:w-auto"
+                    >
+                      <Download className="w-4 h-4 mr-1" />
                       Export
                     </Button>
+                  </div>
+
+                  {/* Order Search */}
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        type="text"
+                        placeholder="Search orders by number, customer, email, design, status, or profile..."
+                        value={orderSearchQuery}
+                        onChange={(e) => setOrderSearchQuery(e.target.value)}
+                        className="pl-10 pr-10 h-10"
+                      />
+                      {orderSearchQuery && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setOrderSearchQuery('')}
+                          className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Order Results Summary */}
+                    {orderSearchQuery && (
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <span>Showing {filteredOrders().length} of {orders.length} orders</span>
+                        <Badge variant="secondary" className="text-xs">
+                          Filtered
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="px-3 sm:px-6">
                 <div className="space-y-3 sm:space-y-4 max-h-80 sm:max-h-96 overflow-y-auto">
-                  {orders.length === 0 ? (
-                    <p className="text-gray-500 text-center py-6 text-sm">No orders found</p>
+                  {filteredOrders().length === 0 ? (
+                    <div className="text-center py-8">
+                      {orderSearchQuery ? (
+                        <div className="space-y-2">
+                          <p className="text-gray-500 text-sm">No orders match your search criteria</p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setOrderSearchQuery('')}
+                            className="gap-2"
+                          >
+                            <X className="w-4 h-4" />
+                            Clear search
+                          </Button>
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 text-sm">No orders found</p>
+                      )}
+                    </div>
                   ) : (
-                    orders.map((order) => {
+                    filteredOrders().map((order) => {
                       const userProfile = getUserProfile(order.user_id);
                       return (
                       <div key={order.id} className="border rounded-lg p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -1002,14 +1394,18 @@ const AdminPage = () => {
 
                             {userProfile && (
                               <Button
-                                variant="ghost"
+                                variant="outline"
                                 size="sm"
                                 onClick={() => window.open(`/profile/${userProfile.slug}`, '_blank')}
-                                className="text-xs"
+                                className="text-xs gap-1"
                               >
-                                <Eye className="w-3 h-3 mr-1" />
+                                <Eye className="w-3 h-3" />
                                 View Profile
                               </Button>
+                            )}
+                            
+                            {userProfile && (
+                              <AdminQRViewer profile={userProfile} />
                             )}
 
                             <Button

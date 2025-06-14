@@ -316,7 +316,7 @@ export default function DashboardProfile() {
 
   // Card styles - updated to match other dashboard pages
   const cardBase = 'relative rounded-3xl shadow-lg p-6 sm:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30';
-  const cardTitle = 'text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent';
+  const cardTitle = 'text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent font-serif';
   const cardDesc = 'text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed';
 
   // Modal handlers
@@ -360,7 +360,7 @@ export default function DashboardProfile() {
         onDiscard={handleModalDiscard}
         onCancel={handleModalCancel}
       />
-      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-24 sm:pb-8 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 overflow-x-hidden">
+      <div className="w-full max-w-7xl mx-auto pb-24 sm:pb-8 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 overflow-x-hidden space-y-6 sm:space-y-8 lg:space-y-10">
       {/* Profile Info Card */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

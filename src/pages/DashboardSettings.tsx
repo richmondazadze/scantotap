@@ -271,7 +271,7 @@ export default function DashboardSettings() {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-scan-blue dark:text-scan-blue-light mb-2">
+              <h1 className={cardTitle}>
                 Account Settings
               </h1>
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300">
@@ -284,7 +284,7 @@ export default function DashboardSettings() {
               <Button 
                 onClick={saveSettings} 
                 disabled={saving || !hasChanges}
-                className="min-w-[140px]"
+                className="min-w-[140px] rounded-xl bg-gradient-to-r from-scan-blue to-scan-purple hover:from-scan-blue/90 hover:to-scan-purple/90 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 <Save className={`w-4 h-4 mr-2 ${saving ? 'animate-spin' : ''}`} />
                 {saving ? 'Saving...' : 'Save Changes'}
@@ -332,9 +332,9 @@ export default function DashboardSettings() {
                     <button
                       key={section.id}
                       onClick={() => handleSectionChange(section.id)}
-                      className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-lg mx-2 ${
+                      className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-xl mx-2 ${
                         activeSection === section.id 
-                          ? 'bg-scan-blue/10 text-scan-blue border border-scan-blue/20' 
+                          ? 'bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 text-scan-blue border border-scan-blue/20' 
                           : 'text-gray-600 dark:text-gray-300'
                       }`}
                     >
@@ -365,9 +365,9 @@ export default function DashboardSettings() {
                       <button
                         key={section.id}
                         onClick={() => handleSectionChange(section.id)}
-                        className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-lg ${
+                        className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-xl ${
                           activeSection === section.id 
-                            ? 'bg-scan-blue/10 text-scan-blue border border-scan-blue/20' 
+                            ? 'bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 text-scan-blue border border-scan-blue/20' 
                             : 'text-gray-600 dark:text-gray-300'
                         }`}
                       >

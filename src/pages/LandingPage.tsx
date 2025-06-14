@@ -123,7 +123,7 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-center lg:text-left w-full"
+              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-center lg:text-left w-full font-serif"
             >
                 Your Digital Identity, <br />
                 <span className="bg-gradient-to-r from-scan-blue via-indigo-500 to-scan-purple bg-clip-text text-transparent">
@@ -251,7 +251,7 @@ const LandingPage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold">How It Works</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold font-serif">How It Works</h2>
             <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               Three simple steps to connect your offline and online presence
             </p>
@@ -376,7 +376,7 @@ const LandingPage = () => {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold">Features</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold font-serif">Features</h2>
             <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               Everything you need to create and share your digital identity
             </p>
@@ -468,7 +468,7 @@ const LandingPage = () => {
           viewport={{ once: true }}
           className="max-w-4xl mx-auto text-center"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold">Ready to Transform Your Networking?</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold font-serif">Ready to Transform Your Networking?</h2>
           <p className="mt-6 text-lg text-white/80 max-w-2xl mx-auto">
             Join thousands of professionals who are connecting in a smarter way
           </p>
