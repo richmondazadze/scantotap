@@ -6,13 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabaseClient';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { processSocialInput, SOCIAL_PLATFORMS, getDisplayUsername } from '@/lib/socialUrlParser';
+import { usePlanFeatures, canAddMoreLinks } from '@/hooks/usePlanFeatures';
+import { UpgradePrompt } from '@/components/UpgradePrompt';
 
 import { motion } from 'framer-motion';
-import { Camera, Plus, X, Phone, Globe, Link, ExternalLink, Save, AlertCircle, CheckCircle, Shield, Mail } from 'lucide-react';
+import { Camera, Plus, X, Phone, Globe, Link as LinkIcon, ExternalLink, Save, AlertCircle, CheckCircle, Shield, Mail, Crown } from 'lucide-react';
 import { FaInstagram, FaTwitter, FaSnapchat, FaTiktok, FaWhatsapp, FaYoutube, FaFacebook, FaLinkedin, FaSpotify, FaPinterest, FaTwitch } from 'react-icons/fa6';
 
 const SOCIAL_PRESETS = [
@@ -58,9 +61,15 @@ export default function DashboardProfile() {
   const [showEmail, setShowEmail] = useState(profile?.show_email ?? true);
   const [showPhone, setShowPhone] = useState(profile?.show_phone ?? true);
   const [showWhatsapp, setShowWhatsapp] = useState(profile?.show_whatsapp ?? true);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
 
   const slugCheckTimeout = useRef<NodeJS.Timeout | null>(null);
   const avatarTriggerRef = useRef<HTMLDivElement>(null);
+
+  // Plan features
+  const planFeatures = usePlanFeatures();
+  const canAddLink = canAddMoreLinks(links.length, planFeatures.planType);
+  const remainingLinks = planFeatures.maxLinks === Infinity ? Infinity : planFeatures.maxLinks - links.length;
 
   // Handle browser/tab close and page reload - safer approach
   useEffect(() => {
@@ -282,6 +291,12 @@ export default function DashboardProfile() {
   };
 
   const handleAddSocial = () => {
+    // Check plan limits first
+    if (!canAddLink) {
+      setShowUpgradePrompt(true);
+      return;
+    }
+
     if (!selectedSocial || !socialInput) return;
     
     let finalUrl = '';
@@ -311,6 +326,12 @@ export default function DashboardProfile() {
   }
 
   const handleAddLink = () => {
+    // Check plan limits first
+    if (!canAddLink) {
+      setShowUpgradePrompt(true);
+      return;
+    }
+
     if (newLink.label && newLink.url) {
       setLinks([...links, newLink]);
       setNewLink({ label: '', url: '' });
@@ -652,6 +673,34 @@ export default function DashboardProfile() {
         <h3 className={cardTitle}>Social Links</h3>
           <p className={cardDesc}>Add your social profiles and websites to create a complete digital presence.</p>
 
+          {/* Plan Status Display */}
+          {planFeatures.isFreeUser && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 rounded-xl border border-scan-blue/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-scan-blue flex items-center gap-2">
+                    🆓 Free Plan
+                    <Badge variant="outline" className="text-xs">
+                      {remainingLinks === Infinity ? 'Unlimited' : `${remainingLinks} remaining`}
+                    </Badge>
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {remainingLinks > 0 
+                      ? `You can add ${remainingLinks === Infinity ? 'unlimited' : remainingLinks} more links` 
+                      : 'You\'ve reached your 10-link limit'
+                    }
+                  </p>
+                </div>
+                <RouterLink to="/dashboard/settings?section=subscription">
+                  <Button size="sm" className="bg-gradient-to-r from-scan-blue to-scan-purple text-white">
+                    <Crown className="w-4 h-4 mr-1" />
+                    Upgrade
+                  </Button>
+                </RouterLink>
+              </div>
+            </div>
+          )}
+
           {/* Layout Style Toggle */}
           {socialLinks.length > 0 && (
             <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
@@ -869,7 +918,7 @@ export default function DashboardProfile() {
               {customLinks.length === 0 && (
                 <div className="text-center py-8 sm:py-12">
                   <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
-                    <Link className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
+                    <LinkIcon className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
                   </div>
                   <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">No custom links added yet.</p>
                   <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 mt-1">Add your website, portfolio, or any other links above.</p>
@@ -930,6 +979,18 @@ export default function DashboardProfile() {
         </motion.div>
         
       </div>
+
+      {/* Upgrade Prompt Modal */}
+      {showUpgradePrompt && (
+        <UpgradePrompt
+          variant="modal"
+          title="Link Limit Reached"
+          description="You've reached the 10-link limit for free accounts. Upgrade to Pro for unlimited links and premium features."
+          feature="links"
+          onClose={() => setShowUpgradePrompt(false)}
+          showCloseButton={true}
+        />
+      )}
     </>
   );
 } 

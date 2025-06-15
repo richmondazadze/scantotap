@@ -2,6 +2,10 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from './AuthContext';
 import type { Json } from '@/types/supabase';
+import { SubscriptionService } from '@/services/subscriptionService';
+
+export type PlanType = 'free' | 'pro';
+export type SubscriptionStatus = 'active' | 'cancelled' | 'expired' | 'trial';
 
 interface Profile {
   id: string;
@@ -21,6 +25,12 @@ interface Profile {
   show_email?: boolean;
   show_phone?: boolean;
   show_whatsapp?: boolean;
+  paystack_customer_code?: string;
+  paystack_subscription_code?: string;
+  plan_type?: PlanType;
+  subscription_status?: SubscriptionStatus;
+  subscription_started_at?: string;
+  subscription_expires_at?: string;
 }
 
 interface ProfileContextType {
@@ -46,7 +56,41 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       .select('*')
       .eq('id', session.user.id)
       .single();
-    if (!error && data) setProfile(data);
+    
+    if (!error && data) {
+      // Cast database types to our typed interface
+      const profile: Profile = {
+        ...data,
+        plan_type: (data.plan_type as PlanType) || 'free',
+        subscription_status: data.subscription_status as SubscriptionStatus | undefined,
+      };
+      setProfile(profile);
+
+      // Sync plan type to ensure accuracy
+      try {
+        const syncResult = await SubscriptionService.syncUserPlanType(session.user.id);
+        if (syncResult.updated) {
+          // Refetch profile if plan type was updated
+          const { data: updatedData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (updatedData) {
+            const updatedProfile: Profile = {
+              ...updatedData,
+              plan_type: (updatedData.plan_type as PlanType) || 'free',
+              subscription_status: updatedData.subscription_status as SubscriptionStatus | undefined,
+            };
+            setProfile(updatedProfile);
+          }
+        }
+      } catch (error) {
+        console.error('Error syncing plan type:', error);
+        // Don't fail the profile fetch if sync fails
+      }
+    }
     setLoading(false);
   };
 
@@ -61,14 +105,21 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         email: session.user.email,
         name: '',
         onboarding_complete: false,
+        plan_type: 'free', // Default to free plan
         ...profileData
       })
       .select()
       .single();
     
     if (!error && data) {
-      setProfile(data);
-      return data;
+      // Cast database types to our typed interface
+      const profile: Profile = {
+        ...data,
+        plan_type: (data.plan_type as PlanType) || 'free',
+        subscription_status: data.subscription_status as SubscriptionStatus | undefined,
+      };
+      setProfile(profile);
+      return profile;
     }
     return null;
   };

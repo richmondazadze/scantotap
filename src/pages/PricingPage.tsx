@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Check, X, Star, Zap, Shield, Crown, Sparkles, ArrowRight, Users, Infinity } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/contexts/ProfileContext";
+import { PaystackService } from "@/services/paystackService";
+import { toast } from "sonner";
 
 interface PlanFeature {
   name: string;
@@ -31,34 +35,70 @@ interface PricingPlan {
 
 const PricingPage = () => {
   const [isAnnual, setIsAnnual] = useState(false);
+  const [searchParams] = useSearchParams();
+  const { session } = useAuth();
+  const { profile } = useProfile();
+  const [upgrading, setUpgrading] = useState(false);
+
+  // Check if user came from an upgrade prompt
+  const source = searchParams.get('source');
+  const feature = searchParams.get('feature');
+
+  // Handle subscription upgrade
+  const handleUpgrade = async (planType: 'monthly' | 'annually') => {
+    if (!session?.user || !profile) {
+      // Redirect to auth with plan parameter
+      window.location.href = `/auth?plan=pro&billing=${planType}`;
+      return;
+    }
+
+    setUpgrading(true);
+    try {
+      const result = await PaystackService.upgradeSubscription(
+        session.user.id,
+        session.user.email || profile.email || '',
+        profile.name || 'User',
+        planType
+      );
+
+      // Payment will be handled by Paystack popup
+      // Success will be handled by webhook or redirect
+      toast.success('Redirecting to payment...');
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      toast.error('Failed to initiate upgrade. Please try again.');
+    } finally {
+      setUpgrading(false);
+    }
+  };
 
   const pricingPlans: PricingPlan[] = [
     {
-      name: "Free Starter",
+      name: "Free Plan",
       price: "$0",
       period: "forever",
       description: "Perfect for personal use and getting started with digital networking.",
       icon: Users,
       gradient: "from-gray-500 to-gray-600",
       features: [
-        { name: "Digital profile creation", included: true, description: "Create your personalized digital business card" },
-        { name: "5 social & custom links", included: true, description: "Add Instagram, LinkedIn, website, etc." },
-        { name: "Basic QR code", included: true, description: "Standard QR code for sharing your profile" },
-        { name: "Public profile page", included: true, description: "Your own scan2tap.com/username URL" },
-        { name: "Mobile-optimized design", included: true, description: "Looks perfect on all devices" },
-        { name: "Contact information display", included: true, description: "Phone, email, and social links" },
-        { name: "Basic privacy controls", included: true, description: "Control what info is visible" },
-        { name: "WhatsApp integration", included: true, description: "Direct WhatsApp contact button" },
-        { name: "Unlimited profile views", included: false, description: "Limited to 100 profile views/month" },
-        { name: "Advanced analytics", included: false, description: "Track clicks and engagement" },
-        { name: "Custom profile themes", included: false, description: "Personalize your profile appearance" },
-        { name: "Priority support", included: false, description: "24/7 premium customer support" },
+        { name: "Create a digital profile", included: true, description: "Build your personalized digital business card" },
+        { name: "Custom scan2tap link", included: true, description: "Get your own scan2tap.com/username URL" },
+        { name: "Add up to 10 social or custom links", included: true, description: "Instagram, LinkedIn, website, etc." },
+        { name: "Dynamic QR code & download", included: true, description: "Generate and download your QR code" },
+        { name: "Basic profile layout", included: true, description: "Clean, professional design" },
+        { name: "Show/hide contact info", included: true, description: "Control what information is visible" },
+        { name: "Order Classic cards", included: true, description: "Physical business cards with basic design" },
+        { name: "Manage profile from dashboard", included: true, description: "Easy-to-use profile management" },
+        { name: "Unlimited links", included: false, description: "Limited to 10 links total" },
+        { name: "Premium & Metal card designs", included: false, description: "Access to advanced card designs" },
+        { name: "Profile analytics", included: false, description: "Coming soon for Pro users" },
+        { name: "Custom themes", included: false, description: "Coming soon for Pro users" },
       ],
       ctaText: "Start Free",
-      ctaLink: "/auth/signup",
+      ctaLink: "/auth",
     },
     {
-      name: "Pro Digital",
+      name: "Pro Plan",
       price: isAnnual ? "$40" : "$4",
       originalPrice: isAnnual ? "$48" : undefined,
       period: isAnnual ? "per year" : "per month",
@@ -66,21 +106,18 @@ const PricingPage = () => {
       icon: Crown,
       gradient: "from-scan-blue to-scan-purple",
       features: [
-        { name: "Everything in Free", included: true, description: "All free features included" },
+        { name: "Everything in Free Plan", included: true, description: "All free features included" },
         { name: "Unlimited links", included: true, description: "Add as many links as you want" },
-        { name: "Unlimited profile views", included: true, description: "No limits on how many people can view your profile" },
-        { name: "Advanced analytics", included: true, description: "Detailed insights on profile visits and link clicks" },
-        { name: "Custom profile themes", included: true, description: "Choose from premium themes and layouts" },
-        { name: "Social media layout options", included: true, description: "Grid or horizontal social media display" },
-        { name: "Advanced privacy controls", included: true, description: "Granular control over what's visible" },
-        { name: "Custom profile URL", included: true, description: "Get your preferred username" },
-        { name: "vCard download", included: true, description: "Let visitors save your contact instantly" },
-        { name: "Priority support", included: true, description: "24/7 premium customer support" },
-        { name: "Coming soon: Custom domain", included: true, description: "Use your own domain name" },
-        { name: "Coming soon: Team management", included: true, description: "Manage multiple profiles" },
+        { name: "All profile layout options", included: true, description: "Grid, horizontal, and custom layouts" },
+        { name: "Premium & Metal card designs", included: true, description: "Access to all card design options" },
+        { name: "Coming soon: Profile analytics", included: true, description: "Detailed insights on profile visits and clicks" },
+        { name: "Coming soon: Custom themes", included: true, description: "Personalize your profile appearance" },
+        { name: "Coming soon: Custom domains", included: true, description: "Use your own domain name" },
+        { name: "Coming soon: vCard download", included: true, description: "Let visitors save your contact instantly" },
+        { name: "Coming soon: Team access & support", included: true, description: "Manage multiple profiles and priority support" },
       ],
       ctaText: "Upgrade to Pro",
-      ctaLink: "/auth/signup?plan=pro",
+      ctaLink: "/auth?plan=pro",
       highlighted: true,
       badge: "Most Popular",
     }
@@ -274,18 +311,25 @@ const PricingPage = () => {
 
                   {/* CTA Button */}
                   <div className="mb-8">
-                    <Link to={plan.ctaLink} className="block">
+                    {plan.highlighted ? (
                       <Button
-                        className={`w-full h-12 text-base font-semibold rounded-2xl transition-all duration-300 ${
-                          plan.highlighted 
-                            ? 'bg-gradient-to-r from-scan-blue to-scan-purple hover:from-scan-blue-dark hover:to-scan-purple/90 text-white shadow-lg hover:shadow-xl' 
-                            : 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
-                        }`}
+                        onClick={() => handleUpgrade(isAnnual ? 'annually' : 'monthly')}
+                        disabled={upgrading}
+                        className="w-full h-12 text-base font-semibold rounded-2xl transition-all duration-300 bg-gradient-to-r from-scan-blue to-scan-purple hover:from-scan-blue-dark hover:to-scan-purple/90 text-white shadow-lg hover:shadow-xl disabled:opacity-50"
                       >
-                        {plan.ctaText}
+                        {upgrading ? 'Processing...' : plan.ctaText}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
-                    </Link>
+                    ) : (
+                      <Link to={plan.ctaLink} className="block">
+                        <Button
+                          className="w-full h-12 text-base font-semibold rounded-2xl transition-all duration-300 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100"
+                        >
+                          {plan.ctaText}
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                    )}
                   </div>
 
                   {/* Features */}

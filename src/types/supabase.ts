@@ -246,14 +246,20 @@ export type Database = {
           name: string
           onboarding_complete: boolean
           phone: string | null
+          plan_type: string | null
           slug: string | null
           social_layout_style: string | null
+          subscription_expires_at: string | null
+          subscription_started_at: string | null
+          subscription_status: string | null
           title: string | null
           updated_at: string
           user_id: string
           show_email: boolean | null
           show_phone: boolean | null
           show_whatsapp: boolean | null
+          paystack_customer_code: string | null
+          paystack_subscription_code: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -265,14 +271,20 @@ export type Database = {
           name: string
           onboarding_complete?: boolean
           phone?: string | null
+          plan_type?: string | null
           slug?: string | null
           social_layout_style?: string | null
+          subscription_expires_at?: string | null
+          subscription_started_at?: string | null
+          subscription_status?: string | null
           title?: string | null
           updated_at?: string
           user_id: string
           show_email?: boolean | null
           show_phone?: boolean | null
           show_whatsapp?: boolean | null
+          paystack_customer_code?: string | null
+          paystack_subscription_code?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -284,14 +296,20 @@ export type Database = {
           name?: string
           onboarding_complete?: boolean
           phone?: string | null
+          plan_type?: string | null
           slug?: string | null
           social_layout_style?: string | null
+          subscription_expires_at?: string | null
+          subscription_started_at?: string | null
+          subscription_status?: string | null
           title?: string | null
           updated_at?: string
           user_id?: string
           show_email?: boolean | null
           show_phone?: boolean | null
           show_whatsapp?: boolean | null
+          paystack_customer_code?: string | null
+          paystack_subscription_code?: string | null
         }
         Relationships: []
       }
