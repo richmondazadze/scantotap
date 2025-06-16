@@ -139,6 +139,8 @@ export class WebhookHandler {
         subscription_status: 'active',
         subscription_started_at: startDate.toISOString(),
         subscription_expires_at: endDate.toISOString(),
+        paystack_customer_code: data.customer?.customer_code,
+        paystack_subscription_code: data.subscription?.subscription_code,
       });
 
       // Sync plan type to ensure consistency
@@ -188,21 +190,9 @@ export class WebhookHandler {
       subscription_status: 'active',
       subscription_started_at: startDate.toISOString(),
       subscription_expires_at: nextPaymentDate.toISOString(),
+      paystack_customer_code: data.customer?.customer_code,
+      paystack_subscription_code: subscription.subscription_code,
     });
-
-    // Store Paystack subscription details
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        paystack_customer_code: data.customer?.customer_code,
-        paystack_subscription_code: subscription.subscription_code,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', profile.id);
-
-    if (error) {
-      console.error('Error updating Paystack details:', error);
-    }
 
     // Sync plan type to ensure consistency
     await SubscriptionService.syncUserPlanType(profile.id);
@@ -249,6 +239,8 @@ export class WebhookHandler {
         subscription_status: 'cancelled', // But mark as cancelled
         subscription_started_at: profile.subscription_expires_at,
         subscription_expires_at: profile.subscription_expires_at,
+        paystack_customer_code: data.customer?.customer_code,
+        paystack_subscription_code: data.subscription?.subscription_code,
       });
       
       // Sync plan type to ensure consistency
@@ -262,6 +254,8 @@ export class WebhookHandler {
         subscription_status: 'cancelled',
         subscription_started_at: undefined,
         subscription_expires_at: undefined,
+        paystack_customer_code: data.customer?.customer_code,
+        paystack_subscription_code: data.subscription?.subscription_code,
       });
       
       // Sync plan type to ensure consistency
@@ -298,6 +292,8 @@ export class WebhookHandler {
       subscription_status: 'expired',
       subscription_started_at: undefined,
       subscription_expires_at: undefined,
+      paystack_customer_code: data.customer?.customer_code,
+      paystack_subscription_code: data.subscription?.subscription_code,
     });
 
     // Sync plan type to ensure consistency
@@ -360,6 +356,8 @@ export class WebhookHandler {
       subscription_status: 'active',
       subscription_started_at: profile.subscription_expires_at || new Date().toISOString(),
       subscription_expires_at: newExpiry.toISOString(),
+      paystack_customer_code: data.customer?.customer_code,
+      paystack_subscription_code: data.subscription?.subscription_code,
     });
 
     // Sync plan type to ensure consistency

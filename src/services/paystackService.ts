@@ -199,15 +199,25 @@ export class PaystackService {
 
   // Update user's subscription in database
   static async updateUserSubscription(userId: string, subscriptionData: SubscriptionData) {
+    const updateData: any = {
+      plan_type: subscriptionData.plan_type,
+      subscription_status: subscriptionData.subscription_status,
+      subscription_started_at: subscriptionData.subscription_started_at,
+      subscription_expires_at: subscriptionData.subscription_expires_at,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Only update Paystack codes if they are provided
+    if (subscriptionData.paystack_customer_code !== undefined) {
+      updateData.paystack_customer_code = subscriptionData.paystack_customer_code;
+    }
+    if (subscriptionData.paystack_subscription_code !== undefined) {
+      updateData.paystack_subscription_code = subscriptionData.paystack_subscription_code;
+    }
+
     const { data, error } = await supabase
       .from('profiles')
-      .update({
-        plan_type: subscriptionData.plan_type,
-        subscription_status: subscriptionData.subscription_status,
-        subscription_started_at: subscriptionData.subscription_started_at,
-        subscription_expires_at: subscriptionData.subscription_expires_at,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', userId)
       .select()
       .single();
@@ -281,6 +291,8 @@ export class PaystackService {
           subscription_status: 'active',
           subscription_started_at: startDate.toISOString(),
           subscription_expires_at: endDate.toISOString(),
+          paystack_customer_code: transaction.customer?.customer_code,
+          paystack_subscription_code: transaction.subscription?.subscription_code,
         });
 
         return {

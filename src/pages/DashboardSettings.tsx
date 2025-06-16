@@ -836,16 +836,70 @@ export default function DashboardSettings() {
                             </p>
                           </div>
                         </div>
-                        <Badge 
-                          variant={subscriptionDetails?.isActive ? "default" : "secondary"}
-                          className={subscriptionDetails?.isActive 
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" 
-                            : ""
-                          }
-                        >
-                          {subscriptionDetails?.isActive ? 'Active' : 'Inactive'}
-                        </Badge>
+                        <div className="flex flex-col items-end gap-1">
+                          <Badge 
+                            variant={subscriptionDetails?.isActive ? "default" : "secondary"}
+                            className={
+                              subscriptionDetails?.isActive 
+                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" 
+                                : planFeatures.planType === 'pro' && subscriptionDetails?.status === 'cancelled'
+                                ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                                : ""
+                            }
+                          >
+                            {planFeatures.planType === 'free' 
+                              ? 'Active' 
+                              : subscriptionDetails?.isActive 
+                              ? 'Active' 
+                              : subscriptionDetails?.status === 'cancelled' 
+                              ? 'Inactive' 
+                              : 'Inactive'
+                            }
+                          </Badge>
+                          
+                          {/* Cancellation Notice */}
+                          {planFeatures.planType === 'pro' && 
+                           subscriptionDetails?.status === 'cancelled' && 
+                           subscriptionDetails?.expiresAt && 
+                           new Date(subscriptionDetails.expiresAt) > new Date() && (
+                            <p className="text-xs text-orange-600 dark:text-orange-400 text-right">
+                              Reverts to Free on {new Date(subscriptionDetails.expiresAt).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
                       </div>
+
+                      {/* Cancellation Warning for Pro Users with Cancelled Subscription */}
+                      {planFeatures.planType === 'pro' && 
+                       subscriptionDetails?.status === 'cancelled' && 
+                       subscriptionDetails?.expiresAt && 
+                       new Date(subscriptionDetails.expiresAt) > new Date() && (
+                        <div className="p-4 border border-orange-200 rounded-lg bg-orange-50/50 dark:bg-orange-950/20">
+                          <div className="flex items-start gap-3">
+                            <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1">
+                              <h4 className="font-medium text-orange-900 dark:text-orange-200 mb-2">
+                                Subscription Cancelled
+                              </h4>
+                              <p className="text-sm text-orange-700 dark:text-orange-300 mb-3">
+                                Your Pro subscription has been cancelled but remains active until{' '}
+                                <strong>{new Date(subscriptionDetails.expiresAt).toLocaleDateString()}</strong>.
+                                After this date, your account will automatically revert to the Free plan.
+                              </p>
+                              <div className="flex flex-col sm:flex-row gap-2">
+                                <Button 
+                                  onClick={() => handleUpgrade('monthly')}
+                                  disabled={upgrading}
+                                  size="sm"
+                                  className="bg-gradient-to-r from-scan-blue to-scan-purple text-white"
+                                >
+                                  {upgrading ? 'Processing...' : 'Reactivate Subscription'}
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Plan Features */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
