@@ -79,15 +79,12 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         };
         setProfile(profile);
 
-        // Only sync plan type if user has subscription data
-        // This prevents new users from being incorrectly assigned Pro status
-        const hasSubscriptionData = data.subscription_status || 
-                                    data.subscription_started_at || 
-                                    data.subscription_expires_at ||
-                                    data.paystack_customer_code ||
-                                    data.paystack_subscription_code;
+        // Only sync plan type if user has an ACTIVE subscription status
+        // This prevents users who selected "free" in onboarding from being incorrectly upgraded
+        const hasActiveSubscriptionStatus = data.subscription_status === 'active' || 
+                                           (data.subscription_status === 'cancelled' && data.subscription_expires_at);
 
-        if (hasSubscriptionData) {
+        if (hasActiveSubscriptionStatus) {
           try {
             const syncResult = await SubscriptionService.syncUserPlanType(session.user.id);
             if (syncResult.updated) {
