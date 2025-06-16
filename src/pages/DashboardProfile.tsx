@@ -121,6 +121,7 @@ export default function DashboardProfile() {
   }, [profile]);
 
   // Effect to check for unsaved changes by comparing form state with database profile, with debug logs
+  // Excludes auto-saved fields to prevent interference with unsaved changes detection
   useEffect(() => {
     if (!profile) {
       setHasUnsavedChanges(false);
@@ -128,6 +129,7 @@ export default function DashboardProfile() {
       return;
     }
     const profileLinks = Array.isArray(profile.links) ? profile.links : [];
+    // Only check main fields that require manual save, exclude auto-saved fields
     const diffs = {
       name: name !== (profile.name || ''),
       title: title !== (profile.title || ''),
@@ -136,16 +138,13 @@ export default function DashboardProfile() {
       slug: slug !== (profile.slug || ''),
       phone: phone !== (profile.phone || ''),
       links: JSON.stringify(links) !== JSON.stringify(profileLinks),
-      socialLayoutStyle: socialLayoutStyle !== (profile.social_layout_style || 'grid'),
-      showEmail: showEmail !== (profile.show_email ?? true),
-      showPhone: showPhone !== (profile.show_phone ?? true),
-      showWhatsapp: showWhatsapp !== (profile.show_whatsapp ?? true),
+      // Exclude auto-saved fields: socialLayoutStyle, showEmail, showPhone, showWhatsapp
     };
     const isChanged = Object.values(diffs).some(Boolean);
-    console.log('[UnsavedChanges] Field diffs:', diffs);
+    console.log('[UnsavedChanges] Field diffs (main fields only):', diffs);
     console.log('[UnsavedChanges] isChanged:', isChanged);
     setHasUnsavedChanges(isChanged);
-  }, [name, title, bio, avatarUrl, links, slug, phone, socialLayoutStyle, showEmail, showPhone, showWhatsapp, profile]);
+  }, [name, title, bio, avatarUrl, links, slug, phone, profile]);
 
   // Slug (username) availability check
   useEffect(() => {
