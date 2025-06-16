@@ -171,7 +171,7 @@ async function handleOrderPayment(data, supabase) {
 }
 
 // ============================================================================
-// SUBSCRIPTION PAYMENT HANDLERS
+// SUBSCRIPTION PAYMENT HANDLERS (SIMPLIFIED)
 // ============================================================================
 async function handleSubscriptionPayment(data, supabase) {
   const userId = data.metadata.user_id;
@@ -180,35 +180,22 @@ async function handleSubscriptionPayment(data, supabase) {
   
   console.log(`Processing SUBSCRIPTION payment for user: ${userId}, plan: ${planType}, billing: ${billingCycle}`);
 
-  // Calculate subscription dates
-  const startDate = new Date();
-  const endDate = new Date();
-  
-  if (billingCycle === 'annually') {
-    endDate.setFullYear(endDate.getFullYear() + 1);
-  } else {
-    endDate.setMonth(endDate.getMonth() + 1);
-  }
-
-  // Update user subscription
+  // Update user subscription (simplified - no date tracking)
   const { error } = await supabase
     .from('profiles')
     .update({
       plan_type: 'pro',
       subscription_status: 'active',
-      subscription_started_at: startDate.toISOString(),
-      subscription_expires_at: endDate.toISOString(),
-      paystack_customer_code: data.customer?.customer_code,
-      updated_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     })
     .eq('id', userId);
 
   if (error) {
-    console.error(`Failed to update subscription for user ${userId}:`, error);
+    console.error('Failed to update user subscription:', error);
     throw error;
   }
 
-  console.log(`Activated Pro subscription for user ${userId} until ${endDate.toISOString()}`);
+  console.log(`Successfully activated Pro subscription for user: ${userId}`);
 }
 
 async function handleSubscriptionPaymentByEmail(data, supabase) {
@@ -219,7 +206,7 @@ async function handleSubscriptionPaymentByEmail(data, supabase) {
   // Find user by email
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id')
+    .select('id, plan_type, onboarding_complete, subscription_status')
     .eq('email', customerEmail)
     .single();
 
@@ -228,16 +215,33 @@ async function handleSubscriptionPaymentByEmail(data, supabase) {
     return;
   }
 
-  // Treat as subscription payment
-  await handleSubscriptionPayment({
-    ...data,
-    metadata: {
-      ...data.metadata,
-      user_id: profile.id,
+  // CRITICAL: Only upgrade users who haven't explicitly chosen free plan during onboarding
+  // This prevents auto-upgrading users who selected "free" in onboarding
+  const shouldUpgrade = !profile.onboarding_complete || 
+                       profile.plan_type !== 'free' ||
+                       profile.subscription_status === 'active';
+
+  if (!shouldUpgrade) {
+    console.log(`Skipping auto-upgrade for user ${profile.id} - explicitly chose free plan during onboarding`);
+    return;
+  }
+
+  // Update subscription (simplified)
+  const { error } = await supabase
+    .from('profiles')
+    .update({
       plan_type: 'pro',
-      billing_cycle: 'monthly' // Default to monthly
-    }
-  }, supabase);
+      subscription_status: 'active',
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', profile.id);
+
+  if (error) {
+    console.error('Failed to update subscription by email:', error);
+    throw error;
+  }
+
+  console.log(`Successfully activated Pro subscription for user by email: ${customerEmail} (${profile.id})`);
 }
 
 // ============================================================================
@@ -245,17 +249,15 @@ async function handleSubscriptionPaymentByEmail(data, supabase) {
 // ============================================================================
 async function handleSubscriptionCreate(event, supabase) {
   const { data } = event;
-  const subscription = data.subscription;
-  const customerEmail = data.customer?.email || subscription?.customer?.email;
+  console.log('Subscription created:', data);
   
-  if (!customerEmail || !subscription) {
-    console.error('Missing subscription data in webhook');
+  // Find user by customer email
+  const customerEmail = data.customer?.email;
+  if (!customerEmail) {
+    console.error('No customer email found in subscription create event');
     return;
   }
 
-  console.log('Creating subscription for:', customerEmail);
-
-  // Find user by email
   const { data: profile } = await supabase
     .from('profiles')
     .select('id')
@@ -263,99 +265,39 @@ async function handleSubscriptionCreate(event, supabase) {
     .single();
 
   if (!profile) {
-    console.error('No user found for email:', customerEmail);
+    console.log('No user found for subscription create:', customerEmail);
     return;
   }
 
-  // Calculate subscription dates
-  const startDate = new Date();
-  const nextPaymentDate = new Date(subscription.next_payment_date);
-
-  // Update user subscription
+  // Update to pro plan with active status (simplified)
   const { error } = await supabase
     .from('profiles')
     .update({
       plan_type: 'pro',
       subscription_status: 'active',
-      subscription_started_at: startDate.toISOString(),
-      subscription_expires_at: nextPaymentDate.toISOString(),
-      paystack_customer_code: data.customer?.customer_code,
-      paystack_subscription_code: subscription.subscription_code,
-      updated_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     })
     .eq('id', profile.id);
 
   if (error) {
-    console.error('Error updating subscription:', error);
-    throw error;
+    console.error('Failed to update user on subscription create:', error);
+    return;
   }
 
-  console.log(`Created subscription for user ${profile.id} with code ${subscription.subscription_code}`);
+  console.log(`Subscription created and user ${profile.id} upgraded to Pro`);
 }
 
 async function handleSubscriptionDisable(event, supabase) {
   const { data } = event;
+  console.log('Subscription disabled:', data);
+  
+  // Find user by customer email
   const customerEmail = data.customer?.email;
-  
   if (!customerEmail) {
-    console.error('No customer email in disable webhook');
+    console.error('No customer email found in subscription disable event');
     return;
   }
 
-  console.log('Disabling subscription for:', customerEmail);
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, subscription_expires_at')
-    .eq('email', customerEmail)
-    .single();
-
-  if (!profile) {
-    console.error('No user found for email:', customerEmail);
-    return;
-  }
-
-  // Keep subscription active until expiry date, then downgrade
-  const now = new Date();
-  const expiryDate = profile.subscription_expires_at ? new Date(profile.subscription_expires_at) : now;
-  
-  if (expiryDate > now) {
-    // Mark as cancelled but keep pro features until expiry
-    await supabase
-      .from('profiles')
-      .update({
-        subscription_status: 'cancelled',
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', profile.id);
-    
-    console.log(`Marked subscription as cancelled for user ${profile.id}, will expire on ${expiryDate.toISOString()}`);
-  } else {
-    // Subscription has already expired, downgrade immediately
-    await supabase
-      .from('profiles')
-      .update({
-        plan_type: 'free',
-        subscription_status: 'cancelled',
-        subscription_started_at: null,
-        subscription_expires_at: null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', profile.id);
-    
-    console.log(`Downgraded user ${profile.id} to free plan`);
-  }
-}
-
-async function handleSubscriptionNotRenew(event, supabase) {
-  const { data } = event;
-  const customerEmail = data.customer?.email;
-  
-  if (!customerEmail) {
-    console.error('No customer email found in not_renew webhook');
-    return;
-  }
-  
   const { data: profile } = await supabase
     .from('profiles')
     .select('id')
@@ -363,23 +305,66 @@ async function handleSubscriptionNotRenew(event, supabase) {
     .single();
 
   if (!profile) {
-    console.error('No user found for email:', customerEmail);
+    console.log('No user found for subscription disable:', customerEmail);
     return;
   }
 
-  // Subscription will not renew, downgrade to free plan
-  await supabase
+  // Update to free plan with cancelled status (simplified)
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      plan_type: 'free',
+      subscription_status: 'cancelled',
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', profile.id);
+
+  if (error) {
+    console.error('Failed to update user on subscription disable:', error);
+    return;
+  }
+
+  console.log(`Subscription disabled and user ${profile.id} downgraded to Free`);
+}
+
+async function handleSubscriptionNotRenew(event, supabase) {
+  const { data } = event;
+  console.log('Subscription not renewing:', data);
+  
+  // Find user by customer email
+  const customerEmail = data.customer?.email;
+  if (!customerEmail) {
+    console.error('No customer email found in subscription not renew event');
+    return;
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('email', customerEmail)
+    .single();
+
+  if (!profile) {
+    console.log('No user found for subscription not renew:', customerEmail);
+    return;
+  }
+
+  // Update to free plan with expired status (simplified)
+  const { error } = await supabase
     .from('profiles')
     .update({
       plan_type: 'free',
       subscription_status: 'expired',
-      subscription_started_at: null,
-      subscription_expires_at: null,
-      updated_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     })
     .eq('id', profile.id);
 
-  console.log(`Expired subscription for user ${profile.id} - will not renew`);
+  if (error) {
+    console.error('Failed to update user on subscription not renew:', error);
+    return;
+  }
+
+  console.log(`Subscription not renewing and user ${profile.id} downgraded to Free`);
 }
 
 async function handleInvoiceCreate(event, supabase) {

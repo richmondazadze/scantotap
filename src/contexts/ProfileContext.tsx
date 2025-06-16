@@ -81,16 +81,15 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
         // Only sync plan type in very specific circumstances to prevent free users from being upgraded
         const hasActiveSubscriptionStatus = data.subscription_status === 'active' || 
-                                           (data.subscription_status === 'cancelled' && data.subscription_expires_at);
+                                           (data.subscription_status === 'cancelled');
         
         // CRITICAL: Don't sync if user completed onboarding with free plan and has no active subscription
         // This prevents users who selected "free" in onboarding from being incorrectly upgraded to Pro
-        // even if they have paystack_customer_code from visiting pricing page
+        // even if they have any subscription metadata from visiting pricing page
         const isExplicitFreePlan = data.onboarding_complete && 
                                   data.plan_type === 'free' && 
-                                  !data.subscription_status;
+                                  data.subscription_status !== 'active';
 
-        // Only sync for users who actually have active subscription status AND are not explicit free users
         if (hasActiveSubscriptionStatus && !isExplicitFreePlan) {
           try {
             const syncResult = await SubscriptionService.syncUserPlanType(session.user.id);
@@ -109,12 +108,22 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
                   subscription_status: updatedData.subscription_status as SubscriptionStatus | undefined,
                 };
                 setProfile(updatedProfile);
+                console.log(`[ProfileContext] Plan synced and profile updated:`, {
+                  oldPlan: data.plan_type,
+                  newPlan: syncResult.newPlan,
+                  userId: session.user.id
+                });
               }
             }
           } catch (error) {
-            console.error('Error syncing plan type:', error);
-            // Don't fail the profile fetch if sync fails
+            console.error('[ProfileContext] Error syncing plan type:', error);
           }
+        } else {
+          console.log(`[ProfileContext] Skipping plan sync:`, {
+            hasActiveSubscriptionStatus,
+            isExplicitFreePlan,
+            userId: session.user.id
+          });
         }
       } else {
         // No profile found - this is expected for new OAuth users

@@ -1,122 +1,85 @@
 import { supabase } from '@/lib/supabaseClient';
 import { PaystackService } from './paystackService';
-import { PlanType, SubscriptionStatus } from '@/contexts/ProfileContext';
+
+export type PlanType = 'free' | 'pro';
+export type SubscriptionStatus = 'active' | 'cancelled' | 'expired' | 'trial';
 
 export interface SubscriptionInfo {
   plan_type: PlanType;
   subscription_status?: SubscriptionStatus;
-  subscription_started_at?: string;
-  subscription_expires_at?: string;
-  paystack_customer_code?: string;
-  paystack_subscription_code?: string;
 }
 
-// Database row type for type safety
+// Simplified database row type for type safety
 interface SubscriptionRow {
   plan_type: string | null;
   subscription_status: string | null;
-  subscription_started_at: string | null;
-  subscription_expires_at: string | null;
-  paystack_customer_code: string | null;
-  paystack_subscription_code: string | null;
 }
 
 export class SubscriptionService {
+  
   /**
-   * Get user's current subscription information
+   * Get user subscription info (simplified)
    */
   static async getUserSubscription(userId: string): Promise<SubscriptionInfo | null> {
     try {
-      const { data, error } = await supabase
+      const { data: row, error } = await supabase
         .from('profiles')
-        .select(`
-          plan_type,
-          subscription_status,
-          subscription_started_at,
-          subscription_expires_at,
-          paystack_customer_code,
-          paystack_subscription_code
-        `)
+        .select('plan_type, subscription_status')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
-      if (!data) return null;
+      if (error) {
+        console.error('Error fetching subscription:', error);
+        return null;
+      }
 
-      // Cast database types to our typed interface
-      const row = data as SubscriptionRow;
-      
+      if (!row) return null;
+
       return {
         plan_type: (row.plan_type as PlanType) || 'free',
         subscription_status: row.subscription_status as SubscriptionStatus | undefined,
-        subscription_started_at: row.subscription_started_at || undefined,
-        subscription_expires_at: row.subscription_expires_at || undefined,
-        paystack_customer_code: row.paystack_customer_code || undefined,
-        paystack_subscription_code: row.paystack_subscription_code || undefined,
       };
     } catch (error) {
-      console.error('Error fetching user subscription:', error);
+      console.error('Error in getUserSubscription:', error);
       return null;
     }
   }
 
   /**
-   * Check if user has active subscription
+   * Check if user has active subscription (simplified)
    */
   static async hasActiveSubscription(userId: string): Promise<boolean> {
     const subscription = await this.getUserSubscription(userId);
     if (!subscription) return false;
-
-    return this.isSubscriptionActive(
-      subscription.subscription_status,
-      subscription.subscription_expires_at
-    );
-  }
-
-  /**
-   * Check if subscription is currently active
-   */
-  static isSubscriptionActive(
-    status?: SubscriptionStatus,
-    expiresAt?: string
-  ): boolean {
-    if (!status || status === 'expired') return false;
     
-    if (status === 'cancelled') {
-      // Cancelled subscriptions are active until expiry
-      if (!expiresAt) return false;
-      return new Date(expiresAt) > new Date();
-    }
-
-    if (status === 'active') {
-      if (!expiresAt) return true; // Assume active if no expiry
-      return new Date(expiresAt) > new Date();
-    }
-
-    return false;
+    return this.isSubscriptionActive(subscription.subscription_status);
   }
 
   /**
-   * Get user's effective plan (considering subscription status)
+   * Check if subscription status indicates active subscription (simplified)
+   */
+  static isSubscriptionActive(status?: SubscriptionStatus): boolean {
+    return status === 'active' || status === 'trial';
+  }
+
+  /**
+   * Get user's current plan type
    */
   static async getUserPlan(userId: string): Promise<PlanType> {
     const subscription = await this.getUserSubscription(userId);
     if (!subscription) return 'free';
-
-    // If subscription is active, return the plan type
-    if (this.isSubscriptionActive(
-      subscription.subscription_status,
-      subscription.subscription_expires_at
-    )) {
-      return subscription.plan_type || 'free';
+    
+    // If subscription is active, return pro plan
+    if (this.isSubscriptionActive(subscription.subscription_status)) {
+      return 'pro';
     }
-
-    // If subscription is not active, return free
-    return 'free';
+    
+    // Otherwise return the stored plan type (usually 'free')
+    return subscription.plan_type || 'free';
   }
 
   /**
-   * Upgrade user to Pro plan (handles new subscriptions and re-subscriptions)
+   * Upgrade user to Pro plan
    */
   static async upgradeUser(
     userId: string,
@@ -125,26 +88,6 @@ export class SubscriptionService {
     billingCycle: 'monthly' | 'annually'
   ): Promise<{ success: boolean; error?: string; paymentUrl?: string }> {
     try {
-      const subscription = await this.getUserSubscription(userId);
-      
-      // Check if user already has active subscription
-      const hasActive = await this.hasActiveSubscription(userId);
-      if (hasActive) {
-        return { success: false, error: 'User already has active subscription' };
-      }
-
-      // Log the upgrade attempt for debugging
-      console.log('Upgrade attempt for user:', userId);
-      console.log('Current subscription:', subscription);
-      console.log('Has active subscription:', hasActive);
-
-      // Clear any previous subscription data to ensure clean re-subscription
-      if (subscription && (subscription.subscription_status === 'cancelled' || subscription.subscription_status === 'expired')) {
-        console.log('Clearing previous subscription data for clean re-subscription');
-        await this.clearSubscriptionData(userId);
-      }
-
-      // Initialize Paystack payment
       const result = await PaystackService.upgradeSubscription(
         userId,
         userEmail,
@@ -152,7 +95,10 @@ export class SubscriptionService {
         billingCycle
       );
 
-      return { success: true, paymentUrl: result.authorization_url };
+      return {
+        success: true,
+        paymentUrl: result.authorization_url
+      };
     } catch (error) {
       console.error('Error upgrading user:', error);
       return { 
@@ -163,150 +109,47 @@ export class SubscriptionService {
   }
 
   /**
-   * Cancel user subscription
+   * Cancel subscription (simplified)
    */
   static async cancelSubscription(userId: string): Promise<{ success: boolean; error?: string }> {
     try {
       const subscription = await this.getUserSubscription(userId);
       
-      console.log('Cancellation attempt for user:', userId);
-      console.log('Subscription data:', subscription);
-      
       if (!subscription) {
-        return { success: false, error: 'No subscription found for this user' };
+        return { success: false, error: 'No subscription found' };
       }
 
-      // Check if user has an active subscription
-      const isActive = this.isSubscriptionActive(
-        subscription.subscription_status,
-        subscription.subscription_expires_at
-      );
-
-      if (!isActive) {
-        return { success: false, error: 'No active subscription to cancel' };
-      }
-
-      // If we have a Paystack subscription code, try to cancel it on Paystack
-      if (subscription.paystack_subscription_code) {
-        try {
-          await PaystackService.cancelSubscription(subscription.paystack_subscription_code);
-          console.log('Successfully cancelled subscription on Paystack');
-        } catch (paystackError) {
-          console.error('Failed to cancel on Paystack, but continuing with local cancellation:', paystackError);
-          // Continue with local cancellation even if Paystack fails
-        }
-      } else {
-        console.log('No Paystack subscription code found, performing local cancellation only');
-      }
-
-      // Determine cancellation strategy based on subscription data
-      let cancellationData;
+      // Update status to cancelled
+      await this.updateSubscriptionInfo(userId, 'free', 'cancelled');
       
-      if (subscription.subscription_expires_at) {
-        const expiryDate = new Date(subscription.subscription_expires_at);
-        const now = new Date();
-        
-        if (expiryDate > now) {
-          // Subscription has time remaining - mark as cancelled but keep pro until expiry
-          cancellationData = {
-            plan_type: 'pro' as PlanType, // Keep pro until expiry
-            subscription_status: 'cancelled' as SubscriptionStatus,
-            subscription_started_at: subscription.subscription_started_at,
-            subscription_expires_at: subscription.subscription_expires_at,
-          };
-          console.log(`Subscription will remain active until ${expiryDate.toISOString()}`);
-        } else {
-          // Subscription already expired - downgrade immediately
-          cancellationData = {
-            plan_type: 'free' as PlanType,
-            subscription_status: 'cancelled' as SubscriptionStatus,
-            subscription_started_at: undefined,
-            subscription_expires_at: undefined,
-          };
-          console.log('Subscription expired, downgrading immediately');
-        }
-      } else {
-        // No expiry date - immediate downgrade (likely a data issue)
-        cancellationData = {
-          plan_type: 'free' as PlanType,
-          subscription_status: 'cancelled' as SubscriptionStatus,
-          subscription_started_at: undefined,
-          subscription_expires_at: undefined,
-        };
-        console.log('No expiry date found, performing immediate downgrade');
-      }
-
-      // Update local database
-      await PaystackService.updateUserSubscription(userId, cancellationData);
-
-      // Sync plan type to ensure consistency
-      await this.syncUserPlanType(userId);
-
-      console.log('Successfully cancelled subscription locally');
       return { success: true };
     } catch (error) {
       console.error('Error cancelling subscription:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error occurred while cancelling subscription' 
-      };
+      return { success: false, error: 'Failed to cancel subscription' };
     }
   }
 
   /**
-   * Get subscription details for display
+   * Get subscription details (simplified)
    */
   static async getSubscriptionDetails(userId: string): Promise<{
     plan: PlanType;
     status: SubscriptionStatus | null;
     isActive: boolean;
-    expiresAt: Date | null;
-    daysRemaining: number | null;
     canUpgrade: boolean;
     canCancel: boolean;
   }> {
     const subscription = await this.getUserSubscription(userId);
-    const plan = await this.getUserPlan(userId);
-    
-    if (!subscription) {
-      return {
-        plan: 'free',
-        status: null,
-        isActive: false,
-        expiresAt: null,
-        daysRemaining: null,
-        canUpgrade: true,
-        canCancel: false,
-      };
-    }
-
-    const isActive = this.isSubscriptionActive(
-      subscription.subscription_status,
-      subscription.subscription_expires_at
-    );
-
-    const expiresAt = subscription.subscription_expires_at 
-      ? new Date(subscription.subscription_expires_at) 
-      : null;
-
-    const daysRemaining = expiresAt 
-      ? Math.ceil((expiresAt.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-      : null;
-
-    // Determine if user can upgrade (re-subscribe)
-    const canUpgrade = !isActive || (subscription.subscription_status === 'cancelled' && (!expiresAt || expiresAt <= new Date()));
-    
-    // Determine if user can cancel (only active subscriptions that aren't already cancelled)
-    const canCancel = isActive && subscription.subscription_status === 'active';
+    const plan = subscription?.plan_type || 'free';
+    const status = subscription?.subscription_status || null;
+    const isActive = this.isSubscriptionActive(status);
 
     return {
       plan,
-      status: subscription.subscription_status || null,
+      status,
       isActive,
-      expiresAt,
-      daysRemaining,
-      canUpgrade,
-      canCancel,
+      canUpgrade: !isActive,
+      canCancel: isActive,
     };
   }
 
@@ -321,7 +164,6 @@ export class SubscriptionService {
     
     switch (action) {
       case 'add_link':
-        // Free users have link limits, Pro users don't
         if (plan === 'pro') return true;
         
         // Check current link count for free users
@@ -381,7 +223,96 @@ export class SubscriptionService {
   }
 
   /**
-   * Process webhook events (called by webhook handler)
+   * Update subscription status
+   */
+  static async updateSubscriptionStatus(userId: string, status: SubscriptionStatus): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          subscription_status: status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId);
+
+      if (error) {
+        console.error('Error updating subscription status:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error updating subscription status:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Update user subscription info (simplified)
+   */
+  static async updateSubscriptionInfo(
+    userId: string, 
+    planType: PlanType,
+    status?: SubscriptionStatus
+  ): Promise<boolean> {
+    try {
+      const updateData: any = {
+        plan_type: planType,
+        updated_at: new Date().toISOString()
+      };
+
+      if (status) {
+        updateData.subscription_status = status;
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', userId);
+
+      if (error) {
+        console.error('Error updating subscription info:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error updating subscription info:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Sync user plan type based on subscription status (simplified)
+   */
+  static async syncUserPlanType(userId: string): Promise<{ updated: boolean; newPlan: PlanType }> {
+    try {
+      const subscription = await this.getUserSubscription(userId);
+      
+      if (!subscription) {
+        return { updated: false, newPlan: 'free' };
+      }
+
+      // Determine correct plan based on subscription status
+      const shouldBePro = this.isSubscriptionActive(subscription.subscription_status);
+      const currentPlan = subscription.plan_type || 'free';
+      const correctPlan: PlanType = shouldBePro ? 'pro' : 'free';
+
+      // Only update if there's a mismatch
+      if (currentPlan !== correctPlan) {
+        await this.updateSubscriptionInfo(userId, correctPlan);
+        return { updated: true, newPlan: correctPlan };
+      }
+
+      return { updated: false, newPlan: currentPlan };
+    } catch (error) {
+      console.error('Error syncing user plan type:', error);
+      return { updated: false, newPlan: 'free' };
+    }
+  }
+
+  /**
+   * Process webhook events (simplified)
    */
   static async processWebhookEvent(
     eventType: string,
@@ -402,368 +333,20 @@ export class SubscriptionService {
 
     switch (eventType) {
       case 'subscription_activated':
-        await this.activateSubscription(profile.id, eventData);
+        await this.updateSubscriptionInfo(profile.id, 'pro', 'active');
         break;
       
       case 'subscription_cancelled':
-        await this.markSubscriptionCancelled(profile.id, eventData);
+        await this.updateSubscriptionInfo(profile.id, 'free', 'cancelled');
         break;
       
       case 'subscription_expired':
-        await this.expireSubscription(profile.id);
+        await this.updateSubscriptionInfo(profile.id, 'free', 'expired');
         break;
       
       case 'payment_failed':
-        await this.handlePaymentFailure(profile.id, eventData);
+        console.log(`Payment failed for user ${profile.id}:`, eventData);
         break;
-    }
-  }
-
-  private static async activateSubscription(userId: string, eventData: any): Promise<void> {
-    const startDate = new Date();
-    const endDate = new Date();
-    
-    // Determine billing cycle from event data
-    const isAnnual = eventData.billing_cycle === 'annually';
-    if (isAnnual) {
-      endDate.setFullYear(endDate.getFullYear() + 1);
-    } else {
-      endDate.setMonth(endDate.getMonth() + 1);
-    }
-
-    await PaystackService.updateUserSubscription(userId, {
-      plan_type: 'pro',
-      subscription_status: 'active',
-      subscription_started_at: startDate.toISOString(),
-      subscription_expires_at: endDate.toISOString(),
-    });
-  }
-
-  private static async markSubscriptionCancelled(userId: string, eventData: any): Promise<void> {
-    const subscription = await this.getUserSubscription(userId);
-    if (!subscription) return;
-
-    await PaystackService.updateUserSubscription(userId, {
-      plan_type: subscription.plan_type || 'free',
-      subscription_status: 'cancelled',
-      subscription_started_at: subscription.subscription_started_at,
-      subscription_expires_at: subscription.subscription_expires_at,
-    });
-  }
-
-  private static async expireSubscription(userId: string): Promise<void> {
-    await PaystackService.updateUserSubscription(userId, {
-      plan_type: 'free',
-      subscription_status: 'expired',
-      subscription_started_at: undefined,
-      subscription_expires_at: undefined,
-    });
-  }
-
-  private static async handlePaymentFailure(userId: string, eventData: any): Promise<void> {
-    // Implement grace period logic
-    // For now, just log the failure
-    console.log(`Payment failed for user ${userId}:`, eventData);
-    
-    // You could implement:
-    // - Send notification email
-    // - Start grace period countdown
-    // - Temporarily suspend some features
-  }
-
-  /**
-   * Sync user plan type based on subscription status
-   * This ensures the plan_type field accurately reflects the user's current access level
-   */
-  static async syncUserPlanType(userId: string): Promise<{ updated: boolean; newPlan: PlanType }> {
-    try {
-      const subscription = await this.getUserSubscription(userId);
-      
-      // If no subscription data exists, only sync if plan_type is not already 'free'
-      if (!subscription) {
-        // For users with no subscription data, ensure they're on free plan
-        // But don't update if they're already free to avoid unnecessary DB writes
-        return { updated: false, newPlan: 'free' };
-      }
-
-      // Only sync if there's an ACTIVE subscription status (not just any subscription metadata)
-      // This prevents users who selected "free" in onboarding from being incorrectly upgraded
-      const hasActiveSubscriptionStatus = subscription.subscription_status === 'active' || 
-                                         (subscription.subscription_status === 'cancelled' && subscription.subscription_expires_at);
-
-      if (!hasActiveSubscriptionStatus) {
-        // User has no active subscription status, ensure they're on free plan
-        if (subscription.plan_type !== 'free') {
-          await this.updatePlanType(userId, 'free');
-          console.log(`Synced plan_type for user ${userId}: ${subscription.plan_type} → free (no active subscription)`);
-          return { updated: true, newPlan: 'free' };
-        }
-        return { updated: false, newPlan: 'free' };
-      }
-
-      // User has active subscription status, determine correct plan based on actual subscription activity
-      const isActive = this.isSubscriptionActive(
-        subscription.subscription_status,
-        subscription.subscription_expires_at
-      );
-
-      const correctPlanType: PlanType = isActive ? 'pro' : 'free';
-      
-      // Check if plan_type needs updating
-      if (subscription.plan_type !== correctPlanType) {
-        await this.updatePlanType(userId, correctPlanType);
-        console.log(`Synced plan_type for user ${userId}: ${subscription.plan_type} → ${correctPlanType}`);
-        return { updated: true, newPlan: correctPlanType };
-      }
-
-      return { updated: false, newPlan: correctPlanType };
-    } catch (error) {
-      console.error('Error syncing user plan type:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Update user's plan type in the database
-   */
-  private static async updatePlanType(userId: string, planType: PlanType): Promise<void> {
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        plan_type: planType,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', userId);
-
-    if (error) {
-      console.error('Error updating plan type:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Clear subscription data for clean re-subscription
-   */
-  private static async clearSubscriptionData(userId: string): Promise<void> {
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        plan_type: 'free',
-        subscription_status: null,
-        subscription_started_at: null,
-        subscription_expires_at: null,
-        paystack_customer_code: null,
-        paystack_subscription_code: null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', userId);
-
-    if (error) {
-      console.error('Error clearing subscription data:', error);
-      throw error;
-    }
-    
-    console.log(`Cleared subscription data for user ${userId}`);
-  }
-
-  /**
-   * Reactivate a cancelled subscription (for re-subscription scenarios)
-   */
-  static async reactivateSubscription(
-    userId: string,
-    billingCycle: 'monthly' | 'annually'
-  ): Promise<{ success: boolean; error?: string }> {
-    try {
-      const subscription = await this.getUserSubscription(userId);
-      
-      if (!subscription) {
-        return { success: false, error: 'No subscription found' };
-      }
-
-      if (subscription.subscription_status === 'active') {
-        return { success: false, error: 'Subscription is already active' };
-      }
-
-      // Calculate new subscription dates
-      const startDate = new Date();
-      const endDate = new Date();
-      
-      if (billingCycle === 'annually') {
-        endDate.setFullYear(endDate.getFullYear() + 1);
-      } else {
-        endDate.setMonth(endDate.getMonth() + 1);
-      }
-
-      // Reactivate subscription
-      await PaystackService.updateUserSubscription(userId, {
-        plan_type: 'pro',
-        subscription_status: 'active',
-        subscription_started_at: startDate.toISOString(),
-        subscription_expires_at: endDate.toISOString(),
-      });
-
-      // Sync plan type
-      await this.syncUserPlanType(userId);
-
-      console.log(`Reactivated subscription for user ${userId}`);
-      return { success: true };
-    } catch (error) {
-      console.error('Error reactivating subscription:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to reactivate subscription' 
-      };
-    }
-  }
-
-  /**
-   * Batch sync all users' plan types (for maintenance/cleanup)
-   */
-  static async batchSyncAllUsers(): Promise<{ processed: number; updated: number; errors: number }> {
-    let processed = 0;
-    let updated = 0;
-    let errors = 0;
-
-    try {
-      // Get all users with subscription data
-      const { data: users, error } = await supabase
-        .from('profiles')
-        .select('id, plan_type, subscription_status, subscription_expires_at')
-        .not('subscription_status', 'is', null);
-
-      if (error) throw error;
-
-      for (const user of users || []) {
-        try {
-          processed++;
-          const result = await this.syncUserPlanType(user.id);
-          if (result.updated) {
-            updated++;
-          }
-        } catch (error) {
-          console.error(`Error syncing user ${user.id}:`, error);
-          errors++;
-        }
-      }
-
-      console.log(`Batch sync completed: ${processed} processed, ${updated} updated, ${errors} errors`);
-      return { processed, updated, errors };
-    } catch (error) {
-      console.error('Error in batch sync:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Check and expire subscriptions that have passed their expiry date
-   */
-  static async expireOverdueSubscriptions(): Promise<{ expired: number; errors: number }> {
-    let expired = 0;
-    let errors = 0;
-
-    try {
-      const now = new Date().toISOString();
-      
-      // Find subscriptions that should be expired
-      const { data: overdueSubscriptions, error } = await supabase
-        .from('profiles')
-        .select('id, email, subscription_expires_at, plan_type')
-        .eq('plan_type', 'pro')
-        .lt('subscription_expires_at', now)
-        .not('subscription_expires_at', 'is', null);
-
-      if (error) throw error;
-
-      for (const user of overdueSubscriptions || []) {
-        try {
-          await PaystackService.updateUserSubscription(user.id, {
-            plan_type: 'free',
-            subscription_status: 'expired',
-            subscription_started_at: undefined,
-            subscription_expires_at: undefined,
-          });
-          
-          console.log(`Expired subscription for user ${user.id} (${user.email})`);
-          expired++;
-        } catch (error) {
-          console.error(`Error expiring subscription for user ${user.id}:`, error);
-          errors++;
-        }
-      }
-
-      console.log(`Expired ${expired} overdue subscriptions with ${errors} errors`);
-      return { expired, errors };
-    } catch (error) {
-      console.error('Error expiring overdue subscriptions:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Validate and fix subscription data inconsistencies
-   */
-  static async validateAndFixSubscriptionData(userId: string): Promise<{
-    isValid: boolean;
-    issues: string[];
-    fixed: boolean;
-  }> {
-    const issues: string[] = [];
-    let fixed = false;
-
-    try {
-      const subscription = await this.getUserSubscription(userId);
-      if (!subscription) {
-        return { isValid: true, issues: [], fixed: false };
-      }
-
-      // Check for inconsistencies
-      const isActive = this.isSubscriptionActive(
-        subscription.subscription_status,
-        subscription.subscription_expires_at
-      );
-
-      // Issue 1: Plan type doesn't match subscription status
-      if (isActive && subscription.plan_type !== 'pro') {
-        issues.push('User has active subscription but plan_type is not pro');
-        await this.updatePlanType(userId, 'pro');
-        fixed = true;
-      } else if (!isActive && subscription.plan_type === 'pro') {
-        issues.push('User has inactive subscription but plan_type is still pro');
-        await this.updatePlanType(userId, 'free');
-        fixed = true;
-      }
-
-      // Issue 2: Expired subscription with active status
-      if (subscription.subscription_expires_at) {
-        const expiryDate = new Date(subscription.subscription_expires_at);
-        const now = new Date();
-        
-        if (expiryDate < now && subscription.subscription_status === 'active') {
-          issues.push('Subscription is marked as active but has expired');
-          await PaystackService.updateUserSubscription(userId, {
-            plan_type: 'free',
-            subscription_status: 'expired',
-            subscription_started_at: subscription.subscription_started_at,
-            subscription_expires_at: subscription.subscription_expires_at,
-          });
-          fixed = true;
-        }
-      }
-
-      // Issue 3: Missing subscription dates for active subscriptions
-      if (subscription.subscription_status === 'active' && !subscription.subscription_expires_at) {
-        issues.push('Active subscription missing expiry date');
-        // This would need manual intervention or webhook replay
-      }
-
-      return {
-        isValid: issues.length === 0,
-        issues,
-        fixed
-      };
-    } catch (error) {
-      console.error('Error validating subscription data:', error);
-      throw error;
     }
   }
 } 
