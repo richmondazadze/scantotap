@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfile } from '../contexts/ProfileContext';
 import { LightLogin } from '../components/ui/sign-in';
@@ -10,26 +10,69 @@ export default function AuthPage() {
   const { profile, loading: profileLoading } = useProfile();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   // Get the intended destination from location state, default to dashboard
   const from = location.state?.from?.pathname || '/dashboard/profile';
+  
+  // Get plan and billing parameters from URL
+  const intendedPlan = searchParams.get('plan');
+  const billingCycle = searchParams.get('billing');
 
   useEffect(() => {
     if (!loading && !profileLoading && session) {
       if (profile) {
         if (!profile.onboarding_complete) {
           // User has a profile but hasn't completed onboarding
-          navigate('/onboarding', { replace: true });
+          // Pass the intended plan through to onboarding if it exists
+          if (intendedPlan === 'pro') {
+            navigate('/onboarding', { 
+              replace: true, 
+              state: { 
+                from: location.state?.from,
+                intendedPlan: 'pro',
+                billingCycle: billingCycle || 'monthly'
+              }
+            });
+          } else {
+            navigate('/onboarding', { replace: true });
+          }
         } else {
-          // User has completed onboarding, redirect to intended destination
-          navigate(from, { replace: true });
+          // User has completed onboarding
+          if (intendedPlan === 'pro') {
+            // Redirect to pricing/upgrade flow with preserved billing cycle and auto-trigger
+            navigate('/pricing', { 
+              replace: true,
+              state: { 
+                message: 'Welcome back! Completing your Pro subscription setup...',
+                highlightPro: true,
+                autoTriggerUpgrade: true,
+                billingCycle: billingCycle || 'monthly'
+              }
+            });
+          } else {
+            // Normal redirect to intended destination
+            navigate(from, { replace: true });
+          }
         }
       } else {
         // No profile exists, redirect to onboarding to create one
-        navigate('/onboarding', { replace: true });
+        // Pass the intended plan through to onboarding if it exists
+        if (intendedPlan === 'pro') {
+          navigate('/onboarding', { 
+            replace: true,
+            state: { 
+              from: location.state?.from,
+              intendedPlan: 'pro',
+              billingCycle: billingCycle || 'monthly'
+            }
+          });
+        } else {
+          navigate('/onboarding', { replace: true });
+        }
       }
     }
-  }, [session, profile, loading, profileLoading, navigate, from]);
+  }, [session, profile, loading, profileLoading, navigate, from, intendedPlan, billingCycle, location.state]);
 
   // Don't render auth page if user is already authenticated
   if (session && !loading && !profileLoading) {
@@ -98,6 +141,22 @@ export default function AuthPage() {
         className="w-full max-w-md mx-auto relative z-10"
       >
         <div className="glassmorphism-card p-6 sm:p-8 shadow-2xl backdrop-blur-xl border border-white/20 dark:border-white/10">
+          {/* Show Pro plan intent message */}
+          {intendedPlan === 'pro' && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 border border-scan-blue/20 rounded-xl"
+            >
+              <div className="flex items-center gap-2 text-scan-blue mb-2">
+                <span className="text-lg">👑</span>
+                <span className="font-semibold">Pro Plan Selected</span>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Sign in to continue with your Pro subscription setup.
+              </p>
+            </motion.div>
+          )}
           <LightLogin />
         </div>
       </motion.div>

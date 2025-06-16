@@ -992,14 +992,31 @@ export default function OnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
   const totalSteps = 5;
 
+  // Get intended plan from location state (passed from AuthPage)
+  const intendedPlan = location.state?.intendedPlan;
+  const billingCycle = location.state?.billingCycle || 'monthly';
+
   // Redirect if already onboarded
   useEffect(() => {
     if (profile?.onboarding_complete) {
-      // Navigate to original intended location or dashboard profile as fallback
-      const from = location.state?.from?.pathname || '/dashboard/profile';
-      navigate(from, { replace: true });
+      // If user intended to get Pro plan, redirect to payment flow
+      if (intendedPlan === 'pro') {
+        navigate('/pricing', { 
+          replace: true,
+          state: { 
+            message: 'Complete your Pro subscription to unlock premium features.',
+            highlightPro: true,
+            autoTriggerUpgrade: true,
+            billingCycle: billingCycle
+          }
+        });
+      } else {
+        // Navigate to original intended location or dashboard profile as fallback
+        const from = location.state?.from?.pathname || '/dashboard/profile';
+        navigate(from, { replace: true });
+      }
     }
-  }, [profile, navigate, location]);
+  }, [profile, navigate, location, intendedPlan, billingCycle]);
 
   const handleNext = async () => {
     if (currentStep < totalSteps) {
@@ -1018,9 +1035,22 @@ export default function OnboardingPage() {
   };
 
   const handleSkip = () => {
-    // Navigate to original intended location or dashboard profile as fallback
-    const from = location.state?.from?.pathname || '/dashboard/profile';
-    navigate(from, { replace: true });
+    // If user intended to get Pro plan, redirect to payment flow
+    if (intendedPlan === 'pro') {
+      navigate('/pricing', { 
+        replace: true,
+        state: { 
+          message: 'Complete your Pro subscription to unlock premium features.',
+          highlightPro: true,
+          autoTriggerUpgrade: true,
+          billingCycle: billingCycle
+        }
+      });
+    } else {
+      // Navigate to original intended location or dashboard profile as fallback
+      const from = location.state?.from?.pathname || '/dashboard/profile';
+      navigate(from, { replace: true });
+    }
   };
 
   // Complete onboarding
@@ -1097,6 +1127,7 @@ export default function OnboardingPage() {
       });
       
       // Update profile with all data including links
+      // IMPORTANT: Always create profile with 'free' plan - Pro access only after payment
       const { error: profileError } = await supabase
         .from("profiles")
         .update({ 
@@ -1106,7 +1137,8 @@ export default function OnboardingPage() {
           bio: profileData.bio?.trim() || null,
           avatar_url: avatarUrl,
           links: allLinks, // Save links directly in the profiles table
-          onboarding_complete: true 
+          onboarding_complete: true,
+          plan_type: 'free' // Always start with free plan - Pro requires payment
         })
         .eq("id", profile?.id);
       
@@ -1123,9 +1155,23 @@ export default function OnboardingPage() {
       // Refresh profile data
       await refreshProfile();
       
-      // Navigate to original intended location or dashboard profile as fallback
-      const from = location.state?.from?.pathname || '/dashboard/profile';
-      navigate(from, { replace: true });
+      // Handle post-onboarding navigation based on intended plan
+      if (intendedPlan === 'pro') {
+        // User intended to get Pro plan - redirect to payment flow
+        navigate('/pricing', { 
+          replace: true,
+          state: { 
+            message: 'Welcome! Complete your Pro subscription to unlock unlimited features.',
+            highlightPro: true,
+            autoTriggerUpgrade: true,
+            billingCycle: billingCycle
+          }
+        });
+      } else {
+        // Normal flow - navigate to original intended location or dashboard profile as fallback
+        const from = location.state?.from?.pathname || '/dashboard/profile';
+        navigate(from, { replace: true });
+      }
       
     } catch (error) {
       console.error('Error completing onboarding:', error);

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { Link, useSearchParams, useLocation } from "react-router-dom";
 import { Check, X, Star, Zap, Shield, Crown, Sparkles, ArrowRight, Users, Infinity } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -39,13 +39,29 @@ const PricingPage = () => {
   const { session } = useAuth();
   const { profile } = useProfile();
   const [upgrading, setUpgrading] = useState(false);
+  const location = useLocation();
 
   // Check if user came from an upgrade prompt
   const source = searchParams.get('source');
   const feature = searchParams.get('feature');
+  
+  // Get state passed from onboarding/auth flow
+  const welcomeMessage = location.state?.message;
+  const highlightPro = location.state?.highlightPro;
+  const autoTriggerUpgrade = location.state?.autoTriggerUpgrade;
+  const preferredBilling = location.state?.billingCycle;
+
+  // Set billing cycle based on preference from auth flow
+  useEffect(() => {
+    if (preferredBilling === 'annually') {
+      setIsAnnual(true);
+    } else if (preferredBilling === 'monthly') {
+      setIsAnnual(false);
+    }
+  }, [preferredBilling]);
 
   // Handle subscription upgrade
-  const handleUpgrade = async (planType: 'monthly' | 'annually') => {
+  const handleUpgrade = useCallback(async (planType: 'monthly' | 'annually') => {
     if (!session?.user || !profile) {
       // Redirect to auth with plan parameter
       window.location.href = `/auth?plan=pro&billing=${planType}`;
@@ -70,7 +86,18 @@ const PricingPage = () => {
     } finally {
       setUpgrading(false);
     }
-  };
+  }, [session, profile]);
+
+  // Auto-trigger upgrade if requested
+  useEffect(() => {
+    if (autoTriggerUpgrade && session?.user && profile?.onboarding_complete) {
+      // Small delay to let the page render first
+      const timer = setTimeout(() => {
+        handleUpgrade(isAnnual ? 'annually' : 'monthly');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [autoTriggerUpgrade, session, profile, isAnnual, handleUpgrade]);
 
   const pricingPlans: PricingPlan[] = [
     {
@@ -161,6 +188,36 @@ const PricingPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <Navigation />
+
+      {/* Welcome Message */}
+      {welcomeMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="pt-24 px-4 sm:px-6 lg:px-8"
+        >
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 border border-scan-blue/20 rounded-2xl p-6 mb-8">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-scan-blue to-scan-purple rounded-full flex items-center justify-center">
+                  <Crown className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {autoTriggerUpgrade ? 'Setting up your Pro subscription...' : 'Ready to upgrade?'}
+                </h3>
+              </div>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">{welcomeMessage}</p>
+              {autoTriggerUpgrade && (
+                <div className="flex items-center gap-2 text-scan-blue">
+                  <div className="animate-spin h-4 w-4 border-2 border-scan-blue border-t-transparent rounded-full"></div>
+                  <span className="text-sm font-medium">Initializing payment...</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Hero Section */}
       <motion.section 
