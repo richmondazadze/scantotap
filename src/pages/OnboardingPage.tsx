@@ -1027,7 +1027,7 @@ function PlatformStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
             <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <p className="text-sm text-blue-700 dark:text-blue-300">
                 <strong>Free Plan:</strong> You selected {selectedPlatforms.length} platforms. 
-                Add your usernames or links for each platform below.
+                Add your usernames or links for each platform next.
                 {selectedPlatforms.length === 7 && (
                   <span className="block mt-1 text-blue-600 dark:text-blue-400">
                     You're using all 7 available platforms. Upgrade to Pro for unlimited platforms!
