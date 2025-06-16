@@ -24,14 +24,14 @@ export default async function handler(req, res) {
                        process.env.SUPABASE_URL || 
                        process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-    const supabaseAnonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY || 
-                           process.env.SUPABASE_ANON_KEY || 
-                           process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    // Use service role key for webhook operations to bypass RLS
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 
+                              process.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabaseUrl || !supabaseServiceKey) {
       console.error('Missing Supabase environment variables:', {
         url: !!supabaseUrl,
-        key: !!supabaseAnonKey,
+        serviceKey: !!supabaseServiceKey,
         env: Object.keys(process.env).filter(key => key.includes('SUPABASE'))
       });
       return res.status(500).json({ 
@@ -40,7 +40,8 @@ export default async function handler(req, res) {
       });
     }
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    // Create Supabase client with service role key to bypass RLS
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get webhook signature and secret for verification
     const signature = req.headers['x-paystack-signature'];
@@ -180,22 +181,64 @@ async function handleSubscriptionPayment(data, supabase) {
   
   console.log(`Processing SUBSCRIPTION payment for user: ${userId}, plan: ${planType}, billing: ${billingCycle}`);
 
-  // Update user subscription (simplified - no date tracking)
-  const { error } = await supabase
-    .from('profiles')
-    .update({
-      plan_type: 'pro',
-      subscription_status: 'active',
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', userId);
+  try {
+    // First check if user exists
+    const { data: existingUser, error: userError } = await supabase
+      .from('profiles')
+      .select('id, plan_type, subscription_status, email')
+      .eq('id', userId)
+      .single();
 
-  if (error) {
-    console.error('Failed to update user subscription:', error);
+    if (userError) {
+      console.error('Error finding user:', userError);
+      throw userError;
+    }
+
+    if (!existingUser) {
+      console.error('User not found with ID:', userId);
+      throw new Error('User not found');
+    }
+
+    console.log('User found:', {
+      id: existingUser.id,
+      currentPlan: existingUser.plan_type,
+      currentStatus: existingUser.subscription_status,
+      email: existingUser.email
+    });
+
+    // Update user subscription (simplified - no date tracking)
+    const { data: updateResult, error } = await supabase
+      .from('profiles')
+      .update({
+        plan_type: 'pro',
+        subscription_status: 'active',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select('id, plan_type, subscription_status'); // Return updated data
+
+    if (error) {
+      console.error('Failed to update user subscription:', error);
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      });
+      throw error;
+    }
+
+    if (!updateResult || updateResult.length === 0) {
+      console.error('No rows were updated. User ID might not exist:', userId);
+      throw new Error('Database update failed - no rows affected');
+    }
+
+    console.log('Database update successful:', updateResult[0]);
+    console.log(`Successfully activated Pro subscription for user: ${userId} - Plan changed from ${existingUser.plan_type} to ${updateResult[0].plan_type}`);
+  } catch (error) {
+    console.error('Error in handleSubscriptionPayment:', error);
     throw error;
   }
-
-  console.log(`Successfully activated Pro subscription for user: ${userId}`);
 }
 
 async function handleSubscriptionPaymentByEmail(data, supabase) {

@@ -68,24 +68,8 @@ const PricingPage = () => {
       return;
     }
 
-    setUpgrading(true);
-    try {
-      const result = await PaystackService.upgradeSubscription(
-        session.user.id,
-        session.user.email || profile.email || '',
-        profile.name || 'User',
-        planType
-      );
-
-      // Payment will be handled by Paystack popup
-      // Success will be handled by webhook or redirect
-      toast.success('Redirecting to payment...');
-    } catch (error) {
-      console.error('Upgrade error:', error);
-      toast.error('Failed to initiate upgrade. Please try again.');
-    } finally {
-      setUpgrading(false);
-    }
+    // User is signed in - redirect to dashboard settings for subscription management
+    window.location.href = `/dashboard/settings?tab=subscription&plan=${planType}`;
   }, [session, profile]);
 
   // Auto-trigger upgrade if requested

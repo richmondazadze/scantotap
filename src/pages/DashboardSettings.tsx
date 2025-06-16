@@ -1,52 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { usePlanFeatures } from '@/hooks/usePlanFeatures';
 import { SubscriptionService } from '@/services/subscriptionService';
 import { PaystackService } from '@/services/paystackService';
-import { SubscriptionStateManager } from '@/utils/subscriptionStateManager';
-import { ThemeSwitcher } from '@/components/ThemeSwitcher';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/lib/supabaseClient';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { useSearchParams } from 'react-router-dom';
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from '@/components/ui/alert-dialog';
-import {
-  Settings,
+import { 
+  Settings, 
+  Crown, 
+  Shield, 
+  Bell, 
+  Globe, 
+  Lock, 
+  CreditCard, 
+  AlertCircle, 
+  ExternalLink,
+  RefreshCw,
+  Trash2,
+  Link,
   User,
-  Bell,
   Palette,
   Eye,
   EyeOff,
   Save,
-  RefreshCw,
   Key,
   Menu,
   X,
-  Crown,
-  CreditCard,
   Calendar,
-  CheckCircle,
-  AlertCircle,
-  ExternalLink,
-  Link
+  CheckCircle
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { SubscriptionStateManager } from '@/utils/subscriptionStateManager';
+import { useSearchParams } from 'react-router-dom';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 interface UserSettings {
   notifications: {
@@ -65,14 +71,15 @@ export default function DashboardSettings() {
   const planFeatures = usePlanFeatures();
   const [searchParams] = useSearchParams();
   
-  // Get section from URL parameters
-  const urlSection = searchParams.get('section');
+  // Get URL parameters
+  const urlTab = searchParams.get('tab');
+  const urlPlan = searchParams.get('plan') as 'monthly' | 'annually' | null;
   
   // State management
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState(urlSection || 'account');
+  const [activeSection, setActiveSection] = useState(urlTab || 'account');
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [passwordChangeOpen, setPasswordChangeOpen] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -122,7 +129,7 @@ export default function DashboardSettings() {
     }
   };
 
-  const handleUpgrade = async (planType: 'monthly' | 'annually') => {
+  const handleUpgrade = useCallback(async (planType: 'monthly' | 'annually') => {
     if (!session?.user || !session.user.email) {
       toast.error('User information not available');
       return;
@@ -139,8 +146,9 @@ export default function DashboardSettings() {
       );
 
       if (result.success) {
-        toast.success('Redirecting to payment...');
-        // Payment will be handled by Paystack popup
+        // Don't show confusing toast message - Paystack will handle the payment flow
+        // After payment completion, webhook will update the database
+        console.log('Payment initiated successfully');
       } else {
         toast.error(result.error || 'Failed to initiate upgrade');
       }
@@ -150,7 +158,25 @@ export default function DashboardSettings() {
     } finally {
       setUpgrading(false);
     }
-  };
+  }, [session?.user]);
+
+  // Auto-trigger upgrade if coming from pricing page
+  useEffect(() => {
+    if (urlTab === 'subscription' && urlPlan && planFeatures.planType === 'free') {
+      // Small delay to let the page render first
+      const timer = setTimeout(() => {
+        handleUpgrade(urlPlan);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [urlTab, urlPlan, planFeatures.planType, handleUpgrade]);
+  
+  // Set active section based on URL
+  useEffect(() => {
+    if (urlTab) {
+      setActiveSection(urlTab);
+    }
+  }, [urlTab]);
 
   const handleCancelSubscription = async () => {
     if (!session?.user?.id) return;
@@ -207,6 +233,38 @@ export default function DashboardSettings() {
     loadUserSettings();
     loadSubscriptionDetails();
   }, [session?.user?.id]);
+
+  // Auto-refresh subscription details to detect payment completion
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    
+    // Only start auto-refresh if user just came from pricing page with upgrade intent
+    // This prevents continuous refreshing during normal settings usage
+    const shouldAutoRefresh = urlTab === 'subscription' && urlPlan && planFeatures.planType === 'free';
+    
+    if (!shouldAutoRefresh) return;
+    
+    // Set up interval to check for subscription updates after payment
+    const interval = setInterval(() => {
+      // Only refresh if user is currently on free plan (might have just upgraded)
+      if (planFeatures.planType === 'free') {
+        console.log('Checking for subscription updates...');
+        loadSubscriptionDetails();
+        // Also refresh profile to get latest plan_type
+        refreshProfile();
+      }
+    }, 3000); // Check every 3 seconds
+
+    // Clear interval after 2 minutes to avoid unnecessary requests
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+    }, 120000); // 2 minutes
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [session?.user?.id, planFeatures.planType, refreshProfile, urlTab, urlPlan]);
 
   // Check for changes
   useEffect(() => {
