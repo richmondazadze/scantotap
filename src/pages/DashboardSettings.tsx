@@ -78,6 +78,7 @@ export default function DashboardSettings() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [billingDialogOpen, setBillingDialogOpen] = useState(false);
   
   // Subscription state
   const [subscriptionDetails, setSubscriptionDetails] = useState<any>(null);
@@ -171,6 +172,33 @@ export default function DashboardSettings() {
       toast.error('Failed to cancel subscription. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleManageBilling = () => {
+    setBillingDialogOpen(true);
+  };
+
+  const handleUpdatePaymentMethod = async () => {
+    if (!session?.user || !session.user.email) {
+      toast.error('User information not available');
+      return;
+    }
+
+    try {
+      // Create a new payment session to update payment method
+      const result = await PaystackService.upgradeSubscription(
+        session.user.id,
+        session.user.email,
+        'User',
+        'monthly' // This will be used to determine the flow, but won't create a new subscription
+      );
+
+      toast.success('Redirecting to update payment method...');
+      setBillingDialogOpen(false);
+    } catch (error) {
+      console.error('Error updating payment method:', error);
+      toast.error('Failed to update payment method. Please try again.');
     }
   };
 
@@ -929,7 +957,7 @@ export default function DashboardSettings() {
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                                   Update your payment method and view billing history.
                                 </p>
-                                <Button variant="outline" size="sm">
+                                <Button variant="outline" size="sm" onClick={handleManageBilling}>
                                   <ExternalLink className="w-4 h-4 mr-2" />
                                   Manage Billing
                                 </Button>
@@ -1010,6 +1038,104 @@ export default function DashboardSettings() {
 
       {/* Mobile Bottom Spacing for main nav */}
       <div className="sm:hidden h-20" />
+
+      {/* Billing Management Dialog */}
+      <AlertDialog open={billingDialogOpen} onOpenChange={setBillingDialogOpen}>
+        <AlertDialogContent className="mx-4 w-[calc(100vw-2rem)] max-w-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5" />
+              Manage Billing
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Choose how you'd like to manage your subscription billing.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Current Subscription Info */}
+            {subscriptionDetails && (
+              <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <h4 className="font-medium mb-2">Current Subscription</h4>
+                <div className="text-sm space-y-1">
+                  <div className="flex justify-between">
+                    <span>Plan:</span>
+                    <span className="font-medium">Pro Plan</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Status:</span>
+                    <Badge variant={subscriptionDetails.isActive ? "default" : "secondary"}>
+                      {subscriptionDetails.status}
+                    </Badge>
+                  </div>
+                  {subscriptionDetails.expiresAt && (
+                    <div className="flex justify-between">
+                      <span>Next billing:</span>
+                      <span className="font-medium">
+                        {new Date(subscriptionDetails.expiresAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Billing Actions */}
+            <div className="space-y-3">
+              <div className="p-3 border rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h5 className="font-medium">Update Payment Method</h5>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Change your credit card or payment details
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleUpdatePaymentMethod}>
+                    Update
+                  </Button>
+                </div>
+              </div>
+
+              <div className="p-3 border rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h5 className="font-medium">Change Plan</h5>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Switch between monthly and annual billing
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => {
+                    setBillingDialogOpen(false);
+                    window.open('/pricing?source=billing&action=change', '_blank');
+                  }}>
+                    Change
+                  </Button>
+                </div>
+              </div>
+
+              <div className="p-3 border rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h5 className="font-medium">Billing History</h5>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      View your past payments and invoices
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => {
+                    toast.info('Billing history feature coming soon!');
+                  }}>
+                    View
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </div>
   );
