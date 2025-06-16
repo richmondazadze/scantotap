@@ -963,12 +963,27 @@ function PlanStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting 
 // Step 4: Platform Selection Component
 function PlatformStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting }: OnboardingStepProps) {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState<{planType: 'free' | 'pro'; billingCycle: string | null}>({ planType: 'free', billingCycle: null });
+
+  // Load saved plan data
+  useEffect(() => {
+    const savedPlan = sessionStorage.getItem('onboarding_plan');
+    if (savedPlan) {
+      setSelectedPlan(JSON.parse(savedPlan));
+    }
+  }, []);
 
   const togglePlatform = (platformId: string) => {
     setSelectedPlatforms(prev => {
       if (prev.includes(platformId)) {
+        // Always allow deselection
         return prev.filter(id => id !== platformId);
       } else {
+        // Check plan limits before adding
+        if (selectedPlan.planType === 'free' && prev.length >= 7) {
+          toast.error('Free plan is limited to 7 platforms. Upgrade to Pro for unlimited platforms!');
+          return prev;
+        }
         return [...prev, platformId];
       }
     });
@@ -1006,38 +1021,70 @@ function PlatformStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
           <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400">
             Select all that apply. You can always add more later.
           </p>
+          
+          {/* Plan-based limit notice */}
+          {selectedPlan.planType === 'free' && (
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                <strong>Free Plan:</strong> You selected {selectedPlatforms.length} platforms. 
+                Add your usernames or links for each platform below.
+                {selectedPlatforms.length === 7 && (
+                  <span className="block mt-1 text-blue-600 dark:text-blue-400">
+                    You're using all 7 available platforms. Upgrade to Pro for unlimited platforms!
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Platform Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-5xl mx-auto">
           {PLATFORMS.map((platform) => {
             const IconComponent = platform.icon;
+            const isSelected = selectedPlatforms.includes(platform.id);
+            const isDisabled = selectedPlan.planType === 'free' && !isSelected && selectedPlatforms.length >= 7;
+            
             return (
               <button
                 key={platform.id}
                 onClick={() => togglePlatform(platform.id)}
+                disabled={isDisabled}
                 className={`
                   group relative aspect-square flex flex-col items-center justify-center p-6 sm:p-8 lg:p-10 rounded-[2rem] border-2 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]
-                  ${selectedPlatforms.includes(platform.id)
+                  ${isSelected
                     ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 shadow-xl shadow-blue-500/20'
+                    : isDisabled
+                    ? 'border-gray-200/30 dark:border-gray-700/30 bg-gray-100/50 dark:bg-gray-800/30 opacity-50 cursor-not-allowed'
                     : 'border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-lg hover:bg-white dark:hover:bg-gray-800/70 backdrop-blur-sm'
                   }
                 `}
               >
                 {/* Selection indicator */}
-                {selectedPlatforms.includes(platform.id) && (
+                {isSelected && (
                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
                     <CheckCircle className="w-4 h-4 text-white" />
                   </div>
                 )}
                 
+                {/* Disabled indicator */}
+                {isDisabled && (
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center shadow-lg">
+                    <X className="w-4 h-4 text-white" />
+                  </div>
+                )}
+                
                 {/* Icon container */}
-                <div className={`w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl ${platform.bgColor} flex items-center justify-center text-white mb-4 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105`}>
+                <div className={`w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl ${platform.bgColor} flex items-center justify-center text-white mb-4 shadow-lg group-hover:shadow-xl transition-all duration-300 ${!isDisabled ? 'group-hover:scale-105' : ''} ${isDisabled ? 'opacity-60' : ''}`}>
                   <IconComponent className="w-9 h-9 sm:w-11 sm:h-11 lg:w-13 lg:h-13" />
                 </div>
                 
                 {/* Platform name */}
-                <span className="text-sm sm:text-base lg:text-lg font-bold text-center leading-tight text-gray-800 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                <span className={`text-sm sm:text-base lg:text-lg font-bold text-center leading-tight transition-colors ${
+                  isDisabled 
+                    ? 'text-gray-400 dark:text-gray-600' 
+                    : 'text-gray-800 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white'
+                }`}>
                   {platform.name}
                 </span>
               </button>
@@ -1051,9 +1098,36 @@ function PlatformStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
             <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
               {selectedPlatforms.length} platform{selectedPlatforms.length !== 1 ? 's' : ''} selected
+              {selectedPlan.planType === 'free' && ` (${selectedPlatforms.length}/7)`}
             </p>
           </div>
         </div>
+
+        {/* Upgrade prompt for free users at limit */}
+        {selectedPlan.planType === 'free' && selectedPlatforms.length >= 7 && (
+          <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+            <div className="flex items-start gap-3">
+              <Crown className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <h4 className="font-medium text-blue-900 dark:text-blue-200 mb-2">
+                  Platform Limit Reached
+                </h4>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                  You've reached the 7-platform limit for free accounts. Upgrade to Pro to add unlimited platforms!
+                </p>
+                <Button 
+                  size="sm"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs"
+                  onClick={() => {
+                    window.open('/pricing?source=onboarding', '_blank');
+                  }}
+                >
+                  Upgrade to Pro
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Continue Button */}
         <Button
@@ -1105,16 +1179,7 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
   };
 
   const handleContinue = () => {
-    // For free users, limit the number of links
-    if (selectedPlan.planType === 'free') {
-      const filledLinks = Object.values(socialLinks).filter(link => link.trim()).length;
-      if (filledLinks > 7) {
-        toast.error('Free plan is limited to 7 links. Please remove some links or upgrade to Pro.');
-        return;
-      }
-    }
-
-    // Store social links (already updated in real-time, but ensure consistency)
+    // Store social links (validation is now handled in platform selection step)
     sessionStorage.setItem('onboarding_social_links', JSON.stringify(socialLinks));
     onNext();
   };
@@ -1123,10 +1188,8 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
     return PLATFORMS.find(p => p.id === platformId);
   };
 
-  // Calculate current link count
+  // Calculate current link count for display purposes
   const currentLinkCount = Object.values(socialLinks).filter(link => link.trim()).length;
-  const maxLinks = selectedPlan.planType === 'pro' ? Infinity : 7;
-  const canAddMoreLinks = selectedPlan.planType === 'pro' || currentLinkCount < 7;
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4">
@@ -1159,11 +1222,11 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
           {selectedPlan.planType === 'free' && (
             <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                <strong>Free Plan:</strong> You can add up to 7 links. 
-                Currently using {currentLinkCount} of 7 links.
-                {!canAddMoreLinks && (
+                <strong>Free Plan:</strong> You selected {selectedPlatforms.length} platforms. 
+                Add your usernames or links for each platform below.
+                {selectedPlatforms.length === 7 && (
                   <span className="block mt-1 text-blue-600 dark:text-blue-400">
-                    Upgrade to Pro for unlimited links!
+                    You're using all 7 available platforms. Upgrade to Pro for unlimited platforms!
                   </span>
                 )}
               </p>
@@ -1195,19 +1258,7 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
                     <Input
                       placeholder={platform.placeholder}
                       value={socialLinks[platformId] || ''}
-                      onChange={(e) => {
-                        const newValue = e.target.value;
-                        
-                        // For free users, check link limit before allowing new entries
-                        if (selectedPlan.planType === 'free' && !hasValue && newValue.trim()) {
-                          if (currentLinkCount >= 7) {
-                            toast.error('Free plan is limited to 7 links. Upgrade to Pro for unlimited links!');
-                            return;
-                          }
-                        }
-                        
-                        handleLinkChange(platformId, newValue);
-                      }}
+                      onChange={(e) => handleLinkChange(platformId, e.target.value)}
                       className="flex-1 h-12 text-base border-0 bg-transparent focus:ring-0 focus:border-0 px-0"
                     />
                   </div>
@@ -1217,31 +1268,7 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
           </div>
         )}
 
-        {/* Upgrade prompt for free users reaching limit */}
-        {selectedPlan.planType === 'free' && currentLinkCount >= 7 && (
-          <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-            <div className="flex items-start gap-3">
-              <Crown className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <h4 className="font-medium text-blue-900 dark:text-blue-200 mb-2">
-                  Link Limit Reached
-                </h4>
-                <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                  You've reached the 7-link limit for free accounts. Upgrade to Pro to add unlimited links!
-                </p>
-                <Button 
-                  size="sm"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs"
-                  onClick={() => {
-                    window.open('/pricing?source=onboarding', '_blank');
-                  }}
-                >
-                  Upgrade to Pro
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* Continue Button */}
         <Button
