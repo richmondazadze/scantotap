@@ -701,8 +701,8 @@ export default function DashboardProfile() {
             </div>
           )}
 
-          {/* Layout Style Toggle */}
-          {socialLinks.length > 0 && (
+          {/* Layout Style Toggle - Show when user has social links or would benefit from layout options */}
+          {(socialLinks.length > 0 || profile?.onboarding_complete) && (
             <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
               <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Profile Display Style</h4>
               <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">Choose how your social media links appear on your profile page</p>

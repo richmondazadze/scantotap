@@ -1631,11 +1631,8 @@ export default function OnboardingPage() {
         
         if (platform && linkValue?.trim()) {
           allLinks.push({
-            type: 'social',
-            platform: platform.name,
-            username: linkValue,
-            url: platform.urlFormat(linkValue),
-            icon: platform.name.toLowerCase()
+            label: platform.name, // Use 'label' instead of 'platform' to match dashboard expectations
+            url: platform.urlFormat(linkValue)
           });
         }
       });
@@ -1644,11 +1641,8 @@ export default function OnboardingPage() {
       additionalUrlsData.forEach((item: { label: string; url: string }) => {
         if (item.label?.trim() && item.url?.trim()) {
           allLinks.push({
-            type: 'custom',
-            platform: 'Custom',
-            username: item.label,
-            url: item.url.startsWith('http') ? item.url : `https://${item.url}`,
-            icon: 'link'
+            label: item.label, // Keep as custom link
+            url: item.url.startsWith('http') ? item.url : `https://${item.url}`
           });
         }
       });
