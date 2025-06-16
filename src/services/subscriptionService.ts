@@ -116,7 +116,7 @@ export class SubscriptionService {
   }
 
   /**
-   * Upgrade user to Pro plan
+   * Upgrade user to Pro plan (handles new subscriptions and re-subscriptions)
    */
   static async upgradeUser(
     userId: string,
@@ -125,10 +125,23 @@ export class SubscriptionService {
     billingCycle: 'monthly' | 'annually'
   ): Promise<{ success: boolean; error?: string; paymentUrl?: string }> {
     try {
+      const subscription = await this.getUserSubscription(userId);
+      
       // Check if user already has active subscription
       const hasActive = await this.hasActiveSubscription(userId);
       if (hasActive) {
         return { success: false, error: 'User already has active subscription' };
+      }
+
+      // Log the upgrade attempt for debugging
+      console.log('Upgrade attempt for user:', userId);
+      console.log('Current subscription:', subscription);
+      console.log('Has active subscription:', hasActive);
+
+      // Clear any previous subscription data to ensure clean re-subscription
+      if (subscription && (subscription.subscription_status === 'cancelled' || subscription.subscription_status === 'expired')) {
+        console.log('Clearing previous subscription data for clean re-subscription');
+        await this.clearSubscriptionData(userId);
       }
 
       // Initialize Paystack payment
@@ -155,27 +168,87 @@ export class SubscriptionService {
   static async cancelSubscription(userId: string): Promise<{ success: boolean; error?: string }> {
     try {
       const subscription = await this.getUserSubscription(userId);
-      if (!subscription?.paystack_subscription_code) {
-        return { success: false, error: 'No active subscription found' };
+      
+      console.log('Cancellation attempt for user:', userId);
+      console.log('Subscription data:', subscription);
+      
+      if (!subscription) {
+        return { success: false, error: 'No subscription found for this user' };
       }
 
-      // Cancel on Paystack
-      await PaystackService.cancelSubscription(subscription.paystack_subscription_code);
+      // Check if user has an active subscription
+      const isActive = this.isSubscriptionActive(
+        subscription.subscription_status,
+        subscription.subscription_expires_at
+      );
 
-      // Update local database - mark as cancelled but keep active until expiry
-      await PaystackService.updateUserSubscription(userId, {
-        plan_type: subscription.plan_type || 'free',
-        subscription_status: 'cancelled',
-        subscription_started_at: subscription.subscription_started_at,
-        subscription_expires_at: subscription.subscription_expires_at,
-      });
+      if (!isActive) {
+        return { success: false, error: 'No active subscription to cancel' };
+      }
 
+      // If we have a Paystack subscription code, try to cancel it on Paystack
+      if (subscription.paystack_subscription_code) {
+        try {
+          await PaystackService.cancelSubscription(subscription.paystack_subscription_code);
+          console.log('Successfully cancelled subscription on Paystack');
+        } catch (paystackError) {
+          console.error('Failed to cancel on Paystack, but continuing with local cancellation:', paystackError);
+          // Continue with local cancellation even if Paystack fails
+        }
+      } else {
+        console.log('No Paystack subscription code found, performing local cancellation only');
+      }
+
+      // Determine cancellation strategy based on subscription data
+      let cancellationData;
+      
+      if (subscription.subscription_expires_at) {
+        const expiryDate = new Date(subscription.subscription_expires_at);
+        const now = new Date();
+        
+        if (expiryDate > now) {
+          // Subscription has time remaining - mark as cancelled but keep pro until expiry
+          cancellationData = {
+            plan_type: 'pro' as PlanType, // Keep pro until expiry
+            subscription_status: 'cancelled' as SubscriptionStatus,
+            subscription_started_at: subscription.subscription_started_at,
+            subscription_expires_at: subscription.subscription_expires_at,
+          };
+          console.log(`Subscription will remain active until ${expiryDate.toISOString()}`);
+        } else {
+          // Subscription already expired - downgrade immediately
+          cancellationData = {
+            plan_type: 'free' as PlanType,
+            subscription_status: 'cancelled' as SubscriptionStatus,
+            subscription_started_at: undefined,
+            subscription_expires_at: undefined,
+          };
+          console.log('Subscription expired, downgrading immediately');
+        }
+      } else {
+        // No expiry date - immediate downgrade (likely a data issue)
+        cancellationData = {
+          plan_type: 'free' as PlanType,
+          subscription_status: 'cancelled' as SubscriptionStatus,
+          subscription_started_at: undefined,
+          subscription_expires_at: undefined,
+        };
+        console.log('No expiry date found, performing immediate downgrade');
+      }
+
+      // Update local database
+      await PaystackService.updateUserSubscription(userId, cancellationData);
+
+      // Sync plan type to ensure consistency
+      await this.syncUserPlanType(userId);
+
+      console.log('Successfully cancelled subscription locally');
       return { success: true };
     } catch (error) {
       console.error('Error cancelling subscription:', error);
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+        error: error instanceof Error ? error.message : 'Unknown error occurred while cancelling subscription' 
       };
     }
   }
@@ -220,14 +293,20 @@ export class SubscriptionService {
       ? Math.ceil((expiresAt.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
       : null;
 
+    // Determine if user can upgrade (re-subscribe)
+    const canUpgrade = !isActive || (subscription.subscription_status === 'cancelled' && (!expiresAt || expiresAt <= new Date()));
+    
+    // Determine if user can cancel (only active subscriptions that aren't already cancelled)
+    const canCancel = isActive && subscription.subscription_status === 'active';
+
     return {
       plan,
       status: subscription.subscription_status || null,
       isActive,
       expiresAt,
       daysRemaining,
-      canUpgrade: !isActive,
-      canCancel: isActive && subscription.subscription_status === 'active',
+      canUpgrade,
+      canCancel,
     };
   }
 
@@ -441,6 +520,81 @@ export class SubscriptionService {
     if (error) {
       console.error('Error updating plan type:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Clear subscription data for clean re-subscription
+   */
+  private static async clearSubscriptionData(userId: string): Promise<void> {
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        plan_type: 'free',
+        subscription_status: null,
+        subscription_started_at: null,
+        subscription_expires_at: null,
+        paystack_customer_code: null,
+        paystack_subscription_code: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId);
+
+    if (error) {
+      console.error('Error clearing subscription data:', error);
+      throw error;
+    }
+    
+    console.log(`Cleared subscription data for user ${userId}`);
+  }
+
+  /**
+   * Reactivate a cancelled subscription (for re-subscription scenarios)
+   */
+  static async reactivateSubscription(
+    userId: string,
+    billingCycle: 'monthly' | 'annually'
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const subscription = await this.getUserSubscription(userId);
+      
+      if (!subscription) {
+        return { success: false, error: 'No subscription found' };
+      }
+
+      if (subscription.subscription_status === 'active') {
+        return { success: false, error: 'Subscription is already active' };
+      }
+
+      // Calculate new subscription dates
+      const startDate = new Date();
+      const endDate = new Date();
+      
+      if (billingCycle === 'annually') {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      } else {
+        endDate.setMonth(endDate.getMonth() + 1);
+      }
+
+      // Reactivate subscription
+      await PaystackService.updateUserSubscription(userId, {
+        plan_type: 'pro',
+        subscription_status: 'active',
+        subscription_started_at: startDate.toISOString(),
+        subscription_expires_at: endDate.toISOString(),
+      });
+
+      // Sync plan type
+      await this.syncUserPlanType(userId);
+
+      console.log(`Reactivated subscription for user ${userId}`);
+      return { success: true };
+    } catch (error) {
+      console.error('Error reactivating subscription:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to reactivate subscription' 
+      };
     }
   }
 

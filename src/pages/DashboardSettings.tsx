@@ -5,6 +5,7 @@ import { useProfile } from '@/contexts/ProfileContext';
 import { usePlanFeatures } from '@/hooks/usePlanFeatures';
 import { SubscriptionService } from '@/services/subscriptionService';
 import { PaystackService } from '@/services/paystackService';
+import { SubscriptionStateManager } from '@/utils/subscriptionStateManager';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -128,15 +129,20 @@ export default function DashboardSettings() {
 
     setUpgrading(true);
     try {
-      const result = await PaystackService.upgradeSubscription(
+      // Use the new state manager for better handling of re-subscriptions
+      const result = await SubscriptionStateManager.handleSubscription(
         session.user.id,
         session.user.email,
         'User', // You might want to get the actual name from profile
         planType
       );
 
-      toast.success('Redirecting to payment...');
-      // Payment will be handled by Paystack popup
+      if (result.success) {
+        toast.success('Redirecting to payment...');
+        // Payment will be handled by Paystack popup
+      } else {
+        toast.error(result.error || 'Failed to initiate upgrade');
+      }
     } catch (error) {
       console.error('Upgrade error:', error);
       toast.error('Failed to initiate upgrade. Please try again.');
@@ -150,7 +156,8 @@ export default function DashboardSettings() {
 
     setLoading(true);
     try {
-      const result = await SubscriptionService.cancelSubscription(session.user.id);
+      // Use the new state manager for better cancellation handling
+      const result = await SubscriptionStateManager.cancelSubscription(session.user.id);
       
       if (result.success) {
         toast.success('Subscription cancelled successfully');

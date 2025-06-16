@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { SubscriptionService } from '@/services/subscriptionService';
 import { SubscriptionMaintenanceService } from '@/services/subscriptionMaintenanceService';
+import { SubscriptionDebug } from '@/utils/subscriptionDebug';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { RefreshCw, CheckCircle, AlertCircle, Settings, User } from 'lucide-react';
+import { RefreshCw, CheckCircle, AlertCircle, Settings, User, Bug } from 'lucide-react';
 
 /**
  * Admin component for subscription management and testing
@@ -62,6 +63,21 @@ export const SubscriptionAdmin: React.FC = () => {
     try {
       const result = await SubscriptionService.expireOverdueSubscriptions();
       setResults({ type: 'expire', data: result });
+    } catch (error) {
+      setResults({ type: 'error', data: error });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDebugUser = async () => {
+    if (!userId.trim()) return;
+    
+    setLoading(true);
+    try {
+      const result = await SubscriptionDebug.debugUserSubscription(userId.trim());
+      const issues = await SubscriptionDebug.getSubscriptionIssues(userId.trim());
+      setResults({ type: 'debug', data: { ...result, issues } });
     } catch (error) {
       setResults({ type: 'error', data: error });
     } finally {
@@ -176,6 +192,47 @@ export const SubscriptionAdmin: React.FC = () => {
           </Card>
         );
 
+      case 'debug':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bug className="w-5 h-5 text-purple-500" />
+                Debug Results
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h4 className="font-medium mb-2">Subscription Status</h4>
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant={data.canCancel ? "default" : "secondary"}>
+                    {data.canCancel ? "Can Cancel" : "Cannot Cancel"}
+                  </Badge>
+                  <span className="text-sm">Plan: {data.details?.plan || 'Unknown'}</span>
+                </div>
+              </div>
+              
+              {data.issues && data.issues.length > 0 && (
+                <div>
+                  <h4 className="font-medium mb-2 text-yellow-600">Issues Found:</h4>
+                  <ul className="list-disc list-inside space-y-1">
+                    {data.issues.map((issue: string, index: number) => (
+                      <li key={index} className="text-sm text-yellow-700">{issue}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              <div>
+                <h4 className="font-medium mb-2">Raw Data</h4>
+                <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto max-h-40">
+                  {JSON.stringify(data.rawData, null, 2)}
+                </pre>
+              </div>
+            </CardContent>
+          </Card>
+        );
+
       case 'error':
         return (
           <Card>
@@ -271,6 +328,16 @@ export const SubscriptionAdmin: React.FC = () => {
                 Validate User
               </Button>
             </div>
+            <Button 
+              onClick={handleDebugUser} 
+              disabled={loading || !userId.trim()}
+              variant="secondary"
+              className="w-full"
+              size="sm"
+            >
+              <Bug className="w-4 h-4 mr-2" />
+              Debug User Subscription
+            </Button>
           </CardContent>
         </Card>
       </div>
