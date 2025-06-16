@@ -486,24 +486,22 @@ export class SubscriptionService {
         return { updated: false, newPlan: 'free' };
       }
 
-      // Only sync if there's actual subscription data (not just default values)
-      const hasSubscriptionData = subscription.subscription_status || 
-                                  subscription.subscription_started_at || 
-                                  subscription.subscription_expires_at ||
-                                  subscription.paystack_customer_code ||
-                                  subscription.paystack_subscription_code;
+      // Only sync if there's an ACTIVE subscription status (not just any subscription metadata)
+      // This prevents users who selected "free" in onboarding from being incorrectly upgraded
+      const hasActiveSubscriptionStatus = subscription.subscription_status === 'active' || 
+                                         (subscription.subscription_status === 'cancelled' && subscription.subscription_expires_at);
 
-      if (!hasSubscriptionData) {
-        // User has no real subscription data, ensure they're on free plan
+      if (!hasActiveSubscriptionStatus) {
+        // User has no active subscription status, ensure they're on free plan
         if (subscription.plan_type !== 'free') {
           await this.updatePlanType(userId, 'free');
-          console.log(`Synced plan_type for user ${userId}: ${subscription.plan_type} → free (no subscription data)`);
+          console.log(`Synced plan_type for user ${userId}: ${subscription.plan_type} → free (no active subscription)`);
           return { updated: true, newPlan: 'free' };
         }
         return { updated: false, newPlan: 'free' };
       }
 
-      // User has subscription data, determine correct plan based on status
+      // User has active subscription status, determine correct plan based on actual subscription activity
       const isActive = this.isSubscriptionActive(
         subscription.subscription_status,
         subscription.subscription_expires_at
