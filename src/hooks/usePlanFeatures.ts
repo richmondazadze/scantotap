@@ -34,7 +34,7 @@ export const usePlanFeatures = (): PlanFeatures => {
 
   return {
     // Link limits
-    maxLinks: isProUser ? Infinity : 10,
+    maxLinks: isProUser ? Infinity : 7,
     canAddUnlimitedLinks: isProUser,
     
     // Card design access
@@ -59,13 +59,13 @@ export const usePlanFeatures = (): PlanFeatures => {
 // Helper function to check if user can add more links
 export const canAddMoreLinks = (currentLinkCount: number, planType: PlanType = 'free'): boolean => {
   if (planType === 'pro') return true;
-  return currentLinkCount < 10;
+  return currentLinkCount < 7;
 };
 
 // Helper function to get upgrade message for specific features
 export const getUpgradeMessage = (feature: string): string => {
   const messages: Record<string, string> = {
-    links: 'Upgrade to Pro to add unlimited links to your profile (free users limited to 10 links)',
+    links: 'Upgrade to Pro to add unlimited links to your profile (free users limited to 7 links)',
     premium_cards: 'Upgrade to Pro to access Premium and Metal card designs',
     analytics: 'Upgrade to Pro to access detailed profile analytics',
     themes: 'Upgrade to Pro to customize your profile with premium themes',

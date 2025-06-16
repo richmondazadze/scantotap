@@ -332,7 +332,7 @@ export class SubscriptionService {
           .single();
         
         const links = data?.links as any[] || [];
-        return links.length < 10; // Free plan limit
+        return links.length < 7; // Free plan limit
       
       case 'premium_cards':
       case 'analytics':
@@ -350,13 +350,13 @@ export class SubscriptionService {
   static getPlanFeatures(plan: PlanType) {
     const features = {
       free: {
-        maxLinks: 10,
+        maxLinks: 7,
         premiumCards: false,
         analytics: false,
         customDomain: false,
         prioritySupport: false,
         features: [
-          'Up to 10 social links',
+          'Up to 7 social links',
           'Basic card designs',
           'Standard support'
         ]
@@ -478,12 +478,32 @@ export class SubscriptionService {
   static async syncUserPlanType(userId: string): Promise<{ updated: boolean; newPlan: PlanType }> {
     try {
       const subscription = await this.getUserSubscription(userId);
+      
+      // If no subscription data exists, only sync if plan_type is not already 'free'
       if (!subscription) {
-        // No subscription data, ensure user is on free plan
-        await this.updatePlanType(userId, 'free');
-        return { updated: true, newPlan: 'free' };
+        // For users with no subscription data, ensure they're on free plan
+        // But don't update if they're already free to avoid unnecessary DB writes
+        return { updated: false, newPlan: 'free' };
       }
 
+      // Only sync if there's actual subscription data (not just default values)
+      const hasSubscriptionData = subscription.subscription_status || 
+                                  subscription.subscription_started_at || 
+                                  subscription.subscription_expires_at ||
+                                  subscription.paystack_customer_code ||
+                                  subscription.paystack_subscription_code;
+
+      if (!hasSubscriptionData) {
+        // User has no real subscription data, ensure they're on free plan
+        if (subscription.plan_type !== 'free') {
+          await this.updatePlanType(userId, 'free');
+          console.log(`Synced plan_type for user ${userId}: ${subscription.plan_type} → free (no subscription data)`);
+          return { updated: true, newPlan: 'free' };
+        }
+        return { updated: false, newPlan: 'free' };
+      }
+
+      // User has subscription data, determine correct plan based on status
       const isActive = this.isSubscriptionActive(
         subscription.subscription_status,
         subscription.subscription_expires_at

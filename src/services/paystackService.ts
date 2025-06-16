@@ -202,10 +202,16 @@ export class PaystackService {
     const updateData: any = {
       plan_type: subscriptionData.plan_type,
       subscription_status: subscriptionData.subscription_status,
-      subscription_started_at: subscriptionData.subscription_started_at,
-      subscription_expires_at: subscriptionData.subscription_expires_at,
       updated_at: new Date().toISOString(),
     };
+
+    // Only update date fields if they are provided and not undefined
+    if (subscriptionData.subscription_started_at !== undefined) {
+      updateData.subscription_started_at = subscriptionData.subscription_started_at;
+    }
+    if (subscriptionData.subscription_expires_at !== undefined) {
+      updateData.subscription_expires_at = subscriptionData.subscription_expires_at;
+    }
 
     // Only update Paystack codes if they are provided
     if (subscriptionData.paystack_customer_code !== undefined) {

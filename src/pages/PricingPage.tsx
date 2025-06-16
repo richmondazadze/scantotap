@@ -110,13 +110,13 @@ const PricingPage = () => {
       features: [
         { name: "Create a digital profile", included: true, description: "Build your personalized digital business card" },
         { name: "Custom scan2tap link", included: true, description: "Get your own scan2tap.com/username URL" },
-        { name: "Add up to 10 social or custom links", included: true, description: "Instagram, LinkedIn, website, etc." },
+        { name: "Add up to 7 social or custom links", included: true, description: "Instagram, LinkedIn, website, etc." },
         { name: "Dynamic QR code & download", included: true, description: "Generate and download your QR code" },
         { name: "Basic profile layout", included: true, description: "Clean, professional design" },
         { name: "Show/hide contact info", included: true, description: "Control what information is visible" },
         { name: "Order Classic cards", included: true, description: "Physical business cards with basic design" },
         { name: "Manage profile from dashboard", included: true, description: "Easy-to-use profile management" },
-        { name: "Unlimited links", included: false, description: "Limited to 10 links total" },
+        { name: "Unlimited links", included: false, description: "Limited to 7 links total" },
         { name: "Premium & Metal card designs", included: false, description: "Access to advanced card designs" },
         { name: "Profile analytics", included: false, description: "Coming soon for Pro users" },
         { name: "Custom themes", included: false, description: "Coming soon for Pro users" },
@@ -578,7 +578,7 @@ const PricingPage = () => {
                   What's the difference between Free and Pro?
                 </AccordionTrigger>
                 <AccordionContent className="px-6 sm:px-8 pb-6 text-gray-600 dark:text-gray-300 leading-relaxed">
-                  Free gives you the essentials: a digital profile, 5 links, and basic features. Pro unlocks unlimited links, 
+                  Free gives you the essentials: a digital profile, 7 links, and basic features. Pro unlocks unlimited links, 
                   advanced analytics, custom themes, priority support, and upcoming features like custom domains. Perfect for professionals 
                   who want the full experience.
                 </AccordionContent>

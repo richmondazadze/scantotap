@@ -66,29 +66,38 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       };
       setProfile(profile);
 
-      // Sync plan type to ensure accuracy
-      try {
-        const syncResult = await SubscriptionService.syncUserPlanType(session.user.id);
-        if (syncResult.updated) {
-          // Refetch profile if plan type was updated
-          const { data: updatedData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          
-          if (updatedData) {
-            const updatedProfile: Profile = {
-              ...updatedData,
-              plan_type: (updatedData.plan_type as PlanType) || 'free',
-              subscription_status: updatedData.subscription_status as SubscriptionStatus | undefined,
-            };
-            setProfile(updatedProfile);
+      // Only sync plan type if user has subscription data
+      // This prevents new users from being incorrectly assigned Pro status
+      const hasSubscriptionData = data.subscription_status || 
+                                  data.subscription_started_at || 
+                                  data.subscription_expires_at ||
+                                  data.paystack_customer_code ||
+                                  data.paystack_subscription_code;
+
+      if (hasSubscriptionData) {
+        try {
+          const syncResult = await SubscriptionService.syncUserPlanType(session.user.id);
+          if (syncResult.updated) {
+            // Refetch profile if plan type was updated
+            const { data: updatedData } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+            
+            if (updatedData) {
+              const updatedProfile: Profile = {
+                ...updatedData,
+                plan_type: (updatedData.plan_type as PlanType) || 'free',
+                subscription_status: updatedData.subscription_status as SubscriptionStatus | undefined,
+              };
+              setProfile(updatedProfile);
+            }
           }
+        } catch (error) {
+          console.error('Error syncing plan type:', error);
+          // Don't fail the profile fetch if sync fails
         }
-      } catch (error) {
-        console.error('Error syncing plan type:', error);
-        // Don't fail the profile fetch if sync fails
       }
     }
     setLoading(false);

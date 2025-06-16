@@ -687,7 +687,7 @@ export default function DashboardProfile() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     {remainingLinks > 0 
                       ? `You can add ${remainingLinks === Infinity ? 'unlimited' : remainingLinks} more links` 
-                      : 'You\'ve reached your 10-link limit'
+                      : 'You\'ve reached your 7-link limit'
                     }
                   </p>
                 </div>
@@ -985,7 +985,7 @@ export default function DashboardProfile() {
         <UpgradePrompt
           variant="modal"
           title="Link Limit Reached"
-          description="You've reached the 10-link limit for free accounts. Upgrade to Pro for unlimited links and premium features."
+          description="You've reached the 7-link limit for free accounts. Upgrade to Pro for unlimited links and premium features."
           feature="links"
           onClose={() => setShowUpgradePrompt(false)}
           showCloseButton={true}

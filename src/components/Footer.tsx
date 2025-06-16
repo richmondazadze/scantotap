@@ -85,8 +85,8 @@ const Footer = () => {
                           <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg">
                             <Shield size={20} className="sm:w-6 sm:h-6 text-white" />
                           </div>
-                          Privacy Policy
-                        </DialogTitle>
+                        Privacy Policy
+                      </DialogTitle>
                         <p className="text-slate-600 dark:text-slate-300 mt-2 text-base sm:text-lg">
                           Your privacy and data protection are our top priorities
                         </p>
@@ -193,8 +193,8 @@ const Footer = () => {
                           <div className="p-1.5 sm:p-2 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-lg shadow-lg">
                             <FileText size={20} className="sm:w-6 sm:h-6 text-white" />
                           </div>
-                          Terms of Service
-                        </DialogTitle>
+                        Terms of Service
+                      </DialogTitle>
                         <p className="text-slate-600 dark:text-slate-300 mt-2 text-base sm:text-lg">
                           Please read these terms carefully before using our services
                         </p>

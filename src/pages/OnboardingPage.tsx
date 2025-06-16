@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import Scan2TapLogo from "@/components/Scan2TapLogo";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, AlertCircle, Loader2, User, ArrowRight, Globe, ArrowLeft, Upload, Wand2, ChevronRight, Link, Plus, Trash2 } from "lucide-react";
+import { CheckCircle, AlertCircle, Loader2, User, ArrowRight, Globe, ArrowLeft, Upload, Wand2, ChevronRight, Plus, Trash2, Users, Crown, Check, X, Star, Shield, Infinity } from "lucide-react";
 import { FaInstagram, FaTwitter, FaSnapchat, FaTiktok, FaWhatsapp, FaYoutube, FaFacebook, FaLinkedin, FaSpotify, FaPinterest, FaTwitch } from 'react-icons/fa6';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Loading from '@/components/ui/loading';
+import { PaystackService } from '@/services/paystackService';
+import { usePlanFeatures } from '@/hooks/usePlanFeatures';
 
 // Simple Threads icon component
 const ThreadsIcon = ({ className }: { className?: string }) => (
@@ -625,7 +627,340 @@ function ProfileStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitti
   );
 }
 
-// Step 3: Platform Selection Component
+// Step 3: Plan Selection Component
+function PlanStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting }: OnboardingStepProps) {
+  const { session } = useAuth();
+  const { profile } = useProfile();
+  const location = useLocation();
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro'>('free');
+  const [isAnnual, setIsAnnual] = useState(false);
+  const [processing, setProcessing] = useState(false);
+
+  // Get intended plan from location state (passed from pricing page)
+  const intendedPlan = location.state?.intendedPlan;
+  const billingCycle = location.state?.billingCycle || 'monthly';
+
+  // Set initial plan selection based on intended plan
+  useEffect(() => {
+    if (intendedPlan === 'pro') {
+      setSelectedPlan('pro');
+      setIsAnnual(billingCycle === 'annually');
+    }
+  }, [intendedPlan, billingCycle]);
+
+  const handlePlanSelect = (plan: 'free' | 'pro') => {
+    setSelectedPlan(plan);
+  };
+
+  const handleContinue = async () => {
+    if (selectedPlan === 'free') {
+      // Store plan selection and continue to next step
+      sessionStorage.setItem('onboarding_plan', JSON.stringify({
+        planType: 'free',
+        billingCycle: null
+      }));
+      onNext();
+    } else {
+      // Pro plan selected - handle payment
+      if (!session?.user || !session.user.email) {
+        toast.error('User information not available');
+        return;
+      }
+
+      setProcessing(true);
+      try {
+        const result = await PaystackService.upgradeSubscription(
+          session.user.id,
+          session.user.email,
+          profile?.name || 'User',
+          isAnnual ? 'annually' : 'monthly'
+        );
+
+        // Store plan selection
+        sessionStorage.setItem('onboarding_plan', JSON.stringify({
+          planType: 'pro',
+          billingCycle: isAnnual ? 'annually' : 'monthly',
+          paymentReference: result.access_code
+        }));
+
+        // Payment successful, continue to next step
+        toast.success('Payment successful! You now have Pro access.');
+        onNext();
+      } catch (error) {
+        console.error('Payment error:', error);
+        if (error instanceof Error && error.message === 'Payment cancelled by user') {
+          toast.error('Payment was cancelled. You can continue with the free plan or try again.');
+        } else {
+          toast.error('Payment failed. You can continue with the free plan and upgrade later.');
+        }
+        // Allow user to continue with free plan on payment failure
+        setSelectedPlan('free');
+      } finally {
+        setProcessing(false);
+      }
+    }
+  };
+
+  const planFeatures = {
+    free: [
+      { name: "Create a digital profile", included: true },
+      { name: "Custom scan2tap link", included: true },
+      { name: "Add up to 7 social or custom links", included: true },
+      { name: "Dynamic QR code & download", included: true },
+      { name: "Basic profile layout", included: true },
+      { name: "Order Classic cards", included: true },
+      { name: "Unlimited links", included: false },
+      { name: "Premium & Metal card designs", included: false },
+    ],
+    pro: [
+      { name: "Everything in Free Plan", included: true },
+      { name: "Unlimited links", included: true },
+      { name: "All profile layout options", included: true },
+      { name: "Premium & Metal card designs", included: true },
+      { name: "Coming soon: Profile analytics", included: true },
+      { name: "Coming soon: Custom themes", included: true },
+    ]
+  };
+
+  return (
+    <div className="w-full max-w-5xl mx-auto px-4">
+      {/* Progress Bar */}
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Choose Your Plan</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">{currentStep} of {totalSteps}</span>
+        </div>
+        <div className="w-full bg-gray-200/60 dark:bg-gray-700/60 rounded-full h-3 shadow-inner">
+          <div 
+            className="bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 h-3 rounded-full transition-all duration-500 ease-out shadow-sm relative overflow-hidden"
+            style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-full"></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-serif">
+            Choose Your Plan
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400">
+            Start free or unlock unlimited features with Pro
+          </p>
+        </div>
+
+        {/* Billing Toggle - Only show for Pro plan */}
+        {selectedPlan === 'pro' && (
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <span className={`text-sm font-medium transition-colors ${!isAnnual ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>
+              Monthly
+            </span>
+            <button
+              onClick={() => setIsAnnual(!isAnnual)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                isAnnual ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-600'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  isAnnual ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+            <span className={`text-sm font-medium transition-colors ${isAnnual ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>
+              Annual
+            </span>
+            {isAnnual && (
+              <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1 rounded-full text-xs font-bold">
+                Save 17%
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Plan Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
+          {/* Free Plan */}
+          <div
+            className={`relative rounded-3xl overflow-hidden transition-all duration-300 cursor-pointer ${
+              selectedPlan === 'free'
+                ? 'ring-2 ring-blue-500 shadow-2xl shadow-blue-500/20 scale-[1.02]'
+                : 'shadow-xl hover:shadow-2xl hover:scale-[1.01]'
+            }`}
+            onClick={() => handlePlanSelect('free')}
+          >
+            <div className="relative p-6 sm:p-8 h-full flex flex-col bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50">
+              {/* Selection indicator */}
+              {selectedPlan === 'free' && (
+                <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                  <CheckCircle className="w-4 h-4 text-white" />
+                </div>
+              )}
+
+              {/* Plan Header */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center shadow-lg">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Free Plan</h3>
+                  <p className="text-base text-gray-600 dark:text-gray-400">Perfect for personal use</p>
+                </div>
+              </div>
+
+              {/* Pricing */}
+              <div className="mb-6">
+                <div className="flex items-end gap-2 mb-2">
+                  <span className="text-5xl font-bold text-gray-900 dark:text-white">$0</span>
+                  <span className="text-lg text-gray-600 dark:text-gray-400 mb-2">/forever</span>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300">Get started with basic features</p>
+              </div>
+
+              {/* Features */}
+              <div className="flex-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-blue-500" />
+                  What's included
+                </h4>
+                <div className="space-y-3">
+                  {planFeatures.free.map((feature, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 ${
+                        feature.included 
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' 
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-400'
+                      }`}>
+                        {feature.included ? (
+                          <Check className="w-3 h-3" />
+                        ) : (
+                          <X className="w-3 h-3" />
+                        )}
+                      </div>
+                      <span className={`text-sm font-medium ${
+                        feature.included ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'
+                      }`}>
+                        {feature.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Pro Plan */}
+          <div
+            className={`relative rounded-3xl overflow-hidden transition-all duration-300 cursor-pointer ${
+              selectedPlan === 'pro'
+                ? 'ring-2 ring-blue-500 shadow-2xl shadow-blue-500/20 scale-[1.02]'
+                : 'shadow-xl hover:shadow-2xl hover:scale-[1.01]'
+            }`}
+            onClick={() => handlePlanSelect('pro')}
+          >
+            {/* Popular Badge */}
+            <div className="absolute top-4 right-4 z-10">
+              <div className="bg-gradient-to-r from-orange-400 to-pink-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-white/20 flex items-center gap-1">
+                <Star className="w-3 h-3 fill-current" />
+                Most Popular
+              </div>
+            </div>
+
+            <div className="relative p-6 sm:p-8 h-full flex flex-col bg-gradient-to-br from-white via-white to-blue-50/50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-700/50 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50">
+              {/* Selection indicator */}
+              {selectedPlan === 'pro' && (
+                <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                  <CheckCircle className="w-4 h-4 text-white" />
+                </div>
+              )}
+
+              {/* Plan Header */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                  <Crown className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Pro Plan</h3>
+                  <p className="text-base text-gray-600 dark:text-gray-400">For professionals & creators</p>
+                </div>
+              </div>
+
+              {/* Pricing */}
+              <div className="mb-6">
+                <div className="flex items-end gap-2 mb-2">
+                  {isAnnual && (
+                    <span className="text-xl text-gray-400 line-through">$48</span>
+                  )}
+                  <span className="text-5xl font-bold text-gray-900 dark:text-white">
+                    ${isAnnual ? '40' : '4'}
+                  </span>
+                  <span className="text-lg text-gray-600 dark:text-gray-400 mb-2">
+                    /{isAnnual ? 'year' : 'month'}
+                  </span>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300">Unlock unlimited features</p>
+              </div>
+
+              {/* Features */}
+              <div className="flex-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-blue-500" />
+                  What's included
+                </h4>
+                <div className="space-y-3">
+                  {planFeatures.pro.map((feature, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+                        <Check className="w-3 h-3" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {feature.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Continue Button */}
+        <Button
+          onClick={handleContinue}
+          disabled={submitting || processing}
+          className="w-full h-14 text-base font-semibold bg-gradient-to-r from-blue-600 via-blue-700 to-purple-600 hover:from-blue-700 hover:via-blue-800 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border-0 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {processing ? (
+            <>
+              <Loading size="sm" />
+              {selectedPlan === 'pro' ? 'Processing Payment...' : 'Setting up...'}
+            </>
+          ) : submitting ? (
+            <>
+              <Loading size="sm" />
+              Setting up...
+            </>
+          ) : (
+            <>
+              {selectedPlan === 'pro' ? 'Continue with Pro' : 'Continue with Free'}
+              <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            </>
+          )}
+        </Button>
+
+        {/* Plan Change Notice */}
+        <div className="text-center">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            You can change your plan anytime from your dashboard
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Step 4: Platform Selection Component
 function PlatformStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting }: OnboardingStepProps) {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
 
@@ -743,27 +1078,43 @@ function PlatformStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
   );
 }
 
-// Step 4: Social Links Component
+// Step 5: Social Links Component
 function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting }: OnboardingStepProps) {
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState<{planType: 'free' | 'pro'; billingCycle: string | null}>({ planType: 'free', billingCycle: null });
+  const planFeatures = usePlanFeatures();
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('onboarding_platforms');
-    if (saved) {
-      setSelectedPlatforms(JSON.parse(saved));
+    const savedPlatforms = sessionStorage.getItem('onboarding_platforms');
+    const savedPlan = sessionStorage.getItem('onboarding_plan');
+    
+    if (savedPlatforms) {
+      setSelectedPlatforms(JSON.parse(savedPlatforms));
+    }
+    if (savedPlan) {
+      setSelectedPlan(JSON.parse(savedPlan));
     }
   }, []);
 
   const handleLinkChange = (platformId: string, value: string) => {
-    setSocialLinks(prev => ({
-      ...prev,
-      [platformId]: value
-    }));
+    const updatedLinks = { ...socialLinks, [platformId]: value };
+    setSocialLinks(updatedLinks);
+    // Update session storage immediately for accurate cross-step calculations
+    sessionStorage.setItem('onboarding_social_links', JSON.stringify(updatedLinks));
   };
 
   const handleContinue = () => {
-    // Store social links
+    // For free users, limit the number of links
+    if (selectedPlan.planType === 'free') {
+      const filledLinks = Object.values(socialLinks).filter(link => link.trim()).length;
+      if (filledLinks > 7) {
+        toast.error('Free plan is limited to 7 links. Please remove some links or upgrade to Pro.');
+        return;
+      }
+    }
+
+    // Store social links (already updated in real-time, but ensure consistency)
     sessionStorage.setItem('onboarding_social_links', JSON.stringify(socialLinks));
     onNext();
   };
@@ -771,6 +1122,11 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
   const getPlatformData = (platformId: string) => {
     return PLATFORMS.find(p => p.id === platformId);
   };
+
+  // Calculate current link count
+  const currentLinkCount = Object.values(socialLinks).filter(link => link.trim()).length;
+  const maxLinks = selectedPlan.planType === 'pro' ? Infinity : 7;
+  const canAddMoreLinks = selectedPlan.planType === 'pro' || currentLinkCount < 7;
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4">
@@ -798,6 +1154,21 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
           <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400">
             Add your usernames or profile links
           </p>
+          
+          {/* Plan-based link limit notice */}
+          {selectedPlan.planType === 'free' && (
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                <strong>Free Plan:</strong> You can add up to 7 links. 
+                Currently using {currentLinkCount} of 7 links.
+                {!canAddMoreLinks && (
+                  <span className="block mt-1 text-blue-600 dark:text-blue-400">
+                    Upgrade to Pro for unlimited links!
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
         </div>
 
         {selectedPlatforms.length === 0 ? (
@@ -813,6 +1184,7 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
               if (!platform) return null;
 
               const IconComponent = platform.icon;
+              const hasValue = socialLinks[platformId]?.trim();
               
               return (
                 <div key={platformId} className="relative">
@@ -823,13 +1195,51 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
                     <Input
                       placeholder={platform.placeholder}
                       value={socialLinks[platformId] || ''}
-                      onChange={(e) => handleLinkChange(platformId, e.target.value)}
+                      onChange={(e) => {
+                        const newValue = e.target.value;
+                        
+                        // For free users, check link limit before allowing new entries
+                        if (selectedPlan.planType === 'free' && !hasValue && newValue.trim()) {
+                          if (currentLinkCount >= 7) {
+                            toast.error('Free plan is limited to 7 links. Upgrade to Pro for unlimited links!');
+                            return;
+                          }
+                        }
+                        
+                        handleLinkChange(platformId, newValue);
+                      }}
                       className="flex-1 h-12 text-base border-0 bg-transparent focus:ring-0 focus:border-0 px-0"
                     />
                   </div>
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Upgrade prompt for free users reaching limit */}
+        {selectedPlan.planType === 'free' && currentLinkCount >= 7 && (
+          <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+            <div className="flex items-start gap-3">
+              <Crown className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <h4 className="font-medium text-blue-900 dark:text-blue-200 mb-2">
+                  Link Limit Reached
+                </h4>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                  You've reached the 7-link limit for free accounts. Upgrade to Pro to add unlimited links!
+                </p>
+                <Button 
+                  size="sm"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs"
+                  onClick={() => {
+                    window.open('/pricing?source=onboarding', '_blank');
+                  }}
+                >
+                  Upgrade to Pro
+                </Button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -856,22 +1266,52 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
   );
 }
 
-// Step 5: Additional URLs Component
+// Step 6: Additional URLs Component
 function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting }: OnboardingStepProps) {
   const [additionalUrls, setAdditionalUrls] = useState<Array<{ label: string; url: string }>>([
     { label: '', url: '' }
   ]);
+  const [selectedPlan, setSelectedPlan] = useState<{planType: 'free' | 'pro'; billingCycle: string | null}>({ planType: 'free', billingCycle: null });
+
+  // Load plan and calculate current usage
+  useEffect(() => {
+    const savedPlan = sessionStorage.getItem('onboarding_plan');
+    if (savedPlan) {
+      setSelectedPlan(JSON.parse(savedPlan));
+    }
+  }, []);
 
   const handleUrlChange = (index: number, field: 'label' | 'url', value: string) => {
-    setAdditionalUrls(prev => {
-      const updated = [...prev];
+    const updated = [...additionalUrls];
       updated[index] = { ...updated[index], [field]: value };
-      return updated;
-    });
+    setAdditionalUrls(updated);
+    
+    // Update session storage immediately for accurate cross-step calculations
+    const validUrls = updated.filter(item => item.label.trim() && item.url.trim());
+    sessionStorage.setItem('onboarding_additional_urls', JSON.stringify(validUrls));
   };
 
   const addUrl = () => {
-    setAdditionalUrls(prev => [...prev, { label: '', url: '' }]);
+    // Check plan limits before adding new URL
+    if (selectedPlan.planType === 'free') {
+      // Calculate current total links (social + additional)
+      const savedSocialLinks = sessionStorage.getItem('onboarding_social_links');
+      const socialLinksData = savedSocialLinks ? JSON.parse(savedSocialLinks) : {};
+      const socialLinkCount = Object.values(socialLinksData).filter(link => link && (link as string).trim()).length;
+      const additionalLinkCount = additionalUrls.filter(item => item.label.trim() && item.url.trim()).length;
+      const totalLinks = socialLinkCount + additionalLinkCount;
+
+      if (totalLinks >= 7) {
+        toast.error('Free plan is limited to 7 links total. Upgrade to Pro for unlimited links!');
+        return;
+      }
+    }
+
+    const newUrls = [...additionalUrls, { label: '', url: '' }];
+    setAdditionalUrls(newUrls);
+    // Update session storage immediately for accurate calculations
+    const validUrls = newUrls.filter(item => item.label.trim() && item.url.trim());
+    sessionStorage.setItem('onboarding_additional_urls', JSON.stringify(validUrls));
   };
 
   const removeUrl = (index: number) => {
@@ -883,9 +1323,31 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
   const handleComplete = () => {
     // Filter out empty entries
     const validUrls = additionalUrls.filter(item => item.label.trim() && item.url.trim());
+    
+    // Check total link limit for free users
+    if (selectedPlan.planType === 'free') {
+      const savedSocialLinks = sessionStorage.getItem('onboarding_social_links');
+      const socialLinksData = savedSocialLinks ? JSON.parse(savedSocialLinks) : {};
+      const socialLinkCount = Object.values(socialLinksData).filter(link => link && (link as string).trim()).length;
+      const totalLinks = socialLinkCount + validUrls.length;
+
+      if (totalLinks > 7) {
+        toast.error('Free plan is limited to 7 links total. Please remove some links or upgrade to Pro.');
+        return;
+      }
+    }
+
     sessionStorage.setItem('onboarding_additional_urls', JSON.stringify(validUrls));
     onNext(); // This will trigger the final completion
   };
+
+  // Calculate current usage for display
+  const savedSocialLinks = sessionStorage.getItem('onboarding_social_links');
+  const socialLinksData = savedSocialLinks ? JSON.parse(savedSocialLinks) : {};
+  const socialLinkCount: number = Object.values(socialLinksData).filter(link => link && (link as string).trim()).length;
+  const additionalLinkCount: number = additionalUrls.filter(item => item.label.trim() && item.url.trim()).length;
+  const totalLinkCount: number = socialLinkCount + additionalLinkCount;
+  const canAddMoreLinks: boolean = selectedPlan.planType === 'pro' || totalLinkCount < 7;
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4">
@@ -913,6 +1375,26 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
           <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400">
             Add any other links you'd like to share
           </p>
+          
+          {/* Plan-based link limit notice */}
+          {selectedPlan.planType === 'free' && (
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                <strong>Free Plan:</strong> You have {socialLinkCount} social links. 
+                {socialLinkCount < 7 ? (
+                  <>You can add up to {7 - socialLinkCount} additional links</>
+                ) : (
+                  <>You've reached the maximum of 7 links</>
+                )}
+                {' '}(Total: {totalLinkCount} of 7 links used).
+                {!canAddMoreLinks && (
+                  <span className="block mt-1 text-blue-600 dark:text-blue-400">
+                    Upgrade to Pro for unlimited links!
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -949,6 +1431,7 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
             </div>
           ))}
 
+          {canAddMoreLinks && (
           <Button
             variant="outline"
             onClick={addUrl}
@@ -956,7 +1439,34 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Another Link
+            </Button>
+          )}
+
+          {/* Upgrade prompt for free users reaching limit */}
+          {selectedPlan.planType === 'free' && totalLinkCount >= 7 && (
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+              <div className="flex items-start gap-3">
+                <Crown className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <h4 className="font-medium text-blue-900 dark:text-blue-200 mb-2">
+                    Link Limit Reached
+                  </h4>
+                  <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                    You've reached the 7-link limit for free accounts. Upgrade to Pro to add unlimited links!
+                  </p>
+                  <Button 
+                    size="sm"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs"
+                    onClick={() => {
+                      window.open('/pricing?source=onboarding', '_blank');
+                    }}
+                  >
+                    Upgrade to Pro
           </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Complete Button */}
@@ -990,7 +1500,7 @@ export default function OnboardingPage() {
   const location = useLocation();
   const [currentStep, setCurrentStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const totalSteps = 5;
+  const totalSteps = 6;
 
   // Get intended plan from location state (passed from AuthPage)
   const intendedPlan = location.state?.intendedPlan;
@@ -1011,10 +1521,10 @@ export default function OnboardingPage() {
           }
         });
       } else {
-        // Navigate to original intended location or dashboard profile as fallback
-        const from = location.state?.from?.pathname || '/dashboard/profile';
-        navigate(from, { replace: true });
-      }
+      // Navigate to original intended location or dashboard profile as fallback
+      const from = location.state?.from?.pathname || '/dashboard/profile';
+      navigate(from, { replace: true });
+    }
     }
   }, [profile, navigate, location, intendedPlan, billingCycle]);
 
@@ -1047,9 +1557,9 @@ export default function OnboardingPage() {
         }
       });
     } else {
-      // Navigate to original intended location or dashboard profile as fallback
-      const from = location.state?.from?.pathname || '/dashboard/profile';
-      navigate(from, { replace: true });
+    // Navigate to original intended location or dashboard profile as fallback
+    const from = location.state?.from?.pathname || '/dashboard/profile';
+    navigate(from, { replace: true });
     }
   };
 
@@ -1060,11 +1570,13 @@ export default function OnboardingPage() {
       const savedUsername = sessionStorage.getItem('onboarding_username');
       const savedFullName = sessionStorage.getItem('onboarding_fullname');
       const savedProfile = sessionStorage.getItem('onboarding_profile');
+      const savedPlan = sessionStorage.getItem('onboarding_plan');
       const savedPlatforms = sessionStorage.getItem('onboarding_platforms');
       const savedSocialLinks = sessionStorage.getItem('onboarding_social_links');
       const savedAdditionalUrls = sessionStorage.getItem('onboarding_additional_urls');
       
       const profileData = savedProfile ? JSON.parse(savedProfile) : {};
+      const planData = savedPlan ? JSON.parse(savedPlan) : { planType: 'free', billingCycle: null };
       const platformsData = savedPlatforms ? JSON.parse(savedPlatforms) : [];
       const socialLinksData = savedSocialLinks ? JSON.parse(savedSocialLinks) : {};
       const additionalUrlsData = savedAdditionalUrls ? JSON.parse(savedAdditionalUrls) : [];
@@ -1075,104 +1587,87 @@ export default function OnboardingPage() {
       
       // Handle avatar URL based on selection
       let avatarUrl = null;
-      if (profileData.avatarData) {
-        if (profileData.avatarData.type === 'upload') {
-          avatarUrl = profileData.avatarData.url;
-        } else if (profileData.avatarData.type === 'preset') {
-          avatarUrl = profileData.avatarData.url;
-        }
+      if (profileData.selectedAvatar === 'upload' && profileData.uploadedImage) {
+        avatarUrl = profileData.uploadedImage;
+      } else if (profileData.selectedAvatar && profileData.selectedAvatar !== 'upload') {
+        const avatarOption = AVATAR_OPTIONS.find(opt => opt.id === profileData.selectedAvatar);
+        avatarUrl = avatarOption?.url || null;
       }
 
-      // Prepare links array for the profiles table
+      // Combine all links
       const allLinks = [];
 
-      // Add social platform links
+      // Add social links
       platformsData.forEach((platformId: string) => {
         const platform = PLATFORMS.find(p => p.id === platformId);
         const linkValue = socialLinksData[platformId];
         
-        if (platform && linkValue && linkValue.trim()) {
-          let finalUrl = linkValue.trim();
-          
-          // Format URL using platform's urlFormat function
-          try {
-            finalUrl = platform.urlFormat(linkValue.trim());
-          } catch (error) {
-            // If URL formatting fails, use the original value
-            console.warn(`Failed to format URL for ${platform.name}:`, error);
-          }
-
+        if (platform && linkValue?.trim()) {
           allLinks.push({
-            label: platform.name,
-            url: finalUrl
+            type: 'social',
+            platform: platform.name,
+            username: linkValue,
+            url: platform.urlFormat(linkValue),
+            icon: platform.name.toLowerCase()
           });
         }
       });
 
-      // Add additional custom URLs
-      additionalUrlsData.forEach((urlData: { label: string; url: string }) => {
-        if (urlData.label.trim() && urlData.url.trim()) {
-          let finalUrl = urlData.url.trim();
-          
-          // Ensure URL has protocol
-          if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
-            finalUrl = `https://${finalUrl}`;
-          }
-
+      // Add additional URLs
+      additionalUrlsData.forEach((item: { label: string; url: string }) => {
+        if (item.label?.trim() && item.url?.trim()) {
           allLinks.push({
-            label: urlData.label.trim(),
-            url: finalUrl
+            type: 'custom',
+            platform: 'Custom',
+            username: item.label,
+            url: item.url.startsWith('http') ? item.url : `https://${item.url}`,
+            icon: 'link'
           });
         }
       });
       
-      // Update profile with all data including links
-      // IMPORTANT: Always create profile with 'free' plan - Pro access only after payment
-      const { error: profileError } = await supabase
-        .from("profiles")
+      // For free users, limit to 7 links total
+      const maxLinks = planData.planType === 'pro' ? 200 : 7;
+      const finalLinks = allLinks.slice(0, maxLinks);
+
+      // Create profile with the selected plan type
+      const { data, error } = await supabase
+        .from('profiles')
         .update({ 
           name: finalFullName,
           slug: finalUsername,
-          title: profileData.profileTitle?.trim() || null,
-          bio: profileData.bio?.trim() || null,
+          title: profileData.profileTitle || '',
+          bio: profileData.bio || '',
           avatar_url: avatarUrl,
-          links: allLinks, // Save links directly in the profiles table
+          links: finalLinks,
+          plan_type: planData.planType, // Set the plan type based on selection
           onboarding_complete: true,
-          plan_type: 'free' // Always start with free plan - Pro requires payment
+          updated_at: new Date().toISOString()
         })
-        .eq("id", profile?.id);
-      
-      if (profileError) throw profileError;
+        .eq('id', session?.user?.id)
+        .select()
+        .single();
+
+      if (error) throw error;
 
       // Clear session storage
-      sessionStorage.removeItem('onboarding_username');
-      sessionStorage.removeItem('onboarding_fullname');
-      sessionStorage.removeItem('onboarding_profile');
-      sessionStorage.removeItem('onboarding_platforms');
-      sessionStorage.removeItem('onboarding_social_links');
-      sessionStorage.removeItem('onboarding_additional_urls');
+      [
+        'onboarding_username',
+        'onboarding_fullname', 
+        'onboarding_profile',
+        'onboarding_plan',
+        'onboarding_platforms',
+        'onboarding_social_links',
+        'onboarding_additional_urls'
+      ].forEach(key => sessionStorage.removeItem(key));
 
-      // Refresh profile data
+      // Refresh profile to get updated data
       await refreshProfile();
       
-      // Handle post-onboarding navigation based on intended plan
-      if (intendedPlan === 'pro') {
-        // User intended to get Pro plan - redirect to payment flow
-        navigate('/pricing', { 
-          replace: true,
-          state: { 
-            message: 'Welcome! Complete your Pro subscription to unlock unlimited features.',
-            highlightPro: true,
-            autoTriggerUpgrade: true,
-            billingCycle: billingCycle
-          }
-        });
-      } else {
-        // Normal flow - navigate to original intended location or dashboard profile as fallback
-        const from = location.state?.from?.pathname || '/dashboard/profile';
-        navigate(from, { replace: true });
-      }
+      toast.success('Profile created successfully!');
       
+      // Navigate to dashboard
+      navigate('/dashboard/profile', { replace: true });
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast.error('Failed to complete onboarding. Please try again.');
@@ -1272,7 +1767,7 @@ export default function OnboardingPage() {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <PlatformStep
+                <PlanStep
                   currentStep={currentStep}
                   totalSteps={totalSteps}
                   onNext={handleNext}
@@ -1291,7 +1786,7 @@ export default function OnboardingPage() {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <SocialLinksStep
+                <PlatformStep
                   currentStep={currentStep}
                   totalSteps={totalSteps}
                   onNext={handleNext}
@@ -1305,6 +1800,25 @@ export default function OnboardingPage() {
             {currentStep === 5 && (
               <motion.div
                 key="step5"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <SocialLinksStep
+                  currentStep={currentStep}
+                  totalSteps={totalSteps}
+                  onNext={handleNext}
+                  onBack={handleBack}
+                  onSkip={handleSkip}
+                  submitting={submitting}
+                />
+              </motion.div>
+            )}
+
+            {currentStep === 6 && (
+              <motion.div
+                key="step6"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
