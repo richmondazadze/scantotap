@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfile } from '../contexts/ProfileContext';
 import { LightLogin } from '../components/ui/sign-in';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 export default function AuthPage() {
   const { session, loading } = useAuth();
@@ -11,6 +12,7 @@ export default function AuthPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const [hasShownError, setHasShownError] = useState(false);
 
   // Get the intended destination from location state, default to dashboard
   const from = location.state?.from?.pathname || '/dashboard/profile';
@@ -19,10 +21,25 @@ export default function AuthPage() {
   const intendedPlan = searchParams.get('plan');
   const billingCycle = searchParams.get('billing');
 
+  // Show error message if passed from auth callback
+  useEffect(() => {
+    if (location.state?.error && !hasShownError) {
+      toast.error(location.state.error);
+      setHasShownError(true);
+      // Clear the error from location state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state?.error, hasShownError]);
+
   useEffect(() => {
     if (!loading && !profileLoading && session) {
+      console.log('AuthPage: User authenticated, checking profile status...');
+      console.log('Profile:', profile);
+      console.log('Intended plan:', intendedPlan);
+      
       if (profile) {
         if (!profile.onboarding_complete) {
+          console.log('AuthPage: Profile exists but onboarding incomplete, redirecting to onboarding');
           // User has a profile but hasn't completed onboarding
           // Pass the intended plan through to onboarding if it exists
           if (intendedPlan === 'pro') {
@@ -38,6 +55,7 @@ export default function AuthPage() {
             navigate('/onboarding', { replace: true });
           }
         } else {
+          console.log('AuthPage: Profile complete, redirecting based on intended plan');
           // User has completed onboarding
           if (intendedPlan === 'pro') {
             // Redirect to pricing/upgrade flow with preserved billing cycle and auto-trigger
@@ -56,6 +74,7 @@ export default function AuthPage() {
           }
         }
       } else {
+        console.log('AuthPage: No profile exists, redirecting to onboarding');
         // No profile exists, redirect to onboarding to create one
         // Pass the intended plan through to onboarding if it exists
         if (intendedPlan === 'pro') {
@@ -84,7 +103,9 @@ export default function AuthPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50/80 via-white to-purple-50/50 dark:from-scan-dark dark:via-scan-dark/95 dark:to-scan-dark/90 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-4 border-scan-blue border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Loading...</p>
+          <p className="text-gray-600 dark:text-gray-300">
+            {loading ? 'Checking authentication...' : 'Loading profile...'}
+          </p>
         </div>
       </div>
     );

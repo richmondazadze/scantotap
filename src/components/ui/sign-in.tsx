@@ -222,6 +222,8 @@ export const LightLogin = () => {
     resetMessages();
 
     try {
+      console.log(`Initiating ${provider} OAuth...`);
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
@@ -235,15 +237,29 @@ export const LightLogin = () => {
 
       if (error) {
         console.error('OAuth error:', error);
-        setError('Failed to connect with Google. Please try again.');
+        
+        // Provide more specific error messages
+        if (error.message.includes('popup')) {
+          setError('Please allow popups for this site and try again.');
+        } else if (error.message.includes('network')) {
+          setError('Network error. Please check your connection and try again.');
+        } else {
+          setError(`Failed to connect with ${provider === 'google' ? 'Google' : 'Apple'}. Please try again.`);
+        }
       } else if (data) {
-        console.log('OAuth initiated:', data);
+        console.log('OAuth initiated successfully:', data);
+        // Don't set loading to false here as the user will be redirected
+        return;
       }
     } catch (error) {
       console.error('OAuth error:', error);
       setError('Authentication service unavailable. Please try again later.');
     } finally {
-    setLoading(false);
+      // Only set loading to false if there was an error
+      // If successful, user will be redirected and component will unmount
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     }
   };
 

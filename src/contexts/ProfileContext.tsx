@@ -51,55 +51,77 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const fetchProfile = async () => {
     if (!session?.user.id) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', session.user.id)
-      .single();
     
-    if (!error && data) {
-      // Cast database types to our typed interface
-      const profile: Profile = {
-        ...data,
-        plan_type: (data.plan_type as PlanType) || 'free',
-        subscription_status: data.subscription_status as SubscriptionStatus | undefined,
-      };
-      setProfile(profile);
-
-      // Only sync plan type if user has subscription data
-      // This prevents new users from being incorrectly assigned Pro status
-      const hasSubscriptionData = data.subscription_status || 
-                                  data.subscription_started_at || 
-                                  data.subscription_expires_at ||
-                                  data.paystack_customer_code ||
-                                  data.paystack_subscription_code;
-
-      if (hasSubscriptionData) {
-        try {
-          const syncResult = await SubscriptionService.syncUserPlanType(session.user.id);
-          if (syncResult.updated) {
-            // Refetch profile if plan type was updated
-            const { data: updatedData } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-            
-            if (updatedData) {
-              const updatedProfile: Profile = {
-                ...updatedData,
-                plan_type: (updatedData.plan_type as PlanType) || 'free',
-                subscription_status: updatedData.subscription_status as SubscriptionStatus | undefined,
-              };
-              setProfile(updatedProfile);
-            }
-          }
-        } catch (error) {
-          console.error('Error syncing plan type:', error);
-          // Don't fail the profile fetch if sync fails
-        }
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .maybeSingle();
+      
+      // Handle errors (but ignore "no rows returned" which is expected for new users)
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching profile:', error);
+        setProfile(null);
+        setLoading(false);
+        return;
       }
+      
+      if (data) {
+        // Profile exists - process normally
+        console.log('Profile found for user:', session.user.id);
+        
+        // Cast database types to our typed interface
+        const profile: Profile = {
+          ...data,
+          plan_type: (data.plan_type as PlanType) || 'free',
+          subscription_status: data.subscription_status as SubscriptionStatus | undefined,
+        };
+        setProfile(profile);
+
+        // Only sync plan type if user has subscription data
+        // This prevents new users from being incorrectly assigned Pro status
+        const hasSubscriptionData = data.subscription_status || 
+                                    data.subscription_started_at || 
+                                    data.subscription_expires_at ||
+                                    data.paystack_customer_code ||
+                                    data.paystack_subscription_code;
+
+        if (hasSubscriptionData) {
+          try {
+            const syncResult = await SubscriptionService.syncUserPlanType(session.user.id);
+            if (syncResult.updated) {
+              // Refetch profile if plan type was updated
+              const { data: updatedData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+              
+              if (updatedData) {
+                const updatedProfile: Profile = {
+                  ...updatedData,
+                  plan_type: (updatedData.plan_type as PlanType) || 'free',
+                  subscription_status: updatedData.subscription_status as SubscriptionStatus | undefined,
+                };
+                setProfile(updatedProfile);
+              }
+            }
+          } catch (error) {
+            console.error('Error syncing plan type:', error);
+            // Don't fail the profile fetch if sync fails
+          }
+        }
+      } else {
+        // No profile found - this is expected for new OAuth users
+        console.log('No profile found for user:', session.user.id, '- this is expected for new users');
+        setProfile(null);
+      }
+    } catch (error) {
+      console.error('Unexpected error in fetchProfile:', error);
+      setProfile(null);
     }
+    
     setLoading(false);
   };
 
