@@ -67,7 +67,7 @@ interface UserSettings {
 
 export default function DashboardSettings() {
   const { session } = useAuthGuard();
-  const { refreshProfile } = useProfile();
+  const { refreshProfile, profile } = useProfile();
   const planFeatures = usePlanFeatures();
   const [searchParams] = useSearchParams();
   
@@ -212,20 +212,53 @@ export default function DashboardSettings() {
     }
 
     try {
-      // Create a new payment session to update payment method
-      const result = await PaystackService.upgradeSubscription(
-        session.user.id,
-        session.user.email,
-        'User',
-        'monthly' // This will be used to determine the flow, but won't create a new subscription
-      );
-
-      toast.success('Redirecting to update payment method...');
+      // For payment method updates, we'll direct users to their Paystack dashboard
+      // This is the most secure way to handle payment method updates
+      toast.info('For security, payment method updates are handled through Paystack directly. Contact support if you need assistance.');
       setBillingDialogOpen(false);
     } catch (error) {
       console.error('Error updating payment method:', error);
-      toast.error('Failed to update payment method. Please try again.');
+      toast.error('Failed to initiate payment method update. Please try again.');
     }
+  };
+
+  const handleChangePlan = async (newPlanType: 'monthly' | 'annually') => {
+    if (!session?.user || !session.user.email) {
+      toast.error('User information not available');
+      return;
+    }
+
+    setUpgrading(true);
+    try {
+      const result = await SubscriptionStateManager.handleSubscription(
+        session.user.id,
+        session.user.email,
+        profile?.name || 'User',
+        newPlanType
+      );
+
+      if (result.success) {
+        toast.success(`Switching to ${newPlanType} billing...`);
+        setBillingDialogOpen(false);
+        // Refresh subscription details after a delay
+        setTimeout(() => {
+          loadSubscriptionDetails();
+          refreshProfile();
+        }, 2000);
+      } else {
+        toast.error(result.error || 'Failed to change plan');
+      }
+    } catch (error) {
+      console.error('Plan change error:', error);
+      toast.error('Failed to change plan. Please try again.');
+    } finally {
+      setUpgrading(false);
+    }
+  };
+
+  const handleViewBillingHistory = () => {
+    // For now, show a placeholder. In production, this would integrate with Paystack's transaction API
+    toast.info('Billing history feature coming soon! Contact support for transaction details.');
   };
 
   // Load user settings
@@ -619,7 +652,7 @@ export default function DashboardSettings() {
                             Change
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent className="mx-4 w-[calc(100vw-2rem)] max-w-md">
+                        <AlertDialogContent className="m-4 w-[calc(100vw-2rem)] max-w-md sm:mx-auto">
                           <AlertDialogHeader>
                             <AlertDialogTitle>Change Password</AlertDialogTitle>
                             <AlertDialogDescription>
@@ -676,15 +709,15 @@ export default function DashboardSettings() {
                               />
                             </div>
                           </div>
-                          <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
-                            <AlertDialogCancel disabled={loading} className="w-full sm:w-auto">
+                          <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 mt-6">
+                            <AlertDialogCancel disabled={loading} className="w-full sm:w-auto order-2 sm:order-1">
                               Cancel
                             </AlertDialogCancel>
                             <AlertDialogAction asChild>
                               <Button 
                                 onClick={handlePasswordChange} 
                                 disabled={loading}
-                                className="w-full sm:w-auto"
+                                className="w-full sm:w-auto order-1 sm:order-2"
                               >
                                 {loading ? 'Updating...' : 'Update Password'}
                               </Button>
@@ -715,15 +748,15 @@ export default function DashboardSettings() {
                                 Reset Profile
                               </Button>
               </AlertDialogTrigger>
-                            <AlertDialogContent className="mx-4 w-[calc(100vw-2rem)] max-w-md">
+                            <AlertDialogContent className="m-4 w-[calc(100vw-2rem)] max-w-md sm:mx-auto">
                 <AlertDialogHeader>
                   <AlertDialogTitle>Reset Profile?</AlertDialogTitle>
                   <AlertDialogDescription>
                                   This will clear your profile information (name, title, bio, avatar, links) but keep your account and email. This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                              <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
-                                <AlertDialogCancel disabled={loading} className="w-full sm:w-auto">
+                              <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 mt-6">
+                                <AlertDialogCancel disabled={loading} className="w-full sm:w-auto order-2 sm:order-1">
                                   Cancel
                                 </AlertDialogCancel>
                   <AlertDialogAction asChild>
@@ -731,7 +764,7 @@ export default function DashboardSettings() {
                                     variant="destructive" 
                                     onClick={handleResetProfile} 
                                     disabled={loading}
-                                    className="w-full sm:w-auto"
+                                    className="w-full sm:w-auto order-1 sm:order-2"
                                   >
                                     {loading ? 'Resetting...' : 'Yes, Reset Profile'}
                     </Button>
@@ -1094,15 +1127,15 @@ export default function DashboardSettings() {
                                         Cancel Subscription
                                       </Button>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent className="mx-4 w-[calc(100vw-2rem)] max-w-md">
+                                    <AlertDialogContent className="m-4 w-[calc(100vw-2rem)] max-w-md sm:mx-auto">
                                       <AlertDialogHeader>
                                         <AlertDialogTitle>Cancel Subscription?</AlertDialogTitle>
                                         <AlertDialogDescription>
                                           Your subscription will be cancelled and you'll lose access to Pro features at the end of your current billing period. This action cannot be undone.
                                         </AlertDialogDescription>
                                       </AlertDialogHeader>
-                                      <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
-                                        <AlertDialogCancel disabled={loading} className="w-full sm:w-auto">
+                                      <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 mt-6">
+                                        <AlertDialogCancel disabled={loading} className="w-full sm:w-auto order-2 sm:order-1">
                                           Keep Subscription
                                         </AlertDialogCancel>
                                         <AlertDialogAction asChild>
@@ -1110,7 +1143,7 @@ export default function DashboardSettings() {
                                             variant="destructive" 
                                             onClick={handleCancelSubscription} 
                                             disabled={loading}
-                                            className="w-full sm:w-auto"
+                                            className="w-full sm:w-auto order-1 sm:order-2"
                                           >
                                             {loading ? 'Cancelling...' : 'Yes, Cancel Subscription'}
                                           </Button>
@@ -1153,18 +1186,18 @@ export default function DashboardSettings() {
 
       {/* Billing Management Dialog */}
       <AlertDialog open={billingDialogOpen} onOpenChange={setBillingDialogOpen}>
-        <AlertDialogContent className="mx-4 w-[calc(100vw-2rem)] max-w-lg">
+        <AlertDialogContent className="m-4 w-[calc(100vw-2rem)] max-w-md sm:max-w-lg lg:max-w-xl mx-auto">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <CreditCard className="w-5 h-5" />
               Manage Billing
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Choose how you'd like to manage your subscription billing.
+              Manage your subscription billing and payment methods.
             </AlertDialogDescription>
           </AlertDialogHeader>
           
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
             {/* Current Subscription Info */}
             {subscriptionDetails && (
               <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -1188,6 +1221,14 @@ export default function DashboardSettings() {
                       </span>
                     </div>
                   )}
+                  {subscriptionDetails.billingCycle && (
+                    <div className="flex justify-between">
+                      <span>Billing cycle:</span>
+                      <span className="font-medium capitalize">
+                        {subscriptionDetails.billingCycle}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1195,56 +1236,87 @@ export default function DashboardSettings() {
             {/* Billing Actions */}
             <div className="space-y-3">
               <div className="p-3 border rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex-1">
                     <h5 className="font-medium">Update Payment Method</h5>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       Change your credit card or payment details
                     </p>
                   </div>
-                  <Button variant="outline" size="sm" onClick={handleUpdatePaymentMethod}>
+                  <Button variant="outline" size="sm" onClick={handleUpdatePaymentMethod} className="w-full sm:w-auto">
+                    <CreditCard className="w-4 h-4 mr-2" />
                     Update
                   </Button>
                 </div>
               </div>
 
               <div className="p-3 border rounded-lg">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3">
                   <div>
-                    <h5 className="font-medium">Change Plan</h5>
+                    <h5 className="font-medium">Change Billing Cycle</h5>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       Switch between monthly and annual billing
                     </p>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => {
-                    setBillingDialogOpen(false);
-                    window.open('/pricing?source=billing&action=change', '_blank');
-                  }}>
-                    Change
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleChangePlan('monthly')}
+                      disabled={upgrading}
+                      className="flex-1 sm:flex-none"
+                    >
+                      {upgrading ? 'Processing...' : 'Monthly ($4)'}
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleChangePlan('annually')}
+                      disabled={upgrading}
+                      className="flex-1 sm:flex-none"
+                    >
+                      {upgrading ? 'Processing...' : 'Annual ($40)'}
+                    </Button>
+                  </div>
                 </div>
               </div>
 
               <div className="p-3 border rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex-1">
                     <h5 className="font-medium">Billing History</h5>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       View your past payments and invoices
                     </p>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => {
-                    toast.info('Billing history feature coming soon!');
-                  }}>
+                  <Button variant="outline" size="sm" onClick={handleViewBillingHistory} className="w-full sm:w-auto">
+                    <Calendar className="w-4 h-4 mr-2" />
                     View
+                  </Button>
+                </div>
+              </div>
+
+              <div className="p-3 border rounded-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex-1">
+                    <h5 className="font-medium">Contact Support</h5>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Get help with billing issues
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => {
+                    window.open('mailto:support@tapverse.app?subject=Billing Support', '_blank');
+                  }} className="w-full sm:w-auto">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Contact
                   </Button>
                 </div>
               </div>
             </div>
           </div>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel>Close</AlertDialogCancel>
+          <AlertDialogFooter className="mt-6">
+            <AlertDialogCancel className="w-full sm:w-auto">Close</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
