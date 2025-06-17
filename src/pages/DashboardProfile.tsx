@@ -1,5 +1,5 @@
 import { useAuthGuard } from '@/hooks/useAuthGuard';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile, type PlanType, type SubscriptionStatus } from '@/contexts/ProfileContext';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import AvatarUploader from '@/components/AvatarUploader';
 import { Button } from '@/components/ui/button';
@@ -58,7 +58,7 @@ export default function DashboardProfile() {
   const [socialInput, setSocialInput] = useState('');
   const [socialPreview, setSocialPreview] = useState({ url: '', username: '', isValid: false });
   const [phone, setPhone] = useState(profile?.phone || '');
-  const [socialLayoutStyle, setSocialLayoutStyle] = useState(profile?.social_layout_style || 'grid');
+  const [socialLayoutStyle, setSocialLayoutStyle] = useState(profile?.social_layout_style || 'horizontal');
   const [showEmail, setShowEmail] = useState(profile?.show_email ?? true);
   const [showPhone, setShowPhone] = useState(profile?.show_phone ?? true);
   const [showWhatsapp, setShowWhatsapp] = useState(profile?.show_whatsapp ?? true);
@@ -86,7 +86,7 @@ export default function DashboardProfile() {
       setLinks(Array.isArray(profile.links) ? profile.links : []);
       setSlug(profile.slug || '');
       setPhone(profile.phone || '');
-      setSocialLayoutStyle(profile.social_layout_style || 'grid');
+      setSocialLayoutStyle(profile.social_layout_style || 'horizontal');
       setShowEmail(profile.show_email ?? true);
       setShowPhone(profile.show_phone ?? true);
       setShowWhatsapp(profile.show_whatsapp ?? true);
@@ -189,6 +189,13 @@ export default function DashboardProfile() {
   };
 
   const handleSocialLayoutChange = async (newStyle: string) => {
+    // Prevent free users from selecting grid layout
+    if (newStyle === 'grid' && planFeatures.isFreeUser) {
+      setShowUpgradePrompt(true);
+      toast.error('Grid layout is available with Pro plan');
+      return;
+    }
+
     setSocialLayoutStyle(newStyle);
     
     // Auto-save to database if profile exists
@@ -209,7 +216,7 @@ export default function DashboardProfile() {
         console.error('Failed to update layout style:', err);
         toast.error('Failed to update layout style');
         // Revert the local state if database update failed
-        setSocialLayoutStyle(profile.social_layout_style || 'grid');
+        setSocialLayoutStyle(profile.social_layout_style || 'horizontal');
       }
     }
   };
@@ -238,7 +245,7 @@ export default function DashboardProfile() {
           updateData.show_whatsapp = false;
         }
 
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('profiles')
           .update(updateData)
           .eq('id', profile.id);
@@ -367,7 +374,14 @@ export default function DashboardProfile() {
         }).eq('id', profile.id).select().single());
       }
       if (error) throw error;
-      setProfile(data);
+      
+      // Cast database types to our typed interface (same as ProfileContext)
+      const savedProfile = {
+        ...data,
+        plan_type: (data.plan_type as PlanType) || 'free',
+        subscription_status: data.subscription_status as SubscriptionStatus | undefined,
+      };
+      setProfile(savedProfile);
       // Reset form state to match saved profile
       setName(data.name || '');
       setTitle(data.title || '');
@@ -376,7 +390,7 @@ export default function DashboardProfile() {
       setLinks(Array.isArray(data.links) ? data.links : []);
       setSlug(data.slug || '');
       setPhone(data.phone || '');
-      setSocialLayoutStyle(data.social_layout_style || 'grid');
+      setSocialLayoutStyle(data.social_layout_style || 'horizontal');
       setShowEmail(data.show_email ?? true);
       setShowPhone(data.show_phone ?? true);
       setShowWhatsapp(data.show_whatsapp ?? true);
@@ -404,13 +418,36 @@ export default function DashboardProfile() {
       }
     }
 
+    // Update local state immediately
     setAvatarUrl("");
+    
     // Also update the profile in the database to remove the avatar_url
     try {
-      await supabase.from('profiles').update({ avatar_url: '' }).eq('id', profile.id);
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: '' })
+        .eq('id', profile.id)
+        .select()
+        .single();
+        
+      if (error) throw error;
+      
+      // Update the profile context with the new data
+      if (data) {
+        // Cast database types to our typed interface (same as ProfileContext)
+        const updatedProfile = {
+          ...data,
+          plan_type: (data.plan_type as PlanType) || 'free',
+          subscription_status: data.subscription_status as SubscriptionStatus | undefined,
+        };
+        setProfile(updatedProfile);
+      }
+      
       toast.success('Avatar removed successfully!');
     } catch (err) {
       toast.error('Failed to remove avatar. Please try again.');
+      // Revert local state if database update failed
+      setAvatarUrl(profile?.avatar_url || '');
     }
   };
 
@@ -639,7 +676,7 @@ export default function DashboardProfile() {
                   </div>
                 )}
                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2 break-all bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
-                  Your profile will be available at: <span className="font-mono text-scan-blue">{window.location.origin}/profile/{slug || 'your-username'}</span>
+                  Your profile will be available at: <span className="font-mono text-scan-blue">{window.location.origin}/{slug || 'your-username'}</span>
                 </p>
               </div>
             </div>
@@ -658,10 +695,10 @@ export default function DashboardProfile() {
 
           {/* Plan Status Display */}
           {planFeatures.isFreeUser && (
-            <div className="mb-6 p-4 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 rounded-xl border border-scan-blue/20">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-semibold text-scan-blue flex items-center gap-2">
+            <div className="mb-6 p-3 sm:p-4 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 rounded-xl border border-scan-blue/20">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-scan-blue flex items-center gap-2 mb-1">
                     🆓 Free Plan
                     <Badge variant="outline" className="text-xs">
                       {remainingLinks === Infinity ? 'Unlimited' : `${remainingLinks} remaining`}
@@ -674,12 +711,14 @@ export default function DashboardProfile() {
                     }
                   </p>
                 </div>
-                <RouterLink to="/dashboard/settings?section=subscription">
-                  <Button size="sm" className="bg-gradient-to-r from-scan-blue to-scan-purple text-white">
-                    <Crown className="w-4 h-4 mr-1" />
-                    Upgrade
-                  </Button>
-                </RouterLink>
+                <div className="flex-shrink-0">
+                  <RouterLink to="/dashboard/settings?section=subscription">
+                    <Button size="sm" className="bg-gradient-to-r from-scan-blue to-scan-purple text-white w-full sm:w-auto">
+                      <Crown className="w-4 h-4 mr-1" />
+                      Upgrade
+                    </Button>
+                  </RouterLink>
+                </div>
               </div>
             </div>
           )}
@@ -693,12 +732,20 @@ export default function DashboardProfile() {
                 <button
                   type="button"
                   onClick={() => handleSocialLayoutChange('grid')}
-                  className={`flex-1 p-3 rounded-lg border-2 transition-all ${
+                  disabled={planFeatures.isFreeUser}
+                  className={`flex-1 p-3 rounded-lg border-2 transition-all relative ${
                     socialLayoutStyle === 'grid'
                       ? 'border-scan-blue bg-scan-blue/10 text-scan-blue'
+                      : planFeatures.isFreeUser
+                      ? 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                       : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                   }`}
                 >
+                  {planFeatures.isFreeUser && (
+                    <div className="absolute -top-1 -right-1 bg-scan-purple text-white text-xs px-1.5 py-0.5 rounded-full">
+                      PRO
+                    </div>
+                  )}
                   <div className="text-center">
                     <div className="text-lg mb-1">⊞</div>
                     <div className="text-sm font-medium">Grid Layout</div>
@@ -721,6 +768,11 @@ export default function DashboardProfile() {
                   </div>
                 </button>
               </div>
+              {planFeatures.isFreeUser && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+                  Grid layout is available with Pro plan
+                </p>
+              )}
             </div>
           )}
 

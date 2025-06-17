@@ -45,7 +45,8 @@ export default function DashboardQR() {
     );
   }
 
-  const profileUrl = `${window.location.origin}/profile/${profile.slug || profile.id}`;
+  // Generate profile URL for QR code
+  const profileUrl = `${window.location.origin}/${profile.slug || profile.id}`;
 
   // Copy URL to clipboard
   const copyToClipboard = async (text: string) => {
@@ -264,54 +265,54 @@ export default function DashboardQR() {
               <div className="flex items-start gap-4 sm:gap-5">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-scan-blue/20 dark:border-scan-blue/30">
                   <span className="text-xl sm:text-2xl">💼</span>
-                </div>
+                  </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">Lead Generation</h4>
                   <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Turn every scan into a potential business opportunity. Capture leads directly from your digital profile.
-                  </p>
+                      Turn every scan into a potential business opportunity. Capture leads directly from your digital profile.
+                    </p>
+                  </div>
                 </div>
-              </div>
 
               <div className="flex items-start gap-4 sm:gap-5">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-scan-blue/20 dark:border-scan-blue/30">
                   <span className="text-xl sm:text-2xl">🔗</span>
-                </div>
+                  </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">Social Integration</h4>
                   <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Connect all your social profiles, websites, and contact methods in one powerful digital identity.
-                  </p>
+                      Connect all your social profiles, websites, and contact methods in one powerful digital identity.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
             <div className="space-y-6 sm:space-y-8">
               <div className="flex items-start gap-4 sm:gap-5">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-scan-blue/20 dark:border-scan-blue/30">
                   <span className="text-xl sm:text-2xl">⚡</span>
-                </div>
+                  </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">Instant Updates</h4>
                   <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Change your contact info once, and it updates everywhere. No more outdated business cards.
-                  </p>
+                      Change your contact info once, and it updates everywhere. No more outdated business cards.
+                    </p>
+                  </div>
                 </div>
-              </div>
 
               <div className="flex items-start gap-4 sm:gap-5">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-scan-blue/20 dark:border-scan-blue/30">
                   <span className="text-xl sm:text-2xl">🚀</span>
-                </div>
+                  </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">Scale Your Network</h4>
                   <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Build meaningful connections faster than traditional networking. One scan opens doors to unlimited opportunities.
-                  </p>
+                      Build meaningful connections faster than traditional networking. One scan opens doors to unlimited opportunities.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
         </div>
 
         {/* Statistics Cards */}

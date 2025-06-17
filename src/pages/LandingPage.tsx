@@ -174,15 +174,15 @@ const LandingPage = () => {
           className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
         />
         <motion.div
-          animate={{
+        animate={{
             rotate: [360, 0],
             scale: [1, 1.3, 1],
-          }}
-          transition={{
+        }}
+        transition={{
             duration: 25,
-            repeat: Infinity,
+          repeat: Infinity,
             ease: "linear"
-          }}
+        }}
           className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"
         />
       </div>
@@ -210,21 +210,24 @@ const LandingPage = () => {
               }}
               className="space-y-6 lg:space-y-8"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+            <br></br>
+            <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20"
+                className="inline-flex items-center px-4 py-2 sm:mt-4 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20"
               >
-                <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
-                <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                  The Future of Networking
-                </span>
-              </motion.div>
+                
+                  <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
+                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                    The Future of Networking
+                  </span>
+                
+            </motion.div>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 0.6 }}
                 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-center lg:text-left"
               >
@@ -259,26 +262,26 @@ const LandingPage = () => {
                     Business Cards
                   </span>
                 </span>
-              </motion.h1>
+            </motion.h1>
 
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 0.8 }}
                 className="text-lg sm:text-xl lg:text-2xl text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed text-center lg:text-left"
-              >
+            >
                 Create your professional online profile, build the perfect link in bio page, and order premium business cards with QR codes. Everything you need to network like a pro, both online and offline.
-              </motion.p>
+            </motion.p>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 1 }}
                 className="flex flex-col sm:flex-row gap-4 w-full justify-center lg:justify-start"
-              >
-                <Link to="/dashboard/profile" className="w-full sm:w-auto">
-                  <Button
-                    size="lg"
+            >
+              <Link to="/dashboard/profile" className="w-full sm:w-auto">
+                  <Button 
+                    size="lg" 
                     className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 w-full sm:w-auto"
                   >
                     Get Started Free
@@ -310,7 +313,7 @@ const LandingPage = () => {
             </motion.div>
 
             {/* Right Column - Visual */}
-            <motion.div
+          <motion.div 
               initial={{ opacity: 0, x: 50 }}
               animate={isHeroInView ? { opacity: 1, x: 0 } : {}}
               transition={{ 
@@ -323,20 +326,20 @@ const LandingPage = () => {
               className="relative flex justify-center items-center overflow-hidden px-4 sm:px-0"
             >
               <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
-                <motion.img
-                  src="/card_model.png"
+            <motion.img
+              src="/card_model.png"
                   alt="Scan2Tap Digital Card"
                   className="relative w-full h-auto object-contain rounded-xl shadow-l drop-shadow-2xl"
                   style={{ borderRadius: '12px' }}
-                  animate={{
+              animate={{
                     y: [0, -20, 0],
                     rotateY: [0, 5, 0, -5, 0],
-                  }}
-                  transition={{
+              }}
+              transition={{
                     duration: 6,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
                   whileHover={{
                     scale: 1.05,
                     rotateY: 15,
@@ -374,11 +377,11 @@ const LandingPage = () => {
                   className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 bg-white dark:bg-slate-800 rounded-full p-1.5 sm:p-2 md:p-3 shadow-lg"
                 >
                   <Share2 className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-purple-500" />
-                </motion.div>
+          </motion.div>
               </div>
             </motion.div>
           </div>
-        </div>
+              </div>
       </motion.section>
 
       {/* How it works section */}
@@ -480,8 +483,8 @@ const LandingPage = () => {
                   
                   <h3 className="text-xl sm:text-2xl font-bold mb-4 text-center relative z-10 text-slate-900 dark:text-white">{step.title}</h3>
                   <p className="text-slate-600 dark:text-slate-300 text-center leading-relaxed flex-grow relative z-10 text-base sm:text-lg">
-                    {step.description}
-                  </p>
+                  {step.description}
+                </p>
                 </div>
                 
                 {/* Desktop arrows */}
@@ -597,7 +600,7 @@ const LandingPage = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
+                viewport={{ once: true }}
             className="text-center mb-12 sm:mb-16 lg:mb-20"
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6">
@@ -634,20 +637,20 @@ const LandingPage = () => {
                 
                 <div className="flex items-center gap-1 mb-4 relative z-10">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <motion.div
+                <motion.div
                       key={i}
                       initial={{ scale: 0, rotate: -180 }}
                       whileInView={{ scale: 1, rotate: 0 }}
-                      transition={{ 
+                  transition={{ 
                         duration: 0.5, 
                         delay: i * 0.1 + 0.3,
-                        type: "spring",
+                    type: "spring", 
                         stiffness: 200
-                      }}
+                  }}
                       viewport={{ once: true }}
-                    >
+                >
                       <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    </motion.div>
+                </motion.div>
                   ))}
                 </div>
                 <p className="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed relative z-10 text-base sm:text-lg">
@@ -698,7 +701,7 @@ const LandingPage = () => {
           viewport={{ once: true }}
           className="max-w-5xl mx-auto text-center relative z-10"
         >
-          <motion.div
+          <motion.div 
             initial={{ scale: 0 }}
             whileInView={{ scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -723,12 +726,12 @@ const LandingPage = () => {
              transition={{ duration: 0.8, delay: 0.4 }}
              viewport={{ once: true }}
              className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full"
-           >
+          >
                          <Link to="/dashboard/profile" className="w-full sm:w-auto">
-               <Button
-                 size="lg"
+              <Button 
+                size="lg" 
                  className="bg-white text-blue-600 hover:bg-slate-100 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 font-semibold w-full sm:w-auto"
-               >
+              >
                  <Rocket className="mr-2 w-5 h-5" />
                  Get Started Free
                </Button>
@@ -740,8 +743,8 @@ const LandingPage = () => {
                  className="bg-blue-600 text-white hover:bg-white hover:text-blue-600 transition-colors px-8 font-semibold w-full sm:w-auto"
                >
                  View Pricing
-               </Button>
-             </Link>
+              </Button>
+            </Link>
           </motion.div>
 
                      <motion.div

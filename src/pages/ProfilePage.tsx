@@ -146,7 +146,7 @@ function extractSocialUsername(url: string) {
 }
 
 const ProfilePage = () => {
-  const { id } = useParams<{ id: string }>();
+  const { username } = useParams<{ username: string }>();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -160,7 +160,7 @@ const ProfilePage = () => {
       let { data } = await supabase
         .from('profiles')
         .select('*')
-        .eq('slug', id)
+        .eq('slug', username)
         .maybeSingle();
 
       // If not found, try by id (user id)
@@ -168,7 +168,7 @@ const ProfilePage = () => {
         const { data: dataById } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', id)
+          .eq('id', username)
           .maybeSingle();
         data = dataById;
       }
@@ -177,7 +177,7 @@ const ProfilePage = () => {
       setLoading(false);
     };
     fetchProfile();
-  }, [id]);
+  }, [username]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -342,9 +342,7 @@ const ProfilePage = () => {
                   {/* Professional tagline or connection encouragement */}
                   {(mainLinks.length > 0 || socialLinks.length > 0) && (
                     <div className="mt-6 lg:mt-8">
-                      <p className="text-sm sm:text-base lg:text-lg text-white/80 font-medium">
-                        Let's connect and explore opportunities together
-                      </p>
+                      
                 </div>
               )}
               
@@ -711,7 +709,7 @@ END:VCARD`;
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-scan-blue/10 text-scan-blue hover:bg-scan-blue/20 transition-all text-sm font-medium"
           >
             <Globe className="w-4 h-4" />
-            Get Your Digital Business Card
+            Join <strong>{profile?.slug || 'them'} </strong>on Scan2Tap today
           </a>
         </motion.div>
         

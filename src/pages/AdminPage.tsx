@@ -1148,7 +1148,7 @@ const AdminPage = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => window.open(`/profile/${profile.slug}`, '_blank')}
+                              onClick={() => window.open(`/${profile.slug}`, '_blank')}
                               className="gap-2"
                             >
                               <Eye className="w-4 h-4" />
@@ -1396,7 +1396,7 @@ const AdminPage = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => window.open(`/profile/${userProfile.slug}`, '_blank')}
+                                onClick={() => window.open(`/${userProfile.slug}`, '_blank')}
                                 className="text-xs gap-1"
                               >
                                 <Eye className="w-3 h-3" />

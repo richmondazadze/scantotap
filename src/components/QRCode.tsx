@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -17,7 +16,7 @@ const QRCode = ({ profileId, size = 200, className = "" }: QRCodeProps) => {
   useEffect(() => {
     // Generate QR code using Google Charts API
     const baseUrl = window.location.origin;
-    const profileUrl = `${baseUrl}/profile/${profileId}`;
+    const profileUrl = `${baseUrl}/${profileId}`;
     const encodedUrl = encodeURIComponent(profileUrl);
     const qrCodeApi = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedUrl}&chs=${size}x${size}&chco=1EAEDB`;
     
@@ -26,7 +25,7 @@ const QRCode = ({ profileId, size = 200, className = "" }: QRCodeProps) => {
 
   const copyProfileUrl = () => {
     const baseUrl = window.location.origin;
-    const profileUrl = `${baseUrl}/profile/${profileId}`;
+    const profileUrl = `${baseUrl}/${profileId}`;
     
     navigator.clipboard.writeText(profileUrl)
       .then(() => {

@@ -4,7 +4,7 @@ import QRCode from '@/components/QRCode';
 export default function QRCodePage() {
   const { profile } = useProfile();
   if (!profile) return null;
-  const profileUrl = `${window.location.origin}/profile/${profile.slug || profile.id}`;
+  const profileUrl = `${window.location.origin}/${profile.slug || profile.id}`;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-scan-mint/20">

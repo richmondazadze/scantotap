@@ -43,7 +43,7 @@ const AdminQRViewer: React.FC<AdminQRViewerProps> = ({ profile }) => {
   const qrRef = useRef<SVGSVGElement>(null);
 
   // Generate profile URL
-  const profileUrl = `${window.location.origin}/profile/${profile.slug}`;
+  const profileUrl = `${window.location.origin}/${profile.slug}`;
 
   // Parse social links
   const socialLinks = Array.isArray(profile.links) ? profile.links : [];

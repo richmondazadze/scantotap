@@ -3,6 +3,7 @@ import { PaystackService } from './paystackService';
 import { WebhookVerification } from './webhookVerification';
 import { PlanType } from '@/contexts/ProfileContext';
 import { SubscriptionService } from './subscriptionService';
+import { EmailTriggers, EmailUtils } from '@/utils/emailHelpers';
 
 export interface PaystackWebhookEvent {
   event: string;
@@ -171,7 +172,7 @@ export class WebhookHandler {
     // Find user by email
     const { data: profile } = await supabase
       .from('profiles')
-      .select('id')
+      .select('id, name, slug')
       .eq('email', customerEmail)
       .single();
 
@@ -196,6 +197,20 @@ export class WebhookHandler {
 
     // Sync plan type to ensure consistency
     await SubscriptionService.syncUserPlanType(profile.id);
+
+    // Send upgrade confirmation email
+    try {
+      await EmailTriggers.sendUpgradeConfirmationEmail({
+        name: EmailUtils.formatUserName(profile.name || 'User'),
+        email: customerEmail,
+        planType: 'Pro',
+        billingAmount: EmailUtils.formatCurrency(subscription.amount / 100), // Convert from kobo to naira
+        nextBillingDate: nextPaymentDate.toISOString()
+      });
+      console.log('Upgrade confirmation email sent to:', customerEmail);
+    } catch (emailError) {
+      console.error('Failed to send upgrade confirmation email:', emailError);
+    }
 
     console.log(`Created subscription for user ${profile.id} with code ${subscription.subscription_code}`);
   }
@@ -245,6 +260,25 @@ export class WebhookHandler {
       
       // Sync plan type to ensure consistency
       await SubscriptionService.syncUserPlanType(profile.id);
+      
+      // Send subscription cancelled email
+      try {
+        const { data: userProfile } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('id', profile.id)
+          .single();
+          
+        await EmailTriggers.sendSubscriptionCancelledEmail({
+          name: EmailUtils.formatUserName(userProfile?.name || 'User'),
+          email: customerEmail,
+          planType: 'Pro',
+          cancellationDate: new Date().toISOString()
+        });
+        console.log('Subscription cancelled email sent to:', customerEmail);
+      } catch (emailError) {
+        console.error('Failed to send subscription cancelled email:', emailError);
+      }
       
       console.log(`Marked subscription as cancelled for user ${profile.id}, will expire on ${expiryDate.toISOString()}`);
     } else {

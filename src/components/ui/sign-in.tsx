@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Loading from '@/components/ui/loading';
+import { EmailTriggers, EmailUtils } from '@/utils/emailHelpers';
 
 export const LightLogin = () => {
   const { signIn } = useAuth();
@@ -176,12 +177,38 @@ export const LightLogin = () => {
         if (signUpData.session) {
           // User is immediately logged in, redirect to onboarding
           setSuccess('Welcome to Scan2Tap! Setting up your account...');
+          
+          // Send welcome email (import will be added separately)
+          try {
+            const { EmailTriggers, EmailUtils } = await import('@/utils/emailHelpers');
+            await EmailTriggers.sendWelcomeEmail({
+              name: EmailUtils.formatUserName(signUpData.user.email?.split('@')[0] || 'User'),
+              email: signUpData.user.email || '',
+            });
+            console.log('Welcome email sent to:', signUpData.user.email);
+          } catch (emailError) {
+            console.error('Failed to send welcome email:', emailError);
+            // Don't block the flow if email fails
+          }
+          
           setTimeout(() => {
             window.location.reload(); // Force refresh to update contexts
           }, 1000);
         } else {
           // Email confirmation required
           setSuccess('Account created successfully! Please check your email to verify your account.');
+          
+          // Send welcome email for email confirmation users too
+          try {
+            const { EmailTriggers, EmailUtils } = await import('@/utils/emailHelpers');
+            await EmailTriggers.sendWelcomeEmail({
+              name: EmailUtils.formatUserName(signUpData.user.email?.split('@')[0] || 'User'),
+              email: signUpData.user.email || '',
+            });
+            console.log('Welcome email sent to:', signUpData.user.email);
+          } catch (emailError) {
+            console.error('Failed to send welcome email:', emailError);
+          }
         }
       }
     } catch (err) {
@@ -258,7 +285,7 @@ export const LightLogin = () => {
       // Only set loading to false if there was an error
       // If successful, user will be redirected and component will unmount
       setTimeout(() => {
-        setLoading(false);
+    setLoading(false);
       }, 1000);
     }
   };

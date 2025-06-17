@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 const QRCodePage = () => {
   const { profile } = useProfile();
-  const profileUrl = `${window.location.origin}/profile/${profile?.slug}`;
+  const profileUrl = `${window.location.origin}/${profile?.slug}`;
 
   return (
     <div className="container max-w-4xl py-8">

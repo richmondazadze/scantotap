@@ -10,26 +10,35 @@ export default function AvatarUploader({ onUpload, triggerRef }: { onUpload: (ur
   useEffect(() => {
     if (!triggerRef?.current) return;
     const handleClick = () => {
-      if (fileInputRef.current) fileInputRef.current.click();
+      if (fileInputRef.current && !uploading) {
+        fileInputRef.current.click();
+      }
     };
     const el = triggerRef.current;
     el.addEventListener('click', handleClick);
     return () => el.removeEventListener('click', handleClick);
-  }, [triggerRef]);
+  }, [triggerRef, uploading]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Prevent double uploads by checking if already uploading
+    if (uploading) {
+      return;
+    }
+
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
+      event.target.value = '';
       return;
     }
 
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('File size must be less than 5MB');
+      event.target.value = '';
       return;
     }
 

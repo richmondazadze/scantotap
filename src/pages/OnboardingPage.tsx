@@ -16,6 +16,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Loading from '@/components/ui/loading';
 import { PaystackService } from '@/services/paystackService';
 import { usePlanFeatures } from '@/hooks/usePlanFeatures';
+import AIService from '@/services/aiService';
+import BioEnhancementModal from '@/components/BioEnhancementModal';
+import { EmailTriggers, EmailUtils } from '@/utils/emailHelpers';
 
 // Simple Threads icon component
 const ThreadsIcon = ({ className }: { className?: string }) => (
@@ -247,15 +250,6 @@ function UsernameStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
     }
   };
 
-  const handleSkipStep = () => {
-    // Generate a random username for skipping
-    const randomUsername = `user${Date.now().toString().slice(-6)}`;
-    const defaultName = session?.user?.email?.split('@')[0] || 'User';
-    sessionStorage.setItem('onboarding_username', randomUsername);
-    sessionStorage.setItem('onboarding_fullname', defaultName);
-    onSkip();
-  };
-
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
       {/* Progress Bar */}
@@ -384,6 +378,7 @@ function ProfileStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitti
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [generatingBio, setGeneratingBio] = useState(false);
+  const [showBioModal, setShowBioModal] = useState(false);
 
   // Handle file upload
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -428,31 +423,13 @@ function ProfileStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitti
     setUploading(false);
   };
 
-  // Generate AI bio
-  const generateBio = async () => {
+  // Generate AI bio - now opens modal
+  const generateBio = () => {
     if (!profileTitle.trim()) {
       toast.error("Please add a title first to generate a bio");
       return;
     }
-
-    setGeneratingBio(true);
-    try {
-      const templates = [
-        `Passionate ${profileTitle} with a drive for excellence and innovation.`,
-        `Experienced ${profileTitle} dedicated to making a positive impact.`,
-        `Creative ${profileTitle} who loves turning ideas into reality.`,
-        `Results-driven ${profileTitle} with a passion for problem-solving.`
-      ];
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
-      setBio(randomTemplate);
-      toast.success("Bio generated!");
-    } catch (error) {
-      toast.error("Failed to generate bio. Please try again.");
-    }
-    setGeneratingBio(false);
+    setShowBioModal(true);
   };
 
   // Get user initials
@@ -622,6 +599,16 @@ function ProfileStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitti
             </>
           )}
         </Button>
+
+        {/* Bio Enhancement Modal */}
+        <BioEnhancementModal
+          isOpen={showBioModal}
+          onClose={() => setShowBioModal(false)}
+          currentBio={bio}
+          title={profileTitle}
+          name={sessionStorage.getItem('onboarding_fullname') || undefined}
+          onBioSelect={(newBio) => setBio(newBio)}
+        />
       </div>
     </div>
   );
@@ -1572,21 +1559,12 @@ export default function OnboardingPage() {
   };
 
   const handleSkip = () => {
-    // If user intended to get Pro plan, redirect to payment flow
-    if (intendedPlan === 'pro') {
-      navigate('/pricing', { 
-        replace: true,
-        state: { 
-          message: 'Complete your Pro subscription to unlock premium features.',
-          highlightPro: true,
-          autoTriggerUpgrade: true,
-          billingCycle: billingCycle
-        }
-      });
+    // Skip functionality should only advance to next step, not complete onboarding
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
     } else {
-    // Navigate to original intended location or dashboard profile as fallback
-    const from = location.state?.from?.pathname || '/dashboard/profile';
-    navigate(from, { replace: true });
+      // If on last step, complete onboarding
+      handleComplete();
     }
   };
 
@@ -1685,6 +1663,21 @@ export default function OnboardingPage() {
       // Refresh profile to get updated data
       await refreshProfile();
       
+      // Send onboarding completion email
+      try {
+        await EmailTriggers.sendOnboardingCompleteEmail({
+          name: finalFullName,
+          email: session?.user?.email || '',
+          username: finalUsername,
+          profileUrl: EmailUtils.generateProfileUrl(finalUsername),
+          qrCodeUrl: EmailUtils.generateQRCodeUrl(finalUsername)
+        });
+        console.log('Onboarding completion email sent');
+      } catch (emailError) {
+        console.error('Failed to send onboarding completion email:', emailError);
+        // Don't block the flow if email fails
+      }
+      
       toast.success('Profile created successfully!');
       
       // Navigate to dashboard
@@ -1717,7 +1710,7 @@ export default function OnboardingPage() {
             className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Home
+            {currentStep > 1 ? 'Back' : 'Home'}
           </Button>
           
           {/* Logo in center */}
@@ -1725,16 +1718,24 @@ export default function OnboardingPage() {
             <Scan2TapLogo />
           </div>
           
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSkip}
-            disabled={submitting}
-            className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200"
-          >
-            Skip
-            <ChevronRight className="h-4 w-4 ml-2" />
-          </Button>
+          {/* Only show skip button after step 1 */}
+          {currentStep > 1 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSkip}
+              disabled={submitting}
+              className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200"
+            >
+              Skip
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          )}
+          
+          {/* Spacer for step 1 to keep logo centered */}
+          {currentStep === 1 && (
+            <div className="w-16"></div>
+          )}
         </div>
       </div>
 

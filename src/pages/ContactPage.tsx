@@ -77,12 +77,36 @@ const ContactPage = () => {
 
   const onSubmit = async (values: ContactFormValues) => {
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    toast.success("Message sent successfully!", {
-      description: "We'll get back to you as soon as possible.",
-    });
-    form.reset();
+    
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success("Message sent successfully!", {
+          description: `We'll get back to you soon. Reference: ${result.referenceId}`,
+        });
+        form.reset();
+      } else {
+        toast.error("Failed to send message", {
+          description: result.error || "Please try again or contact us directly.",
+        });
+      }
+    } catch (error) {
+      console.error('Error sending contact form:', error);
+      toast.error("Network error", {
+        description: "Please check your connection and try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -210,7 +234,7 @@ const ContactPage = () => {
                       <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-1">Live Chat</h3>
                       <p className="text-slate-600 dark:text-slate-300 text-base">Available 24/7</p>
                       <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Instant support when you need it</p>
-                    </div>
+                  </div>
                   </motion.div>
                 </div>
 

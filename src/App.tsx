@@ -99,9 +99,6 @@ const App = () => {
                       <Route path="shipping" element={<DashboardShipping />} />
                       <Route path="settings" element={<DashboardSettings />} />
                     </Route>
-
-                  {/* Public Profile Pages */}
-                  <Route path="/profile/:id" element={<ProfilePage />} />
                   
                   {/* Admin Route - Protected but doesn't require onboarding */}
                   <Route path="/admin" element={<AdminPage />} />
@@ -116,6 +113,9 @@ const App = () => {
                   {/* Auth Routes */}
                   <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/auth" element={<AuthPage />} />
+                  
+                  {/* Public Profile Pages - Must be last to avoid conflicts */}
+                  <Route path="/:username" element={<ProfilePage />} />
                   
                   {/* 404 */}
                   <Route path="*" element={<NotFound />} />
