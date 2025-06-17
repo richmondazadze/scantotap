@@ -415,8 +415,8 @@ export default function DashboardProfile() {
   };
 
   // Card styles - updated to match other dashboard pages
-  const cardBase = 'relative rounded-3xl shadow-lg p-6 sm:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30';
-  const cardTitle = 'text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent font-serif';
+  const cardBase = 'relative rounded-xl shadow-lg p-6 sm:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30';
+  const cardTitle = 'text-3xl sm:text-4xl lg:text-5xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent';
   const cardDesc = 'text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed';
 
   return (
@@ -432,7 +432,7 @@ export default function DashboardProfile() {
           <p className={cardDesc}>Create your unique digital presence that will be displayed when someone scans your QR code.</p>
           
           {!profile && (
-            <div className="mb-8 p-6 sm:p-8 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 dark:from-scan-blue/10 dark:to-scan-purple/10 border border-scan-blue/20 dark:border-scan-blue/30 rounded-2xl backdrop-blur-sm">
+            <div className="mb-8 p-6 sm:p-8 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 dark:from-scan-blue/10 dark:to-scan-purple/10 border border-scan-blue/20 dark:border-scan-blue/30 rounded-xl backdrop-blur-sm">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-3 h-3 bg-scan-blue rounded-full animate-pulse"></div>
                 <h3 className="font-semibold text-scan-blue dark:text-scan-blue-light text-base sm:text-lg">Welcome! Let's create your digital profile</h3>

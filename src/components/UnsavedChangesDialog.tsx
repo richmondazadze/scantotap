@@ -34,7 +34,7 @@ export function UnsavedChangesDialog({
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 flex items-center justify-center border border-scan-blue/20 dark:border-scan-blue/30">
               <AlertTriangle className="w-5 h-5 text-scan-blue dark:text-scan-blue-light" />
             </div>
-            <span className="bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent font-semibold">
+            <span className="bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent font-bold">
               {title}
             </span>
           </AlertDialogTitle>

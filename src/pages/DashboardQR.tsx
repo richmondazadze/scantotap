@@ -93,7 +93,7 @@ export default function DashboardQR() {
       >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
           <div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-3 font-serif">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-3">
               Your QR Code
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
@@ -127,7 +127,7 @@ export default function DashboardQR() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="overflow-hidden rounded-3xl shadow-xl bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl">
+        <Card className="overflow-hidden rounded-xl shadow-xl bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl">
           <CardHeader className="p-6 sm:p-8 lg:p-10">
             <CardTitle className="flex items-center gap-3 text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-xl flex items-center justify-center">
@@ -144,7 +144,7 @@ export default function DashboardQR() {
             <div className="flex flex-col xl:flex-row gap-8 sm:gap-10 lg:gap-12 items-start overflow-x-hidden">
               {/* QR Code Display */}
               <div className="w-full xl:w-1/2 flex justify-center min-w-0">
-                <div className="w-full max-w-sm p-6 sm:p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-lg">
+                <div className="w-full max-w-sm p-6 sm:p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg">
                   <div className="w-full aspect-square max-w-[300px] sm:max-w-[320px] mx-auto">
                     <QRCodeGenerator 
                       ref={qrRef}
@@ -191,7 +191,7 @@ export default function DashboardQR() {
                 </div>
 
                 {/* Instructions */}
-                <div className="p-6 sm:p-8 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 dark:from-scan-blue/10 dark:to-scan-purple/10 border border-scan-blue/20 dark:border-scan-blue/30 rounded-2xl backdrop-blur-sm">
+                <div className="p-6 sm:p-8 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 dark:from-scan-blue/10 dark:to-scan-purple/10 border border-scan-blue/20 dark:border-scan-blue/30 rounded-xl backdrop-blur-sm">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
                     <h4 className="font-semibold text-scan-blue dark:text-scan-blue-light text-base sm:text-lg">How to use:</h4>
                     <Button 
@@ -246,99 +246,105 @@ export default function DashboardQR() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="space-y-6"
+        className="space-y-6 sm:space-y-8"
       >
         {/* Platform Features */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Maximize Your Digital Presence</CardTitle>
-            <CardDescription>
+        <div className="relative rounded-xl shadow-lg p-6 sm:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30">
+          <div className="text-center mb-8 sm:mb-10">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent">
+              Maximize Your Digital Presence
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl mx-auto">
               Unlock the full potential of your SCAN2TAP digital identity
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-scan-blue/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-scan-blue font-bold">💼</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-1">Lead Generation</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Turn every scan into a potential business opportunity. Capture leads directly from your digital profile.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-scan-blue/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-scan-blue font-bold">🔗</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-1">Social Integration</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Connect all your social profiles, websites, and contact methods in one powerful digital identity.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-scan-blue/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-scan-blue font-bold">⚡</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-1">Instant Updates</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Change your contact info once, and it updates everywhere. No more outdated business cards.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-scan-blue/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-scan-blue font-bold">🚀</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-1">Scale Your Network</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Build meaningful connections faster than traditional networking. One scan opens doors to unlimited opportunities.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </p>
+          </div>
 
-        {/* Statistics or Features */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="text-center p-6">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <span className="text-green-600 font-bold text-lg">✓</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="flex items-start gap-4 sm:gap-5">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-scan-blue/20 dark:border-scan-blue/30">
+                  <span className="text-xl sm:text-2xl">💼</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">Lead Generation</h4>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Turn every scan into a potential business opportunity. Capture leads directly from your digital profile.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 sm:gap-5">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-scan-blue/20 dark:border-scan-blue/30">
+                  <span className="text-xl sm:text-2xl">🔗</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">Social Integration</h4>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Connect all your social profiles, websites, and contact methods in one powerful digital identity.
+                  </p>
+                </div>
+              </div>
             </div>
-            <h3 className="font-semibold mb-2">Eco-Friendly</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+
+            <div className="space-y-6 sm:space-y-8">
+              <div className="flex items-start gap-4 sm:gap-5">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-scan-blue/20 dark:border-scan-blue/30">
+                  <span className="text-xl sm:text-2xl">⚡</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">Instant Updates</h4>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Change your contact info once, and it updates everywhere. No more outdated business cards.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 sm:gap-5">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-scan-blue/20 dark:border-scan-blue/30">
+                  <span className="text-xl sm:text-2xl">🚀</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">Scale Your Network</h4>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Build meaningful connections faster than traditional networking. One scan opens doors to unlimited opportunities.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+          <div className="relative rounded-xl shadow-lg p-6 sm:p-8 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30 text-center">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-green-200 dark:border-green-700/50">
+              <span className="text-green-600 dark:text-green-400 text-2xl sm:text-3xl font-bold">✓</span>
+            </div>
+            <h3 className="text-lg sm:text-xl font-bold mb-3 text-gray-900 dark:text-white">Eco-Friendly</h3>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
               Digital business cards reduce paper waste and are environmentally sustainable
             </p>
-          </Card>
-          <Card className="text-center p-6">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <span className="text-blue-600 font-bold text-lg">∞</span>
+          </div>
+
+          <div className="relative rounded-xl shadow-lg p-6 sm:p-8 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30 text-center">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-scan-blue/10 to-scan-blue/20 dark:from-scan-blue/20 dark:to-scan-blue/30 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-scan-blue/20 dark:border-scan-blue/30">
+              <span className="text-scan-blue dark:text-scan-blue-light text-2xl sm:text-3xl font-bold">∞</span>
             </div>
-            <h3 className="font-semibold mb-2">Always Updated</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <h3 className="text-lg sm:text-xl font-bold mb-3 text-gray-900 dark:text-white">Always Updated</h3>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
               Your information stays current automatically when you update your profile
             </p>
-          </Card>
-          <Card className="text-center p-6">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <span className="text-purple-600 font-bold text-lg">📱</span>
+          </div>
+
+          <div className="relative rounded-xl shadow-lg p-6 sm:p-8 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30 text-center">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-scan-purple/10 to-scan-purple/20 dark:from-scan-purple/20 dark:to-scan-purple/30 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-scan-purple/20 dark:border-scan-purple/30">
+              <span className="text-scan-purple dark:text-scan-purple-light text-2xl sm:text-3xl">📱</span>
             </div>
-            <h3 className="font-semibold mb-2">Mobile Ready</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <h3 className="text-lg sm:text-xl font-bold mb-3 text-gray-900 dark:text-white">Mobile Ready</h3>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
               Optimized for all smartphone cameras and QR code scanner apps
             </p>
-          </Card>
+          </div>
         </div>
       </motion.div>
     </div>
