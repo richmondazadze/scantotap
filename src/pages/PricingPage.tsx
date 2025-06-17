@@ -316,7 +316,7 @@ const PricingPage = () => {
                   >
                     <div className="bg-gradient-to-r from-orange-400 to-pink-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-white/20 flex items-center gap-1">
                       <Star className="w-3 h-3 fill-current" />
-                      {plan.badge}
+                    {plan.badge}
                     </div>
                   </motion.div>
                 )}
@@ -335,8 +335,8 @@ const PricingPage = () => {
                     <div>
                       <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{plan.name}</h3>
                       <p className="text-base text-gray-600 dark:text-gray-400">Perfect for {plan.name.toLowerCase().includes('free') ? 'personal use' : 'professionals'}</p>
-                    </div>
-                  </div>
+                            </div>
+                            </div>
 
                   {/* Pricing */}
                   <div className="mb-6">
@@ -346,10 +346,10 @@ const PricingPage = () => {
                       )}
                       <span className="text-5xl sm:text-6xl font-bold text-gray-900 dark:text-white">{plan.price}</span>
                       <span className="text-lg text-gray-600 dark:text-gray-400 mb-2">/{plan.period}</span>
-                    </div>
+                        </div>
                     <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">{plan.description}</p>
-                  </div>
-
+                    </div>
+                    
                   {/* CTA Button */}
                   <div className="mb-8">
                     {plan.highlighted ? (
@@ -365,11 +365,11 @@ const PricingPage = () => {
                       <Link to={plan.ctaLink} className="block">
                         <Button
                           className="w-full h-12 text-base font-semibold rounded-2xl transition-all duration-300 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100"
-                        >
-                          {plan.ctaText}
+                      >
+                        {plan.ctaText}
                           <ArrowRight className="w-4 h-4 ml-2" />
-                        </Button>
-                      </Link>
+                      </Button>
+                    </Link>
                     )}
                   </div>
 
@@ -410,8 +410,8 @@ const PricingPage = () => {
                                 {feature.description}
                               </p>
                             )}
-                          </div>
-                        </motion.div>
+                  </div>
+                </motion.div>
                       ))}
                     </div>
                   </div>
@@ -438,13 +438,13 @@ const PricingPage = () => {
                 <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
                   Custom solutions for teams, organizations, and enterprises. Bulk pricing, white-label options, 
                   custom integrations, and dedicated support.
-                </p>
-                <Link to="/contact">
+            </p>
+            <Link to="/contact">
                   <Button className="bg-white text-gray-900 hover:bg-gray-100 font-semibold px-8 py-3 rounded-2xl">
                     Contact Sales
                     <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
+            </Button>
+            </Link>
               </div>
             </div>
           </motion.div>
@@ -517,7 +517,7 @@ const PricingPage = () => {
               Got Questions? We've Got Answers
             </motion.div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4">
-              Frequently Asked Questions
+            Frequently Asked Questions
             </h2>
             <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto leading-relaxed">
               Everything you need to know about our digital business cards

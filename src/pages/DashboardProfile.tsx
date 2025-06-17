@@ -1,6 +1,6 @@
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useProfile } from '@/contexts/ProfileContext';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import AvatarUploader from '@/components/AvatarUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { processSocialInput, SOCIAL_PLATFORMS, getDisplayUsername } from '@/lib/socialUrlParser';
 import { usePlanFeatures, canAddMoreLinks } from '@/hooks/usePlanFeatures';
 import { UpgradePrompt } from '@/components/UpgradePrompt';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 import { motion } from 'framer-motion';
 import { Camera, Plus, X, Phone, Globe, Link as LinkIcon, ExternalLink, Save, AlertCircle, CheckCircle, Shield, Mail, Crown } from 'lucide-react';
@@ -50,7 +51,7 @@ export default function DashboardProfile() {
   const [slug, setSlug] = useState(profile?.slug || '');
   const [slugAvailable, setSlugAvailable] = useState(true);
   const [checkingSlug, setCheckingSlug] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [hasUnsavedChangesState, setHasUnsavedChanges] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showSocialDialog, setShowSocialDialog] = useState(false);
   const [selectedSocial, setSelectedSocial] = useState(null);
@@ -71,36 +72,8 @@ export default function DashboardProfile() {
   const canAddLink = canAddMoreLinks(links.length, planFeatures.planType);
   const remainingLinks = planFeatures.maxLinks === Infinity ? Infinity : planFeatures.maxLinks - links.length;
 
-  // Handle browser/tab close and page reload - safer approach
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-        return 'You have unsaved changes. Are you sure you want to leave?';
-      }
-    };
-
-    const handlePopState = (e: PopStateEvent) => {
-      if (hasUnsavedChanges) {
-        const confirmLeave = window.confirm('You have unsaved changes. Are you sure you want to leave?');
-        if (!confirmLeave) {
-          // Push the current state back to prevent navigation
-          window.history.pushState(null, '', window.location.href);
-          e.preventDefault();
-          return;
-        }
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('popstate', handlePopState);
-    
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, [hasUnsavedChanges]);
+  // Use the unsaved changes hook for navigation protection
+  useUnsavedChanges(hasUnsavedChangesState, 'You have unsaved changes. Are you sure you want to leave?');
 
   // Effect to update form fields when profile changes
   useEffect(() => {
@@ -122,12 +95,12 @@ export default function DashboardProfile() {
 
   // Effect to check for unsaved changes by comparing form state with database profile, with debug logs
   // Excludes auto-saved fields to prevent interference with unsaved changes detection
-  useEffect(() => {
+  const hasUnsavedChanges = useMemo(() => {
     if (!profile) {
-      setHasUnsavedChanges(false);
       console.log('[UnsavedChanges] No profile loaded, hasUnsavedChanges = false');
-      return;
+      return false;
     }
+    
     const profileLinks = Array.isArray(profile.links) ? profile.links : [];
     // Only check main fields that require manual save, exclude auto-saved fields
     const diffs = {
@@ -140,11 +113,22 @@ export default function DashboardProfile() {
       links: JSON.stringify(links) !== JSON.stringify(profileLinks),
       // Exclude auto-saved fields: socialLayoutStyle, showEmail, showPhone, showWhatsapp
     };
+    
     const isChanged = Object.values(diffs).some(Boolean);
-    console.log('[UnsavedChanges] Field diffs (main fields only):', diffs);
+    
+    // Only log when the state actually changes to reduce console noise
+    if (isChanged !== hasUnsavedChangesState) {
+      console.log('[UnsavedChanges] Field diffs (main fields only):', diffs);
     console.log('[UnsavedChanges] isChanged:', isChanged);
-    setHasUnsavedChanges(isChanged);
-  }, [name, title, bio, avatarUrl, links, slug, phone, profile]);
+    }
+    
+    return isChanged;
+  }, [name, title, bio, avatarUrl, links, slug, phone, profile, hasUnsavedChangesState]);
+
+  // Update the context when hasUnsavedChanges changes
+  useEffect(() => {
+    setHasUnsavedChanges(hasUnsavedChanges);
+  }, [hasUnsavedChanges]);
 
   // Slug (username) availability check
   useEffect(() => {
@@ -401,7 +385,7 @@ export default function DashboardProfile() {
       toast.error(err.message || 'Failed to save profile');
     }
     setSaving(false);
-    setHasUnsavedChanges(false);
+    // hasUnsavedChanges will automatically become false when profile is updated
   };
 
   const handleRemoveAvatar = async () => {
@@ -971,7 +955,7 @@ export default function DashboardProfile() {
             ) : (
               <>
                 <Save className="w-5 h-5 mr-2" />
-                {!profile ? 'Create Profile' : 'Save Changes'}
+                {!profile ? 'Create Profile' : 'Save Profile'}
               </>
             )}
         </Button>

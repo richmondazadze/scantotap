@@ -53,7 +53,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     
     try {
-      const { data, error } = await supabase
+    const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
@@ -96,10 +96,10 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
             if (syncResult.updated) {
               // Refetch profile if plan type was updated
               const { data: updatedData } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single();
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
               
               if (updatedData) {
                 const updatedProfile: Profile = {

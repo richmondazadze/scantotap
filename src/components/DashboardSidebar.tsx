@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { ProtectedLink } from '@/components/ProtectedLink';
 
 const DashboardSidebar = () => {
   const location = useLocation();
@@ -138,7 +139,7 @@ const DashboardSidebar = () => {
                   whileHover={{ x: 4 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
-                  <Link
+                  <ProtectedLink
                   to={item.path}
                   className={cn(
                       "relative flex items-center px-4 py-4 rounded-2xl transition-all duration-300 group overflow-hidden",
@@ -221,7 +222,7 @@ const DashboardSidebar = () => {
                         />
                       </motion.div>
                     </div>
-                </Link>
+                </ProtectedLink>
                 </motion.div>
               );
             })}
@@ -281,7 +282,7 @@ const DashboardSidebar = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Link
+                    <ProtectedLink
                       to={item.path}
                       className="relative flex flex-col items-center justify-center px-2 py-2 rounded-2xl transition-all duration-300 group min-w-[58px] min-h-[58px]"
                       aria-label={`Navigate to ${item.name}`}
@@ -371,7 +372,7 @@ const DashboardSidebar = () => {
                         whileTap={{ scale: 1.2, opacity: 1 }}
                         transition={{ duration: 0.2 }}
                       />
-                    </Link>
+                    </ProtectedLink>
                   </motion.div>
                 );
               })}
