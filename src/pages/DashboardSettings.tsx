@@ -22,7 +22,6 @@ import {
   Bell, 
   Globe, 
   Lock, 
-  CreditCard, 
   AlertCircle, 
   ExternalLink,
   RefreshCw,
@@ -36,7 +35,6 @@ import {
   Key,
   Menu,
   X,
-  Calendar,
   CheckCircle
 } from 'lucide-react';
 import {
@@ -205,61 +203,7 @@ export default function DashboardSettings() {
     setBillingDialogOpen(true);
   };
 
-  const handleUpdatePaymentMethod = async () => {
-    if (!session?.user || !session.user.email) {
-      toast.error('User information not available');
-      return;
-    }
 
-    try {
-      // For payment method updates, we'll direct users to their Paystack dashboard
-      // This is the most secure way to handle payment method updates
-      toast.info('For security, payment method updates are handled through Paystack directly. Contact support if you need assistance.');
-      setBillingDialogOpen(false);
-    } catch (error) {
-      console.error('Error updating payment method:', error);
-      toast.error('Failed to initiate payment method update. Please try again.');
-    }
-  };
-
-  const handleChangePlan = async (newPlanType: 'monthly' | 'annually') => {
-    if (!session?.user || !session.user.email) {
-      toast.error('User information not available');
-      return;
-    }
-
-    setUpgrading(true);
-    try {
-      const result = await SubscriptionStateManager.handleSubscription(
-        session.user.id,
-        session.user.email,
-        profile?.name || 'User',
-        newPlanType
-      );
-
-      if (result.success) {
-        toast.success(`Switching to ${newPlanType} billing...`);
-        setBillingDialogOpen(false);
-        // Refresh subscription details after a delay
-        setTimeout(() => {
-          loadSubscriptionDetails();
-          refreshProfile();
-        }, 2000);
-      } else {
-        toast.error(result.error || 'Failed to change plan');
-      }
-    } catch (error) {
-      console.error('Plan change error:', error);
-      toast.error('Failed to change plan. Please try again.');
-    } finally {
-      setUpgrading(false);
-    }
-  };
-
-  const handleViewBillingHistory = () => {
-    // For now, show a placeholder. In production, this would integrate with Paystack's transaction API
-    toast.info('Billing history feature coming soon! Contact support for transaction details.');
-  };
 
   // Load user settings
   useEffect(() => {
@@ -536,7 +480,7 @@ export default function DashboardSettings() {
                 Settings
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent className="p-0 mb-4">
               <nav className="space-y-1">
                 {sections.map((section) => {
                   const Icon = section.icon;
@@ -544,7 +488,7 @@ export default function DashboardSettings() {
                     <button
                       key={section.id}
                       onClick={() => handleSectionChange(section.id)}
-                      className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-xl mx-2 ${
+                      className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:text-scan-blue dark:hover:bg-gray-800 transition-colors rounded-xl mx-2 ${
                         activeSection === section.id 
                           ? 'bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 text-scan-blue border border-scan-blue/20' 
                           : 'text-gray-600 dark:text-gray-300'
@@ -1005,7 +949,7 @@ export default function DashboardSettings() {
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <CreditCard className="w-4 h-4 text-gray-500" />
+                            <Palette className="w-4 h-4 text-gray-500" />
                             <span className="text-sm font-medium">Card Designs</span>
                           </div>
                           <p className="text-sm text-gray-600 dark:text-gray-400 ml-6">
@@ -1093,18 +1037,18 @@ export default function DashboardSettings() {
                       ) : (
                         /* Manage Options for Pro Users */
                         <div className="space-y-4">
-                          {/* Billing Portal Link */}
+                          {/* Subscription Management Link */}
                           <div className="p-4 rounded-lg border">
                             <div className="flex items-start gap-3">
-                              <CreditCard className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
+                              <Settings className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
                               <div className="flex-1">
-                                <h4 className="font-medium mb-2">Payment & Billing</h4>
+                                <h4 className="font-medium mb-2">Subscription Support</h4>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                                  Update your payment method and view billing history.
+                                  Get help with your subscription or account questions.
                                 </p>
                                 <Button variant="outline" size="sm" onClick={handleManageBilling}>
                                   <ExternalLink className="w-4 h-4 mr-2" />
-                                  Manage Billing
+                                  Get Support
                                 </Button>
                               </div>
                             </div>
@@ -1189,11 +1133,11 @@ export default function DashboardSettings() {
         <AlertDialogContent className="m-4 w-[calc(100vw-2rem)] max-w-md sm:max-w-lg lg:max-w-xl mx-auto">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5" />
-              Manage Billing
+              <Crown className="w-5 h-5" />
+              Manage Subscription
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Manage your subscription billing and payment methods.
+              View your subscription details and get support.
             </AlertDialogDescription>
           </AlertDialogHeader>
           
@@ -1233,80 +1177,19 @@ export default function DashboardSettings() {
               </div>
             )}
 
-            {/* Billing Actions */}
+            {/* Support Section */}
             <div className="space-y-3">
-              <div className="p-3 border rounded-lg">
+              <div className="p-4 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 dark:from-scan-blue/10 dark:to-scan-purple/10 border border-scan-blue/20 dark:border-scan-blue/30 rounded-lg">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex-1">
-                    <h5 className="font-medium">Update Payment Method</h5>
+                    <h5 className="font-medium text-scan-blue dark:text-scan-blue-light">Contact Support</h5>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Change your credit card or payment details
-                    </p>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={handleUpdatePaymentMethod} className="w-full sm:w-auto">
-                    <CreditCard className="w-4 h-4 mr-2" />
-                    Update
-                  </Button>
-                </div>
-              </div>
-
-              <div className="p-3 border rounded-lg">
-                <div className="flex flex-col gap-3">
-                  <div>
-                    <h5 className="font-medium">Change Billing Cycle</h5>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Switch between monthly and annual billing
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => handleChangePlan('monthly')}
-                      disabled={upgrading}
-                      className="flex-1 sm:flex-none"
-                    >
-                      {upgrading ? 'Processing...' : 'Monthly ($4)'}
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => handleChangePlan('annually')}
-                      disabled={upgrading}
-                      className="flex-1 sm:flex-none"
-                    >
-                      {upgrading ? 'Processing...' : 'Annual ($40)'}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-3 border rounded-lg">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex-1">
-                    <h5 className="font-medium">Billing History</h5>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      View your past payments and invoices
-                    </p>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={handleViewBillingHistory} className="w-full sm:w-auto">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    View
-                  </Button>
-                </div>
-              </div>
-
-              <div className="p-3 border rounded-lg">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex-1">
-                    <h5 className="font-medium">Contact Support</h5>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Get help with billing issues
+                      Get help with your subscription or billing questions
                     </p>
                   </div>
                   <Button variant="outline" size="sm" onClick={() => {
-                    window.open('mailto:support@tapverse.app?subject=Billing Support', '_blank');
-                  }} className="w-full sm:w-auto">
+                    window.open('mailto:scan2tap@gmail.com?subject=Subscription Support', '_blank');
+                  }} className="w-full sm:w-auto border-scan-blue/20 text-scan-blue hover:bg-scan-blue/5">
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Contact
                   </Button>
