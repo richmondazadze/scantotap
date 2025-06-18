@@ -75,19 +75,50 @@ async function sendThankYouEmail(data) {
     }
     
     .logo {
-      width: 60px;
-      height: 60px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 16px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.3);
-      font-size: 24px;
-      color: white;
-      font-weight: 700;
+      font-family: 'Roboto', Arial, sans-serif !important;
+      font-size: 40px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      letter-spacing: 1.5px !important;
+      margin: 0 0 20px 0 !important;
+      padding: 14px 20px !important;
+      background: rgba(255,255,255,0.15) !important;
+      border-radius: 16px !important;
+      border: 2px solid rgba(255,255,255,0.3) !important;
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.2) !important,
+        inset 0 1px 0 rgba(255,255,255,0.4) !important,
+        inset 0 -1px 0 rgba(0,0,0,0.1) !important;
+      backdrop-filter: blur(12px) !important;
+      display: inline-block !important;
+      text-transform: uppercase !important;
+    }
+    
+    .logo-letter {
+      display: inline-block !important;
+      position: relative !important;
+    }
+    
+    .logo-letter-normal {
+      color: #ffffff !important;
+      text-shadow: 
+        0 1px 0 rgba(255,255,255,0.8) !important,
+        0 2px 3px rgba(0,0,0,0.3) !important,
+        0 4px 8px rgba(0,0,0,0.2) !important,
+        0 8px 16px rgba(0,0,0,0.1) !important;
+    }
+    
+    .logo-letter-2 {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%) !important;
+      background-clip: text !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      color: #3b82f6 !important;
+      text-shadow: 
+        0 1px 0 rgba(59, 130, 246, 0.8) !important,
+        0 2px 4px rgba(29, 78, 216, 0.6) !important,
+        0 4px 8px rgba(30, 64, 175, 0.4) !important,
+        0 8px 16px rgba(37, 99, 235, 0.2) !important;
     }
     
     .brand-name {
@@ -229,13 +260,20 @@ async function sendThankYouEmail(data) {
       .footer {
         padding: 20px;
       }
+      
+      .logo {
+        font-size: 32px !important;
+        padding: 12px 16px !important;
+      }
     }
   </style>
 </head>
 <body>
   <div class="email-container">
     <div class="header">
-      <div class="logo">S2T</div>
+      <div class="logo">
+        <span class="logo-letter logo-letter-normal">SCAN</span><span class="logo-letter logo-letter-2">2</span><span class="logo-letter logo-letter-normal">TAP</span>
+      </div>
       <h1 class="brand-name">Scan2Tap</h1>
       <p class="tagline">Digital Business Cards Reimagined</p>
     </div>
@@ -274,9 +312,9 @@ async function sendThankYouEmail(data) {
       </div>
       
       <div class="message">
-        <p><strong>⏰ Response Time:</strong> We typically respond within 24 hours during business days.</p>
+        <p><strong>⏰ Response Time:</strong> We typically respond within 24 hours during business days. For urgent matters, feel free to call us directly.</p>
         
-        <p><strong>📞 Need immediate help?</strong> Check out our <a href="https://scan2tap.com/pricing" style="color: #2563eb; text-decoration: none;">FAQ section in our pricing page</a> or contact us at <a href="mailto:scan2tap@richverseecotech.com" style="color: #2563eb; text-decoration: none;">scan2tap@richverseecotech.com</a></p>
+        <p><strong>📞 Need immediate help?</strong> Check out our FAQ section in our pricing page or contact us at <a href="mailto:scan2tap@richverseecotech.com" style="color: #2563eb; text-decoration: none;">scan2tap@richverseecotech.com</a></p>
       </div>
     </div>
     

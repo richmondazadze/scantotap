@@ -44,6 +44,61 @@ class ContactEmailService {
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
+    /* Glossy 3D SCAN2TAP Text Styles */
+    .logo-text-container {
+      position: relative !important;
+      z-index: 10 !important;
+      margin-bottom: 24px !important;
+      text-align: center !important;
+    }
+    
+    .logo-text {
+      font-family: 'Roboto', Arial, sans-serif !important;
+      font-size: 48px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      letter-spacing: 2px !important;
+      margin: 0 !important;
+      padding: 16px 24px !important;
+      background: rgba(255,255,255,0.15) !important;
+      border-radius: 16px !important;
+      border: 2px solid rgba(255,255,255,0.3) !important;
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.2) !important,
+        inset 0 1px 0 rgba(255,255,255,0.4) !important,
+        inset 0 -1px 0 rgba(0,0,0,0.1) !important;
+      backdrop-filter: blur(12px) !important;
+      display: inline-block !important;
+      text-transform: uppercase !important;
+    }
+    
+    .logo-letter {
+      display: inline-block !important;
+      position: relative !important;
+    }
+    
+    .logo-letter-normal {
+      color: #ffffff !important;
+      text-shadow: 
+        0 1px 0 rgba(255,255,255,0.8) !important,
+        0 2px 3px rgba(0,0,0,0.3) !important,
+        0 4px 8px rgba(0,0,0,0.2) !important,
+        0 8px 16px rgba(0,0,0,0.1) !important;
+    }
+    
+    .logo-letter-2 {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%) !important;
+      background-clip: text !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      color: #3b82f6 !important;
+      text-shadow: 
+        0 1px 0 rgba(59, 130, 246, 0.8) !important,
+        0 2px 4px rgba(29, 78, 216, 0.6) !important,
+        0 4px 8px rgba(30, 64, 175, 0.4) !important,
+        0 8px 16px rgba(37, 99, 235, 0.2) !important;
+    }
+
     /* Reset styles with email client compatibility */
     * { 
       margin: 0 !important; 
@@ -380,15 +435,20 @@ class ContactEmailService {
       .footer {
         padding: 20px;
       }
+      
+      .logo-text {
+        font-size: 36px !important;
+        padding: 12px 20px !important;
+      }
     }
   </style>
 </head>
 <body>
   <div class="email-container">
     <div class="header">
-      <div class="logo-container">
-        <div class="logo">
-          <img src="https://scan2tap.vercel.app/logo.png" alt="Scan2Tap Logo">
+      <div class="logo-text-container">
+        <div class="logo-text">
+          <span class="logo-letter logo-letter-normal">SCAN</span><span class="logo-letter logo-letter-2">2</span><span class="logo-letter logo-letter-normal">TAP</span>
         </div>
       </div>
       <div class="brand-container">
@@ -433,7 +493,7 @@ class ContactEmailService {
       <div class="message">
         <p><strong>⏰ Response Time:</strong> We typically respond within 24 hours during business days. For urgent matters, feel free to call us directly.</p>
         
-        <p><strong>📞 Need immediate help?</strong> Check out our <a href="https://scan2tap.com/faq" style="color: #2563eb; text-decoration: none;">FAQ section</a> or contact us at <a href="mailto:${this.fromEmail}" style="color: #2563eb; text-decoration: none;">${this.fromEmail}</a></p>
+        <p><strong>📞 Need immediate help?</strong> Check out our FAQ section in our pricing page or contact us at <a href="mailto:${this.fromEmail}" style="color: #2563eb; text-decoration: none;">${this.fromEmail}</a></p>
       </div>
     </div>
     
@@ -487,6 +547,52 @@ class ContactEmailService {
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
+    /* Glossy 3D SCAN2TAP Text Styles */
+    .alert-logo-text {
+      font-family: 'Roboto', Arial, sans-serif !important;
+      font-size: 36px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      letter-spacing: 1.5px !important;
+      margin: 0 !important;
+      padding: 12px 20px !important;
+      background: rgba(255,255,255,0.2) !important;
+      border-radius: 16px !important;
+      border: 2px solid rgba(255,255,255,0.3) !important;
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.25) !important,
+        inset 0 1px 0 rgba(255,255,255,0.4) !important;
+      backdrop-filter: blur(12px) !important;
+      display: inline-block !important;
+      text-transform: uppercase !important;
+      margin-bottom: 16px !important;
+    }
+    
+    .alert-logo-letter {
+      display: inline-block !important;
+      position: relative !important;
+    }
+    
+    .alert-logo-letter-normal {
+      color: #ffffff !important;
+      text-shadow: 
+        0 1px 0 rgba(255,255,255,0.9) !important,
+        0 2px 4px rgba(0,0,0,0.4) !important,
+        0 4px 8px rgba(0,0,0,0.3) !important;
+    }
+    
+    .alert-logo-letter-2 {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%) !important;
+      background-clip: text !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      color: #3b82f6 !important;
+      text-shadow: 
+        0 1px 0 rgba(59, 130, 246, 0.9) !important,
+        0 2px 4px rgba(29, 78, 216, 0.7) !important,
+        0 4px 8px rgba(30, 64, 175, 0.5) !important;
+    }
+
     /* Reset styles with email client compatibility */
     * { 
       margin: 0 !important; 
@@ -610,52 +716,7 @@ class ContactEmailService {
       0%, 100% { opacity: 1 !important; }
       50% { opacity: 0.9 !important; }
     }
-    
-    .alert-logo-container {
-      position: relative !important;
-      z-index: 10 !important;
-      margin-bottom: 20px !important;
-    }
-    
-    .alert-logo {
-      width: 70px !important;
-      height: 70px !important;
-      background-color: rgba(255,255,255,0.2) !important;
-      background: rgba(255,255,255,0.2) !important;
-      border-radius: 18px !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      border: 2px solid rgba(255,255,255,0.3) !important;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
-      position: relative !important;
-      overflow: hidden !important;
-      -webkit-border-radius: 18px !important;
-      -moz-border-radius: 18px !important;
-    }
-    
-    .alert-logo::before {
-      content: '' !important;
-      position: absolute !important;
-      top: -50% !important;
-      left: -50% !important;
-      width: 200% !important;
-      height: 200% !important;
-      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.08), transparent) !important;
-      pointer-events: none !important;
-    }
-    
-    .alert-logo img {
-      width: 50px !important;
-      height: 50px !important;
-      object-fit: contain !important;
-      position: relative !important;
-      z-index: 2 !important;
-      filter: brightness(1.2) contrast(1.1) !important;
-      max-width: 50px !important;
-      max-height: 50px !important;
-    }
-    
+
     .alert-icon {
       font-size: 48px !important;
       margin-bottom: 12px !important;
@@ -874,16 +935,19 @@ class ContactEmailService {
         display: block;
         width: 100%;
       }
+      
+      .alert-logo-text {
+        font-size: 28px !important;
+        padding: 10px 16px !important;
+      }
     }
   </style>
 </head>
 <body>
   <div class="email-container">
     <div class="alert-header">
-      <div class="alert-logo-container">
-        <div class="alert-logo">
-          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAACAASURBVHic7N13eBTV+vDx7zO7m0YooSQQCG2xgKKoIIpYULrYO2KhCCKoeLGBFRv2iryCgqh4VUBEQRFRROwVG1hQAQsqRXpLISHtvOfvj4lsJpOdTbJJNhPvz3Xl4syx7Dz9PWdmzpxnBGOMISIismNHuAsQERH/qcGKiGzMjrfQBw8eTI8ePQgEAuEuRUROJO/8lWXOY7HVAGu//Ci1d//H69qjBz9mzgcfhrkCETkhzKp7XKbfQouIbEwNVkRkY2qwIiIbU4MVEdmYGqyIyMbUYEVENqYGKyKyMTVYEZGNqcGKiGxMDVZEZGNqsCIiG1ODFRHZmBqsiMjG1GBFRDamBisisjE1WBGR1HXqQMdXoR/w2XdgWnp9gKAarIhIalpN/0tI8qrBioik7P9+Aw==" alt="Scan2Tap Logo">
-        </div>
+      <div class="alert-logo-text">
+        <span class="alert-logo-letter alert-logo-letter-normal">SCAN</span><span class="alert-logo-letter alert-logo-letter-2">2</span><span class="alert-logo-letter alert-logo-letter-normal">TAP</span>
       </div>
       <div class="alert-icon">🚨</div>
       <h1 class="alert-title">New Contact Form Submission</h1>
