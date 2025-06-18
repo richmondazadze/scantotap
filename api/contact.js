@@ -274,9 +274,9 @@ async function sendThankYouEmail(data) {
       </div>
       
       <div class="message">
-        <p><strong>⏰ Response Time:</strong> We typically respond within 24 hours during business days. For urgent matters, feel free to call us directly.</p>
+        <p><strong>⏰ Response Time:</strong> We typically respond within 24 hours during business days.</p>
         
-        <p><strong>📞 Need immediate help?</strong> Check out our <a href="https://scan2tap.com/faq" style="color: #2563eb; text-decoration: none;">FAQ section</a> or contact us at <a href="mailto:scan2tap@richverseecotech.com" style="color: #2563eb; text-decoration: none;">scan2tap@richverseecotech.com</a></p>
+        <p><strong>📞 Need immediate help?</strong> Check out our <a href="https://scan2tap.com/pricing" style="color: #2563eb; text-decoration: none;">FAQ section in our pricing page</a> or contact us at <a href="mailto:scan2tap@richverseecotech.com" style="color: #2563eb; text-decoration: none;">scan2tap@richverseecotech.com</a></p>
       </div>
     </div>
     

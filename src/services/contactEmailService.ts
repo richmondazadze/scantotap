@@ -65,12 +65,12 @@ class ContactEmailService {
       background: #ffffff;
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.15);
     }
     
     .header {
-      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-      padding: 40px 30px;
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 25%, #6366f1 50%, #8b5cf6 75%, #a855f7 100%);
+      padding: 50px 40px;
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -79,49 +79,135 @@ class ContactEmailService {
     .header::before {
       content: '';
       position: absolute;
+      top: -100%;
+      left: -100%;
+      width: 300%;
+      height: 300%;
+      background: 
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.15) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%),
+        linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.05) 50%, transparent 60%);
+      animation: shimmer 8s ease-in-out infinite;
+    }
+    
+    .header::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 2px,
+          rgba(255,255,255,0.03) 2px,
+          rgba(255,255,255,0.03) 4px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(255,255,255,0.03) 2px,
+          rgba(255,255,255,0.03) 4px
+        );
+    }
+    
+    @keyframes shimmer {
+      0%, 100% { transform: translateX(-50%) translateY(-50%) rotate(0deg); opacity: 1; }
+      50% { transform: translateX(-45%) translateY(-45%) rotate(180deg); opacity: 0.8; }
+    }
+    
+    .logo-container {
+      position: relative;
+      z-index: 10;
+      margin-bottom: 24px;
+    }
+    
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(255,255,255,0.4);
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.4),
+        inset 0 -1px 0 rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .logo::before {
+      content: '';
+      position: absolute;
       top: -50%;
       left: -50%;
       width: 200%;
       height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      animation: float 6s ease-in-out infinite;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      transform: rotate(45deg);
+      animation: logoShine 4s ease-in-out infinite;
     }
     
-    @keyframes float {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-20px) rotate(180deg); }
+    @keyframes logoShine {
+      0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
     }
     
-    .logo {
+    .logo img {
       width: 60px;
       height: 60px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 16px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.3);
-      font-size: 24px;
-      color: white;
-      font-weight: 700;
+      object-fit: contain;
+      position: relative;
+      z-index: 2;
+      filter: brightness(1.1) contrast(1.05);
+    }
+    
+    .brand-container {
+      position: relative;
+      z-index: 10;
     }
     
     .brand-name {
-      font-family: 'Roboto', serif;
-      font-size: 28px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 32px;
       font-weight: 700;
       color: #ffffff;
       margin: 0;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-shadow: 
+        0 2px 4px rgba(0,0,0,0.2),
+        0 4px 8px rgba(0,0,0,0.1),
+        0 8px 16px rgba(0,0,0,0.05);
+      letter-spacing: 0.5px;
+      position: relative;
+    }
+    
+    .brand-name::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+      border-radius: 2px;
     }
     
     .tagline {
-      color: rgba(255,255,255,0.9);
-      font-size: 16px;
-      margin-top: 8px;
+      color: rgba(255,255,255,0.95);
+      font-size: 18px;
+      margin-top: 12px;
       font-weight: 400;
+      letter-spacing: 0.3px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
     
     .content {
@@ -253,9 +339,15 @@ class ContactEmailService {
 <body>
   <div class="email-container">
     <div class="header">
-      <div class="logo">S2T</div>
-      <h1 class="brand-name">${this.brandName}</h1>
-      <p class="tagline">Digital Business Cards Reimagined</p>
+      <div class="logo-container">
+        <div class="logo">
+          <img src="https://scan2tap.vercel.app/logo.png" alt="Scan2Tap Logo">
+        </div>
+      </div>
+      <div class="brand-container">
+        <h1 class="brand-name">${this.brandName}</h1>
+        <p class="tagline">Digital Business Cards Reimagined</p>
+      </div>
     </div>
     
     <div class="content">
@@ -371,27 +463,132 @@ class ContactEmailService {
     }
     
     .alert-header {
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-      padding: 30px;
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
+      padding: 50px 40px;
       text-align: center;
       color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .alert-header::before {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: -100%;
+      width: 300%;
+      height: 300%;
+      background: 
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.12) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(255,255,255,0.08) 0%, transparent 50%),
+        linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%);
+      animation: alertShimmer 8s ease-in-out infinite;
+    }
+    
+    .alert-header::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 2px,
+          rgba(255,255,255,0.02) 2px,
+          rgba(255,255,255,0.02) 4px
+        );
+    }
+    
+    @keyframes alertShimmer {
+      0%, 100% { transform: translateX(-50%) translateY(-50%) rotate(0deg); opacity: 1; }
+      50% { transform: translateX(-45%) translateY(-45%) rotate(180deg); opacity: 0.9; }
+    }
+    
+    .alert-logo-container {
+      position: relative;
+      z-index: 10;
+      margin-bottom: 20px;
+    }
+    
+    .alert-logo {
+      width: 70px;
+      height: 70px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(255,255,255,0.3);
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.3),
+        inset 0 -1px 0 rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .alert-logo::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.08), transparent);
+      transform: rotate(45deg);
+      animation: alertLogoShine 4s ease-in-out infinite;
+    }
+    
+    @keyframes alertLogoShine {
+      0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+    
+    .alert-logo img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      position: relative;
+      z-index: 2;
+      filter: brightness(1.2) contrast(1.1);
     }
     
     .alert-icon {
       font-size: 48px;
       margin-bottom: 12px;
+      position: relative;
+      z-index: 10;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
     
     .alert-title {
-      font-size: 24px;
+      font-size: 28px;
       font-weight: 700;
       margin: 0;
+      position: relative;
+      z-index: 10;
+      text-shadow: 
+        0 2px 4px rgba(0,0,0,0.2),
+        0 4px 8px rgba(0,0,0,0.1);
+      letter-spacing: 0.3px;
     }
     
     .alert-subtitle {
       font-size: 16px;
-      opacity: 0.9;
+      opacity: 0.95;
       margin-top: 8px;
+      position: relative;
+      z-index: 10;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
     
     .content {
@@ -577,6 +774,11 @@ class ContactEmailService {
 <body>
   <div class="email-container">
     <div class="alert-header">
+      <div class="alert-logo-container">
+        <div class="alert-logo">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAACAASURBVHic7N13eBTV+vDx7zO7m0YooSQQCG2xgKKoIIpYULrYO2KhCCKoeLGBFRv2iryCgqh4VUBEQRFRROwVG1hQAQsqRXpLISHtvOfvj4lsJpOdTbJJNhPvz3Xl4syx7Dz9PWdmzpxnBGOMISIismNHuAsQERH/qcGKiGzMjrfQBw8eTI8ePQgEAuEuRUROJO/8lWXOY7HVAGu//Ci1d//H69qjBz9mzgcfhrkCETkhzKp7XKbfQouIbEwNVkRkY2qwIiIbU4MVEdmYGqyIyMbUYEVENqYGKyKyMTVYEZGNqcGKiGxMDVZEZGNqsCIiG1ODFRHZmBqsiMjG1GBFRDamBisisjE1WBGR1HXqQMdXoR/w2XdgWnp9gKAarIhIalpN/0tI8qrBioik7P9+Aw==" alt="Scan2Tap Logo">
+        </div>
+      </div>
       <div class="alert-icon">🚨</div>
       <h1 class="alert-title">New Contact Form Submission</h1>
       <p class="alert-subtitle">Immediate attention required</p>
