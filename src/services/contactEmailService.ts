@@ -44,205 +44,252 @@ class ContactEmailService {
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* Reset styles with email client compatibility */
+    * { 
+      margin: 0 !important; 
+      padding: 0 !important; 
+      box-sizing: border-box !important; 
+    }
     
+    /* Dark mode fixes and email client compatibility */
     body {
-      margin: 0;
-      padding: 0;
+      margin: 0 !important;
+      padding: 0 !important;
       width: 100% !important;
-      height: 100% !important;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      line-height: 1.6;
-      color: #333333;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      background-color: #f8fafc !important;
+      background: #f8fafc !important;
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
+      line-height: 1.6 !important;
+      color: #333333 !important;
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
+      -webkit-text-size-adjust: 100% !important;
+      -ms-text-size-adjust: 100% !important;
+    }
+    
+    /* Dark mode overrides */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #f8fafc !important;
+        color: #333333 !important;
+      }
+      .email-container {
+        background-color: #ffffff !important;
+        color: #333333 !important;
+      }
+      .content {
+        background-color: #ffffff !important;
+        color: #333333 !important;
+      }
+      .greeting {
+        color: #1f2937 !important;
+      }
+      .message {
+        color: #4b5563 !important;
+      }
+      .summary-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+        color: #1e293b !important;
+      }
+      .brand-name {
+        color: #ffffff !important;
+      }
+      .tagline {
+        color: rgba(255,255,255,0.95) !important;
+      }
+    }
+    
+    /* Email client specific fixes */
+    table {
+      border-collapse: collapse !important;
+      border-spacing: 0 !important;
+    }
+    
+    img {
+      border: 0 !important;
+      line-height: 100% !important;
+      outline: none !important;
+      text-decoration: none !important;
+      display: block !important;
     }
     
     .email-container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #ffffff;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+      max-width: 600px !important;
+      margin: 0 auto !important;
+      background-color: #ffffff !important;
+      background: #ffffff !important;
+      border-radius: 16px !important;
+      overflow: hidden !important;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.15) !important;
+      -webkit-border-radius: 16px !important;
+      -moz-border-radius: 16px !important;
     }
     
     .header {
-      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 25%, #6366f1 50%, #8b5cf6 75%, #a855f7 100%);
-      padding: 50px 40px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
+      background-color: #3b82f6 !important;
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 25%, #6366f1 50%, #8b5cf6 75%, #a855f7 100%) !important;
+      padding: 50px 40px !important;
+      text-align: center !important;
+      position: relative !important;
+      overflow: hidden !important;
     }
     
+    /* Simplified header effects for better email client support */
     .header::before {
-      content: '';
-      position: absolute;
-      top: -100%;
-      left: -100%;
-      width: 300%;
-      height: 300%;
-      background: 
-        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.15) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%),
-        linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.05) 50%, transparent 60%);
-      animation: shimmer 8s ease-in-out infinite;
+      content: '' !important;
+      position: absolute !important;
+      top: -100% !important;
+      left: -100% !important;
+      width: 300% !important;
+      height: 300% !important;
+      background: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.15) 0%, transparent 50%) !important;
+      pointer-events: none !important;
     }
     
     .header::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: 
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 2px,
-          rgba(255,255,255,0.03) 2px,
-          rgba(255,255,255,0.03) 4px
-        ),
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 2px,
-          rgba(255,255,255,0.03) 2px,
-          rgba(255,255,255,0.03) 4px
-        );
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      background: repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px) !important;
+      pointer-events: none !important;
     }
     
+    /* Simplified animations that work across email clients */
     @keyframes shimmer {
-      0%, 100% { transform: translateX(-50%) translateY(-50%) rotate(0deg); opacity: 1; }
-      50% { transform: translateX(-45%) translateY(-45%) rotate(180deg); opacity: 0.8; }
+      0%, 100% { opacity: 1 !important; }
+      50% { opacity: 0.8 !important; }
     }
     
     .logo-container {
-      position: relative;
-      z-index: 10;
-      margin-bottom: 24px;
+      position: relative !important;
+      z-index: 10 !important;
+      margin-bottom: 24px !important;
     }
     
     .logo {
-      width: 80px;
-      height: 80px;
-      background: rgba(255,255,255,0.25);
-      border-radius: 20px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(15px);
-      border: 2px solid rgba(255,255,255,0.4);
-      box-shadow: 
-        0 8px 32px rgba(0,0,0,0.1),
-        inset 0 1px 0 rgba(255,255,255,0.4),
-        inset 0 -1px 0 rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      width: 80px !important;
+      height: 80px !important;
+      background-color: rgba(255,255,255,0.25) !important;
+      background: rgba(255,255,255,0.25) !important;
+      border-radius: 20px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border: 2px solid rgba(255,255,255,0.4) !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1) !important;
+      position: relative !important;
+      overflow: hidden !important;
+      -webkit-border-radius: 20px !important;
+      -moz-border-radius: 20px !important;
     }
     
     .logo::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-      transform: rotate(45deg);
-      animation: logoShine 4s ease-in-out infinite;
-    }
-    
-    @keyframes logoShine {
-      0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-      50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+      content: '' !important;
+      position: absolute !important;
+      top: -50% !important;
+      left: -50% !important;
+      width: 200% !important;
+      height: 200% !important;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent) !important;
+      pointer-events: none !important;
     }
     
     .logo img {
-      width: 60px;
-      height: 60px;
-      object-fit: contain;
-      position: relative;
-      z-index: 2;
-      filter: brightness(1.1) contrast(1.05);
+      width: 60px !important;
+      height: 60px !important;
+      object-fit: contain !important;
+      position: relative !important;
+      z-index: 2 !important;
+      filter: brightness(1.1) contrast(1.05) !important;
+      max-width: 60px !important;
+      max-height: 60px !important;
     }
     
     .brand-container {
-      position: relative;
-      z-index: 10;
+      position: relative !important;
+      z-index: 10 !important;
     }
     
     .brand-name {
-      font-family: 'Roboto', sans-serif;
-      font-size: 32px;
-      font-weight: 700;
-      color: #ffffff;
-      margin: 0;
-      text-shadow: 
-        0 2px 4px rgba(0,0,0,0.2),
-        0 4px 8px rgba(0,0,0,0.1),
-        0 8px 16px rgba(0,0,0,0.05);
-      letter-spacing: 0.5px;
-      position: relative;
+      font-family: 'Roboto', Arial, sans-serif !important;
+      font-size: 32px !important;
+      font-weight: 700 !important;
+      color: #ffffff !important;
+      margin: 0 !important;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+      letter-spacing: 0.5px !important;
+      position: relative !important;
+      line-height: 1.2 !important;
     }
     
     .brand-name::after {
-      content: '';
-      position: absolute;
-      bottom: -4px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
-      border-radius: 2px;
+      content: '' !important;
+      position: absolute !important;
+      bottom: -4px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: 60px !important;
+      height: 2px !important;
+      background: rgba(255,255,255,0.8) !important;
+      border-radius: 2px !important;
+      -webkit-transform: translateX(-50%) !important;
+      -moz-transform: translateX(-50%) !important;
+      -webkit-border-radius: 2px !important;
+      -moz-border-radius: 2px !important;
     }
     
     .tagline {
-      color: rgba(255,255,255,0.95);
-      font-size: 18px;
-      margin-top: 12px;
-      font-weight: 400;
-      letter-spacing: 0.3px;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      color: rgba(255,255,255,0.95) !important;
+      font-size: 18px !important;
+      margin-top: 12px !important;
+      font-weight: 400 !important;
+      letter-spacing: 0.3px !important;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+      line-height: 1.4 !important;
     }
     
     .content {
-      padding: 50px 40px;
-      background: #ffffff;
+      padding: 50px 40px !important;
+      background-color: #ffffff !important;
+      background: #ffffff !important;
     }
     
     .greeting {
-      font-size: 24px;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 20px;
-      line-height: 1.3;
+      font-size: 24px !important;
+      font-weight: 600 !important;
+      color: #1f2937 !important;
+      margin-bottom: 20px !important;
+      line-height: 1.3 !important;
+      font-family: 'Roboto', Arial, sans-serif !important;
     }
     
     .message {
-      font-size: 16px;
-      line-height: 1.8;
-      color: #4b5563;
-      margin-bottom: 30px;
+      font-size: 16px !important;
+      line-height: 1.8 !important;
+      color: #4b5563 !important;
+      margin-bottom: 30px !important;
+      font-family: 'Roboto', Arial, sans-serif !important;
     }
     
     .summary-card {
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      border-radius: 12px;
-      padding: 24px;
-      margin: 24px 0;
-      border-left: 4px solid #2563eb;
+      background-color: #f8fafc !important;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+      border-radius: 12px !important;
+      padding: 24px !important;
+      margin: 24px 0 !important;
+      border-left: 4px solid #2563eb !important;
+      -webkit-border-radius: 12px !important;
+      -moz-border-radius: 12px !important;
     }
     
     .summary-card h3 {
-      color: #1e293b;
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 12px;
+      color: #1e293b !important;
+      font-size: 18px !important;
+      font-weight: 600 !important;
+      margin-bottom: 12px !important;
     }
     
     .detail-row {
@@ -440,199 +487,258 @@ class ContactEmailService {
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* Reset styles with email client compatibility */
+    * { 
+      margin: 0 !important; 
+      padding: 0 !important; 
+      box-sizing: border-box !important; 
+    }
     
+    /* Dark mode fixes and email client compatibility */
     body {
-      margin: 0;
-      padding: 0;
+      margin: 0 !important;
+      padding: 0 !important;
       width: 100% !important;
-      background: #f8fafc;
-      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      line-height: 1.6;
-      color: #333333;
+      background-color: #f8fafc !important;
+      background: #f8fafc !important;
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
+      line-height: 1.6 !important;
+      color: #333333 !important;
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
+      -webkit-text-size-adjust: 100% !important;
+      -ms-text-size-adjust: 100% !important;
+    }
+    
+    /* Dark mode overrides */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #f8fafc !important;
+        color: #333333 !important;
+      }
+      .email-container {
+        background-color: #ffffff !important;
+        color: #333333 !important;
+      }
+      .content {
+        background-color: #ffffff !important;
+        color: #333333 !important;
+      }
+      .contact-card {
+        background-color: #f8fafc !important;
+        color: #1e293b !important;
+      }
+      .contact-name {
+        color: #1e293b !important;
+      }
+      .contact-time {
+        color: #64748b !important;
+      }
+      .alert-header {
+        color: #ffffff !important;
+      }
+      .alert-title {
+        color: #ffffff !important;
+      }
+      .alert-subtitle {
+        color: rgba(255,255,255,0.95) !important;
+      }
+    }
+    
+    /* Email client specific fixes */
+    table {
+      border-collapse: collapse !important;
+      border-spacing: 0 !important;
+    }
+    
+    img {
+      border: 0 !important;
+      line-height: 100% !important;
+      outline: none !important;
+      text-decoration: none !important;
+      display: block !important;
     }
     
     .email-container {
-      max-width: 600px;
-      margin: 20px auto;
-      background: #ffffff;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      border: 1px solid #e2e8f0;
+      max-width: 600px !important;
+      margin: 20px auto !important;
+      background-color: #ffffff !important;
+      background: #ffffff !important;
+      border-radius: 12px !important;
+      overflow: hidden !important;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+      border: 1px solid #e2e8f0 !important;
+      -webkit-border-radius: 12px !important;
+      -moz-border-radius: 12px !important;
     }
     
     .alert-header {
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
-      padding: 50px 40px;
-      text-align: center;
-      color: white;
-      position: relative;
-      overflow: hidden;
+      background-color: #dc2626 !important;
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%) !important;
+      padding: 50px 40px !important;
+      text-align: center !important;
+      color: white !important;
+      position: relative !important;
+      overflow: hidden !important;
     }
     
+    /* Simplified alert header effects for better email client support */
     .alert-header::before {
-      content: '';
-      position: absolute;
-      top: -100%;
-      left: -100%;
-      width: 300%;
-      height: 300%;
-      background: 
-        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.12) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(255,255,255,0.08) 0%, transparent 50%),
-        linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%);
-      animation: alertShimmer 8s ease-in-out infinite;
+      content: '' !important;
+      position: absolute !important;
+      top: -100% !important;
+      left: -100% !important;
+      width: 300% !important;
+      height: 300% !important;
+      background: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.12) 0%, transparent 50%) !important;
+      pointer-events: none !important;
     }
     
     .alert-header::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: 
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 2px,
-          rgba(255,255,255,0.02) 2px,
-          rgba(255,255,255,0.02) 4px
-        );
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      background: repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px) !important;
+      pointer-events: none !important;
     }
     
+    /* Simplified animations that work across email clients */
     @keyframes alertShimmer {
-      0%, 100% { transform: translateX(-50%) translateY(-50%) rotate(0deg); opacity: 1; }
-      50% { transform: translateX(-45%) translateY(-45%) rotate(180deg); opacity: 0.9; }
+      0%, 100% { opacity: 1 !important; }
+      50% { opacity: 0.9 !important; }
     }
     
     .alert-logo-container {
-      position: relative;
-      z-index: 10;
-      margin-bottom: 20px;
+      position: relative !important;
+      z-index: 10 !important;
+      margin-bottom: 20px !important;
     }
     
     .alert-logo {
-      width: 70px;
-      height: 70px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 18px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(12px);
-      border: 2px solid rgba(255,255,255,0.3);
-      box-shadow: 
-        0 8px 32px rgba(0,0,0,0.15),
-        inset 0 1px 0 rgba(255,255,255,0.3),
-        inset 0 -1px 0 rgba(0,0,0,0.1);
-      position: relative;
-      overflow: hidden;
+      width: 70px !important;
+      height: 70px !important;
+      background-color: rgba(255,255,255,0.2) !important;
+      background: rgba(255,255,255,0.2) !important;
+      border-radius: 18px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border: 2px solid rgba(255,255,255,0.3) !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
+      position: relative !important;
+      overflow: hidden !important;
+      -webkit-border-radius: 18px !important;
+      -moz-border-radius: 18px !important;
     }
     
     .alert-logo::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.08), transparent);
-      transform: rotate(45deg);
-      animation: alertLogoShine 4s ease-in-out infinite;
-    }
-    
-    @keyframes alertLogoShine {
-      0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-      50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+      content: '' !important;
+      position: absolute !important;
+      top: -50% !important;
+      left: -50% !important;
+      width: 200% !important;
+      height: 200% !important;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.08), transparent) !important;
+      pointer-events: none !important;
     }
     
     .alert-logo img {
-      width: 50px;
-      height: 50px;
-      object-fit: contain;
-      position: relative;
-      z-index: 2;
-      filter: brightness(1.2) contrast(1.1);
+      width: 50px !important;
+      height: 50px !important;
+      object-fit: contain !important;
+      position: relative !important;
+      z-index: 2 !important;
+      filter: brightness(1.2) contrast(1.1) !important;
+      max-width: 50px !important;
+      max-height: 50px !important;
     }
     
     .alert-icon {
-      font-size: 48px;
-      margin-bottom: 12px;
-      position: relative;
-      z-index: 10;
-      animation: pulse 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+      font-size: 48px !important;
+      margin-bottom: 12px !important;
+      position: relative !important;
+      z-index: 10 !important;
     }
     
     .alert-title {
-      font-size: 28px;
-      font-weight: 700;
-      margin: 0;
-      position: relative;
-      z-index: 10;
-      text-shadow: 
-        0 2px 4px rgba(0,0,0,0.2),
-        0 4px 8px rgba(0,0,0,0.1);
-      letter-spacing: 0.3px;
+      font-family: 'Roboto', Arial, sans-serif !important;
+      font-size: 28px !important;
+      font-weight: 700 !important;
+      margin: 0 !important;
+      position: relative !important;
+      z-index: 10 !important;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+      letter-spacing: 0.3px !important;
+      color: #ffffff !important;
+      line-height: 1.2 !important;
     }
     
     .alert-subtitle {
-      font-size: 16px;
-      opacity: 0.95;
-      margin-top: 8px;
-      position: relative;
-      z-index: 10;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      font-size: 16px !important;
+      opacity: 0.95 !important;
+      margin-top: 8px !important;
+      position: relative !important;
+      z-index: 10 !important;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+      color: rgba(255,255,255,0.95) !important;
+      line-height: 1.4 !important;
     }
     
     .content {
-      padding: 40px 30px;
+      padding: 40px 30px !important;
+      background-color: #ffffff !important;
+      background: #ffffff !important;
     }
     
     .priority-badge {
-      display: inline-block;
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: white;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 20px;
+      display: inline-block !important;
+      background-color: #f59e0b !important;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+      color: white !important;
+      padding: 6px 16px !important;
+      border-radius: 20px !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      margin-bottom: 20px !important;
+      -webkit-border-radius: 20px !important;
+      -moz-border-radius: 20px !important;
     }
     
     .contact-card {
-      background: #f8fafc;
-      border-radius: 12px;
-      padding: 24px;
-      margin: 20px 0;
-      border-left: 4px solid #dc2626;
+      background-color: #f8fafc !important;
+      background: #f8fafc !important;
+      border-radius: 12px !important;
+      padding: 24px !important;
+      margin: 20px 0 !important;
+      border-left: 4px solid #dc2626 !important;
+      -webkit-border-radius: 12px !important;
+      -moz-border-radius: 12px !important;
     }
     
     .contact-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      margin-bottom: 16px !important;
+      flex-wrap: wrap !important;
     }
     
     .contact-name {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1e293b;
+      font-size: 20px !important;
+      font-weight: 700 !important;
+      color: #1e293b !important;
+      font-family: 'Roboto', Arial, sans-serif !important;
+      line-height: 1.3 !important;
     }
     
     .contact-time {
-      font-size: 14px;
-      color: #64748b;
+      font-size: 14px !important;
+      color: #64748b !important;
       background: white;
       padding: 4px 12px;
       border-radius: 12px;
