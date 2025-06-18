@@ -30,275 +30,338 @@ async function sendThankYouEmail(data) {
     /* Email Client Reset */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      margin: 0; padding: 0; width: 100% !important; height: 100% !important;
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      line-height: 1.6; color: #1a202c; -webkit-font-smoothing: antialiased;
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      font-family: 'Inter', Arial, sans-serif; line-height: 1.6;
+      -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;
     }
-    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-    img { border: 0; line-height: 100%; outline: none; text-decoration: none; display: block; }
     
-    /* Main Container */
-    .email-wrapper {
-      width: 100%; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      padding: 40px 20px; min-height: 100vh;
+    /* Color Variables for Light Mode (Default) */
+    :root {
+      --primary-bg: #ffffff;
+      --secondary-bg: #f8fafc;
+      --text-primary: #1a202c;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --border-color: #e2e8f0;
+      --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --card-bg: #ffffff;
+      --card-shadow: rgba(0, 0, 0, 0.1);
+      --accent-color: #3b82f6;
+      --success-color: #10b981;
+      --info-bg: #eff6ff;
+      --info-border: #bfdbfe;
+      --info-text: #1e40af;
     }
+    
+    /* Dark Mode Support */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary-bg: #1a202c;
+        --secondary-bg: #2d3748;
+        --text-primary: #f7fafc;
+        --text-secondary: #e2e8f0;
+        --text-muted: #a0aec0;
+        --border-color: #4a5568;
+        --header-bg: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+        --card-bg: #2d3748;
+        --card-shadow: rgba(0, 0, 0, 0.3);
+        --accent-color: #60a5fa;
+        --success-color: #34d399;
+        --info-bg: #1e3a8a;
+        --info-border: #3b82f6;
+        --info-text: #93c5fd;
+      }
+    }
+    
+    /* Container */
     .email-container {
-      max-width: 640px; margin: 0 auto; background: #ffffff;
-      border-radius: 24px; overflow: hidden; 
-      box-shadow: 0 25px 50px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.04);
+      max-width: 600px; margin: 0 auto;
+      background: var(--primary-bg);
+      box-shadow: 0 10px 30px var(--card-shadow);
+      border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border-color);
     }
     
-    /* Header Section */
+    /* Header */
     .header {
-      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 25%, #6366f1 50%, #8b5cf6 75%, #a855f7 100%);
-      padding: 60px 40px; text-align: center; position: relative; overflow: hidden;
+      background: var(--header-bg);
+      padding: 40px 20px; text-align: center; position: relative;
+      border-bottom: 3px solid var(--accent-color);
     }
     .header::before {
-      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      animation: float 8s ease-in-out infinite;
+      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
     }
-    @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-20px) rotate(180deg); } }
     
-    /* Modern Logo */
-    .logo-container { position: relative; z-index: 10; margin-bottom: 20px; }
+    /* Modern 3D Logo */
+    .logo-container { position: relative; z-index: 10; margin-bottom: 24px; }
     .logo {
       display: inline-block; padding: 20px 32px; background: rgba(255,255,255,0.15);
       border-radius: 20px; border: 2px solid rgba(255,255,255,0.25);
-      font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 800;
-      color: #ffffff; letter-spacing: 3px; text-transform: uppercase;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4);
+      font-family: 'Inter', sans-serif; font-size: 40px; font-weight: 900;
+      letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px;
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.3),
+        inset 0 2px 0 rgba(255,255,255,0.4),
+        inset 0 -2px 0 rgba(0,0,0,0.1);
       backdrop-filter: blur(12px);
+      text-shadow: 
+        0 1px 0 rgba(255,255,255,0.8),
+        0 2px 3px rgba(0,0,0,0.3),
+        0 4px 8px rgba(0,0,0,0.2),
+        0 8px 16px rgba(0,0,0,0.1);
     }
-    .brand-title {
-      font-size: 28px; font-weight: 700; color: #ffffff; margin: 20px 0 8px 0;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    
+    .logo-letter {
+      display: inline-block; position: relative;
     }
+    
+    .logo-letter-normal {
+      color: #ffffff;
+      text-shadow: 
+        0 1px 0 rgba(255,255,255,0.9),
+        0 2px 4px rgba(0,0,0,0.4),
+        0 4px 8px rgba(0,0,0,0.3),
+        0 8px 16px rgba(0,0,0,0.2);
+    }
+    
+    .logo-letter-2 {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: #3b82f6;
+      text-shadow: 
+        0 1px 0 rgba(59, 130, 246, 0.9),
+        0 2px 4px rgba(29, 78, 216, 0.7),
+        0 4px 8px rgba(30, 64, 175, 0.5),
+        0 8px 16px rgba(37, 99, 235, 0.3);
+    }
+    
+    /* Dark Mode Logo Adjustments */
+    @media (prefers-color-scheme: dark) {
+      .logo-letter-2 {
+        background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: #60a5fa;
+        text-shadow: 
+          0 1px 0 rgba(96, 165, 250, 0.9),
+          0 2px 4px rgba(59, 130, 246, 0.7),
+          0 4px 8px rgba(37, 99, 235, 0.5),
+          0 8px 16px rgba(29, 78, 216, 0.3);
+      }
+    }
+    
     .brand-subtitle {
-      color: rgba(255,255,255,0.9); font-size: 16px; font-weight: 400;
-      margin: 0; opacity: 0.95;
+      color: rgba(255,255,255,0.95); font-size: 16px; font-weight: 400;
+      margin: 16px 0 0 0; opacity: 0.95; text-align: center;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     }
     
-    /* Content Section */
+    /* Content */
     .content {
-      padding: 50px 40px; background: #ffffff;
-    }
-    .greeting {
-      font-size: 28px; font-weight: 700; color: #1a202c; margin-bottom: 24px;
-      line-height: 1.3; text-align: center;
-    }
-    .message {
-      font-size: 16px; line-height: 1.7; color: #4a5568; margin-bottom: 32px;
-      text-align: center; max-width: 480px; margin-left: auto; margin-right: auto;
+      padding: 40px; background: var(--card-bg);
+      color: var(--text-primary);
     }
     
-    /* Summary Card */
-    .summary-card {
-      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-      border-radius: 16px; padding: 32px; margin: 32px 0;
-      border-left: 4px solid #3b82f6; position: relative; overflow: hidden;
+    /* Typography */
+    .greeting { 
+      font-size: 28px; font-weight: 700; margin-bottom: 20px;
+      color: var(--text-primary); text-align: center;
     }
-    .summary-card::before {
-      content: ''; position: absolute; top: 0; right: 0; width: 100px; height: 100px;
-      background: radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%);
-    }
-    .summary-title {
-      display: flex; align-items: center; font-size: 20px; font-weight: 600;
-      color: #2d3748; margin-bottom: 24px;
-    }
-    .summary-icon {
-      width: 24px; height: 24px; margin-right: 12px; font-size: 20px;
+    .message { 
+      font-size: 16px; line-height: 1.7; margin-bottom: 32px;
+      color: var(--text-secondary); text-align: center;
     }
     
-    /* Detail Rows */
-    .detail-row {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      padding: 12px 0; border-bottom: 1px solid rgba(226,232,240,0.6);
-      margin: 0;
+    /* Info Box */
+    .info-box {
+      background: var(--info-bg);
+      border: 2px solid var(--info-border);
+      border-radius: 12px; padding: 24px; margin: 32px 0;
+      color: var(--info-text); text-align: center;
     }
-    .detail-row:last-child { border-bottom: none; }
-    .detail-label {
-      font-weight: 600; color: #4a5568; flex-shrink: 0; margin-right: 16px;
-      font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .detail-value {
-      color: #2d3748; text-align: right; flex-grow: 1; font-weight: 500;
-    }
-    
-    /* Reference Section */
-    .reference-section {
-      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-      border-radius: 12px; padding: 24px; margin: 32px 0; text-align: center;
-      border: 1px solid #bfdbfe;
-    }
-    .reference-title {
-      font-size: 14px; font-weight: 600; color: #1e40af; 
-      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+    .info-title {
+      font-size: 18px; font-weight: 600; margin-bottom: 16px;
+      color: var(--info-text);
     }
     .reference-id {
-      font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-      font-size: 18px; font-weight: 700; color: #1e40af;
-      background: rgba(30,64,175,0.1); padding: 8px 16px; border-radius: 8px;
-      display: inline-block; margin: 8px 0;
-    }
-    .reference-note {
-      font-size: 12px; color: #64748b; margin-top: 8px;
+      font-family: 'Monaco', 'Consolas', monospace;
+      background: rgba(255,255,255,0.8); padding: 8px 16px;
+      border-radius: 8px; font-weight: 600; font-size: 16px;
+      color: var(--text-primary); display: inline-block;
+      border: 1px solid var(--border-color);
     }
     
-    /* Info Cards */
-    .info-card {
-      background: linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%);
-      border-radius: 12px; padding: 24px; margin: 24px 0;
-      border-left: 4px solid #22c55e;
-    }
-    .info-card h3 {
-      color: #166534; font-size: 18px; font-weight: 600; margin-bottom: 12px;
-      display: flex; align-items: center;
-    }
-    .info-card p {
-      color: #22543d; line-height: 1.6; margin: 0;
+    /* Dark Mode Info Box */
+    @media (prefers-color-scheme: dark) {
+      .reference-id {
+        background: rgba(0,0,0,0.3);
+        color: var(--text-primary);
+      }
     }
     
-    /* Action Button */
-    .action-section {
-      text-align: center; margin: 40px 0;
+    /* Next Steps */
+    .next-steps {
+      background: var(--secondary-bg);
+      border-radius: 12px; padding: 24px; margin: 32px 0;
+      border: 1px solid var(--border-color);
     }
+    .steps-title {
+      font-size: 20px; font-weight: 600; margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+    .step-item {
+      display: flex; align-items: flex-start; margin-bottom: 12px;
+    }
+    .step-number {
+      background: var(--accent-color); color: white;
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 14px; margin-right: 12px;
+      flex-shrink: 0;
+    }
+    .step-text {
+      font-size: 15px; line-height: 1.5;
+      color: var(--text-secondary);
+    }
+    
+    /* CTA Button */
     .cta-button {
-      display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 12px;
-      font-weight: 600; font-size: 16px; letter-spacing: 0.5px;
-      box-shadow: 0 4px 14px rgba(59,130,246,0.3);
-      transition: all 0.2s ease;
+      display: inline-block; background: var(--accent-color);
+      color: white; padding: 16px 32px; border-radius: 12px;
+      text-decoration: none; font-weight: 600; font-size: 16px;
+      margin: 24px 0; text-align: center;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      transition: all 0.3s ease;
     }
     .cta-button:hover {
-      box-shadow: 0 6px 20px rgba(59,130,246,0.4);
-      transform: translateY(-1px);
+      background: #2563eb;
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+      transform: translateY(-2px);
     }
     
     /* Footer */
     .footer {
-      background: #f8fafc; padding: 32px 40px; text-align: center;
-      border-top: 1px solid #e2e8f0;
+      background: var(--secondary-bg);
+      padding: 32px 20px; text-align: center;
+      border-top: 1px solid var(--border-color);
     }
-    .footer-brand {
-      font-size: 18px; font-weight: 700; color: #2d3748; margin-bottom: 8px;
+    .footer-text {
+      font-size: 14px; line-height: 1.6; margin-bottom: 16px;
+      color: var(--text-muted);
     }
-    .footer-tagline {
-      color: #64748b; font-size: 14px; margin-bottom: 16px;
+    .social-links a {
+      color: var(--accent-color); text-decoration: none;
+      margin: 0 12px; font-weight: 500;
     }
-    .footer-link {
-      color: #3b82f6; text-decoration: none; font-weight: 500;
-    }
-    .footer-note {
-      color: #a0aec0; font-size: 12px; margin-top: 16px; line-height: 1.5;
+    .social-links a:hover {
+      color: #2563eb;
     }
     
-    /* Responsive Design */
+    /* Mobile Responsive */
     @media only screen and (max-width: 600px) {
-      .email-wrapper { padding: 20px 16px; }
-      .content, .header { padding: 32px 24px; }
+      .email-container { margin: 10px; border-radius: 12px; }
+      .header { padding: 32px 16px; }
+      .content { padding: 24px 20px; }
+      .logo { font-size: 32px; padding: 16px 24px; }
       .greeting { font-size: 24px; }
-      .logo { font-size: 28px; padding: 16px 24px; }
-      .summary-card { padding: 24px 20px; }
-      .detail-row { flex-direction: column; text-align: left; }
-      .detail-value { text-align: left; margin-top: 4px; }
+      .message { font-size: 15px; }
+      .info-box, .next-steps { padding: 20px; margin: 24px 0; }
+      .footer { padding: 24px 16px; }
     }
   </style>
 </head>
 <body>
-  <div class="email-wrapper">
-    <div class="email-container">
-      <!-- Header -->
-      <div class="header">
-        <div class="logo-container">
-          <div class="logo">SCAN2TAP</div>
-          <h1 class="brand-title">Scan2Tap</h1>
-          <p class="brand-subtitle">Digital Business Cards Reimagined</p>
+  <div class="email-container">
+    <div class="header">
+      <div class="logo-container">
+        <div class="logo">
+          <span class="logo-letter logo-letter-normal">SCAN</span><span class="logo-letter logo-letter-2">2</span><span class="logo-letter logo-letter-normal">TAP</span>
+        </div>
+        <p class="brand-subtitle">Digital Business Cards Reimagined</p>
+      </div>
+    </div>
+    
+    <div class="content">
+      <h2 class="greeting">Thank you for contacting us, ${data.name}! 🙏</h2>
+      
+      <p class="message">
+        We've received your message and really appreciate you taking the time to reach out to us. 
+        Our team reviews all inquiries carefully and we'll get back to you as soon as possible.
+      </p>
+      
+      <div class="info-box">
+        <div class="info-title">Your Message Summary</div>
+        
+        <div class="step-item">
+          <span class="step-number">1</span>
+          <span class="step-text">Subject: ${data.subject}</span>
+        </div>
+        
+        <div class="step-item">
+          <span class="step-number">2</span>
+          <span class="step-text">Email: ${data.email}</span>
+        </div>
+        
+        <div class="step-item">
+          <span class="step-number">3</span>
+          <span class="step-text">Submitted: ${new Date().toLocaleDateString('en-US', { 
+            weekday: 'long',
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })}</span>
+        </div>
+        
+        <div class="step-item">
+          <span class="step-number">4</span>
+          <span class="step-text">Message: ${data.message}</span>
         </div>
       </div>
       
-      <!-- Main Content -->
-      <div class="content">
-        <h2 class="greeting">Thank you for contacting us, ${data.name}! 🙏</h2>
-        
-        <p class="message">
-          We've received your message and really appreciate you taking the time to reach out to us. 
-          Our team reviews all inquiries carefully and we'll get back to you as soon as possible.
-        </p>
-        
-        <!-- Message Summary -->
-        <div class="summary-card">
-          <div class="summary-title">
-            <span class="summary-icon">📋</span>
-            Your Message Summary
-          </div>
-          
-          <div class="detail-row">
-            <span class="detail-label">Subject:</span>
-            <span class="detail-value">${data.subject}</span>
-          </div>
-          
-          <div class="detail-row">
-            <span class="detail-label">Email:</span>
-            <span class="detail-value">${data.email}</span>
-          </div>
-          
-          <div class="detail-row">
-            <span class="detail-label">Submitted:</span>
-            <span class="detail-value">${new Date().toLocaleDateString('en-US', { 
-              weekday: 'long',
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}</span>
-          </div>
-          
-          <div class="detail-row">
-            <span class="detail-label">Message:</span>
-            <span class="detail-value">${data.message}</span>
-          </div>
+      <div class="reference-id">${referenceId}</div>
+      
+      <div class="next-steps">
+        <div class="steps-title">What happens next?</div>
+        <div class="step-item">
+          <span class="step-number">1</span>
+          <span class="step-text">We'll review your message and get back to you within 24 hours.</span>
         </div>
-        
-        <!-- Reference ID -->
-        <div class="reference-section">
-          <div class="reference-title">Your Reference ID</div>
-          <div class="reference-id">${referenceId}</div>
-          <div class="reference-note">Please keep this for your records</div>
-        </div>
-        
-        <!-- Response Time Info -->
-        <div class="info-card">
-          <h3>⏱️ Response Time</h3>
-          <p>We typically respond within 24 hours during business days. For urgent matters, feel free to call us directly.</p>
-        </div>
-        
-        <!-- Quick Help -->
-        <div class="info-card">
-          <h3>📞 Need immediate help?</h3>
-          <p>Check out our FAQ section in our pricing page or contact us at <strong>scan2tap@richverseecotech.com</strong></p>
-        </div>
-        
-        <!-- CTA Button -->
-        <div class="action-section">
-          <a href="https://scan2tap.com" class="cta-button">
-            Visit Our Website →
-          </a>
+        <div class="step-item">
+          <span class="step-number">2</span>
+          <span class="step-text">If you need immediate assistance, check out our FAQ section in our pricing page or contact us at <strong>scan2tap@richverseecotech.com</strong></span>
         </div>
       </div>
       
-      <!-- Footer -->
-      <div class="footer">
-        <div class="footer-brand">Scan2Tap</div>
-        <div class="footer-tagline">Making networking effortless with digital business cards</div>
-        <a href="https://scan2tap.com" class="footer-link">www.scan2tap.com</a>
-        
-        <div class="footer-note">
-          This email was sent because you contacted us through our website.<br>
-          If you didn't submit this request, please ignore this email.
-        </div>
+      <div class="cta-button">
+        <a href="https://scan2tap.com" class="cta-button">
+          Visit Our Website →
+        </a>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <div class="footer-text">
+        Scan2Tap
+      </div>
+      <div class="social-links">
+        <a href="https://facebook.com/scan2tap">Facebook</a>
+        <a href="https://twitter.com/scan2tap">Twitter</a>
+        <a href="https://instagram.com/scan2tap">Instagram</a>
+      </div>
+      <div class="footer-text">
+        Making networking effortless with digital business cards
+      </div>
+      <a href="https://scan2tap.com" class="footer-text">www.scan2tap.com</a>
+      
+      <div class="footer-text">
+        This email was sent because you contacted us through our website.<br>
+        If you didn't submit this request, please ignore this email.
       </div>
     </div>
   </div>

@@ -129,38 +129,77 @@ class EmailService {
   <style>
     /* Email Client Reset & Base Styles */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      margin: 0; padding: 0; width: 100% !important; height: 100% !important;
-      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      line-height: 1.6; color: #1e293b; -webkit-font-smoothing: antialiased;
+    body { 
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      font-family: 'Inter', Arial, sans-serif; line-height: 1.6;
       -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;
     }
-    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-    img { border: 0; line-height: 100%; outline: none; text-decoration: none; display: block; }
     
-    /* Container Styles */
-    .email-wrapper {
-      width: 100%; background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-      padding: 40px 20px; min-height: 100vh;
+    /* Color Variables for Light Mode (Default) */
+    :root {
+      --primary-bg: #ffffff;
+      --secondary-bg: #f8fafc;
+      --text-primary: #1a202c;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --border-color: #e2e8f0;
+      --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --card-bg: #ffffff;
+      --card-shadow: rgba(0, 0, 0, 0.1);
+      --accent-color: #3b82f6;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --error-color: #ef4444;
+      --info-bg: #eff6ff;
+      --info-border: #bfdbfe;
+      --info-text: #1e40af;
+      --highlight-bg: #fef3c7;
+      --highlight-border: #f59e0b;
     }
+    
+    /* Dark Mode Support */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary-bg: #1a202c;
+        --secondary-bg: #2d3748;
+        --text-primary: #f7fafc;
+        --text-secondary: #e2e8f0;
+        --text-muted: #a0aec0;
+        --border-color: #4a5568;
+        --header-bg: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+        --card-bg: #2d3748;
+        --card-shadow: rgba(0, 0, 0, 0.3);
+        --accent-color: #60a5fa;
+        --success-color: #34d399;
+        --warning-color: #fbbf24;
+        --error-color: #f87171;
+        --info-bg: #1e3a8a;
+        --info-border: #3b82f6;
+        --info-text: #93c5fd;
+        --highlight-bg: #78350f;
+        --highlight-border: #f59e0b;
+      }
+    }
+    
+    /* Container */
     .email-container {
-      max-width: 680px; margin: 0 auto; background: #ffffff;
-      border-radius: 24px; overflow: hidden;
-      box-shadow: 0 25px 50px rgba(15, 23, 42, 0.08), 0 8px 16px rgba(15, 23, 42, 0.04);
+      max-width: 600px; margin: 0 auto;
+      background: var(--primary-bg);
+      border-radius: 20px; overflow: hidden;
+      box-shadow: 0 20px 40px var(--card-shadow);
+      border: 1px solid var(--border-color);
     }
     
-    /* Header Styles */
+    /* Header */
     .header {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
-      padding: 60px 40px; text-align: center; position: relative; overflow: hidden;
+      background: var(--header-bg);
+      padding: 50px 30px; text-align: center; position: relative;
+      border-bottom: 3px solid var(--accent-color);
     }
     .header::before {
-      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
-      animation: pulse 8s ease-in-out infinite;
+      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
     }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
     
     /* Modern Logo */
     .logo-container { position: relative; z-index: 10; margin-bottom: 24px; }
@@ -168,124 +207,209 @@ class EmailService {
       display: inline-block; padding: 24px 40px; 
       background: rgba(255,255,255,0.12); border-radius: 20px;
       border: 2px solid rgba(255,255,255,0.2);
-      font-family: 'Inter', sans-serif; font-size: 36px; font-weight: 800;
-      color: #ffffff; letter-spacing: 4px; text-transform: uppercase;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+      font-family: 'Inter', sans-serif; font-size: 42px; font-weight: 900;
+      letter-spacing: 4px; text-transform: uppercase; margin-bottom: 16px;
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.3), 
+        inset 0 2px 0 rgba(255,255,255,0.4),
+        inset 0 -2px 0 rgba(0,0,0,0.1);
       backdrop-filter: blur(16px);
+      text-shadow: 
+        0 1px 0 rgba(255,255,255,0.8),
+        0 2px 3px rgba(0,0,0,0.3),
+        0 4px 8px rgba(0,0,0,0.2),
+        0 8px 16px rgba(0,0,0,0.1);
     }
-    .brand-name {
-      font-size: 32px; font-weight: 800; color: #ffffff; margin: 24px 0 8px 0;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    
+    .logo-letter {
+      display: inline-block; position: relative;
     }
+    
+    .logo-letter-normal {
+      color: #ffffff;
+      text-shadow: 
+        0 1px 0 rgba(255,255,255,0.9),
+        0 2px 4px rgba(0,0,0,0.4),
+        0 4px 8px rgba(0,0,0,0.3),
+        0 8px 16px rgba(0,0,0,0.2);
+    }
+    
+    .logo-letter-2 {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: #3b82f6;
+      text-shadow: 
+        0 1px 0 rgba(59, 130, 246, 0.9),
+        0 2px 4px rgba(29, 78, 216, 0.7),
+        0 4px 8px rgba(30, 64, 175, 0.5),
+        0 8px 16px rgba(37, 99, 235, 0.3);
+    }
+    
+    /* Dark Mode Logo Adjustments */
+    @media (prefers-color-scheme: dark) {
+      .logo-letter-2 {
+        background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: #60a5fa;
+        text-shadow: 
+          0 1px 0 rgba(96, 165, 250, 0.9),
+          0 2px 4px rgba(59, 130, 246, 0.7),
+          0 4px 8px rgba(37, 99, 235, 0.5),
+          0 8px 16px rgba(29, 78, 216, 0.3);
+      }
+    }
+    
     .tagline {
-      color: rgba(255,255,255,0.9); font-size: 18px; font-weight: 400;
-      margin: 0; opacity: 0.95;
+      color: rgba(255,255,255,0.95); font-size: 18px; font-weight: 400;
+      margin: 16px 0 0 0; opacity: 0.95; text-align: center;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     }
     
-    /* Content Styles */
+    /* Content */
     .content {
-      padding: 60px 50px; background: #ffffff;
-    }
-    .greeting {
-      font-size: 32px; font-weight: 700; color: #0f172a; margin-bottom: 32px;
-      line-height: 1.2; text-align: center;
-    }
-    .message {
-      font-size: 18px; line-height: 1.7; color: #475569; margin-bottom: 36px;
-      text-align: center; max-width: 520px; margin-left: auto; margin-right: auto;
+      padding: 40px; background: var(--card-bg);
+      color: var(--text-primary);
     }
     
-    /* Component Styles */
-    .info-card {
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-      border-radius: 16px; padding: 36px; margin: 36px 0;
-      border-left: 5px solid #3b82f6; position: relative;
-    }
-    .info-card::before {
-      content: ''; position: absolute; top: 0; right: 0; width: 120px; height: 120px;
-      background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
-    }
-    .info-card h3 {
-      color: #1e293b; font-size: 22px; font-weight: 700; margin-bottom: 16px;
-      display: flex; align-items: center;
-    }
-    .info-card p {
-      color: #475569; line-height: 1.7; margin: 0; font-size: 16px;
+    /* Typography */
+    h1, h2, h3 { color: var(--text-primary); margin-bottom: 16px; }
+    h1 { font-size: 32px; font-weight: 800; }
+    h2 { font-size: 24px; font-weight: 700; }
+    h3 { font-size: 20px; font-weight: 600; }
+    
+    p { 
+      color: var(--text-secondary); line-height: 1.6; 
+      margin-bottom: 16px; font-size: 16px; 
     }
     
-    /* CTA Button */
-    .cta-section {
-      text-align: center; margin: 48px 0;
+    /* Cards & Sections */
+    .card {
+      background: var(--secondary-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px; padding: 24px; margin: 24px 0;
     }
-    .cta-button {
-      display: inline-block; 
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      color: #ffffff; text-decoration: none; padding: 20px 40px; 
-      border-radius: 16px; font-weight: 700; font-size: 18px; 
-      letter-spacing: 0.5px; box-shadow: 0 8px 25px rgba(59,130,246,0.3);
-      transition: all 0.3s ease;
+    
+    .info-box {
+      background: var(--info-bg);
+      border: 2px solid var(--info-border);
+      border-radius: 12px; padding: 24px; margin: 24px 0;
+      color: var(--info-text);
     }
-    .cta-button:hover {
-      box-shadow: 0 12px 35px rgba(59,130,246,0.4);
+    
+    .highlight-box {
+      background: var(--highlight-bg);
+      border: 2px solid var(--highlight-border);
+      border-radius: 12px; padding: 20px; margin: 20px 0;
+    }
+    
+    /* Buttons */
+    .btn {
+      display: inline-block; padding: 14px 28px;
+      border-radius: 10px; text-decoration: none;
+      font-weight: 600; font-size: 16px; text-align: center;
+      transition: all 0.3s ease; margin: 8px 4px;
+    }
+    
+    .btn-primary {
+      background: var(--accent-color); color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    .btn-primary:hover {
+      background: #2563eb;
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
       transform: translateY(-2px);
     }
-    .secondary-button {
-      display: inline-block; background: transparent; color: #3b82f6;
-      text-decoration: none; padding: 16px 32px; border-radius: 12px;
-      font-weight: 600; font-size: 16px; border: 2px solid #3b82f6;
-      margin: 0 8px; transition: all 0.3s ease;
+    
+    .btn-secondary {
+      background: var(--secondary-bg); color: var(--text-primary);
+      border: 2px solid var(--border-color);
     }
-    .secondary-button:hover {
-      background: #3b82f6; color: #ffffff;
+    .btn-secondary:hover {
+      background: var(--border-color);
     }
     
-    /* Stats Grid */
-    .stats-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 24px; margin: 36px 0; text-align: center;
+    /* Status Indicators */
+    .status {
+      display: inline-block; padding: 6px 12px;
+      border-radius: 20px; font-size: 14px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.5px;
     }
-    .stat-item {
-      background: #f8fafc; border-radius: 12px; padding: 24px;
-      border: 1px solid #e2e8f0;
+    
+    .status-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+      border: 1px solid var(--success-color);
     }
-    .stat-number {
-      display: block; font-size: 28px; font-weight: 800; color: #3b82f6;
-      margin-bottom: 8px;
+    
+    .status-warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning-color);
+      border: 1px solid var(--warning-color);
     }
-    .stat-label {
-      color: #64748b; font-size: 14px; font-weight: 500;
-      text-transform: uppercase; letter-spacing: 1px;
+    
+    .status-error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error-color);
+      border: 1px solid var(--error-color);
     }
+    
+    /* Lists */
+    ul, ol {
+      padding-left: 20px; margin: 16px 0;
+      color: var(--text-secondary);
+    }
+    li { margin-bottom: 8px; line-height: 1.5; }
+    
+    /* Tables */
+    table {
+      width: 100%; border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      padding: 12px; text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    th {
+      background: var(--secondary-bg);
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    td { color: var(--text-secondary); }
     
     /* Footer */
     .footer {
-      background: #f8fafc; padding: 40px 50px; text-align: center;
-      border-top: 1px solid #e2e8f0;
+      background: var(--secondary-bg);
+      padding: 32px 20px; text-align: center;
+      border-top: 1px solid var(--border-color);
     }
-    .footer-brand {
-      font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 12px;
+    .footer-text {
+      font-size: 14px; line-height: 1.6; margin-bottom: 16px;
+      color: var(--text-muted);
     }
-    .footer-tagline {
-      color: #64748b; font-size: 16px; margin-bottom: 20px;
+    .footer-links a {
+      color: var(--accent-color); text-decoration: none;
+      margin: 0 12px; font-weight: 500;
     }
-    .footer-link {
-      color: #3b82f6; text-decoration: none; font-weight: 600;
-    }
-    .footer-note {
-      color: #94a3b8; font-size: 13px; margin-top: 24px; line-height: 1.6;
-      max-width: 400px; margin-left: auto; margin-right: auto;
+    .footer-links a:hover {
+      color: #2563eb;
     }
     
-    /* Responsive Design */
-    @media only screen and (max-width: 640px) {
-      .email-wrapper { padding: 20px 12px; }
-      .content, .header, .footer { padding: 40px 24px; }
-      .greeting { font-size: 26px; }
-      .message { font-size: 16px; }
-      .logo { font-size: 28px; padding: 20px 28px; }
-      .info-card { padding: 28px 20px; }
-      .cta-button { padding: 16px 32px; font-size: 16px; }
-      .stats-grid { grid-template-columns: 1fr; gap: 16px; }
+    /* Mobile Responsive */
+    @media only screen and (max-width: 600px) {
+      .email-container { margin: 10px; border-radius: 16px; }
+      .header { padding: 40px 20px; }
+      .content { padding: 24px 20px; }
+      .logo { font-size: 36px; padding: 20px 28px; }
+      h1 { font-size: 28px; }
+      h2 { font-size: 22px; }
+      p { font-size: 15px; }
+      .card, .info-box { padding: 20px; margin: 20px 0; }
+      .footer { padding: 24px 16px; }
+      .btn { padding: 12px 24px; font-size: 15px; }
     }
   </style>
 </head>
@@ -294,11 +418,12 @@ class EmailService {
     <div class="email-container">
       <!-- Header -->
       <div class="header">
-        <div class="logo-container">
-          <div class="logo">SCAN2TAP</div>
-          <h1 class="brand-name">Scan2Tap</h1>
-          <p class="tagline">Digital Business Cards Reimagined</p>
-        </div>
+                  <div class="logo-container">
+            <div class="logo">
+              <span class="logo-letter logo-letter-normal">SCAN</span><span class="logo-letter logo-letter-2">2</span><span class="logo-letter logo-letter-normal">TAP</span>
+            </div>
+            <p class="tagline">Digital Business Cards Reimagined</p>
+          </div>
       </div>
       
       <!-- Content -->
