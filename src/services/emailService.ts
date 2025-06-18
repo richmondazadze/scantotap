@@ -115,407 +115,209 @@ class EmailService {
   private getBaseTemplate(content: string, preheader?: string): string {
     return `
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="x-apple-disable-message-reformatting">
+  ${preheader ? `<meta name="description" content="${preheader}">` : ''}
   <title>${this.brandName}</title>
   
-  <!-- Web Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
+    /* Email Client Reset & Base Styles */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
     body {
-      margin: 0;
-      padding: 0;
-      width: 100% !important;
-      height: 100% !important;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      line-height: 1.6;
-      color: #333333;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      margin: 0; padding: 0; width: 100% !important; height: 100% !important;
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      line-height: 1.6; color: #1e293b; -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;
     }
+    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; line-height: 100%; outline: none; text-decoration: none; display: block; }
     
-    table {
-      border-collapse: collapse;
-      mso-table-lspace: 0pt;
-      mso-table-rspace: 0pt;
+    /* Container Styles */
+    .email-wrapper {
+      width: 100%; background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      padding: 40px 20px; min-height: 100vh;
     }
-    
     .email-container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #ffffff;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      max-width: 680px; margin: 0 auto; background: #ffffff;
+      border-radius: 24px; overflow: hidden;
+      box-shadow: 0 25px 50px rgba(15, 23, 42, 0.08), 0 8px 16px rgba(15, 23, 42, 0.04);
     }
     
+    /* Header Styles */
     .header {
-      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-      padding: 40px 30px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
+      padding: 60px 40px; text-align: center; position: relative; overflow: hidden;
     }
-    
     .header::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      animation: float 6s ease-in-out infinite;
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+      animation: pulse 8s ease-in-out infinite;
     }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
     
-    @keyframes float {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-20px) rotate(180deg); }
-    }
-    
+    /* Modern Logo */
+    .logo-container { position: relative; z-index: 10; margin-bottom: 24px; }
     .logo {
-      width: 60px;
-      height: 60px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 16px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.3);
+      display: inline-block; padding: 24px 40px; 
+      background: rgba(255,255,255,0.12); border-radius: 20px;
+      border: 2px solid rgba(255,255,255,0.2);
+      font-family: 'Inter', sans-serif; font-size: 36px; font-weight: 800;
+      color: #ffffff; letter-spacing: 4px; text-transform: uppercase;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+      backdrop-filter: blur(16px);
     }
-    
     .brand-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 28px;
-      font-weight: 700;
-      color: #ffffff;
-      margin: 0;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      font-size: 32px; font-weight: 800; color: #ffffff; margin: 24px 0 8px 0;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
-    
     .tagline {
-      color: rgba(255,255,255,0.9);
-      font-size: 16px;
-      margin-top: 8px;
-      font-weight: 400;
+      color: rgba(255,255,255,0.9); font-size: 18px; font-weight: 400;
+      margin: 0; opacity: 0.95;
     }
     
+    /* Content Styles */
     .content {
-      padding: 50px 40px;
-      background: #ffffff;
-      position: relative;
+      padding: 60px 50px; background: #ffffff;
     }
-    
-    .content::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
-    }
-    
     .greeting {
-      font-size: 24px;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 20px;
-      line-height: 1.3;
+      font-size: 32px; font-weight: 700; color: #0f172a; margin-bottom: 32px;
+      line-height: 1.2; text-align: center;
     }
-    
     .message {
-      font-size: 16px;
-      line-height: 1.8;
-      color: #4b5563;
-      margin-bottom: 30px;
+      font-size: 18px; line-height: 1.7; color: #475569; margin-bottom: 36px;
+      text-align: center; max-width: 520px; margin-left: auto; margin-right: auto;
     }
     
-    .cta-button {
-      display: inline-block;
-      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-      color: #ffffff !important;
-      text-decoration: none;
-      padding: 16px 32px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 16px;
-      text-align: center;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-      border: none;
-      cursor: pointer;
-      margin: 20px 0;
-    }
-    
-    .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
-    }
-    
-    .secondary-button {
-      display: inline-block;
-      background: transparent;
-      color: #2563eb !important;
-      text-decoration: none;
-      padding: 12px 24px;
-      border: 2px solid #2563eb;
-      border-radius: 8px;
-      font-weight: 500;
-      font-size: 14px;
-      text-align: center;
-      margin: 10px 5px;
-    }
-    
+    /* Component Styles */
     .info-card {
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      border-radius: 12px;
-      padding: 24px;
-      margin: 24px 0;
-      border-left: 4px solid #2563eb;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 16px; padding: 36px; margin: 36px 0;
+      border-left: 5px solid #3b82f6; position: relative;
     }
-    
+    .info-card::before {
+      content: ''; position: absolute; top: 0; right: 0; width: 120px; height: 120px;
+      background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+    }
     .info-card h3 {
-      color: #1e293b;
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 12px;
+      color: #1e293b; font-size: 22px; font-weight: 700; margin-bottom: 16px;
+      display: flex; align-items: center;
     }
-    
     .info-card p {
-      color: #475569;
-      font-size: 14px;
-      margin: 0;
+      color: #475569; line-height: 1.7; margin: 0; font-size: 16px;
     }
     
+    /* CTA Button */
+    .cta-section {
+      text-align: center; margin: 48px 0;
+    }
+    .cta-button {
+      display: inline-block; 
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: #ffffff; text-decoration: none; padding: 20px 40px; 
+      border-radius: 16px; font-weight: 700; font-size: 18px; 
+      letter-spacing: 0.5px; box-shadow: 0 8px 25px rgba(59,130,246,0.3);
+      transition: all 0.3s ease;
+    }
+    .cta-button:hover {
+      box-shadow: 0 12px 35px rgba(59,130,246,0.4);
+      transform: translateY(-2px);
+    }
+    .secondary-button {
+      display: inline-block; background: transparent; color: #3b82f6;
+      text-decoration: none; padding: 16px 32px; border-radius: 12px;
+      font-weight: 600; font-size: 16px; border: 2px solid #3b82f6;
+      margin: 0 8px; transition: all 0.3s ease;
+    }
+    .secondary-button:hover {
+      background: #3b82f6; color: #ffffff;
+    }
+    
+    /* Stats Grid */
     .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 16px;
-      margin: 24px 0;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 24px; margin: 36px 0; text-align: center;
     }
-    
     .stat-item {
-      text-align: center;
-      padding: 20px;
-      background: #f8fafc;
-      border-radius: 8px;
+      background: #f8fafc; border-radius: 12px; padding: 24px;
       border: 1px solid #e2e8f0;
     }
-    
     .stat-number {
-      font-size: 24px;
-      font-weight: 700;
-      color: #2563eb;
-      display: block;
+      display: block; font-size: 28px; font-weight: 800; color: #3b82f6;
+      margin-bottom: 8px;
     }
-    
     .stat-label {
-      font-size: 12px;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 4px;
+      color: #64748b; font-size: 14px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 1px;
     }
     
+    /* Footer */
     .footer {
-      background: #f8fafc;
-      padding: 40px 30px;
-      text-align: center;
-      border-top: 1px solid #e5e7eb;
+      background: #f8fafc; padding: 40px 50px; text-align: center;
+      border-top: 1px solid #e2e8f0;
+    }
+    .footer-brand {
+      font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 12px;
+    }
+    .footer-tagline {
+      color: #64748b; font-size: 16px; margin-bottom: 20px;
+    }
+    .footer-link {
+      color: #3b82f6; text-decoration: none; font-weight: 600;
+    }
+    .footer-note {
+      color: #94a3b8; font-size: 13px; margin-top: 24px; line-height: 1.6;
+      max-width: 400px; margin-left: auto; margin-right: auto;
     }
     
-    .social-links {
-      margin: 20px 0;
-    }
-    
-    .social-links a {
-      display: inline-block;
-      margin: 0 8px;
-      padding: 8px;
-      background: #ffffff;
-      border-radius: 8px;
-      text-decoration: none;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .footer-text {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.6;
-    }
-    
-    .footer-links {
-      margin: 16px 0;
-    }
-    
-    .footer-links a {
-      color: #2563eb;
-      text-decoration: none;
-      margin: 0 8px;
-      font-size: 14px;
-    }
-    
-    .unsubscribe {
-      font-size: 12px;
-      color: #9ca3af;
-      margin-top: 16px;
-    }
-    
-    .unsubscribe a {
-      color: #6b7280;
-      text-decoration: underline;
-    }
-    
-    /* Mobile Responsive */
-    @media only screen and (max-width: 600px) {
-      .email-container {
-        margin: 10px;
-        border-radius: 12px;
-      }
-      
-      .header {
-        padding: 30px 20px;
-      }
-      
-      .brand-name {
-        font-size: 24px;
-      }
-      
-      .content {
-        padding: 30px 20px;
-      }
-      
-      .greeting {
-        font-size: 20px;
-      }
-      
-      .message {
-        font-size: 15px;
-      }
-      
-      .cta-button {
-        display: block;
-        width: 100%;
-        padding: 18px 20px;
-        font-size: 16px;
-      }
-      
-      .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-      
-      .footer {
-        padding: 30px 20px;
-      }
-      
-      .footer-links a {
-        display: block;
-        margin: 8px 0;
-      }
-    }
-    
-    @media only screen and (max-width: 480px) {
-      .email-container {
-        margin: 5px;
-      }
-      
-      .header {
-        padding: 25px 15px;
-      }
-      
-      .content {
-        padding: 25px 15px;
-      }
-      
-      .info-card {
-        padding: 20px;
-      }
+    /* Responsive Design */
+    @media only screen and (max-width: 640px) {
+      .email-wrapper { padding: 20px 12px; }
+      .content, .header, .footer { padding: 40px 24px; }
+      .greeting { font-size: 26px; }
+      .message { font-size: 16px; }
+      .logo { font-size: 28px; padding: 20px 28px; }
+      .info-card { padding: 28px 20px; }
+      .cta-button { padding: 16px 32px; font-size: 16px; }
+      .stats-grid { grid-template-columns: 1fr; gap: 16px; }
     }
   </style>
-  
-  ${preheader ? `
-  <div style="display: none; max-height: 0; overflow: hidden;">
-    ${preheader}
-  </div>
-  ` : ''}
 </head>
 <body>
-  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px 0; min-height: 100vh;">
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-      <tr>
-        <td align="center">
-          <div class="email-container">
-            <!-- Header -->
-            <div class="header">
-              <div class="logo">
-                <span class="logo-letter logo-letter-normal">SCAN</span><span class="logo-letter logo-letter-2">2</span><span class="logo-letter logo-letter-normal">TAP</span>
-              </div>
-              <h1 class="brand-name">${this.brandName}</h1>
-              <p class="tagline">Your Digital Identity, Simplified</p>
-            </div>
-            
-            <!-- Content -->
-            <div class="content">
-              ${content}
-            </div>
-            
-            <!-- Footer -->
-            <div class="footer">
-              <div class="social-links">
-                <a href="https://twitter.com/scan2tap" style="color: #1da1f2;">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
-                  </svg>
-                </a>
-                <a href="https://linkedin.com/company/scan2tap" style="color: #0077b5;">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/>
-                    <rect x="2" y="9" width="4" height="12"/>
-                    <circle cx="4" cy="4" r="2"/>
-                  </svg>
-                </a>
-                <a href="https://instagram.com/scan2tap" style="color: #e4405f;">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                    <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/>
-                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-                  </svg>
-                </a>
-              </div>
-              
-              <div class="footer-links">
-                <a href="https://scan2tap.com/help">Help Center</a>
-                <a href="https://scan2tap.com/privacy">Privacy Policy</a>
-                <a href="https://scan2tap.com/terms">Terms of Service</a>
-              </div>
-              
-              <p class="footer-text">
-                <strong>${this.brandName}</strong><br>
-                Making digital networking effortless<br>
-                📧 ${this.supportEmail} | 🌐 scan2tap.com
-              </p>
-              
-              <div class="unsubscribe">
-                <a href="{{unsubscribe_url}}">Unsubscribe</a> | 
-                <a href="{{preferences_url}}">Email Preferences</a>
-              </div>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </table>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <div class="logo-container">
+          <div class="logo">SCAN2TAP</div>
+          <h1 class="brand-name">Scan2Tap</h1>
+          <p class="tagline">Digital Business Cards Reimagined</p>
+        </div>
+      </div>
+      
+      <!-- Content -->
+      <div class="content">
+        ${content}
+      </div>
+      
+      <!-- Footer -->
+      <div class="footer">
+        <div class="footer-brand">Scan2Tap</div>
+        <div class="footer-tagline">Making networking effortless with digital business cards</div>
+        <a href="https://scan2tap.com" class="footer-link">www.scan2tap.com</a>
+        
+        <div class="footer-note">
+          This email was sent to you because you have an account with ${this.brandName}.<br>
+          If you have any questions, please contact us at ${this.supportEmail}
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 </html>`;
