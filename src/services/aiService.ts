@@ -161,53 +161,55 @@ class AIService {
   }
 
   /**
-   * Enhanced system prompt with strategic copywriter persona
+   * Enhanced system prompt focused on user input only
    */
   private static getEnhancedSystemPrompt(): string {
-    return `You are an elite strategic copywriter specializing in crafting compelling professional bios for digital profiles. Your expertise lies in creating conversation-starting introductions that maximize impact within character limits.
+    return `You are an elite strategic copywriter specializing in crafting compelling professional bios for digital profiles. Your expertise lies in creating conversation-starting introductions based ONLY on the user's provided information.
+
+CORE PRINCIPLE: Use ONLY the user's provided title and bio content. Do NOT make assumptions about their industry, role, or add details not provided.
 
 BIO STRUCTURE FORMULA:
-[Action Verb/Identity] + [Unique Value/Outcome] + [Emotional Hook/Conversation Starter]
+[User's Title/Identity] + [Enhanced Value Language] + [Conversation Starter]
 
 POWER WORDS TOOLKIT:
 Action: transforms, accelerates, orchestrates, architects, pioneers, amplifies, catalyzes, cultivates
 Value: breakthrough, game-changing, award-winning, industry-leading, proven, scalable, innovative
 Emotion: passionate, obsessed, dedicated, driven, inspiring, authentic, genuine, magnetic
 
-EXCELLENT BIO EXAMPLES (Under 100 chars):
-• "Marketing strategist transforming data into growth stories that captivate audiences worldwide"
-• "Full-stack developer architecting scalable solutions that users genuinely love and trust"
-• "Creative designer crafting visual experiences that inspire meaningful connections daily"
-• "Sales leader driving revenue through authentic relationships and strategic storytelling"
-• "Product manager obsessed with turning complex problems into elegant user experiences"
+CRITICAL GUIDELINES:
+✅ Use the EXACT title provided by the user
+✅ Build on the content they've already written
+✅ Enhance their language without changing their meaning
+✅ Focus on what they've specifically mentioned
+✅ Create engaging versions of THEIR content
 
 CRITICAL AVOIDANCE LIST:
+❌ Adding industry assumptions not mentioned
 ❌ Generic phrases: "passionate about," "results-driven," "team player," "hard worker"
 ❌ Weak verbs: "helps," "works with," "does," "handles," "manages"  
 ❌ Vague terms: "various," "multiple," "different," "many," "some"
 ❌ Clichés: "outside the box," "synergy," "best practices," "next level"
-❌ Redundancy: "innovative innovation," "creative creativity"
+❌ Making up details about their work or industry
 
 REQUIREMENTS:
 - EXACTLY under 100 characters (including spaces)
 - Return 3 distinct variations, one per line
 - No numbering, bullets, or formatting
-- Focus on outcomes and emotional resonance
-- Create conversation-starting hooks
-- Use active voice and specific action verbs
-- Include what makes them uniquely valuable
+- Base everything on the user's provided information
+- Use their exact title as provided
+- Enhance their language while keeping their core message
+- Create conversation-starting hooks from THEIR content
 
-Your goal: Create bios that make people want to know more and start meaningful conversations.`;
+Your goal: Enhance what the user has provided, not create assumptions about what they do.`;
   }
 
   /**
-   * Build enhanced generation prompt with role-specific context
+   * Build enhanced generation prompt based on user input only
    */
   private static buildGenerationPrompt(title: string, name?: string, style: string = 'professional'): string {
-    const roleContext = this.getRoleSpecificContext(title);
     const styleGuide = this.getEnhancedStyleGuide(style);
 
-    let prompt = `Create compelling professional bios for a ${title}`;
+    let prompt = `Create compelling professional bios for someone with the title: "${title}"`;
     
     if (name) {
       prompt += ` named ${name}`;
@@ -215,54 +217,59 @@ Your goal: Create bios that make people want to know more and start meaningful c
     
     prompt += `.\n\n`;
     
-    prompt += `ROLE CONTEXT:\n${roleContext}\n\n`;
-    prompt += `STYLE GUIDE:\n${styleGuide}\n\n`;
+    prompt += `STYLE REQUIREMENTS:\n${styleGuide}\n\n`;
     
-    prompt += `VALUE PROPOSITION FOCUS:\n`;
-    prompt += `- What unique outcomes do they create?\n`;
-    prompt += `- What problems do they solve differently?\n`;
-    prompt += `- What emotional impact do they have?\n`;
-    prompt += `- What makes conversations with them valuable?\n\n`;
+    prompt += `FOCUS AREAS:\n`;
+    prompt += `- Base the bio entirely on the provided title: "${title}"\n`;
+    prompt += `- Do not make assumptions about their industry or role beyond what's stated\n`;
+    prompt += `- Create engaging language that reflects their specific title\n`;
+    prompt += `- Focus on what makes someone with this title valuable\n`;
+    prompt += `- Make it conversation-starting and memorable\n\n`;
     
-    prompt += `CONVERSATION-STARTING OBJECTIVES:\n`;
-    prompt += `- Make people curious about their approach\n`;
-    prompt += `- Hint at interesting stories or experiences\n`;
-    prompt += `- Create an approachable yet impressive impression\n`;
-    prompt += `- Balance expertise with personality\n\n`;
+    prompt += `REQUIREMENTS:\n`;
+    prompt += `- Under 100 characters including spaces\n`;
+    prompt += `- Use the exact title provided: "${title}"\n`;
+    prompt += `- Create 3 unique variations\n`;
+    prompt += `- Focus on outcomes and value creation\n`;
+    prompt += `- Use active voice and specific action verbs\n\n`;
     
-    prompt += `Generate 3 different bio variations under 100 characters each:`;
+    prompt += `Generate 3 different bio variations:`;
 
     return prompt;
   }
 
   /**
-   * Build enhanced enhancement prompt
+   * Build enhanced enhancement prompt based on user input only
    */
   private static buildEnhancementPrompt(currentBio: string, title: string, name?: string, style: string = 'professional'): string {
-    const roleContext = this.getRoleSpecificContext(title);
     const styleGuide = this.getEnhancedStyleGuide(style);
 
     let prompt = `Transform this bio into something more compelling and conversation-starting:\n\n"${currentBio}"\n\n`;
     
-    prompt += `CONTEXT:\n`;
-    prompt += `- Role: ${title}\n`;
+    prompt += `USER CONTEXT:\n`;
+    prompt += `- Title: ${title}\n`;
     if (name) {
       prompt += `- Name: ${name}\n`;
     }
     prompt += `- Target Style: ${style}\n\n`;
     
-    prompt += `ROLE INSIGHTS:\n${roleContext}\n\n`;
     prompt += `STYLE REQUIREMENTS:\n${styleGuide}\n\n`;
     
     prompt += `ENHANCEMENT GOALS:\n`;
-    prompt += `- Replace generic phrases with specific, powerful language\n`;
-    prompt += `- Add emotional resonance and personality\n`;
-    prompt += `- Focus on unique outcomes and value creation\n`;
-    prompt += `- Create conversation starters that make people curious\n`;
-    prompt += `- Use action verbs that show impact and transformation\n`;
+    prompt += `- Work only with the provided bio content and title\n`;
+    prompt += `- Do not add assumptions about their industry or role\n`;
+    prompt += `- Enhance the language while keeping the core message\n`;
+    prompt += `- Make it more engaging and conversation-starting\n`;
+    prompt += `- Use stronger action words and more specific language\n`;
     prompt += `- Stay under 100 characters while maximizing impact\n\n`;
     
-    prompt += `Create 3 enhanced versions that are more specific, engaging, and conversation-worthy:`;
+    prompt += `REQUIREMENTS:\n`;
+    prompt += `- Base enhancements on the actual bio: "${currentBio}"\n`;
+    prompt += `- Reference their title: "${title}"\n`;
+    prompt += `- Create 3 enhanced variations\n`;
+    prompt += `- Keep the original meaning but make it more compelling\n\n`;
+    
+    prompt += `Create 3 enhanced versions:`;
 
     return prompt;
   }

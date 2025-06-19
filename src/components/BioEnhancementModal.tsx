@@ -74,13 +74,12 @@ export default function BioEnhancementModal({
     onClose();
   };
 
-  // Auto-generate on open
+  // Auto-generate on open with default professional style
   React.useEffect(() => {
     if (isOpen && suggestions.length === 0) {
-      // Set recommended style based on title
-      const recommendedStyle = AIService.getRecommendedStyle(title);
-      setSelectedStyle(recommendedStyle);
-      generateSuggestions(recommendedStyle);
+      // Default to professional style, let user choose their preferred style
+      setSelectedStyle('professional');
+      generateSuggestions('professional');
     }
   }, [isOpen, title]);
 

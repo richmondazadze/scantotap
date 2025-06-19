@@ -131,7 +131,7 @@ export default {
 				'card-flip': 'card-flip 0.6s ease-out forwards',
 				'fade-in': 'fadeIn 0.6s ease-out forwards',
 				'border-glow': 'border-glow 3s infinite ease-in-out',
-				'shimmer': 'shimmer 2s infinite',
+				'shimmer': 'shimmer 2.5s ease-in-out 8s infinite',
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

@@ -48,24 +48,64 @@ const AdminQRViewer: React.FC<AdminQRViewerProps> = ({ profile }) => {
   // Parse social links
   const socialLinks = Array.isArray(profile.links) ? profile.links : [];
 
-  const downloadQRCode = () => {
+  const downloadQRCode = async () => {
     const svg = qrRef.current;
     if (!svg) return;
 
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(svg);
+    try {
+      // First, load the SVG and convert it to a data URL
+      const response = await fetch('/fav.svg');
+      const svgText = await response.text();
+      
+      // Create a blob from the SVG text and convert to data URL
+      const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
+      const logoDataURL = URL.createObjectURL(svgBlob);
 
-    const canvas = document.createElement('canvas');
-    canvas.width = qrSize;
-    canvas.height = qrSize;
-    const ctx = canvas.getContext('2d');
-    const img = new window.Image();
+      // Create a temporary image to ensure the SVG loads properly
+      const logoImg = new Image();
+      await new Promise((resolve, reject) => {
+        logoImg.onload = resolve;
+        logoImg.onerror = reject;
+        logoImg.src = logoDataURL;
+      });
 
-    img.onload = () => {
-      ctx?.clearRect(0, 0, canvas.width, canvas.height);
-      ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+      // Now generate QR code using the qrcode library with the loaded logo
+      const { default: QRCode } = await import('qrcode');
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = qrSize;
+      canvas.height = qrSize;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Could not get canvas context');
+
+      // Generate QR code to canvas
+      await QRCode.toCanvas(canvas, profileUrl, {
+        width: qrSize,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF',
+        },
+        errorCorrectionLevel: 'H',
+      });
+
+      // Calculate logo position (center)
+      const logoSizeActual = 32;
+      const logoX = (qrSize - logoSizeActual) / 2;
+      const logoY = (qrSize - logoSizeActual) / 2;
+
+      // Draw white background for logo (excavate effect)
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(logoX - 4, logoY - 4, logoSizeActual + 8, logoSizeActual + 8);
+
+      // Draw the logo
+      ctx.drawImage(logoImg, logoX, logoY, logoSizeActual, logoSizeActual);
+
+      // Clean up the object URL
+      URL.revokeObjectURL(logoDataURL);
+
+      // Download
       const pngFile = canvas.toDataURL('image/png');
-
       const downloadLink = document.createElement('a');
       downloadLink.download = `qr-${profile.slug}-${Date.now()}.png`;
       downloadLink.href = pngFile;
@@ -74,13 +114,10 @@ const AdminQRViewer: React.FC<AdminQRViewerProps> = ({ profile }) => {
       document.body.removeChild(downloadLink);
 
       toast.success(`QR Code downloaded for ${profile.name}`);
-    };
-
-    img.onerror = () => {
+    } catch (error) {
+      console.error('Download failed:', error);
       toast.error('Failed to generate QR code image');
-    };
-
-    img.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svgString)));
+    }
   };
 
   const printQRCode = () => {
@@ -222,7 +259,7 @@ const AdminQRViewer: React.FC<AdminQRViewerProps> = ({ profile }) => {
                     bgColor="#FFFFFF"
                     fgColor="#000000"
                     imageSettings={{
-                      src: "/fav.png",
+                      src: "/fav.svg",
                       height: 32,
                       width: 32,
                       excavate: true,
