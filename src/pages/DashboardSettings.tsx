@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
+import ProfileNotificationService, { NotificationPreferences } from '@/services/profileNotificationService';
 import { useProfile } from '@/contexts/ProfileContext';
 import { usePlanFeatures } from '@/hooks/usePlanFeatures';
 import { SubscriptionService } from '@/services/subscriptionService';
@@ -53,10 +54,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 interface UserSettings {
-  notifications: {
-    email_orders: boolean;
-    email_marketing: boolean;
-  };
+  notifications: NotificationPreferences;
   preferences: {
     language: string;
     theme: string;
@@ -99,7 +97,7 @@ export default function DashboardSettings() {
   // Settings state
   const [settings, setSettings] = useState<UserSettings>({
     notifications: {
-      email_orders: true,
+      email_order_updates: true,
       email_marketing: false,
     },
     preferences: {
@@ -256,13 +254,40 @@ export default function DashboardSettings() {
     
     setInitialLoading(true);
     try {
-      // Use localStorage to store settings for now
-      const savedSettings = localStorage.getItem(`user_settings_${session.user.id}`);
-      if (savedSettings) {
-        const loadedSettings = JSON.parse(savedSettings);
+      // Try to migrate from localStorage first (one-time migration)
+      const localSettings = localStorage.getItem(`user_settings_${session.user.id}`);
+      let migratedSettings = null;
+      
+             if (localSettings) {
+         const parsedLocalSettings = JSON.parse(localSettings);
+         const migrationResult = await ProfileNotificationService.migrateLocalStorageSettings(
+           session.user.id, 
+           parsedLocalSettings
+         );
+         if (migrationResult.success && migrationResult.preferences) {
+           migratedSettings = migrationResult.preferences;
+         }
+       }
+
+       // Load notification preferences from database
+       const result = await ProfileNotificationService.getNotificationPreferences(session.user.id);
+       
+       if (result.success && result.preferences) {
+         const loadedSettings: UserSettings = {
+           notifications: {
+             email_order_updates: result.preferences.email_order_updates,
+             email_marketing: result.preferences.email_marketing,
+           },
+           preferences: {
+             language: 'en', // TODO: Add language preference to database
+             theme: 'system', // TODO: Add theme preference to database
+           }
+         };
+        
         setSettings(loadedSettings);
         setOriginalSettings(loadedSettings);
       } else {
+        console.error('Error loading notification preferences:', result.error);
         setOriginalSettings(settings);
       }
     } catch (error) {
@@ -273,17 +298,7 @@ export default function DashboardSettings() {
     }
   };
 
-  const createDefaultSettings = async () => {
-    try {
-      // Store in localStorage for now since user_settings table doesn't exist
-      if (session?.user?.id) {
-        localStorage.setItem(`user_settings_${session.user.id}`, JSON.stringify(settings));
-        setOriginalSettings(settings);
-      }
-    } catch (error) {
-      console.error('Error creating default settings:', error);
-    }
-  };
+
 
   const saveSettings = async () => {
     if (!session?.user?.id) {
@@ -293,12 +308,20 @@ export default function DashboardSettings() {
 
     setSaving(true);
     try {
-      // Store in localStorage for now
-      localStorage.setItem(`user_settings_${session.user.id}`, JSON.stringify(settings));
+      // Save notification preferences to database
+      const result = await ProfileNotificationService.updateNotificationPreferences(
+        session.user.id,
+        settings.notifications
+      );
       
-      setOriginalSettings(settings);
-      setHasChanges(false);
-      toast.success('Settings saved successfully');
+      if (result.success) {
+        setOriginalSettings(settings);
+        setHasChanges(false);
+        toast.success('Settings saved successfully');
+      } else {
+        console.error('Error saving notification preferences:', result.error);
+        toast.error('Failed to save settings. Please try again.');
+      }
     } catch (error) {
       console.error('Error saving settings:', error);
       toast.error('Failed to save settings. Please try again.');
@@ -740,6 +763,7 @@ export default function DashboardSettings() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-6">
+                    {/* Order Updates Section */}
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm sm:text-base">Order Updates</p>
@@ -748,12 +772,15 @@ export default function DashboardSettings() {
                         </p>
                       </div>
                       <Switch
-                        checked={settings.notifications.email_orders}
-                        onCheckedChange={(checked) => updateSetting('notifications', 'email_orders', checked)}
+                        checked={settings.notifications.email_order_updates}
+                        onCheckedChange={(checked) => updateSetting('notifications', 'email_order_updates', checked)}
                         className="flex-shrink-0"
                       />
                     </div>
+                    
                     <Separator />
+                    
+                    {/* Marketing & Promotions Section */}
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm sm:text-base">Marketing & Promotions</p>

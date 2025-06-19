@@ -425,8 +425,8 @@ function ProfileStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitti
 
   // Generate AI bio - now opens modal
   const generateBio = () => {
-    if (!profileTitle.trim()) {
-      toast.error("Please add a title first to generate a bio");
+    if (!bio.trim() && !profileTitle.trim()) {
+      toast.error("Please enter some bio content first");
       return;
     }
     setShowBioModal(true);
@@ -560,23 +560,19 @@ function ProfileStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitti
               variant="ghost"
               size="sm"
               onClick={generateBio}
-              disabled={generatingBio || !profileTitle.trim()}
-              className="h-8 text-sm font-bold relative overflow-hidden bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 text-white border-0 shadow-lg hover:shadow-2xl transition-all duration-300 animate-pulse hover:animate-none hover:scale-105 before:absolute before:inset-0 before:bg-gradient-to-r before:from-purple-400 before:via-blue-400 before:to-cyan-400 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300 disabled:opacity-50 disabled:animate-none disabled:hover:scale-100"
+              disabled={generatingBio || (!bio.trim() && !profileTitle.trim())}
+              className="h-8 text-sm font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 text-white border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
             >
-              <span className="relative z-10 flex items-center">
+              <span className="flex items-center">
                 {generatingBio ? (
                   <Loading size="sm" />
                 ) : (
                   <>
-                    <Wand2 className="w-4 h-4 mr-1 drop-shadow-sm" />
-                    <span className="bg-gradient-to-r from-yellow-200 to-yellow-100 bg-clip-text text-transparent font-extrabold drop-shadow-sm">✨ AI</span>
+                    <Wand2 className="w-4 h-4 mr-1" />
+                    <span className="font-bold">✨ AI</span>
                   </>
                 )}
               </span>
-              {/* Glowing border effect */}
-              <div className="absolute inset-0 rounded-md bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 opacity-75 blur-sm -z-10"></div>
-              {/* Animated sparkle effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 translate-x-[-100%] animate-[shimmer_2s_infinite] -z-10"></div>
             </Button>
           </div>
           <Textarea

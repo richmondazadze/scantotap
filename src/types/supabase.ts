@@ -260,6 +260,8 @@ export type Database = {
           show_whatsapp: boolean | null
           paystack_customer_code: string | null
           paystack_subscription_code: string | null
+          email_order_updates: boolean
+          email_marketing: boolean
         }
         Insert: {
           avatar_url?: string | null
@@ -285,6 +287,8 @@ export type Database = {
           show_whatsapp?: boolean | null
           paystack_customer_code?: string | null
           paystack_subscription_code?: string | null
+          email_order_updates?: boolean
+          email_marketing?: boolean
         }
         Update: {
           avatar_url?: string | null
@@ -310,6 +314,8 @@ export type Database = {
           show_whatsapp?: boolean | null
           paystack_customer_code?: string | null
           paystack_subscription_code?: string | null
+          email_order_updates?: boolean
+          email_marketing?: boolean
         }
         Relationships: []
       }
@@ -493,6 +499,7 @@ export type Database = {
         }
         Relationships: []
       }
+
     }
     Views: {
       order_tracking_summary: {

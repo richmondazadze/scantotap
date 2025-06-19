@@ -164,12 +164,19 @@ class AIService {
    * Enhanced system prompt focused on user input only
    */
   private static getEnhancedSystemPrompt(): string {
-    return `You are an elite strategic copywriter specializing in crafting compelling professional bios for digital profiles. Your expertise lies in creating conversation-starting introductions based ONLY on the user's provided information.
+    return `You are an elite strategic copywriter specializing in crafting compelling professional bios for digital profiles. Your expertise lies in creating conversation-starting introductions with PRIMARY FOCUS on the user's bio content and secondary consideration of their title.
 
-CORE PRINCIPLE: Use ONLY the user's provided title and bio content. Do NOT make assumptions about their industry, role, or add details not provided.
+PRIORITY HIERARCHY:
+1. PRIMARY: Bio content the user has written (this is the MAIN focus)
+2. SECONDARY: User's title (use as context but bio content takes precedence)
+
+CORE PRINCIPLE: 
+- If user has bio content: Build PRIMARILY on their bio content, use title only for context
+- If user has no bio content: Use only the title provided
+- Do NOT make assumptions about their industry, role, or add details not provided
 
 BIO STRUCTURE FORMULA:
-[User's Title/Identity] + [Enhanced Value Language] + [Conversation Starter]
+[Enhanced Bio Content] + [Title Context if needed] + [Conversation Starter]
 
 POWER WORDS TOOLKIT:
 Action: transforms, accelerates, orchestrates, architects, pioneers, amplifies, catalyzes, cultivates
@@ -177,11 +184,11 @@ Value: breakthrough, game-changing, award-winning, industry-leading, proven, sca
 Emotion: passionate, obsessed, dedicated, driven, inspiring, authentic, genuine, magnetic
 
 CRITICAL GUIDELINES:
-✅ Use the EXACT title provided by the user
-✅ Build on the content they've already written
-✅ Enhance their language without changing their meaning
-✅ Focus on what they've specifically mentioned
-✅ Create engaging versions of THEIR content
+✅ PRIORITIZE the bio content the user has written
+✅ Enhance their bio language without changing their meaning
+✅ Use title only as supporting context, not the main focus
+✅ Focus on what they've specifically mentioned in their bio
+✅ Create engaging versions of THEIR bio content
 
 CRITICAL AVOIDANCE LIST:
 ❌ Adding industry assumptions not mentioned
@@ -196,7 +203,7 @@ REQUIREMENTS:
 - Return 3 distinct variations, one per line
 - No numbering, bullets, or formatting
 - Base everything on the user's provided information
-- Use their exact title as provided
+- PRIMARY emphasis on bio content, secondary on title
 - Enhance their language while keeping their core message
 - Create conversation-starting hooks from THEIR content
 
@@ -247,7 +254,8 @@ Your goal: Enhance what the user has provided, not create assumptions about what
     let prompt = `Transform this bio into something more compelling and conversation-starting:\n\n"${currentBio}"\n\n`;
     
     prompt += `USER CONTEXT:\n`;
-    prompt += `- Title: ${title}\n`;
+    prompt += `- Bio Content (PRIMARY FOCUS): "${currentBio}"\n`;
+    prompt += `- Title (for context only): ${title}\n`;
     if (name) {
       prompt += `- Name: ${name}\n`;
     }
@@ -256,18 +264,19 @@ Your goal: Enhance what the user has provided, not create assumptions about what
     prompt += `STYLE REQUIREMENTS:\n${styleGuide}\n\n`;
     
     prompt += `ENHANCEMENT GOALS:\n`;
-    prompt += `- Work only with the provided bio content and title\n`;
+    prompt += `- PRIORITIZE the bio content they've written: "${currentBio}"\n`;
+    prompt += `- Use the title "${title}" only as supporting context\n`;
     prompt += `- Do not add assumptions about their industry or role\n`;
-    prompt += `- Enhance the language while keeping the core message\n`;
+    prompt += `- Enhance the bio language while keeping the core message\n`;
     prompt += `- Make it more engaging and conversation-starting\n`;
     prompt += `- Use stronger action words and more specific language\n`;
     prompt += `- Stay under 100 characters while maximizing impact\n\n`;
     
     prompt += `REQUIREMENTS:\n`;
-    prompt += `- Base enhancements on the actual bio: "${currentBio}"\n`;
-    prompt += `- Reference their title: "${title}"\n`;
+    prompt += `- Base enhancements PRIMARY on the bio: "${currentBio}"\n`;
+    prompt += `- Use their title: "${title}" only for context\n`;
     prompt += `- Create 3 enhanced variations\n`;
-    prompt += `- Keep the original meaning but make it more compelling\n\n`;
+    prompt += `- Keep the original bio meaning but make it more compelling\n\n`;
     
     prompt += `Create 3 enhanced versions:`;
 

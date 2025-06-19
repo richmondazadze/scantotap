@@ -36,8 +36,8 @@ export default function BioEnhancementModal({
   ];
 
   const generateSuggestions = async (style?: string) => {
-    if (!title.trim()) {
-      toast.error("Title is required to generate suggestions");
+    if (!currentBio.trim() && !title.trim()) {
+      toast.error("Please enter some bio content first");
       return;
     }
 
@@ -45,8 +45,10 @@ export default function BioEnhancementModal({
     try {
       const styleToUse = style || selectedStyle;
       
-      // Generate new bio
-      const result = await AIService.generateBio(title, name, styleToUse);
+      // If user has bio content, enhance it. Otherwise generate from title.
+      const result = currentBio.trim() 
+        ? await AIService.enhanceBio({ currentBio, title, name, style: styleToUse as 'professional' | 'creative' | 'casual' | 'technical' })
+        : await AIService.generateBio(title, name, styleToUse);
 
       if (result.success && result.suggestions.length > 0) {
         setSuggestions(result.suggestions);
@@ -74,14 +76,14 @@ export default function BioEnhancementModal({
     onClose();
   };
 
-  // Auto-generate on open with default professional style
+  // Auto-generate on open only if there's content
   React.useEffect(() => {
-    if (isOpen && suggestions.length === 0) {
+    if (isOpen && suggestions.length === 0 && (currentBio.trim() || title.trim())) {
       // Default to professional style, let user choose their preferred style
       setSelectedStyle('professional');
       generateSuggestions('professional');
     }
-  }, [isOpen, title]);
+  }, [isOpen, currentBio, title]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -151,10 +153,10 @@ export default function BioEnhancementModal({
           <div className="flex gap-3">
             <Button
               onClick={() => generateSuggestions()}
-              disabled={loading}
-              className="flex-1 relative overflow-hidden bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 text-white border-0 shadow-lg hover:shadow-2xl transition-all duration-300 animate-pulse hover:animate-none hover:scale-105 before:absolute before:inset-0 before:bg-gradient-to-r before:from-purple-400 before:via-blue-400 before:to-cyan-400 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300 disabled:opacity-50 disabled:animate-none disabled:hover:scale-100"
+              disabled={loading || (!currentBio.trim() && !title.trim())}
+              className="flex-1 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 text-white border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
             >
-              <span className="relative z-10 flex items-center">
+              <span className="flex items-center">
                 {loading ? (
                   <div className="flex items-center gap-2">
                     <Loading size="sm" />
@@ -162,15 +164,11 @@ export default function BioEnhancementModal({
                   </div>
                 ) : (
                   <>
-                    <Wand2 className="w-4 h-4 mr-2 drop-shadow-sm" />
-                    <span className="bg-gradient-to-r from-yellow-200 to-yellow-100 bg-clip-text text-transparent font-extrabold drop-shadow-sm">✨ Generate</span>
+                    <Wand2 className="w-4 h-4 mr-2" />
+                    <span className="font-bold">✨ Generate</span>
                   </>
                 )}
               </span>
-              {/* Glowing border effect */}
-              <div className="absolute inset-0 rounded-md bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 opacity-75 blur-sm -z-10"></div>
-              {/* Animated sparkle effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 translate-x-[-100%] animate-shimmer -z-10"></div>
             </Button>
             {suggestions.length > 0 && (
               <Button
