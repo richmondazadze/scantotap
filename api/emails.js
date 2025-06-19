@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     }
 
     const result = await resend.emails.send({
-      from: 'SCAN2TAP <noreply@scan2tap.com>',
+      from: 'SCAN2TAP <scan2tap@richverseecotech.com>',
       to: [to],
       subject: subject,
       html: html,
