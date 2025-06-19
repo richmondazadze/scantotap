@@ -287,7 +287,7 @@ export class WebhookHandler {
           planType: 'Pro',
           cancellationDate: new Date().toISOString(),
           dataRetentionDays: 90,
-          resubscribeUrl: 'https://scan2tap.com/dashboard/settings?section=billing&action=upgrade'
+          resubscribeUrl: 'https://scan2tap.vercel.app/dashboard/settings?section=billing&action=upgrade'
         };
         
         await emailService.sendSubscriptionCancelledEmail(emailData);

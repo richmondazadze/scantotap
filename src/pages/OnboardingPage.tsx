@@ -296,7 +296,7 @@ function UsernameStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
         <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
           <div className="flex items-center text-base">
             <Globe className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
-            <span className="text-gray-500 flex-shrink-0">scan2tap.com/</span>
+            <span className="text-gray-500 flex-shrink-0">scan2tap.vercel.app/</span>
             <span className="font-bold text-blue-600 dark:text-blue-400 truncate">
               {username || 'yourusername'}
             </span>
@@ -1542,6 +1542,40 @@ export default function OnboardingPage() {
     }
   }, [profile, navigate, location, intendedPlan, billingCycle]);
 
+  // Send welcome email when new user starts onboarding
+  useEffect(() => {
+    // Only send welcome email if:
+    // 1. User is authenticated
+    // 2. Profile exists but onboarding is not complete
+    // 3. We haven't already sent it (check sessionStorage to avoid duplicates)
+    if (session?.user?.email && profile && !profile.onboarding_complete) {
+      const welcomeEmailSent = sessionStorage.getItem('welcome_email_sent');
+      
+      if (!welcomeEmailSent) {
+        const sendWelcomeEmail = async () => {
+          try {
+            const userName = profile.name || session.user.email?.split('@')[0] || 'User';
+            const username = profile.slug || `user${Date.now().toString().slice(-6)}`;
+            
+            await EmailTriggers.sendWelcomeEmail(
+              session.user.email,
+              userName,
+              username
+            );
+            
+            console.log('Welcome email sent to:', session.user.email);
+            sessionStorage.setItem('welcome_email_sent', 'true');
+          } catch (emailError) {
+            console.error('Failed to send welcome email:', emailError);
+            // Don't block the flow if email fails
+          }
+        };
+        
+        sendWelcomeEmail();
+      }
+    }
+  }, [session, profile]);
+
   const handleNext = async () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
@@ -1658,7 +1692,8 @@ export default function OnboardingPage() {
         'onboarding_plan',
         'onboarding_platforms',
         'onboarding_social_links',
-        'onboarding_additional_urls'
+        'onboarding_additional_urls',
+        'welcome_email_sent'
       ].forEach(key => sessionStorage.removeItem(key));
 
       // Refresh profile to get updated data

@@ -288,7 +288,7 @@ class ContactEmailService {
       
       <!-- CTA -->
       <div style="text-align: center;">
-        <a href="https://scan2tap.com" class="cta-button">Visit Our Website</a>
+        <a href="https://scan2tap.vercel.app" class="cta-button">Visit Our Website</a>
       </div>
     </div>
     
@@ -299,7 +299,7 @@ class ContactEmailService {
         Making networking effortless with digital business cards
       </div>
       <div class="footer-text">
-        <a href="https://scan2tap.com" class="footer-link">www.scan2tap.com</a>
+        <a href="https://scan2tap.vercel.app" class="footer-link">www.scan2tap.vercel.app</a>
       </div>
       <div class="footer-text" style="font-size: 12px; margin-top: 15px;">
         This email was sent because you contacted us through our website.<br>

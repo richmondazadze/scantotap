@@ -3,13 +3,54 @@
 // Email utility functions
 export class EmailUtils {
   static generateProfileUrl(username: string): string {
-    const baseUrl = import.meta.env.VITE_APP_URL || 'https://scan2tap.com';
+    const baseUrl = import.meta.env.VITE_APP_URL || 'https://scan2tap.vercel.app';
     return `${baseUrl}/${username}`;
   }
 
   static generateDashboardUrl(): string {
-    const baseUrl = import.meta.env.VITE_APP_URL || 'https://scan2tap.com';
+    const baseUrl = import.meta.env.VITE_APP_URL || 'https://scan2tap.vercel.app';
     return `${baseUrl}/dashboard`;
+  }
+
+  // Validate email format
+  static isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  // Format user name for email display
+  static formatUserName(name: string): string {
+    if (!name || name.trim() === '') return 'User';
+    
+    // Capitalize first letter of each word
+    return name
+      .trim()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  }
+
+  // Generate QR code URL
+  static generateQRCodeUrl(username: string): string {
+    return `https://scan2tap.vercel.app/api/qr/${username}`;
+  }
+
+  // Format currency amount
+  static formatCurrency(amount: number, currency: string = 'USD'): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency
+    }).format(amount);
+  }
+
+  // Format date for email display
+  static formatDate(date: Date | string): string {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    return dateObj.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   }
 }
 
@@ -64,17 +105,8 @@ export class EmailTriggers {
     });
   }
 
-  static async sendUsernameClaimedEmail(userEmail: string, userName: string, username: string): Promise<boolean> {
-    const profileUrl = EmailUtils.generateProfileUrl(username);
-    
-    return this.sendEmail('username-claimed', userEmail, {
-      userName,
-      profileUrl
-    });
-  }
-
   // Note: Other email types (upgrade, payment, subscription) are handled by existing services
-  // These three main types are moved to backend API to fix CORS issues
+  // These two main types are moved to backend API to fix CORS issues
 }
 
 // Email template testing utilities (for development)
@@ -97,10 +129,6 @@ export class EmailTesting {
       // Test onboarding complete
       await EmailTriggers.sendOnboardingCompleteEmail(sampleUser.email, sampleUser.name, sampleUser.username);
       console.log('✅ Onboarding complete email sent');
-
-      // Test username claimed
-      await EmailTriggers.sendUsernameClaimedEmail(sampleUser.email, sampleUser.name, sampleUser.username);
-      console.log('✅ Username claimed email sent');
 
       console.log('🎉 All email tests completed successfully!');
       return true;

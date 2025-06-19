@@ -179,41 +179,12 @@ export const LightLogin = () => {
           // User is immediately logged in, redirect to onboarding
           setSuccess('Welcome to Scan2Tap! Setting up your account...');
           
-          // Send welcome email (import will be added separately)
-          try {
-            const { EmailTriggers } = await import('@/utils/emailHelpers');
-            const userName = signUpData.user.email?.split('@')[0] || 'User';
-            await EmailTriggers.sendWelcomeEmail(
-              signUpData.user.email || '',
-              userName,
-              userName.toLowerCase()
-            );
-            console.log('Welcome email sent to:', signUpData.user.email);
-          } catch (emailError) {
-            console.error('Failed to send welcome email:', emailError);
-            // Don't block the flow if email fails
-          }
-          
           setTimeout(() => {
             window.location.reload(); // Force refresh to update contexts
           }, 1000);
         } else {
           // Email confirmation required
           setSuccess('Account created successfully! Please check your email to verify your account.');
-          
-          // Send welcome email for email confirmation users too
-          try {
-            const { EmailTriggers } = await import('@/utils/emailHelpers');
-            const userName = signUpData.user.email?.split('@')[0] || 'User';
-            await EmailTriggers.sendWelcomeEmail(
-              signUpData.user.email || '',
-              userName,
-              userName.toLowerCase()
-            );
-            console.log('Welcome email sent to:', signUpData.user.email);
-          } catch (emailError) {
-            console.error('Failed to send welcome email:', emailError);
-          }
         }
       }
     } catch (err) {

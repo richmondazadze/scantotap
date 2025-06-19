@@ -93,7 +93,7 @@ const PricingPage = () => {
       gradient: "from-gray-500 to-gray-600",
       features: [
         { name: "Create a digital profile", included: true, description: "Build your personalized digital business card" },
-        { name: "Custom scan2tap link", included: true, description: "Get your own scan2tap.com/username URL" },
+        { name: "Custom scan2tap link", included: true, description: "Get your own scan2tap.vercel.app/username URL" },
         { name: "Add up to 7 social or custom links", included: true, description: "Instagram, LinkedIn, website, etc." },
         { name: "Dynamic QR code & download", included: true, description: "Generate and download your QR code" },
         { name: "Basic profile layout", included: true, description: "Clean, professional design" },
@@ -540,7 +540,7 @@ const PricingPage = () => {
                   How does the digital business card work?
                 </AccordionTrigger>
                 <AccordionContent className="px-6 sm:px-8 pb-6 text-gray-600 dark:text-gray-300 leading-relaxed">
-                  Your digital business card is a personalized web page (like scan2tap.com/yourname) that contains all your professional information. 
+                  Your digital business card is a personalized web page (like scan2tap.vercel.app/yourname) that contains all your professional information. 
                   You can share it via QR code, link, or NFC technology. When someone visits your profile, they can instantly access your contact info, 
                   social media, and links.
                 </AccordionContent>

@@ -122,7 +122,7 @@ export class EmailTriggers {
       planType: userData.planType,
       amount: userData.amount,
       retryDate: userData.retryDate,
-      updatePaymentUrl: `https://scan2tap.com/dashboard/settings?section=billing&action=update`
+      updatePaymentUrl: `https://scan2tap.vercel.app/dashboard/settings?section=billing&action=update`
     };
     
     return await emailService.sendPaymentFailedEmail(emailData);
@@ -143,7 +143,7 @@ export class EmailTriggers {
       userEmail: userData.email,
       planType: userData.planType,
       expiryDate: userData.expiryDate,
-      renewUrl: `https://scan2tap.com/dashboard/settings?section=billing&action=renew`,
+      renewUrl: `https://scan2tap.vercel.app/dashboard/settings?section=billing&action=renew`,
       usageSummary: {
         profileViews: userData.profileViews,
         qrScans: userData.qrScans,
@@ -167,7 +167,7 @@ export class EmailTriggers {
       planType: userData.planType,
       cancellationDate: userData.cancellationDate,
       dataRetentionDays: 90, // Standard retention period
-      resubscribeUrl: `https://scan2tap.com/dashboard/settings?section=billing&action=upgrade`
+      resubscribeUrl: `https://scan2tap.vercel.app/dashboard/settings?section=billing&action=upgrade`
     };
     
     return await emailService.sendSubscriptionCancelledEmail(emailData);
@@ -187,7 +187,7 @@ export class EmailTriggers {
       userEmail: userData.email,
       expiryDate: userData.expiryDate,
       featuresLosing,
-      renewUrl: `https://scan2tap.com/dashboard/settings?section=billing&action=renew`
+      renewUrl: `https://scan2tap.vercel.app/dashboard/settings?section=billing&action=renew`
     };
     
     return await emailService.sendDowngradeWarningEmail(emailData);
@@ -285,12 +285,12 @@ export class EmailUtils {
 
   // Generate profile URL
   static generateProfileUrl(username: string): string {
-    return `https://scan2tap.com/${username}`;
+    return `https://scan2tap.vercel.app/${username}`;
   }
 
   // Generate QR code URL
   static generateQRCodeUrl(username: string): string {
-    return `https://scan2tap.com/api/qr/${username}`;
+    return `https://scan2tap.vercel.app/api/qr/${username}`;
   }
 
   // Format currency amount
@@ -323,7 +323,7 @@ export class EmailTesting {
       name: 'John Doe',
       email: testEmail,
       username: 'johndoe',
-      profileUrl: 'https://scan2tap.com/johndoe'
+      profileUrl: 'https://scan2tap.vercel.app/johndoe'
     };
 
     try {
@@ -334,7 +334,7 @@ export class EmailTesting {
       // Test onboarding complete
       await EmailTriggers.sendOnboardingCompleteEmail({
         ...sampleUser,
-        qrCodeUrl: 'https://scan2tap.com/api/qr/johndoe'
+        qrCodeUrl: 'https://scan2tap.vercel.app/api/qr/johndoe'
       });
       console.log('✅ Onboarding complete email sent');
 

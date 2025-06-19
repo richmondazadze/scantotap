@@ -23,13 +23,6 @@ export interface OnboardingCompleteData {
   qrCodeUrl?: string;
 }
 
-export interface UsernameClaimedData {
-  userName: string;
-  userEmail: string;
-  username: string;
-  profileUrl: string;
-}
-
 export interface UpgradeConfirmationData {
   userName: string;
   userEmail: string;
@@ -358,7 +351,7 @@ class EmailService {
         Making networking effortless with digital business cards
       </div>
       <div class="footer-text">
-        <a href="https://scan2tap.com" class="footer-link">www.scan2tap.com</a>
+        <a href="https://scan2tap.vercel.app" class="footer-link">www.scan2tap.vercel.app</a>
       </div>
       <div class="footer-text" style="font-size: 12px; margin-top: 15px;">
         This email was sent from your Scan2Tap account.<br>
@@ -388,7 +381,7 @@ class EmailService {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://scan2tap.com/onboarding" class="cta-button">
+          <a href="https://scan2tap.vercel.app/onboarding" class="cta-button">
             Complete Your Profile →
           </a>
         </div>
@@ -432,7 +425,7 @@ class EmailService {
           <a href="${data.profileUrl}" class="cta-button">
             View Your Profile →
           </a>
-          <a href="https://scan2tap.com/dashboard/qr" class="secondary-button">
+          <a href="https://scan2tap.vercel.app/dashboard/qr" class="secondary-button">
             Get QR Code
           </a>
         </div>
@@ -471,64 +464,7 @@ class EmailService {
     }
   }
 
-  // 4. Username Claimed Email
-  async sendUsernameClaimedEmail(data: UsernameClaimedData): Promise<boolean> {
-    try {
-      const content = `
-        <h2 class="greeting">🎯 Your Digital Identity is Ready, ${data.userName}!</h2>
-        
-        <div class="message">
-          <p>Fantastic news! Your unique username <strong>${data.username}</strong> has been successfully claimed and your digital business card is now live at your personalized URL.</p>
-        </div>
-        
-        <div class="info-card">
-          <h3>🌟 Your Unique Digital Address</h3>
-          <p><strong>scan2tap.com/${data.username}</strong></p>
-          <p>This is your permanent digital address that you can share with confidence. It's professional, memorable, and uniquely yours!</p>
-        </div>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${data.profileUrl}" class="cta-button">
-            Visit Your Profile →
-          </a>
-        </div>
-        
-        <div class="message">
-          <p><strong>Start sharing your digital presence:</strong></p>
-          <ul style="margin: 16px 0; padding-left: 20px; color: #4b5563;">
-            <li>Add it to your email signature</li>
-            <li>Share it on social media</li>
-            <li>Include it in your resume or CV</li>
-            <li>Use it on your business cards</li>
-            <li>Add it to your LinkedIn profile</li>
-          </ul>
-        </div>
-        
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="https://scan2tap.com/dashboard/qr" class="secondary-button">
-            Download QR Code
-          </a>
-          <a href="https://scan2tap.com/dashboard/profile" class="secondary-button">
-            Customize Profile
-          </a>
-        </div>
-      `;
-
-      const result = await resend.emails.send({
-        from: `${this.brandName} <${this.fromEmail}>`,
-        to: data.userEmail,
-        subject: `🎯 ${data.username} is yours! Your digital identity is ready`,
-        html: this.getBaseTemplate(content, `Your username ${data.username} is claimed! Start sharing your digital business card.`),
-      });
-
-      return !!result.data;
-    } catch (error) {
-      console.error('Failed to send username claimed email:', error);
-      return false;
-    }
-  }
-
-  // 5. Upgrade Confirmation Email
+  // 4. Upgrade Confirmation Email
   async sendUpgradeConfirmationEmail(data: UpgradeConfirmationData): Promise<boolean> {
     try {
       const featuresHtml = data.features.map(feature => `<li style="margin: 8px 0; color: #059669;">✓ ${feature}</li>`).join('');
@@ -559,7 +495,7 @@ class EmailService {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://scan2tap.com/dashboard/profile" class="cta-button">
+          <a href="https://scan2tap.vercel.app/dashboard/profile" class="cta-button">
             Explore Pro Features →
           </a>
         </div>
@@ -570,7 +506,7 @@ class EmailService {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://scan2tap.com/dashboard/settings" class="secondary-button">
+          <a href="https://scan2tap.vercel.app/dashboard/settings" class="secondary-button">
             Manage Subscription
           </a>
         </div>
@@ -615,7 +551,7 @@ class EmailService {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://scan2tap.com/dashboard/settings?section=billing" class="cta-button">
+          <a href="https://scan2tap.vercel.app/dashboard/settings?section=billing" class="cta-button">
             View Invoice →
           </a>
         </div>
@@ -625,7 +561,7 @@ class EmailService {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://scan2tap.com/dashboard/settings" class="secondary-button">
+          <a href="https://scan2tap.vercel.app/dashboard/settings" class="secondary-button">
             Manage Subscription
           </a>
         </div>
@@ -751,7 +687,7 @@ class EmailService {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://scan2tap.com/dashboard/settings" class="secondary-button">
+          <a href="https://scan2tap.vercel.app/dashboard/settings" class="secondary-button">
             Manage Subscription
           </a>
         </div>
@@ -866,7 +802,7 @@ class EmailService {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://scan2tap.com/dashboard/settings" class="secondary-button">
+          <a href="https://scan2tap.vercel.app/dashboard/settings" class="secondary-button">
             Manage Subscription
           </a>
           <a href="mailto:${this.supportEmail}" class="secondary-button">

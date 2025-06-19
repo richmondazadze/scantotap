@@ -163,4 +163,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Support
 
-For support, email support@scan2tap.com or join our Discord community.
+For support, email support@scan2tap.vercel.app or join our Discord community.
