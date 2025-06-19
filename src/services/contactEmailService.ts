@@ -231,7 +231,7 @@ class ContactEmailService {
       <div class="logo">
         SCAN<span class="number-2">2</span>TAP
       </div>
-      <div class="tagline">Digital Business Cards Reimagined</div>
+              <div class="tagline">Your Digital Identity, One Tap Away</div>
     </div>
     
     <!-- Content -->
