@@ -115,332 +115,254 @@ class EmailService {
   private getBaseTemplate(content: string, preheader?: string): string {
     return `
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="x-apple-disable-message-reformatting">
-  ${preheader ? `<meta name="description" content="${preheader}">` : ''}
   <title>${this.brandName}</title>
   
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
   <style>
-    /* Email Client Reset & Base Styles */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      margin: 0; padding: 0; width: 100%; height: 100%;
-      font-family: 'Inter', Arial, sans-serif; line-height: 1.6;
-      -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;
+    
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333333;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
     }
     
-    /* Color Variables for Light Mode (Default) */
-    :root {
-      --primary-bg: #ffffff;
-      --secondary-bg: #f8fafc;
-      --text-primary: #1a202c;
-      --text-secondary: #4a5568;
-      --text-muted: #718096;
-      --border-color: #e2e8f0;
-      --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      --card-bg: #ffffff;
-      --card-shadow: rgba(0, 0, 0, 0.1);
-      --accent-color: #3b82f6;
-      --success-color: #10b981;
-      --warning-color: #f59e0b;
-      --error-color: #ef4444;
-      --info-bg: #eff6ff;
-      --info-border: #bfdbfe;
-      --info-text: #1e40af;
-      --highlight-bg: #fef3c7;
-      --highlight-border: #f59e0b;
-    }
-    
-    /* Dark Mode Support */
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --primary-bg: #1a202c;
-        --secondary-bg: #2d3748;
-        --text-primary: #f7fafc;
-        --text-secondary: #e2e8f0;
-        --text-muted: #a0aec0;
-        --border-color: #4a5568;
-        --header-bg: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-        --card-bg: #2d3748;
-        --card-shadow: rgba(0, 0, 0, 0.3);
-        --accent-color: #60a5fa;
-        --success-color: #34d399;
-        --warning-color: #fbbf24;
-        --error-color: #f87171;
-        --info-bg: #1e3a8a;
-        --info-border: #3b82f6;
-        --info-text: #93c5fd;
-        --highlight-bg: #78350f;
-        --highlight-border: #f59e0b;
-      }
-    }
-    
-    /* Container */
     .email-container {
-      max-width: 600px; margin: 0 auto;
-      background: var(--primary-bg);
-      border-radius: 20px; overflow: hidden;
-      box-shadow: 0 20px 40px var(--card-shadow);
-      border: 1px solid var(--border-color);
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
     
-    /* Header */
     .header {
-      background: var(--header-bg);
-      padding: 50px 30px; text-align: center; position: relative;
-      border-bottom: 3px solid var(--accent-color);
-    }
-    .header::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      padding: 30px 20px;
+      text-align: center;
+      color: white;
     }
     
-    /* Modern Logo */
-    .logo-container { position: relative; z-index: 10; margin-bottom: 24px; }
     .logo {
-      display: inline-block; padding: 24px 40px; 
-      background: rgba(255,255,255,0.12); border-radius: 20px;
-      border: 2px solid rgba(255,255,255,0.2);
-      font-family: 'Inter', sans-serif; font-size: 42px; font-weight: 900;
-      letter-spacing: 4px; text-transform: uppercase; margin-bottom: 16px;
-      box-shadow: 
-        0 8px 32px rgba(0,0,0,0.3), 
-        inset 0 2px 0 rgba(255,255,255,0.4),
-        inset 0 -2px 0 rgba(0,0,0,0.1);
-      backdrop-filter: blur(16px);
-      text-shadow: 
-        0 1px 0 rgba(255,255,255,0.8),
-        0 2px 3px rgba(0,0,0,0.3),
-        0 4px 8px rgba(0,0,0,0.2),
-        0 8px 16px rgba(0,0,0,0.1);
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
     }
     
-    .logo-letter {
-      display: inline-block; position: relative;
-    }
-    
-    .logo-letter-normal {
-      color: #ffffff;
-      text-shadow: 
-        0 1px 0 rgba(255,255,255,0.9),
-        0 2px 4px rgba(0,0,0,0.4),
-        0 4px 8px rgba(0,0,0,0.3),
-        0 8px 16px rgba(0,0,0,0.2);
-    }
-    
-    .logo-letter-2 {
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      color: #3b82f6;
-      text-shadow: 
-        0 1px 0 rgba(59, 130, 246, 0.9),
-        0 2px 4px rgba(29, 78, 216, 0.7),
-        0 4px 8px rgba(30, 64, 175, 0.5),
-        0 8px 16px rgba(37, 99, 235, 0.3);
-    }
-    
-    /* Dark Mode Logo Adjustments */
-    @media (prefers-color-scheme: dark) {
-      .logo-letter-2 {
-        background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: #60a5fa;
-        text-shadow: 
-          0 1px 0 rgba(96, 165, 250, 0.9),
-          0 2px 4px rgba(59, 130, 246, 0.7),
-          0 4px 8px rgba(37, 99, 235, 0.5),
-          0 8px 16px rgba(29, 78, 216, 0.3);
-      }
+    .logo .number-2 {
+      color: #60a5fa;
+      text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
     }
     
     .tagline {
-      color: rgba(255,255,255,0.95); font-size: 18px; font-weight: 400;
-      margin: 16px 0 0 0; opacity: 0.95; text-align: center;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      font-size: 14px;
+      opacity: 0.9;
+      margin-top: 5px;
     }
     
-    /* Content */
     .content {
-      padding: 40px; background: var(--card-bg);
-      color: var(--text-primary);
+      padding: 40px 30px;
+      background-color: #ffffff;
     }
     
-    /* Typography */
-    h1, h2, h3 { color: var(--text-primary); margin-bottom: 16px; }
-    h1 { font-size: 32px; font-weight: 800; }
-    h2 { font-size: 24px; font-weight: 700; }
-    h3 { font-size: 20px; font-weight: 600; }
-    
-    p { 
-      color: var(--text-secondary); line-height: 1.6; 
-      margin-bottom: 16px; font-size: 16px; 
+    .greeting {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1f2937;
+      margin-bottom: 20px;
+      text-align: center;
     }
     
-    /* Cards & Sections */
-    .card {
-      background: var(--secondary-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 12px; padding: 24px; margin: 24px 0;
+    .message {
+      font-size: 16px;
+      color: #4b5563;
+      margin-bottom: 30px;
+      line-height: 1.7;
     }
     
-    .info-box {
-      background: var(--info-bg);
-      border: 2px solid var(--info-border);
-      border-radius: 12px; padding: 24px; margin: 24px 0;
-      color: var(--info-text);
+    .info-section {
+      background-color: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 25px;
+      margin: 25px 0;
+    }
+    
+    .info-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1f2937;
+      margin-bottom: 15px;
     }
     
     .highlight-box {
-      background: var(--highlight-bg);
-      border: 2px solid var(--highlight-border);
-      border-radius: 12px; padding: 20px; margin: 20px 0;
+      background-color: #fef3c7;
+      border: 2px solid #f59e0b;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 20px 0;
     }
     
-    /* Buttons */
-    .btn {
-      display: inline-block; padding: 14px 28px;
-      border-radius: 10px; text-decoration: none;
-      font-weight: 600; font-size: 16px; text-align: center;
-      transition: all 0.3s ease; margin: 8px 4px;
+    .success-box {
+      background-color: #ecfdf5;
+      border: 2px solid #10b981;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 20px 0;
     }
     
-    .btn-primary {
-      background: var(--accent-color); color: white;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-    .btn-primary:hover {
-      background: #2563eb;
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-      transform: translateY(-2px);
+    .warning-box {
+      background-color: #fef2f2;
+      border: 2px solid #ef4444;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 20px 0;
     }
     
-    .btn-secondary {
-      background: var(--secondary-bg); color: var(--text-primary);
-      border: 2px solid var(--border-color);
-    }
-    .btn-secondary:hover {
-      background: var(--border-color);
+    .cta-button {
+      display: inline-block;
+      background-color: #2563eb;
+      color: white;
+      padding: 12px 30px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      margin: 20px 0;
+      text-align: center;
     }
     
-    /* Status Indicators */
+    .cta-button:hover {
+      background-color: #1d4ed8;
+    }
+    
+    .secondary-button {
+      display: inline-block;
+      background-color: transparent;
+      color: #2563eb;
+      padding: 12px 30px;
+      text-decoration: none;
+      border: 2px solid #2563eb;
+      border-radius: 6px;
+      font-weight: bold;
+      margin: 10px 5px;
+    }
+    
+    .secondary-button:hover {
+      background-color: #2563eb;
+      color: white;
+    }
+    
+    .footer {
+      background-color: #f9fafb;
+      padding: 25px 20px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    .footer-text {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+    
+    .footer-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    
+    /* Typography Helpers */
+    h1 { font-size: 28px; font-weight: bold; color: #1f2937; margin-bottom: 20px; }
+    h2 { font-size: 22px; font-weight: bold; color: #1f2937; margin-bottom: 15px; }
+    h3 { font-size: 18px; font-weight: bold; color: #1f2937; margin-bottom: 10px; }
+    
+    p { font-size: 16px; color: #4b5563; margin-bottom: 15px; line-height: 1.6; }
+    
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+    .text-right { text-align: right; }
+    
+    .mb-10 { margin-bottom: 10px; }
+    .mb-20 { margin-bottom: 20px; }
+    .mb-30 { margin-bottom: 30px; }
+    
+    /* Status badges */
     .status {
-      display: inline-block; padding: 6px 12px;
-      border-radius: 20px; font-size: 14px; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.5px;
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
     }
     
     .status-success {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--success-color);
-      border: 1px solid var(--success-color);
+      background-color: #d1fae5;
+      color: #065f46;
     }
     
     .status-warning {
-      background: rgba(245, 158, 11, 0.1);
-      color: var(--warning-color);
-      border: 1px solid var(--warning-color);
+      background-color: #fef3c7;
+      color: #92400e;
     }
     
     .status-error {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--error-color);
-      border: 1px solid var(--error-color);
-    }
-    
-    /* Lists */
-    ul, ol {
-      padding-left: 20px; margin: 16px 0;
-      color: var(--text-secondary);
-    }
-    li { margin-bottom: 8px; line-height: 1.5; }
-    
-    /* Tables */
-    table {
-      width: 100%; border-collapse: collapse;
-      margin: 20px 0;
-    }
-    th, td {
-      padding: 12px; text-align: left;
-      border-bottom: 1px solid var(--border-color);
-    }
-    th {
-      background: var(--secondary-bg);
-      color: var(--text-primary);
-      font-weight: 600;
-    }
-    td { color: var(--text-secondary); }
-    
-    /* Footer */
-    .footer {
-      background: var(--secondary-bg);
-      padding: 32px 20px; text-align: center;
-      border-top: 1px solid var(--border-color);
-    }
-    .footer-text {
-      font-size: 14px; line-height: 1.6; margin-bottom: 16px;
-      color: var(--text-muted);
-    }
-    .footer-links a {
-      color: var(--accent-color); text-decoration: none;
-      margin: 0 12px; font-weight: 500;
-    }
-    .footer-links a:hover {
-      color: #2563eb;
+      background-color: #fee2e2;
+      color: #991b1b;
     }
     
     /* Mobile Responsive */
     @media only screen and (max-width: 600px) {
-      .email-container { margin: 10px; border-radius: 16px; }
-      .header { padding: 40px 20px; }
-      .content { padding: 24px 20px; }
-      .logo { font-size: 36px; padding: 20px 28px; }
-      h1 { font-size: 28px; }
-      h2 { font-size: 22px; }
-      p { font-size: 15px; }
-      .card, .info-box { padding: 20px; margin: 20px 0; }
-      .footer { padding: 24px 16px; }
-      .btn { padding: 12px 24px; font-size: 15px; }
+      body { padding: 10px; }
+      .content { padding: 25px 20px; }
+      .header { padding: 25px 15px; }
+      .logo { font-size: 28px; }
+      .greeting { font-size: 20px; }
+      h1 { font-size: 24px; }
+      h2 { font-size: 20px; }
+      .cta-button, .secondary-button { 
+        display: block; 
+        width: 100%; 
+        margin: 10px 0;
+        box-sizing: border-box;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="email-wrapper">
-    <div class="email-container">
-      <!-- Header -->
-      <div class="header">
-                  <div class="logo-container">
-            <div class="logo">
-              <span class="logo-letter logo-letter-normal">SCAN</span><span class="logo-letter logo-letter-2">2</span><span class="logo-letter logo-letter-normal">TAP</span>
-            </div>
-            <p class="tagline">Digital Business Cards Reimagined</p>
-          </div>
+  <div class="email-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        SCAN<span class="number-2">2</span>TAP
       </div>
-      
-      <!-- Content -->
-      <div class="content">
-        ${content}
+      <div class="tagline">Digital Business Cards Reimagined</div>
+    </div>
+    
+    <!-- Content -->
+    <div class="content">
+      ${content}
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-text">
+        <strong>Scan2Tap</strong><br>
+        Making networking effortless with digital business cards
       </div>
-      
-      <!-- Footer -->
-      <div class="footer">
-        <div class="footer-brand">Scan2Tap</div>
-        <div class="footer-tagline">Making networking effortless with digital business cards</div>
+      <div class="footer-text">
         <a href="https://scan2tap.com" class="footer-link">www.scan2tap.com</a>
-        
-        <div class="footer-note">
-          This email was sent to you because you have an account with ${this.brandName}.<br>
-          If you have any questions, please contact us at ${this.supportEmail}
-        </div>
+      </div>
+      <div class="footer-text" style="font-size: 12px; margin-top: 15px;">
+        This email was sent from your Scan2Tap account.<br>
+        If you have any questions, please contact our support team.
       </div>
     </div>
   </div>
