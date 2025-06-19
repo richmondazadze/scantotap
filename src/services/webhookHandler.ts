@@ -3,7 +3,7 @@ import { PaystackService } from './paystackService';
 import { WebhookVerification } from './webhookVerification';
 import { PlanType } from '@/contexts/ProfileContext';
 import { SubscriptionService } from './subscriptionService';
-import { EmailTriggers, EmailUtils } from '@/utils/emailHelpers';
+import emailService, { UpgradeConfirmationData, SubscriptionCancelledData } from './emailService';
 
 export interface PaystackWebhookEvent {
   event: string;
@@ -200,13 +200,25 @@ export class WebhookHandler {
 
     // Send upgrade confirmation email
     try {
-      await EmailTriggers.sendUpgradeConfirmationEmail({
-        name: EmailUtils.formatUserName(profile.name || 'User'),
-        email: customerEmail,
+      const emailData: UpgradeConfirmationData = {
+        userName: profile.name || 'User',
+        userEmail: customerEmail,
         planType: 'Pro',
-        billingAmount: EmailUtils.formatCurrency(subscription.amount / 100), // Convert from kobo to naira
+        features: [
+          'Unlimited social links',
+          'Premium card designs',
+          'Advanced analytics',
+          'Priority support',
+          'Custom themes',
+          'QR code customization',
+          'Lead capture forms',
+          'Email integration'
+        ],
+        billingAmount: `₦${(subscription.amount / 100).toFixed(2)}`, // Convert from kobo to naira
         nextBillingDate: nextPaymentDate.toISOString()
-      });
+      };
+      
+      await emailService.sendUpgradeConfirmationEmail(emailData);
       console.log('Upgrade confirmation email sent to:', customerEmail);
     } catch (emailError) {
       console.error('Failed to send upgrade confirmation email:', emailError);
@@ -269,12 +281,16 @@ export class WebhookHandler {
           .eq('id', profile.id)
           .single();
           
-        await EmailTriggers.sendSubscriptionCancelledEmail({
-          name: EmailUtils.formatUserName(userProfile?.name || 'User'),
-          email: customerEmail,
+        const emailData: SubscriptionCancelledData = {
+          userName: userProfile?.name || 'User',
+          userEmail: customerEmail,
           planType: 'Pro',
-          cancellationDate: new Date().toISOString()
-        });
+          cancellationDate: new Date().toISOString(),
+          dataRetentionDays: 90,
+          resubscribeUrl: 'https://scan2tap.com/dashboard/settings?section=billing&action=upgrade'
+        };
+        
+        await emailService.sendSubscriptionCancelledEmail(emailData);
         console.log('Subscription cancelled email sent to:', customerEmail);
       } catch (emailError) {
         console.error('Failed to send subscription cancelled email:', emailError);

@@ -150,6 +150,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         name: '',
         onboarding_complete: false,
         plan_type: 'free', // Default to free plan
+        social_layout_style: 'horizontal', // Default to horizontal layout
         ...profileData
       })
       .select()

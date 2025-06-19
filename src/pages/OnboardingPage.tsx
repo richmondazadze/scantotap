@@ -1640,6 +1640,7 @@ export default function OnboardingPage() {
           avatar_url: avatarUrl,
           links: finalLinks,
           plan_type: planData.planType, // Set the plan type based on selection
+          social_layout_style: 'horizontal', // Default to horizontal layout for all users
           onboarding_complete: true,
           updated_at: new Date().toISOString()
         })
@@ -1665,13 +1666,11 @@ export default function OnboardingPage() {
       
       // Send onboarding completion email
       try {
-        await EmailTriggers.sendOnboardingCompleteEmail({
-          name: finalFullName,
-          email: session?.user?.email || '',
-          username: finalUsername,
-          profileUrl: EmailUtils.generateProfileUrl(finalUsername),
-          qrCodeUrl: EmailUtils.generateQRCodeUrl(finalUsername)
-        });
+        await EmailTriggers.sendOnboardingCompleteEmail(
+          session?.user?.email || '',
+          finalFullName,
+          finalUsername
+        );
         console.log('Onboarding completion email sent');
       } catch (emailError) {
         console.error('Failed to send onboarding completion email:', emailError);

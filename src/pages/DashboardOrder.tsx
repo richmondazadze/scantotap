@@ -78,9 +78,9 @@ export default function DashboardOrder() {
   const { profile } = useProfile();
   
   // Card styles - consistent with other dashboard pages
-  const cardBase = 'relative rounded-xl shadow-lg p-6 sm:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30';
-  const cardTitle = 'text-xl sm:text-2xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent';
-  const cardDesc = 'text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed';
+  const cardBase = 'relative rounded-xl shadow-lg p-6 sm:p-8 md:p-6 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30';
+  const cardTitle = 'text-xl sm:text-2xl md:text-xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent';
+  const cardDesc = 'text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 md:mb-6 lg:mb-8 text-sm sm:text-base md:text-sm lg:text-base leading-relaxed';
   
   // Check if we're editing an existing order
   const urlParams = new URLSearchParams(window.location.search);
@@ -383,7 +383,7 @@ export default function DashboardOrder() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full mb-8 sm:mb-16 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full mb-8 sm:mb-16 md:mb-8 lg:mb-16 gap-6 sm:gap-8 md:gap-6 lg:gap-10 mt-4 sm:mt-6 md:mt-4 lg:mt-8 px-4 sm:px-6 md:px-4 lg:px-8 xl:px-12 2xl:px-16">
       {!showOrderForm ? (
         <>
           {/* Header */}
@@ -392,10 +392,10 @@ export default function DashboardOrder() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-                          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-3 px-2">
+                          <h1 className="text-3xl sm:text-4xl md:text-3xl lg:text-5xl font-black bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-3 px-2">
               {isEditMode ? 'Modify Your Order' : 'Order Your Digital Business Card'}
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 px-2 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-base lg:text-xl text-gray-600 dark:text-gray-300 px-2 leading-relaxed">
               {isEditMode 
                 ? 'Update your order details and retry payment'
                 : 'Choose your design, customize your card, and get it delivered to your door'
@@ -403,9 +403,9 @@ export default function DashboardOrder() {
             </p>
           </motion.div>
 
-          <div className="grid xl:grid-cols-3 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
+          <div className="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
             {/* Left Column - Design Selection */}
-            <div className="xl:col-span-2 lg:col-span-1 space-y-6 sm:space-y-8">
+            <div className="xl:col-span-2 lg:col-span-1 md:col-span-1 space-y-6 sm:space-y-8">
               {/* Card Designs */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -443,9 +443,9 @@ export default function DashboardOrder() {
                       )}
                       
                       {/* Row layout with card preview on left and details on right */}
-                      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+                      <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-4 sm:gap-6 items-start">
                         {/* Card Preview */}
-                        <div className="w-full sm:w-48 sm:flex-shrink-0">
+                        <div className="w-full sm:w-48 md:w-full lg:w-48 sm:flex-shrink-0 md:flex-shrink lg:flex-shrink-0">
                           <CardDesignPreview 
                             design={design}
                             profile={profile}
@@ -457,18 +457,18 @@ export default function DashboardOrder() {
                         
                         {/* Card Details */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-4">
+                          <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row sm:items-start md:items-start lg:items-start sm:justify-between md:justify-start lg:justify-between gap-3 sm:gap-4 mb-4">
                             <div className="flex-1">
-                              <h3 className="font-semibold text-lg sm:text-xl text-gray-900 dark:text-white mb-2">{design.name}</h3>
-                              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">{design.description}</p>
+                              <h3 className="font-semibold text-lg sm:text-xl md:text-lg lg:text-xl text-gray-900 dark:text-white mb-2">{design.name}</h3>
+                              <p className="text-sm sm:text-base md:text-sm lg:text-base text-gray-600 dark:text-gray-400 leading-relaxed">{design.description}</p>
                             </div>
-                            <div className="text-2xl sm:text-3xl font-bold font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent sm:text-right tracking-wider">₵{design.price}</div>
+                            <div className="text-2xl sm:text-3xl md:text-2xl lg:text-3xl font-bold font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent sm:text-right md:text-left lg:text-right tracking-wider">₵{design.price}</div>
                           </div>
                           
                           {/* Features in a more compact layout */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3">
                             {design.features.map((feature, idx) => (
-                              <div key={idx} className="flex items-center gap-3 text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                              <div key={idx} className="flex items-center gap-3 text-sm sm:text-base md:text-sm lg:text-base text-gray-600 dark:text-gray-400">
                                 <div className="w-5 h-5 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
                                   <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
                                 </div>
@@ -493,11 +493,11 @@ export default function DashboardOrder() {
                 <h2 className={cardTitle}>Material</h2>
                 <p className={cardDesc}>Choose the material for your card</p>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   {MATERIALS.map((material) => (
                     <div
                       key={material.id}
-                      className={`cursor-pointer rounded-2xl border-2 p-4 sm:p-6 transition-all duration-300 hover:shadow-lg ${
+                      className={`cursor-pointer rounded-2xl border-2 p-4 sm:p-6 md:p-4 lg:p-6 transition-all duration-300 hover:shadow-lg ${
                         selectedMaterial.id === material.id
                           ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
                           : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
@@ -509,9 +509,9 @@ export default function DashboardOrder() {
                         isSelected={selectedMaterial.id === material.id}
                         onClick={() => setSelectedMaterial(material)}
                       />
-                      <h3 className="font-semibold mb-2 text-base sm:text-lg mt-4 text-gray-900 dark:text-white">{material.name}</h3>
-                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">{material.description}</p>
-                      <div className="text-sm sm:text-base font-medium font-mono bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent tracking-wide">
+                      <h3 className="font-semibold mb-2 text-base sm:text-lg md:text-base lg:text-lg mt-4 text-gray-900 dark:text-white">{material.name}</h3>
+                      <p className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">{material.description}</p>
+                      <div className="text-sm sm:text-base md:text-sm lg:text-base font-medium font-mono bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent tracking-wide">
                         {material.priceModifier > 0 ? `+₵${material.priceModifier}` : 'Included'}
                       </div>
                     </div>
@@ -529,28 +529,28 @@ export default function DashboardOrder() {
                 <h2 className={cardTitle}>Color Scheme</h2>
                 <p className={cardDesc}>Pick a color scheme that matches your brand</p>
                 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
                   {COLOR_SCHEMES.map((color) => (
                     <div
                       key={color.id}
-                      className={`cursor-pointer rounded-2xl border-2 p-3 sm:p-4 transition-all duration-300 hover:shadow-md ${
+                      className={`cursor-pointer rounded-2xl border-2 p-3 sm:p-4 md:p-3 lg:p-4 transition-all duration-300 hover:shadow-md ${
                         selectedColor.id === color.id
                           ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
                           : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                       }`}
                       onClick={() => setSelectedColor(color)}
                     >
-                      <div className="flex justify-center gap-1 mb-2 sm:mb-3">
+                      <div className="flex justify-center gap-1 mb-2 sm:mb-3 md:mb-2 lg:mb-3">
                         <div 
-                          className="w-5 h-5 sm:w-6 sm:h-6 rounded-full shadow-sm border border-white/20"
+                          className="w-5 h-5 sm:w-6 sm:h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded-full shadow-sm border border-white/20"
                           style={{ backgroundColor: color.primary }}
                         />
                         <div 
-                          className="w-5 h-5 sm:w-6 sm:h-6 rounded-full shadow-sm border border-white/20"
+                          className="w-5 h-5 sm:w-6 sm:h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded-full shadow-sm border border-white/20"
                           style={{ backgroundColor: color.secondary }}
                         />
                       </div>
-                      <div className="text-xs sm:text-sm font-medium text-center leading-tight text-gray-900 dark:text-white">
+                      <div className="text-xs sm:text-sm md:text-xs lg:text-sm font-medium text-center leading-tight text-gray-900 dark:text-white">
                         {color.name}
                       </div>
                     </div>
@@ -560,7 +560,7 @@ export default function DashboardOrder() {
             </div>
 
             {/* Right Column - Preview & Order */}
-            <div className="space-y-6 sm:space-y-8">
+            <div className="space-y-6 sm:space-y-8 md:space-y-6 lg:space-y-8">
               {/* Card Preview */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}

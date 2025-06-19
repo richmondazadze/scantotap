@@ -161,7 +161,8 @@ export const LightLogin = () => {
             user_id: signUpData.user.id,
             email: signUpData.user.email,
             name: '',
-            onboarding_complete: false
+            onboarding_complete: false,
+            social_layout_style: 'horizontal' // Default to horizontal layout
           }, {
             onConflict: 'id'
           });
@@ -180,11 +181,13 @@ export const LightLogin = () => {
           
           // Send welcome email (import will be added separately)
           try {
-            const { EmailTriggers, EmailUtils } = await import('@/utils/emailHelpers');
-            await EmailTriggers.sendWelcomeEmail({
-              name: EmailUtils.formatUserName(signUpData.user.email?.split('@')[0] || 'User'),
-              email: signUpData.user.email || '',
-            });
+            const { EmailTriggers } = await import('@/utils/emailHelpers');
+            const userName = signUpData.user.email?.split('@')[0] || 'User';
+            await EmailTriggers.sendWelcomeEmail(
+              signUpData.user.email || '',
+              userName,
+              userName.toLowerCase()
+            );
             console.log('Welcome email sent to:', signUpData.user.email);
           } catch (emailError) {
             console.error('Failed to send welcome email:', emailError);
@@ -200,11 +203,13 @@ export const LightLogin = () => {
           
           // Send welcome email for email confirmation users too
           try {
-            const { EmailTriggers, EmailUtils } = await import('@/utils/emailHelpers');
-            await EmailTriggers.sendWelcomeEmail({
-              name: EmailUtils.formatUserName(signUpData.user.email?.split('@')[0] || 'User'),
-              email: signUpData.user.email || '',
-            });
+            const { EmailTriggers } = await import('@/utils/emailHelpers');
+            const userName = signUpData.user.email?.split('@')[0] || 'User';
+            await EmailTriggers.sendWelcomeEmail(
+              signUpData.user.email || '',
+              userName,
+              userName.toLowerCase()
+            );
             console.log('Welcome email sent to:', signUpData.user.email);
           } catch (emailError) {
             console.error('Failed to send welcome email:', emailError);
