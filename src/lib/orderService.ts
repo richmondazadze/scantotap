@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import OrderEmailService, { OrderEmailData } from '@/services/orderEmailService';
 
 export interface OrderData {
   // Design details
@@ -58,6 +59,23 @@ export const orderService = {
     const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
     const userId = Math.random().toString(36).substring(2, 6).toUpperCase();
     return `ORD-${timestamp}-${userId}-${random}`;
+  },
+
+  // Helper function to convert order to email data
+  orderToEmailData(order: Order): OrderEmailData {
+    return {
+      orderNumber: order.order_number,
+      total: order.total,
+      items: [{
+        name: `${order.design_name} (${order.material_name})`,
+        quantity: order.quantity,
+        price: order.design_price + (order.material_price_modifier || 0)
+      }],
+      shippingAddress: `${order.shipping_address}, ${order.shipping_city}, ${order.shipping_state} ${order.shipping_zip_code}, ${order.shipping_country}`,
+      estimatedDelivery: order.status === 'confirmed' ? '5-7 business days' : undefined,
+      trackingNumber: order.tracking_number,
+      carrier: order.tracking_number ? 'Ghana Post' : undefined // You can enhance this based on your shipping setup
+    };
   },
 
   // Create a new order
@@ -242,6 +260,19 @@ export const orderService = {
         return { success: false, error: error.message };
       }
 
+      // Send cancellation email
+      try {
+        const updatedOrder = { ...order, status: 'cancelled' } as Order;
+        const emailData = this.orderToEmailData(updatedOrder);
+        await OrderEmailService.sendOrderCancelled(user.id, { 
+          ...emailData, 
+          reason: 'Order cancelled by customer' 
+        });
+      } catch (emailError) {
+        console.error('Error sending order cancellation email:', emailError);
+        // Don't fail the cancellation if email fails
+      }
+
       return { success: true };
     } catch (error) {
       console.error('Error cancelling order:', error);
@@ -267,6 +298,20 @@ export const orderService = {
         updateData.delivered_at = new Date().toISOString();
       }
 
+      // First get the current order data for email
+      const { data: orderData, error: fetchError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching order for status update:', fetchError);
+        return { success: false, error: fetchError.message };
+      }
+
+      // Update the order status
       const { error } = await supabase
         .from('orders')
         .update(updateData)
@@ -276,6 +321,29 @@ export const orderService = {
       if (error) {
         console.error('Error updating order status:', error);
         return { success: false, error: error.message };
+      }
+
+      // Send email notification based on new status
+      try {
+        const updatedOrder = { ...orderData, ...updateData } as Order;
+        const emailData = this.orderToEmailData(updatedOrder);
+
+        switch (status) {
+          case 'processing':
+            await OrderEmailService.sendOrderProcessing(user.id, emailData);
+            break;
+          case 'shipped':
+            await OrderEmailService.sendOrderShipped(user.id, emailData);
+            break;
+          case 'delivered':
+            await OrderEmailService.sendOrderDelivered(user.id, emailData);
+            break;
+          // Note: 'confirmed' emails are handled in payment webhook
+          // Note: 'cancelled' emails are handled in cancelOrder method
+        }
+      } catch (emailError) {
+        console.error('Error sending order status email:', emailError);
+        // Don't fail the order update if email fails
       }
 
       return { success: true };
@@ -292,6 +360,19 @@ export const orderService = {
       if (status === 'shipped') updateData.shipped_at = new Date().toISOString();
       if (status === 'delivered') updateData.delivered_at = new Date().toISOString();
 
+      // First get the current order data for email
+      const { data: orderData, error: fetchError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching order for admin status update:', fetchError);
+        return { success: false, error: fetchError.message };
+      }
+
+      // Update the order status
       const { error } = await supabase
         .from('orders')
         .update(updateData)
@@ -301,6 +382,35 @@ export const orderService = {
         console.error('Error updating order status (admin):', error);
         return { success: false, error: error.message };
       }
+
+      // Send email notification based on new status
+      try {
+        const updatedOrder = { ...orderData, ...updateData } as Order;
+        const emailData = this.orderToEmailData(updatedOrder);
+
+        switch (status) {
+          case 'processing':
+            await OrderEmailService.sendOrderProcessing(orderData.user_id, emailData);
+            break;
+          case 'shipped':
+            await OrderEmailService.sendOrderShipped(orderData.user_id, emailData);
+            break;
+          case 'delivered':
+            await OrderEmailService.sendOrderDelivered(orderData.user_id, emailData);
+            break;
+          case 'cancelled':
+            await OrderEmailService.sendOrderCancelled(orderData.user_id, { 
+              ...emailData, 
+              reason: 'Order cancelled by admin' 
+            });
+            break;
+          // Note: 'confirmed' emails are handled in payment webhook
+        }
+      } catch (emailError) {
+        console.error('Error sending admin order status email:', emailError);
+        // Don't fail the order update if email fails
+      }
+
       return { success: true };
     } catch (error) {
       console.error('Error updating order status (admin):', error);

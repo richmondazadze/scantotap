@@ -155,7 +155,7 @@ async function handleOrderPayment(data, supabase) {
     .from('orders')
     .update({ status: 'confirmed' })
     .eq('id', orderId)
-    .select('id, order_number, status, customer_first_name, customer_last_name')
+    .select('*') // Select all columns for email data
     .single();
 
   if (error) {
@@ -169,6 +169,52 @@ async function handleOrderPayment(data, supabase) {
   }
 
   console.log(`Order ${updatedOrder.order_number} (ID: ${updatedOrder.id}) for ${updatedOrder.customer_first_name} ${updatedOrder.customer_last_name} marked as confirmed. Payment reference: ${reference}`);
+
+  // Send order confirmation email
+  try {
+    console.log(`Sending order confirmation email for order ${updatedOrder.order_number}`);
+    
+    // Prepare email data
+    const orderEmailData = {
+      orderNumber: updatedOrder.order_number,
+      total: updatedOrder.total,
+      items: [{
+        name: `${updatedOrder.design_name} (${updatedOrder.material_name})`,
+        quantity: updatedOrder.quantity,
+        price: updatedOrder.design_price + (updatedOrder.material_price_modifier || 0)
+      }],
+      shippingAddress: `${updatedOrder.shipping_address}, ${updatedOrder.shipping_city}, ${updatedOrder.shipping_state} ${updatedOrder.shipping_zip_code}, ${updatedOrder.shipping_country}`,
+      estimatedDelivery: '5-7 business days'
+    };
+
+    // Send email via the order email API
+    const emailResponse = await fetch(`${process.env.VITE_APP_URL || 'http://localhost:3000'}/api/order-emails`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'order-confirmation',
+        userId: updatedOrder.user_id,
+        orderData: orderEmailData,
+      }),
+    });
+
+    if (emailResponse.ok) {
+      const emailResult = await emailResponse.json();
+      if (emailResult.skipped) {
+        console.log(`Order confirmation email skipped for user ${updatedOrder.user_id} - notifications disabled`);
+      } else {
+        console.log(`Order confirmation email sent successfully for order ${updatedOrder.order_number}`);
+      }
+    } else {
+      const emailError = await emailResponse.text();
+      console.error(`Failed to send order confirmation email: ${emailError}`);
+    }
+  } catch (emailError) {
+    console.error('Error sending order confirmation email:', emailError);
+    // Don't fail the payment processing if email fails
+  }
 }
 
 // ============================================================================
