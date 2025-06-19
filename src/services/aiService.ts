@@ -20,7 +20,7 @@ export interface AIResponse {
 }
 
 class AIService {
-  private static readonly MAX_BIO_LENGTH = 80;
+  private static readonly MAX_BIO_LENGTH = 100;
   private static openai: OpenAI | null = null;
 
   // Initialize OpenRouter client
@@ -108,14 +108,14 @@ class AIService {
         messages: [
           {
             role: "system",
-            content: `You are a professional bio writer specializing in concise, impactful profiles. Your task is to enhance bios to be more engaging while staying under 80 characters. Focus on action words, achievements, and personality. Return exactly 3 different enhanced versions, each on a new line, numbered 1-3.`
+            content: this.getEnhancedSystemPrompt()
           },
           {
             role: "user",
             content: prompt
           }
         ],
-        max_tokens: 300,
+        max_tokens: 400,
         temperature: 0.8,
       });
 
@@ -141,30 +141,14 @@ class AIService {
         messages: [
           {
             role: "system",
-            content: `You are an expert professional bio writer specializing in creating compelling, concise bios for digital profiles. Your task is to create engaging professional bios that are EXACTLY under 80 characters.
-
-CRITICAL REQUIREMENTS:
-- Each bio must be under 80 characters (including spaces)
-- Return EXACTLY 3 different variations
-- Format: Just the bio text, one per line, no numbering or bullets
-- Make each bio unique and compelling
-- Use active voice and power words
-- Include personality while maintaining professionalism
-
-EXAMPLES OF GREAT BIOS:
-- "Marketing strategist turning data into growth stories that captivate audiences"
-- "Full-stack developer building scalable solutions that users love"
-- "Creative designer crafting visual experiences that inspire and engage"
-- "Sales leader driving revenue through authentic relationship building"
-
-Focus on: Action verbs, specific value, personality, and impact.`
+            content: this.getEnhancedSystemPrompt()
           },
           {
             role: "user",
             content: prompt
           }
         ],
-        max_tokens: 400,
+        max_tokens: 500,
         temperature: 0.8,
       });
 
@@ -177,34 +161,52 @@ Focus on: Action verbs, specific value, personality, and impact.`
   }
 
   /**
-   * Build enhancement prompt
+   * Enhanced system prompt with strategic copywriter persona
    */
-  private static buildEnhancementPrompt(currentBio: string, title: string, name?: string, style: string = 'professional'): string {
-    let prompt = `Transform this bio into something more compelling and engaging:\n\n"${currentBio}"\n\n`;
-    
-    prompt += `CONTEXT:\n`;
-    prompt += `- Role: ${title}\n`;
-    if (name) {
-      prompt += `- Name: ${name}\n`;
-    }
-    prompt += `- Style: ${style}\n\n`;
-    
-    prompt += `ENHANCEMENT GOALS:\n`;
-    prompt += `- Make it more engaging and memorable\n`;
-    prompt += `- Add personality while staying professional\n`;
-    prompt += `- Use stronger action words\n`;
-    prompt += `- Highlight unique value proposition\n`;
-    prompt += `- Keep under 80 characters\n\n`;
-    
-    prompt += `Create 3 enhanced versions that are more impactful than the original:`;
+  private static getEnhancedSystemPrompt(): string {
+    return `You are an elite strategic copywriter specializing in crafting compelling professional bios for digital profiles. Your expertise lies in creating conversation-starting introductions that maximize impact within character limits.
 
-    return prompt;
+BIO STRUCTURE FORMULA:
+[Action Verb/Identity] + [Unique Value/Outcome] + [Emotional Hook/Conversation Starter]
+
+POWER WORDS TOOLKIT:
+Action: transforms, accelerates, orchestrates, architects, pioneers, amplifies, catalyzes, cultivates
+Value: breakthrough, game-changing, award-winning, industry-leading, proven, scalable, innovative
+Emotion: passionate, obsessed, dedicated, driven, inspiring, authentic, genuine, magnetic
+
+EXCELLENT BIO EXAMPLES (Under 100 chars):
+• "Marketing strategist transforming data into growth stories that captivate audiences worldwide"
+• "Full-stack developer architecting scalable solutions that users genuinely love and trust"
+• "Creative designer crafting visual experiences that inspire meaningful connections daily"
+• "Sales leader driving revenue through authentic relationships and strategic storytelling"
+• "Product manager obsessed with turning complex problems into elegant user experiences"
+
+CRITICAL AVOIDANCE LIST:
+❌ Generic phrases: "passionate about," "results-driven," "team player," "hard worker"
+❌ Weak verbs: "helps," "works with," "does," "handles," "manages"  
+❌ Vague terms: "various," "multiple," "different," "many," "some"
+❌ Clichés: "outside the box," "synergy," "best practices," "next level"
+❌ Redundancy: "innovative innovation," "creative creativity"
+
+REQUIREMENTS:
+- EXACTLY under 100 characters (including spaces)
+- Return 3 distinct variations, one per line
+- No numbering, bullets, or formatting
+- Focus on outcomes and emotional resonance
+- Create conversation-starting hooks
+- Use active voice and specific action verbs
+- Include what makes them uniquely valuable
+
+Your goal: Create bios that make people want to know more and start meaningful conversations.`;
   }
 
   /**
-   * Build generation prompt
+   * Build enhanced generation prompt with role-specific context
    */
   private static buildGenerationPrompt(title: string, name?: string, style: string = 'professional'): string {
+    const roleContext = this.getRoleSpecificContext(title);
+    const styleGuide = this.getEnhancedStyleGuide(style);
+
     let prompt = `Create compelling professional bios for a ${title}`;
     
     if (name) {
@@ -213,26 +215,123 @@ Focus on: Action verbs, specific value, personality, and impact.`
     
     prompt += `.\n\n`;
     
-    // Style-specific guidance
-    const styleGuides = {
-      professional: `PROFESSIONAL STYLE - Focus on expertise, results, and leadership. Use terms like "strategic," "results-driven," "experienced," "specialized."`,
-      creative: `CREATIVE STYLE - Emphasize innovation, vision, and artistic thinking. Use terms like "innovative," "visionary," "imaginative," "transforms ideas."`,
-      casual: `CASUAL STYLE - Be friendly and approachable while professional. Use terms like "passionate," "loves," "enjoys," "dedicated to helping."`,
-      technical: `TECHNICAL STYLE - Highlight technical skills and problem-solving. Use terms like "develops," "optimizes," "builds," "engineers," "specializes in."`
-    };
+    prompt += `ROLE CONTEXT:\n${roleContext}\n\n`;
+    prompt += `STYLE GUIDE:\n${styleGuide}\n\n`;
     
-    prompt += `${styleGuides[style as keyof typeof styleGuides] || styleGuides.professional}\n\n`;
+    prompt += `VALUE PROPOSITION FOCUS:\n`;
+    prompt += `- What unique outcomes do they create?\n`;
+    prompt += `- What problems do they solve differently?\n`;
+    prompt += `- What emotional impact do they have?\n`;
+    prompt += `- What makes conversations with them valuable?\n\n`;
     
-    prompt += `SPECIFIC REQUIREMENTS:\n`;
-    prompt += `- Each bio must be under 80 characters\n`;
-    prompt += `- Start with an action verb or compelling descriptor\n`;
-    prompt += `- Include what makes them unique\n`;
-    prompt += `- Show impact or value they provide\n`;
-    prompt += `- Make it memorable and engaging\n\n`;
+    prompt += `CONVERSATION-STARTING OBJECTIVES:\n`;
+    prompt += `- Make people curious about their approach\n`;
+    prompt += `- Hint at interesting stories or experiences\n`;
+    prompt += `- Create an approachable yet impressive impression\n`;
+    prompt += `- Balance expertise with personality\n\n`;
     
-    prompt += `Generate 3 different bio variations:`;
+    prompt += `Generate 3 different bio variations under 100 characters each:`;
 
     return prompt;
+  }
+
+  /**
+   * Build enhanced enhancement prompt
+   */
+  private static buildEnhancementPrompt(currentBio: string, title: string, name?: string, style: string = 'professional'): string {
+    const roleContext = this.getRoleSpecificContext(title);
+    const styleGuide = this.getEnhancedStyleGuide(style);
+
+    let prompt = `Transform this bio into something more compelling and conversation-starting:\n\n"${currentBio}"\n\n`;
+    
+    prompt += `CONTEXT:\n`;
+    prompt += `- Role: ${title}\n`;
+    if (name) {
+      prompt += `- Name: ${name}\n`;
+    }
+    prompt += `- Target Style: ${style}\n\n`;
+    
+    prompt += `ROLE INSIGHTS:\n${roleContext}\n\n`;
+    prompt += `STYLE REQUIREMENTS:\n${styleGuide}\n\n`;
+    
+    prompt += `ENHANCEMENT GOALS:\n`;
+    prompt += `- Replace generic phrases with specific, powerful language\n`;
+    prompt += `- Add emotional resonance and personality\n`;
+    prompt += `- Focus on unique outcomes and value creation\n`;
+    prompt += `- Create conversation starters that make people curious\n`;
+    prompt += `- Use action verbs that show impact and transformation\n`;
+    prompt += `- Stay under 100 characters while maximizing impact\n\n`;
+    
+    prompt += `Create 3 enhanced versions that are more specific, engaging, and conversation-worthy:`;
+
+    return prompt;
+  }
+
+  /**
+   * Get role-specific context and insights
+   */
+  private static getRoleSpecificContext(title: string): string {
+    const titleLower = title.toLowerCase();
+    
+    // Technical roles
+    if (titleLower.includes('engineer') || titleLower.includes('developer') || titleLower.includes('architect')) {
+      return `Technical professionals who build, optimize, and solve complex problems. Focus on: scalability, innovation, user impact, system transformation, cutting-edge solutions.`;
+    }
+    
+    // Creative roles
+    if (titleLower.includes('designer') || titleLower.includes('creative') || titleLower.includes('artist') || titleLower.includes('writer')) {
+      return `Creative professionals who transform ideas into engaging experiences. Focus on: visual storytelling, user experience, brand transformation, creative problem-solving, aesthetic innovation.`;
+    }
+    
+    // Sales/Business roles
+    if (titleLower.includes('sales') || titleLower.includes('business') || titleLower.includes('account') || titleLower.includes('revenue')) {
+      return `Revenue-driving professionals who build relationships and accelerate growth. Focus on: relationship building, strategic partnerships, revenue transformation, client success stories.`;
+    }
+    
+    // Marketing roles
+    if (titleLower.includes('marketing') || titleLower.includes('brand') || titleLower.includes('growth') || titleLower.includes('digital')) {
+      return `Growth-focused professionals who amplify brands and drive engagement. Focus on: audience connection, brand storytelling, growth acceleration, market transformation.`;
+    }
+    
+    // Leadership roles
+    if (titleLower.includes('manager') || titleLower.includes('director') || titleLower.includes('ceo') || titleLower.includes('founder') || titleLower.includes('lead')) {
+      return `Leadership professionals who orchestrate teams and drive organizational success. Focus on: team empowerment, strategic vision, culture transformation, organizational impact.`;
+    }
+    
+    // Consulting/Advisory roles
+    if (titleLower.includes('consultant') || titleLower.includes('advisor') || titleLower.includes('strategist') || titleLower.includes('analyst')) {
+      return `Strategic professionals who provide insights and drive transformation. Focus on: strategic thinking, problem-solving expertise, industry insights, transformation outcomes.`;
+    }
+    
+    // Education/Coaching roles
+    if (titleLower.includes('teacher') || titleLower.includes('coach') || titleLower.includes('trainer') || titleLower.includes('mentor')) {
+      return `Educational professionals who empower growth and development. Focus on: knowledge transfer, skill development, personal transformation, learning innovation.`;
+    }
+    
+    // Healthcare/Service roles
+    if (titleLower.includes('doctor') || titleLower.includes('nurse') || titleLower.includes('therapist') || titleLower.includes('service')) {
+      return `Service-oriented professionals who improve lives and wellbeing. Focus on: life impact, care excellence, healing transformation, community service.`;
+    }
+    
+    // Default professional context
+    return `Professional who creates value and drives positive outcomes in their field. Focus on: expertise demonstration, unique approach, measurable impact, relationship building.`;
+  }
+
+  /**
+   * Get enhanced style guides with specific direction
+   */
+  private static getEnhancedStyleGuide(style: string): string {
+    const guides = {
+      professional: `PROFESSIONAL EXCELLENCE - Emphasize expertise, proven results, and strategic impact. Use authoritative language that demonstrates competence without arrogance. Keywords: "orchestrates," "accelerates," "transforms," "architects," "proven," "strategic," "industry-leading." Tone: Confident, credible, results-focused.`,
+      
+      creative: `CREATIVE INNOVATION - Highlight artistic vision, innovative thinking, and transformative creativity. Use imaginative language that showcases unique perspective and creative problem-solving. Keywords: "crafts," "envisions," "transforms," "creates," "innovative," "visionary," "breakthrough," "inspiring." Tone: Imaginative, inspiring, forward-thinking.`,
+      
+      casual: `APPROACHABLE EXPERTISE - Balance professionalism with warmth and accessibility. Use friendly yet competent language that makes expertise feel approachable. Keywords: "passionate," "dedicated," "loves," "enjoys," "authentic," "genuine," "collaborative," "community-focused." Tone: Warm, genuine, relatable yet professional.`,
+      
+      technical: `TECHNICAL MASTERY - Emphasize problem-solving skills, technical innovation, and systematic thinking. Use precise language that demonstrates deep technical understanding and impact. Keywords: "engineers," "optimizes," "develops," "builds," "scales," "systematic," "efficient," "cutting-edge." Tone: Precise, innovative, solution-focused.`
+    };
+    
+    return guides[style as keyof typeof guides] || guides.professional;
   }
 
   /**
@@ -285,33 +384,33 @@ Focus on: Action verbs, specific value, personality, and impact.`
   }
 
   /**
-   * Fallback template-based enhancement
+   * Enhanced template-based enhancement with better templates
    */
   private static enhanceWithTemplates(options: BioEnhancementOptions): AIResponse {
     const { currentBio, title, style = 'professional' } = options;
     const suggestions: BioSuggestion[] = [];
 
-    // Enhancement patterns based on style
+    // Enhanced templates with more specific and engaging language
     const enhancements = {
       professional: [
-        `${title} focused on delivering exceptional results and driving innovation.`,
-        `Experienced ${title} passionate about excellence and strategic growth.`,
-        `Results-driven ${title} with expertise in transforming challenges to opportunities.`
+        `${title} orchestrating breakthrough results through strategic innovation and proven expertise.`,
+        `Results-driven ${title} transforming challenges into opportunities that accelerate growth.`,
+        `Award-winning ${title} architecting solutions that deliver measurable impact and lasting value.`
       ],
       creative: [
-        `Creative ${title} who transforms ideas into reality with innovative thinking.`,
-        `Visionary ${title} passionate about pushing boundaries and inspiring others.`,
-        `Imaginative ${title} dedicated to creating meaningful and impactful experiences.`
+        `Visionary ${title} crafting experiences that inspire meaningful connections and drive engagement.`,
+        `Creative ${title} transforming bold ideas into breakthrough realities that captivate audiences.`,
+        `Innovative ${title} designing solutions that blend artistry with strategic thinking beautifully.`
       ],
       casual: [
-        `Friendly ${title} who loves connecting with people and making a difference.`,
-        `Enthusiastic ${title} always excited to learn, grow, and collaborate.`,
-        `Genuine ${title} who values authenticity and building lasting relationships.`
+        `Passionate ${title} who loves turning complex challenges into simple, elegant solutions.`,
+        `Authentic ${title} dedicated to building genuine relationships and creating positive impact.`,
+        `Enthusiastic ${title} always excited to collaborate, learn, and make meaningful differences.`
       ],
       technical: [
-        `Technical ${title} specialized in developing robust, scalable solutions.`,
-        `Detail-oriented ${title} focused on optimizing systems and processes.`,
-        `Analytical ${title} passionate about leveraging technology for impact.`
+        `Technical ${title} engineering scalable solutions that optimize performance and user experience.`,
+        `Systems-focused ${title} building robust architectures that solve complex problems efficiently.`,
+        `Data-driven ${title} developing cutting-edge solutions that transform business operations.`
       ]
     };
 
@@ -321,8 +420,8 @@ Focus on: Action verbs, specific value, personality, and impact.`
       const enhanced = this.truncateBio(template, this.MAX_BIO_LENGTH);
       suggestions.push({
         text: enhanced,
-        style: `template-${style}`,
-        reasoning: `Enhanced using ${style} style template`
+        style: `enhanced-${style}`,
+        reasoning: `Enhanced using ${style} style template with action-oriented language`
       });
     });
 
@@ -333,32 +432,33 @@ Focus on: Action verbs, specific value, personality, and impact.`
   }
 
   /**
-   * Fallback template-based generation
+   * Enhanced template-based generation with better templates
    */
   private static generateWithTemplates(options: { title: string; name?: string; style: string }): AIResponse {
     const { title, style = 'professional' } = options;
     const suggestions: BioSuggestion[] = [];
 
+    // More specific and engaging templates
     const templates = {
       professional: [
-        `Experienced ${title} with a proven track record of delivering exceptional results.`,
-        `Dedicated ${title} passionate about excellence and driving meaningful impact.`,
-        `Results-driven ${title} focused on innovation and strategic problem-solving.`
+        `Strategic ${title} transforming businesses through innovative solutions and proven results.`,
+        `Accomplished ${title} orchestrating growth initiatives that deliver exceptional outcomes.`,
+        `Expert ${title} architecting sustainable strategies that accelerate organizational success.`
       ],
       creative: [
-        `Creative ${title} who transforms ideas into reality through innovative thinking.`,
-        `Visionary ${title} passionate about pushing boundaries and inspiring change.`,
-        `Imaginative ${title} dedicated to creating meaningful experiences and solutions.`
+        `Visionary ${title} crafting compelling experiences that resonate with audiences globally.`,
+        `Innovative ${title} transforming creative concepts into breakthrough marketing solutions.`,
+        `Artistic ${title} designing visual narratives that inspire action and emotional connection.`
       ],
       casual: [
-        `Friendly ${title} who loves what they do and enjoys connecting with others.`,
-        `Enthusiastic ${title} always excited to learn, grow, and make a difference.`,
-        `Genuine ${title} who values authenticity and building real relationships.`
+        `Friendly ${title} passionate about building relationships and creating positive change.`,
+        `Approachable ${title} who loves solving problems and helping others achieve their goals.`,
+        `Genuine ${title} dedicated to making work enjoyable while delivering outstanding results.`
       ],
       technical: [
-        `Technical ${title} specialized in developing robust, scalable solutions.`,
-        `Detail-oriented ${title} focused on optimizing complex systems efficiently.`,
-        `Analytical ${title} passionate about leveraging technology for real impact.`
+        `Technical ${title} engineering robust systems that scale efficiently and perform reliably.`,
+        `Analytical ${title} developing data-driven solutions that optimize complex business processes.`,
+        `Innovative ${title} building cutting-edge applications that enhance user experiences.`
       ]
     };
 
@@ -369,7 +469,7 @@ Focus on: Action verbs, specific value, personality, and impact.`
       suggestions.push({
         text: bio,
         style: `template-${style}`,
-        reasoning: `Generated using ${style} style template`
+        reasoning: `Generated using enhanced ${style} style template with specific value propositions`
       });
     });
 
@@ -404,21 +504,39 @@ Focus on: Action verbs, specific value, personality, and impact.`
   }
 
   /**
-   * Get style recommendations based on title
+   * Enhanced style recommendations with expanded role categorization
    */
   static getRecommendedStyle(title: string): 'professional' | 'creative' | 'casual' | 'technical' {
     const titleLower = title.toLowerCase();
 
-    if (titleLower.includes('engineer') || titleLower.includes('developer') || titleLower.includes('analyst')) {
+    // Technical roles - expanded categorization
+    if (titleLower.includes('engineer') || titleLower.includes('developer') || titleLower.includes('analyst') || 
+        titleLower.includes('architect') || titleLower.includes('data') || titleLower.includes('tech') ||
+        titleLower.includes('programmer') || titleLower.includes('software') || titleLower.includes('system') ||
+        titleLower.includes('devops') || titleLower.includes('backend') || titleLower.includes('frontend') ||
+        titleLower.includes('fullstack') || titleLower.includes('qa') || titleLower.includes('security')) {
       return 'technical';
     }
-    if (titleLower.includes('designer') || titleLower.includes('artist') || titleLower.includes('creative')) {
+    
+    // Creative roles - expanded categorization
+    if (titleLower.includes('designer') || titleLower.includes('artist') || titleLower.includes('creative') ||
+        titleLower.includes('writer') || titleLower.includes('content') || titleLower.includes('brand') ||
+        titleLower.includes('visual') || titleLower.includes('graphic') || titleLower.includes('ux') ||
+        titleLower.includes('ui') || titleLower.includes('photographer') || titleLower.includes('video') ||
+        titleLower.includes('marketing') || titleLower.includes('advertising') || titleLower.includes('copywriter')) {
       return 'creative';
     }
-    if (titleLower.includes('teacher') || titleLower.includes('coach') || titleLower.includes('community')) {
+    
+    // Casual roles - expanded categorization  
+    if (titleLower.includes('teacher') || titleLower.includes('coach') || titleLower.includes('community') ||
+        titleLower.includes('support') || titleLower.includes('coordinator') || titleLower.includes('assistant') ||
+        titleLower.includes('representative') || titleLower.includes('specialist') || titleLower.includes('trainer') ||
+        titleLower.includes('mentor') || titleLower.includes('facilitator') || titleLower.includes('organizer') ||
+        titleLower.includes('volunteer') || titleLower.includes('liaison') || titleLower.includes('advocate')) {
       return 'casual';
     }
 
+    // Default to professional for leadership, business, consulting, sales, etc.
     return 'professional';
   }
 }

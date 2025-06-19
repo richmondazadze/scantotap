@@ -561,24 +561,33 @@ function ProfileStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitti
               size="sm"
               onClick={generateBio}
               disabled={generatingBio || !profileTitle.trim()}
-              className="h-8 text-sm font-bold"
+              className="h-8 text-sm font-bold relative overflow-hidden bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 text-white border-0 shadow-lg hover:shadow-2xl transition-all duration-300 animate-pulse hover:animate-none hover:scale-105 before:absolute before:inset-0 before:bg-gradient-to-r before:from-purple-400 before:via-blue-400 before:to-cyan-400 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300 disabled:opacity-50 disabled:animate-none disabled:hover:scale-100"
             >
-              {generatingBio ? (
-                <Loading size="sm" />
-              ) : (
-                <><Wand2 className="w-4 h-4 mr-1" />AI</>
-              )}
+              <span className="relative z-10 flex items-center">
+                {generatingBio ? (
+                  <Loading size="sm" />
+                ) : (
+                  <>
+                    <Wand2 className="w-4 h-4 mr-1 drop-shadow-sm" />
+                    <span className="bg-gradient-to-r from-yellow-200 to-yellow-100 bg-clip-text text-transparent font-extrabold drop-shadow-sm">✨ AI</span>
+                  </>
+                )}
+              </span>
+              {/* Glowing border effect */}
+              <div className="absolute inset-0 rounded-md bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 opacity-75 blur-sm -z-10"></div>
+              {/* Animated sparkle effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 translate-x-[-100%] animate-[shimmer_2s_infinite] -z-10"></div>
             </Button>
           </div>
           <Textarea
             id="bio"
             placeholder="Tell people about yourself..."
             value={bio}
-            onChange={(e) => setBio(e.target.value.slice(0, 80))}
+            onChange={(e) => setBio(e.target.value.slice(0, 100))}
             className="resize-none h-20 text-base"
             rows={3}
           />
-          <p className="text-sm text-gray-400 mt-2">{bio.length}/80</p>
+          <p className="text-sm text-gray-400 mt-2">{bio.length}/100</p>
         </div>
 
         {/* Continue Button */}

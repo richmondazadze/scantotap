@@ -127,25 +127,49 @@ function generateWelcomeEmail(data) {
       font-size: 16px;
       color: #4b5563;
       margin-bottom: 20px;
-      text-align: center;
       line-height: 1.7;
     }
     
-    .cta-button {
-      display: inline-block;
-      background-color: #2563eb;
-      color: white !important;
-      padding: 15px 30px;
-      text-decoration: none;
+    .features {
+      background-color: #f8fafc;
+      border: 1px solid #e5e7eb;
       border-radius: 8px;
-      font-weight: bold;
-      margin: 20px 0;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      padding: 25px;
+      margin: 25px 0;
     }
     
-    .cta-button:hover {
-      background-color: #1d4ed8;
+    .features h3 {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1f2937;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    .features ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .features li {
+      padding: 8px 0;
+      color: #4b5563;
+      border-bottom: 1px solid #e5e7eb;
+      position: relative;
+      padding-left: 25px;
+    }
+    
+    .features li:last-child {
+      border-bottom: none;
+    }
+    
+    .features li:before {
+      content: "✓";
+      color: #10b981;
+      font-weight: bold;
+      position: absolute;
+      left: 0;
     }
     
     .footer {
@@ -168,6 +192,7 @@ function generateWelcomeEmail(data) {
       .header { padding: 25px 15px; }
       .logo { font-size: 28px; }
       .greeting { font-size: 20px; }
+      .features { padding: 20px 15px; }
     }
   </style>
 </head>
@@ -186,17 +211,33 @@ function generateWelcomeEmail(data) {
       <h1 class="greeting">Welcome to SCAN2TAP, ${userName}! 🎉</h1>
       
       <p class="message">
-        Thank you for joining SCAN2TAP! We're excited to help you create your digital presence and connect with others effortlessly.
+        Thank you for joining SCAN2TAP, the modern solution for digital networking and professional connections. We're excited to have you as part of our growing community of forward-thinking professionals.
       </p>
       
       <p class="message">
-        Get started by completing your profile setup and customizing your digital business card.
+        SCAN2TAP revolutionizes how you share your professional information by replacing traditional business cards with smart, digital profiles that can be accessed instantly through QR codes or direct links.
       </p>
       
-      <!-- CTA -->
-      <div style="text-align: center;">
-        <a href="${profileUrl}" class="cta-button">Complete Your Profile</a>
+      <div class="features">
+        <h3>🚀 What You Can Achieve with SCAN2TAP</h3>
+        <ul>
+          <li>Create a stunning digital business card with your professional information</li>
+          <li>Generate QR codes for instant profile sharing at networking events</li>
+          <li>Connect your social media and professional links in one place</li>
+          <li>Track engagement and connections with built-in analytics</li>
+          <li>Update your information instantly across all shared profiles</li>
+          <li>Make lasting impressions with a modern, eco-friendly approach</li>
+          <li>Stand out from the crowd with customizable design options</li>
+        </ul>
       </div>
+      
+      <p class="message">
+        Whether you're attending conferences, business meetings, or casual networking events, SCAN2TAP ensures you never miss an opportunity to make meaningful professional connections.
+      </p>
+      
+      <p class="message">
+        We're here to support your digital networking journey. If you have any questions or need assistance, our team is always ready to help you make the most of your SCAN2TAP experience.
+      </p>
     </div>
     
     <!-- Footer -->
@@ -206,7 +247,7 @@ function generateWelcomeEmail(data) {
         Your Digital Identity, One Tap Away
       </div>
       <div class="footer-text">
-        © 2024 SCAN2TAP. All rights reserved.
+        © 2025 SCAN2TAP. All rights reserved.
       </div>
     </div>
   </div>
@@ -367,7 +408,7 @@ function generateOnboardingCompleteEmail(data) {
         Your Digital Identity, One Tap Away
       </div>
       <div class="footer-text">
-        © 2024 SCAN2TAP. All rights reserved.
+        © 2025 SCAN2TAP. All rights reserved.
       </div>
     </div>
   </div>

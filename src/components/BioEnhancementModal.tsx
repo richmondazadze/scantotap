@@ -89,8 +89,8 @@ export default function BioEnhancementModal({
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto mx-1 w-[calc(100%-2rem)] sm:w-full sm:mx-auto rounded-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-500" />
-            Generate Your Bio with AI
+            <Sparkles className="w-5 h-5 text-purple-500 animate-pulse" />
+            <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent font-bold">Generate Your Bio with AI</span>
           </DialogTitle>
           <DialogDescription>
             Create engaging, professional bio suggestions using AI. Choose your style and get multiple options to pick from.
@@ -153,22 +153,32 @@ export default function BioEnhancementModal({
             <Button
               onClick={() => generateSuggestions()}
               disabled={loading}
-              className="flex-1"
+              className="flex-1 relative overflow-hidden bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 text-white border-0 shadow-lg hover:shadow-2xl transition-all duration-300 animate-pulse hover:animate-none hover:scale-105 before:absolute before:inset-0 before:bg-gradient-to-r before:from-purple-400 before:via-blue-400 before:to-cyan-400 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300 disabled:opacity-50 disabled:animate-none disabled:hover:scale-100"
             >
-              {loading ? (
-                <div className="flex items-center gap-2">
-                  <Loading size="sm" />
-                  Generating...
-                </div>
-              ) : (
-                <><Wand2 className="w-4 h-4 mr-2" />Generate</>
-              )}
+              <span className="relative z-10 flex items-center">
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <Loading size="sm" />
+                    Generating...
+                  </div>
+                ) : (
+                  <>
+                    <Wand2 className="w-4 h-4 mr-2 drop-shadow-sm" />
+                    <span className="bg-gradient-to-r from-yellow-200 to-yellow-100 bg-clip-text text-transparent font-extrabold drop-shadow-sm">✨ Generate</span>
+                  </>
+                )}
+              </span>
+              {/* Glowing border effect */}
+              <div className="absolute inset-0 rounded-md bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 opacity-75 blur-sm -z-10"></div>
+              {/* Animated sparkle effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 translate-x-[-100%] animate-shimmer -z-10"></div>
             </Button>
             {suggestions.length > 0 && (
               <Button
                 variant="outline"
                 onClick={() => generateSuggestions()}
                 disabled={loading}
+                className="border-2 border-purple-300 hover:border-purple-500 text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 <RefreshCw className="w-4 h-4" />
               </Button>
@@ -179,8 +189,8 @@ export default function BioEnhancementModal({
           {suggestions.length > 0 && !loading && (
             <div className="space-y-3">
               <h3 className="font-semibold flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-500" />
-                AI Suggestions:
+                <Sparkles className="w-4 h-4 text-purple-500 animate-pulse" />
+                <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">✨ AI Suggestions:</span>
               </h3>
               {suggestions.map((suggestion, index) => (
                 <div
@@ -196,7 +206,7 @@ export default function BioEnhancementModal({
                           {suggestion.style}
                         </Badge>
                         <span className="text-xs text-gray-500">
-                          {suggestion.text.length}/80 chars
+                          {suggestion.text.length}/100 chars
                         </span>
                       </div>
                       {suggestion.reasoning && (
@@ -225,7 +235,7 @@ export default function BioEnhancementModal({
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">💡 Tips:</h4>
               <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                <li>• Keep it under 80 characters for maximum impact</li>
+                <li>• Keep it under 100 characters for maximum impact</li>
                 <li>• Use action words and show your personality</li>
                 <li>• Focus on what makes you unique</li>
                 <li>• You can always edit the generated bio</li>

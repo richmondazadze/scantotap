@@ -117,6 +117,10 @@ export default {
 					'50%': { 
 						borderColor: 'rgba(139, 92, 246, 0.6)' // Purple glow
 					}
+				},
+				'shimmer': {
+					'0%': { transform: 'skewX(12deg) translateX(-100%)' },
+					'100%': { transform: 'skewX(12deg) translateX(200%)' }
 				}
 			},
 			animation: {
@@ -127,6 +131,7 @@ export default {
 				'card-flip': 'card-flip 0.6s ease-out forwards',
 				'fade-in': 'fadeIn 0.6s ease-out forwards',
 				'border-glow': 'border-glow 3s infinite ease-in-out',
+				'shimmer': 'shimmer 2s infinite',
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

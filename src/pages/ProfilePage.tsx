@@ -293,7 +293,7 @@ const ProfilePage = () => {
                   </div>
 
                   {/* Dynamic status badge */}
-                  <motion.div
+                  {/* <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
@@ -303,7 +303,7 @@ const ProfilePage = () => {
                       <userStatus.icon className="w-3 h-3 mr-1" />
                       {userStatus.label}
                     </Badge>
-                  </motion.div>
+                  </motion.div> */}
                 </motion.div>
 
                 {/* Profile Info */}
