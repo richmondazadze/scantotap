@@ -184,7 +184,7 @@ async function handleOrderPayment(data, supabase) {
         price: updatedOrder.design_price + (updatedOrder.material_price_modifier || 0)
       }],
       shippingAddress: `${updatedOrder.shipping_address}, ${updatedOrder.shipping_city}, ${updatedOrder.shipping_state} ${updatedOrder.shipping_zip_code}, ${updatedOrder.shipping_country}`,
-      estimatedDelivery: '5-7 business days'
+             estimatedDelivery: '2-5 business days'
     };
 
     // Send email via the order email API

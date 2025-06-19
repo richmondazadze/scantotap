@@ -72,7 +72,7 @@ export const orderService = {
         price: order.design_price + (order.material_price_modifier || 0)
       }],
       shippingAddress: `${order.shipping_address}, ${order.shipping_city}, ${order.shipping_state} ${order.shipping_zip_code}, ${order.shipping_country}`,
-      estimatedDelivery: order.status === 'confirmed' ? '5-7 business days' : undefined,
+      estimatedDelivery: order.status === 'confirmed' ? '2-5 business days' : undefined,
       trackingNumber: order.tracking_number,
       carrier: order.tracking_number ? 'Ghana Post' : undefined // You can enhance this based on your shipping setup
     };
