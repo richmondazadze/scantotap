@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import Scan2TapLogo from './Scan2TapLogo';
 import { useProfile } from '@/contexts/ProfileContext';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 const DashboardNavbar = () => {
   const { profile } = useProfile();
@@ -22,6 +23,7 @@ const DashboardNavbar = () => {
         </Link>
       </div>
       <div className="flex items-center gap-4">
+        <LanguageSwitcher variant="ghost" size="sm" showText={false} />
         {profile && (
           <div className="flex items-center gap-2">
             <Avatar className="h-9 w-9">

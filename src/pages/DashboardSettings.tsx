@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
+import { useLanguage } from '@/hooks/useLanguage';
 import { 
   Settings, 
   Crown, 
@@ -66,6 +67,7 @@ export default function DashboardSettings() {
   const { refreshProfile, profile } = useProfile();
   const planFeatures = usePlanFeatures();
   const [searchParams] = useSearchParams();
+  const { t, changeLanguage, currentLanguage, supportedLanguages } = useLanguage();
   
   // Get URL parameters
   const urlTab = searchParams.get('tab');
@@ -279,7 +281,7 @@ export default function DashboardSettings() {
              email_marketing: result.preferences.email_marketing,
            },
            preferences: {
-             language: 'en', // TODO: Add language preference to database
+             language: currentLanguage || 'en', // Use current i18n language
              theme: 'system', // TODO: Add theme preference to database
            }
          };
@@ -331,6 +333,11 @@ export default function DashboardSettings() {
   };
 
   const updateSetting = (category: keyof UserSettings, key: string, value: any) => {
+    if (category === 'preferences' && key === 'language') {
+      // Immediately change language in i18n
+      changeLanguage(value);
+    }
+    
     setSettings(prev => ({
       ...prev,
       [category]: {
@@ -338,6 +345,7 @@ export default function DashboardSettings() {
         [key]: value,
       },
     }));
+    setHasChanges(true);
   };
 
   const handlePasswordChange = async () => {
@@ -410,10 +418,10 @@ export default function DashboardSettings() {
   };
 
   const sections = [
-    { id: 'account', label: 'Account', icon: User },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'preferences', label: 'Preferences', icon: Palette },
-    { id: 'subscription', label: 'Subscription', icon: Crown },
+    { id: 'account', label: t('settings.account'), icon: User },
+    { id: 'notifications', label: t('settings.notifications'), icon: Bell },
+    { id: 'preferences', label: t('settings.preferences'), icon: Palette },
+    { id: 'subscription', label: t('settings.subscription'), icon: Crown },
   ];
 
   const handleSectionChange = (sectionId: string) => {
@@ -451,7 +459,7 @@ export default function DashboardSettings() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div>
               <h1 className={cardTitle}>
-                Account Settings
+                {t('settings.title')}
               </h1>
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300">
                 Manage your account preferences and profile settings
@@ -466,7 +474,7 @@ export default function DashboardSettings() {
                 className="min-w-[140px] rounded-xl bg-gradient-to-r from-scan-blue to-scan-purple hover:from-scan-blue/90 hover:to-scan-purple/90 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 <Save className={`w-4 h-4 mr-2 ${saving ? 'animate-spin' : ''}`} />
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving ? t('common.loading') : t('settings.saveChanges')}
               </Button>
             </div>
           </div>
@@ -500,7 +508,7 @@ export default function DashboardSettings() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Settings className="w-5 h-5" />
-                Settings
+                {t('common.settings')}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0 mb-4">
@@ -755,7 +763,7 @@ export default function DashboardSettings() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                     <Bell className="w-5 h-5" />
-                    Notification Preferences
+                    {t('settings.notifications')}
                   </CardTitle>
                   <CardDescription className="text-sm sm:text-base">
                     Choose when you want to receive email notifications
@@ -766,9 +774,9 @@ export default function DashboardSettings() {
                     {/* Order Updates Section */}
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm sm:text-base">Order Updates</p>
+                        <p className="font-medium text-sm sm:text-base">{t('settings.orderUpdates')}</p>
                         <p className="text-xs sm:text-sm text-gray-500 break-words">
-                          Receive emails about your order status and shipping
+                          {t('settings.orderUpdatesDesc')}
                         </p>
                       </div>
                       <Switch
@@ -783,9 +791,9 @@ export default function DashboardSettings() {
                     {/* Marketing & Promotions Section */}
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm sm:text-base">Marketing & Promotions</p>
+                        <p className="font-medium text-sm sm:text-base">{t('settings.marketing')}</p>
                         <p className="text-xs sm:text-sm text-gray-500 break-words">
-                          Get notified about new features and special offers
+                          {t('settings.marketingDesc')}
                         </p>
                       </div>
                       <Switch
@@ -807,20 +815,20 @@ export default function DashboardSettings() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                     <Palette className="w-5 h-5" />
-                    Appearance & Preferences
+                    {t('settings.appearance')}
                   </CardTitle>
                   <CardDescription className="text-sm sm:text-base">
-                    Customize your experience and language settings
+                    {t('settings.appearanceDesc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Theme */}
                   <div className="space-y-3">
-                    <label className="text-sm font-medium">Theme</label>
+                    <label className="text-sm font-medium">{t('settings.theme')}</label>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                       <ThemeSwitcher />
                       <span className="text-xs sm:text-sm text-gray-500">
-                        Choose your preferred color scheme
+                        {t('settings.chooseTheme')}
                       </span>
                     </div>
                   </div>
@@ -829,20 +837,20 @@ export default function DashboardSettings() {
 
                   {/* Language */}
                   <div className="space-y-3">
-                    <label className="text-sm font-medium">Language</label>
+                    <label className="text-sm font-medium">{t('settings.language')}</label>
                     <select
                       className="w-full p-3 text-sm sm:text-base border rounded-md bg-background focus:ring-2 focus:ring-scan-blue focus:border-transparent"
-                      value={settings.preferences.language}
+                      value={currentLanguage}
                       onChange={(e) => updateSetting('preferences', 'language', e.target.value)}
                     >
-                      <option value="en">English</option>
-                      <option value="es">Español</option>
-                      <option value="fr">Français</option>
-                      <option value="tw">Twi</option>
-                      <option value="ha">Hausa</option>
+                      {supportedLanguages.map((lang) => (
+                        <option key={lang.code} value={lang.code}>
+                          {lang.nativeName}
+                        </option>
+                      ))}
                     </select>
                     <p className="text-xs text-gray-500">
-                      Select your preferred language for the interface
+                      {t('settings.selectLanguage')}
                     </p>
                   </div>
                 </CardContent>
@@ -1139,15 +1147,15 @@ export default function DashboardSettings() {
 
       {/* Mobile Save Button - Fixed Above Bottom Nav */}
       {hasChanges && (
-        <div className="sm:hidden fixed bottom-16 left-4 right-4 z-40">
+        <div className="sm:hidden fixed bottom-24 left-4 right-4 z-[60]">
           <Button 
             onClick={saveSettings} 
             disabled={saving}
-            className="w-full py-3 text-base shadow-lg"
+            className="w-full py-3 text-base shadow-xl bg-gradient-to-r from-scan-blue to-scan-purple hover:from-scan-blue/90 hover:to-scan-purple/90 text-white border-0 transition-all duration-300"
             size="lg"
           >
             <Save className={`w-4 h-4 mr-2 ${saving ? 'animate-spin' : ''}`} />
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? t('common.loading') : t('settings.saveChanges')}
           </Button>
         </div>
       )}

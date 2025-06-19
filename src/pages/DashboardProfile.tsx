@@ -14,6 +14,7 @@ import { processSocialInput, SOCIAL_PLATFORMS, getDisplayUsername } from '@/lib/
 import { usePlanFeatures, canAddMoreLinks } from '@/hooks/usePlanFeatures';
 import { UpgradePrompt } from '@/components/UpgradePrompt';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { useLanguage } from '@/hooks/useLanguage';
 
 import { motion } from 'framer-motion';
 import { Camera, Plus, X, Phone, Globe, Link as LinkIcon, ExternalLink, Save, AlertCircle, CheckCircle, Shield, Mail, Crown } from 'lucide-react';
@@ -39,6 +40,7 @@ export default function DashboardProfile() {
   const { profile, loading: profileLoading, setProfile } = useProfile();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
   
   // State declarations
   const [name, setName] = useState(profile?.name || '');
@@ -1007,7 +1009,7 @@ export default function DashboardProfile() {
             ) : (
               <>
                 <Save className="w-5 h-5 mr-2" />
-                {!profile ? 'Create Profile' : 'Save Profile'}
+                {!profile ? t('dashboard.createProfile') : t('profile.saveProfile')}
               </>
             )}
         </Button>

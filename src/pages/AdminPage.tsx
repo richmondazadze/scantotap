@@ -14,6 +14,7 @@ import { orderService } from '@/lib/orderService';
 import AdminNavbar from '@/components/AdminNavbar';
 import AdminFooter from '@/components/AdminFooter';
 import AdminQRViewer from '@/components/AdminQRViewer';
+import AdminInventory from '@/components/admin/AdminInventory';
 import type { Json } from '@/types/supabase';
 import {
   AreaChart,
@@ -61,7 +62,8 @@ import {
   Search,
   X,
   SortAsc,
-  SortDesc
+  SortDesc,
+  Settings
 } from 'lucide-react';
 import { ResponsivePie } from '@nivo/pie';
 import { ResponsiveLine } from '@nivo/line';
@@ -129,6 +131,9 @@ const AdminPage = () => {
     pendingOrders: 0,
     pendingRevenue: 0
   });
+
+  // Tab management for different admin sections
+  const [activeTab, setActiveTab] = useState<'overview' | 'inventory'>('overview');
 
   // Chart data states
   const [revenueTimelineData, setRevenueTimelineData] = useState<Array<{date: string, revenue: number}>>([]);
@@ -749,8 +754,46 @@ const AdminPage = () => {
           </div>
         </motion.div>
 
-        {/* Stats Cards */}
-        <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-4 sm:gap-6 mb-6 mt-6 sm:mt-0">
+        {/* Tab Navigation */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6"
+        >
+          <div className="border-b border-gray-200 dark:border-gray-700">
+            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'overview'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <BarChart3 className="w-4 h-4 mr-2 inline" />
+                Analytics Overview
+              </button>
+              <button
+                onClick={() => setActiveTab('inventory')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'inventory'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Settings className="w-4 h-4 mr-2 inline" />
+                Inventory Management
+              </button>
+            </nav>
+          </div>
+        </motion.div>
+
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
+          <>
+            {/* Stats Cards */}
+            <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-4 sm:gap-6 mb-6 mt-6 sm:mt-0">
           <Col numColSpan={1} className="flex flex-col items-center text-center">
             <Card className="h-full w-full">
               <CardContent className="pt-4 sm:pt-6 flex flex-col items-center">
@@ -1506,6 +1549,19 @@ const AdminPage = () => {
             </CardContent>
           </Card>
         </motion.div>
+          </>
+        )}
+
+        {/* Inventory Management Tab */}
+        {activeTab === 'inventory' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <AdminInventory />
+          </motion.div>
+        )}
 
       </div>
 

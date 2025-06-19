@@ -13,6 +13,7 @@ import { orderService, type OrderData, type Order } from '@/lib/orderService';
 import { paymentService, type PaymentData } from '@/lib/paymentService';
 import { CardDesignPreview } from '@/components/CardDesignPreview';
 import { CardMaterialShowcase } from '@/components/CardMaterialShowcase';
+import inventoryService, { type CardType, type Material, type ColorScheme } from '@/services/inventoryService';
 import { 
   CreditCard, 
   Truck, 
@@ -26,52 +27,81 @@ import {
   Shield,
   Sparkles,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
 import Loading from '@/components/ui/loading';
 
-// Card design options
-const CARD_DESIGNS = [
-  {
-    id: 'classic',
-    name: 'Classic',
-    description: 'Clean and professional design',
-    price: 15,
-    features: ['QR Code', 'Contact Info', 'Social Links'],
-    popular: false
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    description: 'Elegant design with premium materials',
-    price: 25,
-    features: ['QR Code', 'Contact Info', 'Social Links', 'Custom Colors', 'Premium Material'],
-    popular: true
-  },
-  {
-    id: 'metal',
-    name: 'Metal',
-    description: 'Luxury metal card with engraving',
-    price: 45,
-    features: ['QR Code', 'Contact Info', 'Social Links', 'Metal Material', 'Laser Engraving', 'Lifetime Warranty'],
-    popular: false
+// Convert inventory data to display format
+const convertCardTypeToDesign = (cardType: CardType) => ({
+  id: cardType.id,
+  name: cardType.name,
+  description: cardType.description || '',
+  price: cardType.price_modifier,
+  features: getFeatures(cardType.name),
+  popular: cardType.name === 'Premium',
+  isAvailable: cardType.is_available,
+  hasStockLimit: cardType.has_stock_limit,
+  stockQuantity: cardType.stock_quantity,
+  isOutOfStock: cardType.has_stock_limit && (cardType.stock_quantity || 0) <= 0
+});
+
+const convertMaterialToOption = (material: Material) => ({
+  id: material.id,
+  name: material.name,
+  description: material.description || '',
+  priceModifier: material.price_modifier,
+  isAvailable: material.is_available,
+  hasStockLimit: material.has_stock_limit,
+  stockQuantity: material.stock_quantity,
+  isOutOfStock: material.has_stock_limit && (material.stock_quantity || 0) <= 0
+});
+
+const convertColorSchemeToOption = (colorScheme: ColorScheme) => ({
+  id: colorScheme.id,
+  name: colorScheme.name,
+  primary: colorScheme.primary_color,
+  secondary: colorScheme.secondary_color || colorScheme.primary_color,
+  isAvailable: colorScheme.is_available,
+  hasStockLimit: colorScheme.has_stock_limit,
+  stockQuantity: colorScheme.stock_quantity,
+  isOutOfStock: colorScheme.has_stock_limit && (colorScheme.stock_quantity || 0) <= 0
+});
+
+// Helper function to get features based on card type name
+const getFeatures = (cardTypeName: string): string[] => {
+  switch (cardTypeName.toLowerCase()) {
+    case 'classic':
+      return ['QR Code', 'Contact Info', 'Social Links'];
+    case 'premium':
+      return ['QR Code', 'Contact Info', 'Social Links', 'Custom Colors', 'Premium Material'];
+    case 'metal':
+      return ['QR Code', 'Contact Info', 'Social Links', 'Metal Material', 'Laser Engraving', 'Lifetime Warranty'];
+    default:
+      return ['QR Code', 'Contact Info', 'Social Links'];
   }
-];
+};
 
-// Material options
-const MATERIALS = [
-  { id: 'plastic', name: 'Plastic', description: 'Durable PVC material', priceModifier: 0 },
-  { id: 'metal', name: 'Metal', description: 'Premium stainless steel', priceModifier: 20 }
-];
-
-// Color schemes
-const COLOR_SCHEMES = [
-  { id: 'blue', name: 'Ocean Blue', primary: '#3B82F6', secondary: '#1E40AF' },
-  { id: 'purple', name: 'Royal Purple', primary: '#8B5CF6', secondary: '#7C3AED' },
-  { id: 'green', name: 'Forest Green', primary: '#10B981', secondary: '#059669' },
-  { id: 'black', name: 'Midnight Black', primary: '#1F2937', secondary: '#111827' },
-  { id: 'gold', name: 'Luxury Gold', primary: '#F59E0B', secondary: '#D97706' }
-];
+// Helper function to get stock status display
+const getStockStatusBadge = (item: { isAvailable: boolean; hasStockLimit: boolean; stockQuantity: number | null; isOutOfStock: boolean }) => {
+  if (!item.isAvailable || item.isOutOfStock) {
+    return (
+      <Badge variant="destructive" className="absolute top-2 left-2 bg-red-500 text-white">
+        Out of Stock
+      </Badge>
+    );
+  }
+  
+  if (item.hasStockLimit && item.stockQuantity !== null && item.stockQuantity <= 5) {
+    return (
+      <Badge variant="secondary" className="absolute top-2 left-2 bg-orange-500 text-white">
+        {item.stockQuantity} left
+      </Badge>
+    );
+  }
+  
+  return null;
+};
 
 export default function DashboardOrder() {
   useAuthGuard(); // Ensure user is authenticated
@@ -82,6 +112,12 @@ export default function DashboardOrder() {
   const cardTitle = 'text-xl sm:text-2xl md:text-xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent';
   const cardDesc = 'text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 md:mb-6 lg:mb-8 text-sm sm:text-base md:text-sm lg:text-base leading-relaxed';
   
+  // Inventory data state
+  const [cardDesigns, setCardDesigns] = useState<Array<ReturnType<typeof convertCardTypeToDesign>>>([]);
+  const [materials, setMaterials] = useState<Array<ReturnType<typeof convertMaterialToOption>>>([]);
+  const [colorSchemes, setColorSchemes] = useState<Array<ReturnType<typeof convertColorSchemeToOption>>>([]);
+  const [loadingInventory, setLoadingInventory] = useState(true);
+  
   // Check if we're editing an existing order
   const urlParams = new URLSearchParams(window.location.search);
   const editOrderId = urlParams.get('edit');
@@ -89,9 +125,9 @@ export default function DashboardOrder() {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [loadingOrder, setLoadingOrder] = useState(!!editOrderId);
   
-  const [selectedDesign, setSelectedDesign] = useState(CARD_DESIGNS[1]); // Default to Premium
-  const [selectedMaterial, setSelectedMaterial] = useState(MATERIALS[0]);
-  const [selectedColor, setSelectedColor] = useState(COLOR_SCHEMES[0]);
+  const [selectedDesign, setSelectedDesign] = useState<ReturnType<typeof convertCardTypeToDesign> | null>(null);
+  const [selectedMaterial, setSelectedMaterial] = useState<ReturnType<typeof convertMaterialToOption> | null>(null);
+  const [selectedColor, setSelectedColor] = useState<ReturnType<typeof convertColorSchemeToOption> | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
@@ -110,6 +146,81 @@ export default function DashboardOrder() {
     country: 'Ghana',
     specialInstructions: ''
   });
+
+  // Load inventory data
+  useEffect(() => {
+    const loadInventory = async () => {
+      try {
+        setLoadingInventory(true);
+        const inventory = await inventoryService.getAvailableInventory();
+        
+        const designs = inventory.cardTypes.map(convertCardTypeToDesign);
+        const mats = inventory.materials.map(convertMaterialToOption);
+        const colors = inventory.colorSchemes.map(convertColorSchemeToOption);
+        
+        setCardDesigns(designs);
+        setMaterials(mats);
+        setColorSchemes(colors);
+        
+        // Filter available items for default selection
+        const availableDesigns = designs.filter(d => d.isAvailable && !d.isOutOfStock);
+        const availableMaterials = mats.filter(m => m.isAvailable && !m.isOutOfStock);
+        const availableColors = colors.filter(c => c.isAvailable && !c.isOutOfStock);
+        
+        // Set defaults if not already set (only from available items)
+        if (!selectedDesign && availableDesigns.length > 0) {
+          setSelectedDesign(availableDesigns.find(d => d.name === 'Premium') || availableDesigns[0]);
+        }
+        if (!selectedMaterial && availableMaterials.length > 0) {
+          setSelectedMaterial(availableMaterials[0]);
+        }
+        if (!selectedColor && availableColors.length > 0) {
+          setSelectedColor(availableColors[0]);
+        }
+        
+        // Check if currently selected items are still available
+        if (selectedDesign && (!selectedDesign.isAvailable || selectedDesign.isOutOfStock)) {
+          const fallback = availableDesigns.find(d => d.name === 'Premium') || availableDesigns[0];
+          setSelectedDesign(fallback || null);
+          if (!fallback) {
+            toast.warning('Your selected design is no longer available');
+          }
+        }
+        if (selectedMaterial && (!selectedMaterial.isAvailable || selectedMaterial.isOutOfStock)) {
+          const fallback = availableMaterials[0];
+          setSelectedMaterial(fallback || null);
+          if (!fallback) {
+            toast.warning('Your selected material is no longer available');
+          }
+        }
+        if (selectedColor && (!selectedColor.isAvailable || selectedColor.isOutOfStock)) {
+          const fallback = availableColors[0];
+          setSelectedColor(fallback || null);
+          if (!fallback) {
+            toast.warning('Your selected color is no longer available');
+          }
+        }
+        
+        // If editing an order, set selections based on order data
+        if (editingOrder && isEditMode) {
+          const design = designs.find(d => d.id === editingOrder.design_id);
+          const material = mats.find(m => m.id === editingOrder.material_id);
+          const color = colors.find(c => c.id === editingOrder.color_scheme_id);
+          
+          if (design) setSelectedDesign(design);
+          if (material) setSelectedMaterial(material);
+          if (color) setSelectedColor(color);
+        }
+      } catch (error) {
+        console.error('Error loading inventory:', error);
+        toast.error('Failed to load inventory data');
+      } finally {
+        setLoadingInventory(false);
+      }
+    };
+
+    loadInventory();
+  }, []);
 
   // Load order if in edit mode
   useEffect(() => {
@@ -132,10 +243,8 @@ export default function DashboardOrder() {
             return;
           }
           
-          // Populate form with existing order data
-          setSelectedDesign(CARD_DESIGNS.find(d => d.id === order.design_id) || CARD_DESIGNS[1]);
-          setSelectedMaterial(MATERIALS.find(m => m.id === order.material_id) || MATERIALS[0]);
-          setSelectedColor(COLOR_SCHEMES.find(c => c.id === order.color_scheme_id) || COLOR_SCHEMES[0]);
+          // Populate form with existing order data (will be set once inventory loads)
+          // Note: Selection will be updated when inventory loads in the effect above
           setQuantity(order.quantity);
           
           setOrderForm({
@@ -170,8 +279,8 @@ export default function DashboardOrder() {
   }, [editOrderId]);
 
   // Calculate total price
-  const basePrice = selectedDesign.price;
-  const materialPrice = selectedMaterial.priceModifier;
+  const basePrice = selectedDesign?.price || 0;
+  const materialPrice = selectedMaterial?.priceModifier || 0;
   const subtotal = (basePrice + materialPrice) * quantity;
   const shipping = quantity > 5 ? 0 : 5; // Free shipping for 5+ cards
   const tax = subtotal * 0.08; // 8% tax
@@ -220,6 +329,12 @@ export default function DashboardOrder() {
     
     if (missingFields.length > 0) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+    
+    // Validate selections
+    if (!selectedDesign || !selectedMaterial || !selectedColor) {
+      toast.error('Please complete your card selection');
       return;
     }
 
@@ -351,14 +466,14 @@ export default function DashboardOrder() {
     }
   };
 
-  if (loadingOrder) {
+  if (loadingOrder || loadingInventory) {
     return (
       <div className="flex justify-center items-center h-full flex-1 pb-24 sm:pb-6 w-full px-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
-            <Loading size="lg" text="Loading order details..." />
-            <h3 className="text-lg font-semibold mb-2">Loading Order</h3>
-            <p className="text-gray-600 mb-4">Please wait while we load your order details...</p>
+            <Loading size="lg" text={loadingOrder ? "Loading order details..." : "Loading inventory..."} />
+            <h3 className="text-lg font-semibold mb-2">{loadingOrder ? "Loading Order" : "Loading Inventory"}</h3>
+            <p className="text-gray-600 mb-4">{loadingOrder ? "Please wait while we load your order details..." : "Please wait while we load available options..."}</p>
           </CardContent>
         </Card>
       </div>
@@ -417,25 +532,40 @@ export default function DashboardOrder() {
                 <p className={cardDesc}>Select the perfect design for your digital business card</p>
                 
                 <div className="space-y-4 sm:space-y-6">
-                  {CARD_DESIGNS.map((design) => (
-                    <div
-                      key={design.id}
-                      className={`relative cursor-pointer rounded-2xl border-2 p-4 sm:p-6 transition-all duration-300 hover:shadow-lg ${
-                        selectedDesign.id === design.id
-                          ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                      }`}
-                      onClick={() => {
-                        setSelectedDesign(design);
-                        // Auto-select appropriate material based on design
-                        if (design.id === 'metal') {
-                          setSelectedMaterial(MATERIALS.find(m => m.id === 'metal') || MATERIALS[0]);
-                        } else {
-                          setSelectedMaterial(MATERIALS[0]); // Default to plastic for classic and premium
-                        }
-                      }}
-                    >
-                      {design.popular && (
+                  {cardDesigns.map((design) => {
+                    const isUnavailable = !design.isAvailable || design.isOutOfStock;
+                    return (
+                      <div
+                        key={design.id}
+                        className={`relative rounded-2xl border-2 p-4 sm:p-6 transition-all duration-300 ${
+                          isUnavailable 
+                            ? 'opacity-50 cursor-not-allowed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800' 
+                            : `cursor-pointer hover:shadow-lg ${
+                                selectedDesign?.id === design.id
+                                  ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
+                                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                              }`
+                        }`}
+                        onClick={() => {
+                          if (isUnavailable) {
+                            toast.error(`${design.name} design is currently out of stock`);
+                            return;
+                          }
+                          setSelectedDesign(design);
+                          // Auto-select appropriate material based on design
+                          const availableMaterials = materials.filter(m => m.isAvailable && !m.isOutOfStock);
+                          if (design.id === 'metal') {
+                            const metalMaterial = availableMaterials.find(m => m.id === 'metal');
+                            setSelectedMaterial(metalMaterial || availableMaterials[0]);
+                          } else {
+                            setSelectedMaterial(availableMaterials[0]); // Default to first available for classic and premium
+                          }
+                        }}
+                      >
+                      {/* Stock Status Badge */}
+                      {getStockStatusBadge(design)}
+                      
+                      {design.popular && !isUnavailable && (
                         <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-scan-blue to-scan-purple text-white shadow-lg">
                           <Star className="w-3 h-3 mr-1 fill-current" />
                           Popular
@@ -479,7 +609,7 @@ export default function DashboardOrder() {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  );})}
                 </div>
               </motion.div>
 
@@ -494,20 +624,41 @@ export default function DashboardOrder() {
                 <p className={cardDesc}>Choose the material for your card</p>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                  {MATERIALS.map((material) => (
-                    <div
-                      key={material.id}
-                      className={`cursor-pointer rounded-2xl border-2 p-4 sm:p-6 md:p-4 lg:p-6 transition-all duration-300 hover:shadow-lg ${
-                        selectedMaterial.id === material.id
-                          ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                      }`}
-                      onClick={() => setSelectedMaterial(material)}
-                    >
+                  {materials.map((material) => {
+                    const isUnavailable = !material.isAvailable || material.isOutOfStock;
+                    return (
+                      <div
+                        key={material.id}
+                        className={`relative rounded-2xl border-2 p-4 sm:p-6 md:p-4 lg:p-6 transition-all duration-300 ${
+                          isUnavailable 
+                            ? 'opacity-50 cursor-not-allowed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800' 
+                            : `cursor-pointer hover:shadow-lg ${
+                                selectedMaterial?.id === material.id
+                                  ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
+                                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                              }`
+                        }`}
+                        onClick={() => {
+                          if (isUnavailable) {
+                            toast.error(`${material.name} material is currently out of stock`);
+                            return;
+                          }
+                          setSelectedMaterial(material);
+                        }}
+                      >
+                      {/* Stock Status Badge */}
+                      {getStockStatusBadge(material)}
+                      
                       <CardMaterialShowcase 
                         material={material}
-                        isSelected={selectedMaterial.id === material.id}
-                        onClick={() => setSelectedMaterial(material)}
+                        isSelected={selectedMaterial?.id === material.id}
+                        onClick={() => {
+                          if (isUnavailable) {
+                            toast.error(`${material.name} material is currently out of stock`);
+                            return;
+                          }
+                          setSelectedMaterial(material);
+                        }}
                       />
                       <h3 className="font-semibold mb-2 text-base sm:text-lg md:text-base lg:text-lg mt-4 text-gray-900 dark:text-white">{material.name}</h3>
                       <p className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">{material.description}</p>
@@ -515,7 +666,7 @@ export default function DashboardOrder() {
                         {material.priceModifier > 0 ? `+₵${material.priceModifier}` : 'Included'}
                       </div>
                     </div>
-                  ))}
+                  );})}
                 </div>
               </motion.div>
 
@@ -530,16 +681,31 @@ export default function DashboardOrder() {
                 <p className={cardDesc}>Pick a color scheme that matches your brand</p>
                 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-                  {COLOR_SCHEMES.map((color) => (
-                    <div
-                      key={color.id}
-                      className={`cursor-pointer rounded-2xl border-2 p-3 sm:p-4 md:p-3 lg:p-4 transition-all duration-300 hover:shadow-md ${
-                        selectedColor.id === color.id
-                          ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                      }`}
-                      onClick={() => setSelectedColor(color)}
-                    >
+                  {colorSchemes.map((color) => {
+                    const isUnavailable = !color.isAvailable || color.isOutOfStock;
+                    return (
+                      <div
+                        key={color.id}
+                        className={`relative rounded-2xl border-2 p-3 sm:p-4 md:p-3 lg:p-4 transition-all duration-300 ${
+                          isUnavailable 
+                            ? 'opacity-50 cursor-not-allowed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800' 
+                            : `cursor-pointer hover:shadow-md ${
+                                selectedColor?.id === color.id
+                                  ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
+                                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                              }`
+                        }`}
+                        onClick={() => {
+                          if (isUnavailable) {
+                            toast.error(`${color.name} color is currently out of stock`)
+                            return
+                          }
+                          setSelectedColor(color)
+                        }}
+                      >
+                      {/* Stock Status Badge */}
+                      {getStockStatusBadge(color)}
+                      
                       <div className="flex justify-center gap-1 mb-2 sm:mb-3 md:mb-2 lg:mb-3">
                         <div 
                           className="w-5 h-5 sm:w-6 sm:h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded-full shadow-sm border border-white/20"
@@ -554,7 +720,7 @@ export default function DashboardOrder() {
                         {color.name}
                       </div>
                     </div>
-                  ))}
+                  );})}
                 </div>
               </motion.div>
             </div>
@@ -582,13 +748,13 @@ export default function DashboardOrder() {
                     <div className="w-8 h-8 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-lg flex items-center justify-center">
                       <Package className="w-4 h-4 text-scan-blue" />
                     </div>
-                    <span>{selectedMaterial.name} Material</span>
+                    <span>{selectedMaterial?.name || 'No Material'} Material</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                     <div className="w-8 h-8 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-lg flex items-center justify-center">
                       <Sparkles className="w-4 h-4 text-scan-blue" />
                     </div>
-                    <span>{selectedDesign.name} Design</span>
+                    <span>{selectedDesign?.name || 'No Design'} Design</span>
                   </div>
                 </div>
               </motion.div>
@@ -644,12 +810,12 @@ export default function DashboardOrder() {
                   {/* Pricing */}
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm sm:text-base">
-                      <span className="text-gray-600 dark:text-gray-400">{selectedDesign.name} × {quantity}</span>
+                      <span className="text-gray-600 dark:text-gray-400">{selectedDesign?.name || 'Design'} × {quantity}</span>
                       <span className="font-medium font-mono text-gray-900 dark:text-white tracking-wide">₵{(basePrice * quantity).toFixed(2)}</span>
                     </div>
                     {materialPrice > 0 && (
                       <div className="flex justify-between text-sm sm:text-base">
-                        <span className="text-gray-600 dark:text-gray-400">{selectedMaterial.name} upgrade × {quantity}</span>
+                        <span className="text-gray-600 dark:text-gray-400">{selectedMaterial?.name || 'Material'} upgrade × {quantity}</span>
                         <span className="font-medium font-mono text-gray-900 dark:text-white tracking-wide">₵{(materialPrice * quantity).toFixed(2)}</span>
                       </div>
                     )}
@@ -668,9 +834,48 @@ export default function DashboardOrder() {
                     </div>
                   </div>
 
+                  {/* Out of Stock Warning */}
+                  {(selectedDesign?.isOutOfStock || selectedMaterial?.isOutOfStock || selectedColor?.isOutOfStock) && (
+                    <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                      <div className="text-sm text-red-700 dark:text-red-400 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        Some selected items are out of stock. Please choose different options to continue.
+                      </div>
+                    </div>
+                  )}
+
                   <Button 
-                    className="w-full h-12 sm:h-14 bg-gradient-to-r from-scan-blue to-scan-purple text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all text-sm sm:text-base"
-                    onClick={() => setShowOrderForm(true)}
+                    className="w-full h-12 sm:h-14 bg-gradient-to-r from-scan-blue to-scan-purple text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => {
+                      // Check if all required selections are available
+                      if (!selectedDesign || !selectedMaterial || !selectedColor) {
+                        toast.error('Please complete your card selection');
+                        return;
+                      }
+                      
+                      if (selectedDesign.isOutOfStock || !selectedDesign.isAvailable) {
+                        toast.error('Selected design is out of stock');
+                        return;
+                      }
+                      
+                      if (selectedMaterial.isOutOfStock || !selectedMaterial.isAvailable) {
+                        toast.error('Selected material is out of stock');
+                        return;
+                      }
+                      
+                      if (selectedColor.isOutOfStock || !selectedColor.isAvailable) {
+                        toast.error('Selected color is out of stock');
+                        return;
+                      }
+                      
+                      setShowOrderForm(true);
+                    }}
+                    disabled={
+                      !selectedDesign || !selectedMaterial || !selectedColor ||
+                      selectedDesign.isOutOfStock || !selectedDesign.isAvailable ||
+                      selectedMaterial.isOutOfStock || !selectedMaterial.isAvailable ||
+                      selectedColor.isOutOfStock || !selectedColor.isAvailable
+                    }
                   >
                     <CreditCard className="w-5 h-5 mr-2" />
                     Proceed to Checkout
@@ -809,12 +1014,12 @@ export default function DashboardOrder() {
                 <h3 className="font-semibold mb-3 text-sm sm:text-base">Order Summary</h3>
                 <div className="space-y-2 text-xs sm:text-sm">
                     <div className="flex justify-between">
-                        <span>{selectedDesign.name} × {quantity}</span>
+                        <span>{selectedDesign?.name || 'Design'} × {quantity}</span>
                         <span className="font-mono text-gray-900 dark:text-white tracking-wide">₵{(basePrice * quantity).toFixed(2)}</span>
                       </div>
                       {materialPrice > 0 && (
                         <div className="flex justify-between">
-                          <span>{selectedMaterial.name} upgrade</span>
+                          <span>{selectedMaterial?.name || 'Material'} upgrade</span>
                           <span className="font-mono text-gray-900 dark:text-white tracking-wide">₵{(materialPrice * quantity).toFixed(2)}</span>
                         </div>
                       )}
