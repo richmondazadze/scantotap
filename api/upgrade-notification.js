@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing required field: emails array' });
     }
 
-    const subject = 'SCAN2TAP Platform Enhancement - Action Required';
+    const subject = 'SCAN2TAP Database Reset Notice';
     const html = generateUpgradeNotificationEmail({ upgradeDate });
 
     const results = [];
@@ -264,59 +264,35 @@ function generateUpgradeNotificationEmail(data) {
         SCAN<span class="number-2">2</span>TAP
       </div>
       <div class="tagline">Your Digital Identity, One Tap Away</div>
-      <div class="update-badge">Platform Enhancement</div>
+      <div class="update-badge">Database Reset</div>
     </div>
     
     <!-- Content -->
     <div class="content">
-      <div class="enhancement-icon">🚀</div>
-      <h1 class="greeting">Exciting Platform Enhancements Coming Soon!</h1>
+      <div class="enhancement-icon">🔄</div>
+      <h1 class="greeting">Database Reset Notice</h1>
       
       <p class="message">
-        We hope this message finds you well! We're excited to share news about upcoming improvements to the SCAN2TAP platform that will enhance your digital networking experience.
+        We are performing a complete database reset to improve our platform. This means <strong>all existing user data will be permanently deleted</strong>.
       </p>
       
       <div class="enhancement-notice">
-        <h3>🔄 Platform Refresh</h3>
-        <p><strong>We're implementing major platform improvements that will require a fresh start for all user accounts.</strong></p>
-        <p>This enhancement will provide you with new features, better performance, and an improved user experience.</p>
+        <h3>📋 What This Means</h3>
+        <p><strong>All profiles, settings, and account information will be lost.</strong></p>
+        <p>You will need to create a new account after the reset is complete.</p>
       </div>
       
-      <p class="message">
-        These improvements include enhanced security, faster loading times, new customization options, and advanced analytics features that will take your digital business card to the next level.
-      </p>
-      
-      <div class="timeline">
-        <h3>📋 What to Expect</h3>
-        <div class="timeline-item">
-          <span class="timeline-date">Preparation Phase:</span> Save any important information you'd like to re-add later
-        </div>
-        <div class="timeline-item">
-          <span class="timeline-date">Enhancement Period:</span> Brief platform downtime for improvements
-        </div>
-        <div class="timeline-item">
-          <span class="timeline-date">Launch Phase:</span> Create your new profile with enhanced features
-        </div>
-        ${upgradeDate ? `<div class="timeline-item">
-          <span class="timeline-date">Launch Date:</span> ${upgradeDate}
-        </div>` : ''}
-      </div>
-      
-      <p class="message">
-        This is an exciting opportunity to experience SCAN2TAP 2.0 with improved features, better design options, and enhanced functionality that will make your digital networking even more effective.
-      </p>
+      ${upgradeDate ? `<p class="message">
+        <strong>Reset Date:</strong> ${upgradeDate}
+      </p>` : ''}
       
       <div class="support-section">
-        <h3>🎯 We're Here to Help</h3>
-        <p>Our team is committed to making this transition as smooth as possible. We appreciate your patience and support as we evolve to serve you better.</p>
+        <h3>🙏 Our Apologies</h3>
+        <p>We sincerely apologize for any inconvenience this may cause. This reset is necessary for platform improvements.</p>
       </div>
       
       <p class="message">
-        If you have any questions about the platform enhancements, our support team is ready to assist you. We're excited about these improvements and can't wait for you to experience them!
-      </p>
-      
-      <p class="message">
-        Thank you for being a valued member of the SCAN2TAP community. Get ready for an even better digital networking experience!
+        If you have any questions, please contact our support team.
       </p>
     </div>
     
