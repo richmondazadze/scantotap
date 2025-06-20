@@ -10,9 +10,11 @@
  * 3. Run: node send-upgrade-notification.js
  */
 
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
 const USER_EMAILS = [
   // Add your test user emails here
-  'testuser@example.com',
+  'richverseecotech@gmail.com',
   // 'user2@example.com',
   // 'user3@example.com',
 ];
@@ -21,7 +23,7 @@ const USER_EMAILS = [
 const UPGRADE_DATE = null; // e.g., 'January 25, 2025 at 2:00 PM UTC'
 
 // API Configuration
-const API_BASE_URL = 'http://localhost:3000'; // Update this to your API URL
+const API_BASE_URL = 'https://scan2tap.vercel.app'; // Update this to your API URL
 const API_ENDPOINT = '/api/upgrade-notification';
 
 async function sendUpgradeNotifications() {
@@ -73,6 +75,9 @@ async function sendUpgradeNotifications() {
     console.error('💡 Make sure your API server is running and the URL is correct');
   }
 }
+
+// Auto-run the function
+sendUpgradeNotifications();
 
 // Alternative function for browser environment
 async function sendUpgradeNotificationsBrowser() {

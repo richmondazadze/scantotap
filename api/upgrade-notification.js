@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing required field: emails array' });
     }
 
-    const subject = 'Important: SCAN2TAP Database Upgrade Notice';
+    const subject = 'SCAN2TAP Platform Enhancement - Action Required';
     const html = generateUpgradeNotificationEmail({ upgradeDate });
 
     const results = [];
@@ -69,7 +69,7 @@ function generateUpgradeNotificationEmail(data) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Important: SCAN2TAP Database Upgrade Notice</title>
+  <title>SCAN2TAP Platform Enhancement</title>
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -93,7 +93,7 @@ function generateUpgradeNotificationEmail(data) {
     }
     
     .header {
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
       padding: 30px 20px;
       text-align: center;
       color: white;
@@ -107,8 +107,8 @@ function generateUpgradeNotificationEmail(data) {
     }
     
     .logo .number-2 {
-      color: #fca5a5;
-      text-shadow: 0 0 10px rgba(252, 165, 165, 0.5);
+      color: #60a5fa;
+      text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
     }
     
     .tagline {
@@ -117,9 +117,9 @@ function generateUpgradeNotificationEmail(data) {
       margin-top: 5px;
     }
     
-    .warning-badge {
-      background-color: rgba(254, 202, 202, 0.2);
-      border: 1px solid #fca5a5;
+    .update-badge {
+      background-color: rgba(191, 219, 254, 0.2);
+      border: 1px solid #60a5fa;
       border-radius: 6px;
       padding: 8px 15px;
       margin-top: 15px;
@@ -142,7 +142,7 @@ function generateUpgradeNotificationEmail(data) {
       text-align: center;
     }
     
-    .warning-icon {
+    .enhancement-icon {
       font-size: 48px;
       text-align: center;
       margin-bottom: 20px;
@@ -155,23 +155,23 @@ function generateUpgradeNotificationEmail(data) {
       line-height: 1.7;
     }
     
-    .important-notice {
-      background-color: #fef2f2;
-      border-left: 4px solid #dc2626;
+    .enhancement-notice {
+      background-color: #eff6ff;
+      border-left: 4px solid #2563eb;
       border-radius: 6px;
       padding: 20px;
       margin: 25px 0;
     }
     
-    .important-notice h3 {
+    .enhancement-notice h3 {
       font-size: 18px;
       font-weight: bold;
-      color: #dc2626;
+      color: #1d4ed8;
       margin-bottom: 10px;
     }
     
-    .important-notice p {
-      color: #7f1d1d;
+    .enhancement-notice p {
+      color: #1e40af;
       margin-bottom: 10px;
     }
     
@@ -211,25 +211,25 @@ function generateUpgradeNotificationEmail(data) {
     
     .timeline-date {
       font-weight: bold;
-      color: #dc2626;
+      color: #2563eb;
     }
     
-    .apology {
-      background-color: #f0f9ff;
-      border: 1px solid #7dd3fc;
+    .support-section {
+      background-color: #ecfdf5;
+      border: 1px solid #10b981;
       border-radius: 8px;
       padding: 20px;
       margin: 25px 0;
       text-align: center;
     }
     
-    .apology h3 {
-      color: #0c4a6e;
+    .support-section h3 {
+      color: #047857;
       margin-bottom: 10px;
     }
     
-    .apology p {
-      color: #075985;
+    .support-section p {
+      color: #065f46;
     }
     
     .footer {
@@ -264,70 +264,74 @@ function generateUpgradeNotificationEmail(data) {
         SCAN<span class="number-2">2</span>TAP
       </div>
       <div class="tagline">Your Digital Identity, One Tap Away</div>
-      <div class="warning-badge">Important System Notice</div>
+      <div class="update-badge">Platform Enhancement</div>
     </div>
     
     <!-- Content -->
     <div class="content">
-      <div class="warning-icon">⚠️</div>
-      <h1 class="greeting">Important Database Upgrade Notice</h1>
+      <div class="enhancement-icon">🚀</div>
+      <h1 class="greeting">Exciting Platform Enhancements Coming Soon!</h1>
       
       <p class="message">
-        We hope this message finds you well. We are writing to inform you about an important system upgrade that will affect your SCAN2TAP account.
+        We hope this message finds you well! We're excited to share news about upcoming improvements to the SCAN2TAP platform that will enhance your digital networking experience.
       </p>
       
-      <div class="important-notice">
-        <h3>🔴 Critical Information</h3>
-        <p><strong>We will be performing a final database upgrade that requires clearing all existing user data.</strong></p>
-        <p>This means that all current profiles, settings, and user information will be permanently deleted from our system.</p>
+      <div class="enhancement-notice">
+        <h3>🔄 Platform Refresh</h3>
+        <p><strong>We're implementing major platform improvements that will require a fresh start for all user accounts.</strong></p>
+        <p>This enhancement will provide you with new features, better performance, and an improved user experience.</p>
       </div>
       
       <p class="message">
-        This upgrade is necessary to implement significant improvements to our platform, enhance security, and provide you with a better overall experience in the future.
+        These improvements include enhanced security, faster loading times, new customization options, and advanced analytics features that will take your digital business card to the next level.
       </p>
       
       <div class="timeline">
-        <h3>📋 What You Need to Know</h3>
+        <h3>📋 What to Expect</h3>
         <div class="timeline-item">
-          <span class="timeline-date">Before the upgrade:</span> Please save any important information from your profile
+          <span class="timeline-date">Preparation Phase:</span> Save any important information you'd like to re-add later
         </div>
         <div class="timeline-item">
-          <span class="timeline-date">During the upgrade:</span> The platform will be temporarily unavailable
+          <span class="timeline-date">Enhancement Period:</span> Brief platform downtime for improvements
         </div>
         <div class="timeline-item">
-          <span class="timeline-date">After the upgrade:</span> You can create a new account with improved features
+          <span class="timeline-date">Launch Phase:</span> Create your new profile with enhanced features
         </div>
         ${upgradeDate ? `<div class="timeline-item">
-          <span class="timeline-date">Scheduled Date:</span> ${upgradeDate}
+          <span class="timeline-date">Launch Date:</span> ${upgradeDate}
         </div>` : ''}
       </div>
       
       <p class="message">
-        We understand this may cause inconvenience, and we want to ensure you're fully informed about these changes. The new system will offer enhanced features, better performance, and improved security for all users.
+        This is an exciting opportunity to experience SCAN2TAP 2.0 with improved features, better design options, and enhanced functionality that will make your digital networking even more effective.
       </p>
       
-      <div class="apology">
-        <h3>💙 Our Sincere Apologies</h3>
-        <p>We sincerely apologize for any inconvenience this may cause. We appreciate your understanding and continued support as we work to improve SCAN2TAP for everyone.</p>
+      <div class="support-section">
+        <h3>🎯 We're Here to Help</h3>
+        <p>Our team is committed to making this transition as smooth as possible. We appreciate your patience and support as we evolve to serve you better.</p>
       </div>
       
       <p class="message">
-        If you have any questions or concerns about this upgrade, please don't hesitate to reach out to our support team. We're here to help and ensure a smooth transition.
+        If you have any questions about the platform enhancements, our support team is ready to assist you. We're excited about these improvements and can't wait for you to experience them!
       </p>
       
       <p class="message">
-        Thank you for being part of the SCAN2TAP community. We look forward to serving you with our enhanced platform soon.
+        Thank you for being a valued member of the SCAN2TAP community. Get ready for an even better digital networking experience!
       </p>
     </div>
     
     <!-- Footer -->
     <div class="footer">
       <div class="footer-text">
-        <strong>SCAN2TAP Support Team</strong><br>
+        <strong>SCAN2TAP Development Team</strong><br>
         Your Digital Identity, One Tap Away
       </div>
       <div class="footer-text">
         © 2025 SCAN2TAP. All rights reserved.
+      </div>
+      <div class="footer-text" style="font-size: 12px; margin-top: 15px; color: #9ca3af;">
+        This is an official communication from SCAN2TAP regarding platform improvements.<br>
+        If you have questions, contact us at support@richverseecotech.com
       </div>
     </div>
   </div>
