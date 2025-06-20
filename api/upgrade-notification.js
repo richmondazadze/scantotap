@@ -273,18 +273,24 @@ function generateUpgradeNotificationEmail(data) {
       <h1 class="greeting">Database Reset Notice</h1>
       
       <p class="message">
-        We are performing a complete database reset to improve our platform. This means <strong>all existing user data will be permanently deleted</strong>.
+        <strong>We are performing a complete database reset. All your existing data will be permanently deleted.</strong>
       </p>
       
       <div class="enhancement-notice">
-        <h3>📋 What This Means</h3>
+        <h3>📋 Important Information</h3>
         <p><strong>All profiles, settings, and account information will be lost.</strong></p>
-        <p>You will need to create a new account after the reset is complete.</p>
+        <p><strong>You can create a new account starting Monday, June 23rd.</strong></p>
       </div>
       
-      ${upgradeDate ? `<p class="message">
-        <strong>Reset Date:</strong> ${upgradeDate}
-      </p>` : ''}
+      <div class="timeline">
+        <h3>📅 Timeline</h3>
+        <div class="timeline-item">
+          <span class="timeline-date">Database Reset:</span> All existing data will be deleted
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-date">Monday, June 23rd:</span> You can create a new account
+        </div>
+      </div>
       
       <div class="support-section">
         <h3>🙏 Our Apologies</h3>
