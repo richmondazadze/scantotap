@@ -18,7 +18,6 @@ import {
   Clock,
   Zap,
   TrendingUp,
-
   Heart,
   Sparkles,
   CreditCard,
@@ -91,8 +90,6 @@ const LandingPage = () => {
     }
   }, []);
 
-
-
   const testimonials = [
     {
       name: "Sarah Chen",
@@ -161,7 +158,7 @@ const LandingPage = () => {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 overflow-x-hidden scroll-smooth">
-      {/* Animated background elements */}
+      {/* Animated background elements - contained and non-interfering */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
           animate={{
@@ -191,14 +188,14 @@ const LandingPage = () => {
 
       <Navigation />
       
-      {/* Hero Section */}
+      {/* Hero Section - enhanced mobile layout */}
       <motion.section 
         ref={heroRef}
         style={{ y: heroY, opacity: heroOpacity }}
-        className="relative flex items-center min-h-[80vh] lg:min-h-screen pt-24 sm:pt-32 lg:pt-20 pb-8 sm:pb-10 lg:pb-20 px-4 sm:px-6 lg:px-8 z-10 overflow-x-hidden"
+        className="relative flex items-center min-h-[80vh] lg:min-h-screen pt-24 sm:pt-28 lg:pt-20 pb-12 lg:pb-20 px-6 sm:px-8 lg:px-12 z-10"
       >
         <div className="w-full max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Left Column - Content */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -212,26 +209,23 @@ const LandingPage = () => {
               }}
               className="space-y-6 lg:space-y-8"
             >
-            <br></br>
             <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="inline-flex items-center px-4 py-2 sm:mt-4 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20"
+                className="inline-flex items-center px-4 py-3 mt-4 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20"
               >
-                
-                  <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
-                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                    The Future of Networking
-                  </span>
-                
+                <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
+                <span className="text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400">
+                  The Future of Networking
+                </span>
             </motion.div>
 
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 0.6 }}
-                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-center lg:text-left"
+                className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-center lg:text-left"
               >
                 {/* Mobile version - shorter and more concise */}
                 <span className="block sm:hidden">
@@ -270,7 +264,7 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 0.8 }}
-                className="text-lg sm:text-xl lg:text-2xl text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed text-center lg:text-left"
+                className="text-base sm:text-xl lg:text-2xl text-slate-600 dark:text-slate-300 leading-relaxed text-center lg:text-left font-medium"
             >
                 {t('landing.hero.subtitle')}
             </motion.p>
@@ -279,12 +273,12 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 1 }}
-                className="flex flex-col sm:flex-row gap-4 w-full justify-center lg:justify-start"
+                className="flex flex-col sm:flex-row gap-4 w-full justify-center lg:justify-start pt-2"
             >
               <Link to="/dashboard/profile" className="w-full sm:w-auto">
                   <Button 
                     size="lg" 
-                    className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 w-full sm:w-auto"
+                    className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold w-full sm:w-auto"
                   >
                     {t('landing.hero.getStarted')}
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -297,19 +291,19 @@ const LandingPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 1.2 }}
-                className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 pt-8"
+                className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-6 pt-6"
               >
                 <div className="flex items-center gap-2">
-                  <Check className="w-5 h-5 text-green-500" />
-                  <span className="text-sm text-slate-600 dark:text-slate-300">Free forever</span>
+                  <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
+                  <span className="text-sm sm:text-base font-medium text-slate-600 dark:text-slate-300">Free forever</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-blue-500" />
-                  <span className="text-sm text-slate-600 dark:text-slate-300">2-minute setup</span>
+                  <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                  <span className="text-sm sm:text-base font-medium text-slate-600 dark:text-slate-300">2-minute setup</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-purple-500" />
-                  <span className="text-sm text-slate-600 dark:text-slate-300">Privacy first</span>
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
+                  <span className="text-sm sm:text-base font-medium text-slate-600 dark:text-slate-300">Privacy first</span>
                 </div>
               </motion.div>
             </motion.div>
@@ -325,13 +319,13 @@ const LandingPage = () => {
                 stiffness: 100,
                 damping: 15
               }}
-              className="relative flex justify-center items-center overflow-hidden px-4 sm:px-0"
+              className="relative flex justify-center items-center px-4 sm:px-0"
             >
-              <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
+              <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl">
             <motion.img
               src="/card_model.png"
                   alt="Scan2Tap Digital Card"
-                  className="relative w-full h-auto object-contain rounded-xl shadow-l drop-shadow-2xl"
+                  className="relative w-full h-auto object-contain rounded-xl shadow-lg drop-shadow-2xl"
                   style={{ borderRadius: '12px' }}
               animate={{
                     y: [0, -20, 0],
@@ -348,7 +342,7 @@ const LandingPage = () => {
                   }}
                 />
 
-                {/* Floating elements - contained within image bounds */}
+                {/* Floating elements - properly contained */}
                 <motion.div
                   animate={{
                     y: [0, -10, 0],
@@ -360,9 +354,9 @@ const LandingPage = () => {
                     ease: "easeInOut",
                     delay: 1
                   }}
-                  className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white dark:bg-slate-800 rounded-full p-1.5 sm:p-2 md:p-3 shadow-lg"
+                  className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white dark:bg-slate-800 rounded-full p-2.5 shadow-lg"
                 >
-                  <QrCode className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-blue-500" />
+                  <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
                 </motion.div>
 
                 <motion.div
@@ -376,9 +370,9 @@ const LandingPage = () => {
                     ease: "easeInOut",
                     delay: 2
                   }}
-                  className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 bg-white dark:bg-slate-800 rounded-full p-1.5 sm:p-2 md:p-3 shadow-lg"
+                  className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white dark:bg-slate-800 rounded-full p-2.5 shadow-lg"
                 >
-                  <Share2 className="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-purple-500" />
+                  <Share2 className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
           </motion.div>
               </div>
             </motion.div>
@@ -386,14 +380,14 @@ const LandingPage = () => {
               </div>
       </motion.section>
 
-      {/* How it works section */}
+      {/* How it works section - optimized mobile typography */}
       <motion.section 
         id="how-it-works" 
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 pt-24 sm:pt-32 md:pt-20 overflow-x-hidden"
+        className="py-16 sm:py-20 lg:py-24 px-6 sm:px-8 lg:px-12"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
@@ -413,7 +407,7 @@ const LandingPage = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
-              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6"
+              className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 sm:mb-6"
             >
               How It <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Works</span>
             </motion.h2>
@@ -422,13 +416,13 @@ const LandingPage = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
               viewport={{ once: true }}
-              className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed"
+              className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 leading-relaxed font-medium"
             >
               Get started in minutes with our simple three-step process
             </motion.p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 md:gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 lg:gap-12">
             {[
               {
                 icon: User,
@@ -465,51 +459,46 @@ const LandingPage = () => {
                 }}
                 className="relative group"
               >
-                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-500 border border-slate-200/50 dark:border-slate-700/50 group-hover:border-blue-500/50 h-full flex flex-col relative overflow-hidden">
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 lg:p-10 shadow-sm hover:shadow-md transition-all duration-500 border border-slate-200/50 dark:border-slate-700/50 group-hover:border-blue-500/50 h-full flex flex-col relative overflow-hidden">
                   {/* Animated background gradient on hover */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   
-                  <div className="flex items-center justify-center w-16 h-16 sm:w-18 sm:h-18 lg:w-20 lg:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6 mx-auto group-hover:scale-110 transition-all duration-300 shadow-lg">
-                    <step.icon className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 text-white" />
+                  <div className="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-6 sm:mb-8 mx-auto group-hover:scale-110 transition-all duration-300 shadow-lg">
+                    <step.icon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                   </div>
                   
-                  {/* Desktop number positioning */}
-                  <div className="hidden md:block absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                  {/* Step number */}
+                  <div className="absolute -top-3 -right-3 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-lg">
                     {i + 1}
                   </div>
                   
-                  {/* Mobile number positioning */}
-                  <div className="md:hidden absolute -top-10 left-1/2 transform -translate-x-1/2 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-base shadow-lg z-20">
-                    {i + 1}
-                  </div>
-                  
-                  <h3 className="text-xl sm:text-2xl font-bold mb-4 text-center relative z-10 text-slate-900 dark:text-white">{step.title}</h3>
-                  <p className="text-slate-600 dark:text-slate-300 text-center leading-relaxed flex-grow relative z-10 text-base sm:text-lg">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6 text-center relative z-10 text-slate-900 dark:text-white">{step.title}</h3>
+                  <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 text-center leading-relaxed flex-grow relative z-10 font-medium">
                   {step.description}
                 </p>
                 </div>
                 
                 {/* Desktop arrows */}
                 {i < 2 && (
-                  <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                  <div className="hidden md:block absolute top-1/2 -right-6 transform -translate-y-1/2 z-10">
                     <motion.div
                       animate={{ x: [0, 5, 0] }}
                       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                     >
-                      <ArrowRight className="w-6 h-6 text-slate-400" />
+                      <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" />
                     </motion.div>
                   </div>
                 )}
                 
                 {/* Mobile arrows - vertical */}
                 {i < 2 && (
-                  <div className="md:hidden absolute -bottom-6 left-1/2 transform -translate-x-1/2 z-10">
+                  <div className="md:hidden absolute -bottom-4 left-1/2 transform -translate-x-1/2 z-10">
                     <motion.div
                       animate={{ y: [0, 5, 0] }}
                       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      className="w-8 h-8 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-lg border-2 border-blue-500/20"
+                      className="w-6 h-6 sm:w-8 sm:h-8 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-lg border-2 border-blue-500/20"
                     >
-                      <ArrowRight className="w-5 h-5 text-blue-500 rotate-90" />
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 rotate-90" />
                     </motion.div>
                   </div>
                 )}
@@ -519,7 +508,7 @@ const LandingPage = () => {
         </div>
       </motion.section>
 
-      {/* Features section */}
+      {/* Features section - optimized mobile typography */}
       <motion.section 
         ref={featuresRef}
         id="features" 
@@ -527,7 +516,7 @@ const LandingPage = () => {
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50/50 dark:bg-slate-900/50 overflow-x-hidden"
+        className="py-16 sm:py-20 lg:py-24 px-6 sm:px-8 lg:px-12 bg-slate-50/50 dark:bg-slate-900/50"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
@@ -537,15 +526,15 @@ const LandingPage = () => {
             viewport={{ once: true }}
             className="text-center mb-12 sm:mb-16 lg:mb-20"
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 sm:mb-6">
               Powerful <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Features</span>
             </h2>
-            <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               Everything you need to create and share your digital identity professionally
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12">
             {features.map((feature, i) => (
               <motion.div
                 key={feature.title}
@@ -566,20 +555,20 @@ const LandingPage = () => {
                 }}
                 className="group relative"
               >
-                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-500 border border-slate-200/50 dark:border-slate-700/50 group-hover:border-transparent overflow-hidden h-full flex flex-col relative">
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 lg:p-10 shadow-sm hover:shadow-md transition-all duration-500 border border-slate-200/50 dark:border-slate-700/50 group-hover:border-transparent overflow-hidden h-full flex flex-col relative">
                   <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-15 transition-opacity duration-500`} />
                   <motion.div 
-                    className={`flex items-center justify-center w-16 h-16 sm:w-18 sm:h-18 lg:w-20 lg:h-20 bg-gradient-to-br ${feature.color} rounded-2xl mb-6 shadow-lg relative z-10`}
+                    className={`flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br ${feature.color} rounded-xl mb-6 sm:mb-8 shadow-lg relative z-10`}
                     whileHover={{ 
                       scale: 1.15, 
                       rotate: 5,
                       transition: { duration: 0.3, type: "spring", stiffness: 300 }
                     }}
                   >
-                    <feature.icon className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 text-white" />
+                    <feature.icon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                   </motion.div>
-                  <h3 className="text-xl sm:text-2xl font-bold mb-4 relative z-10 text-slate-900 dark:text-white">{feature.title}</h3>
-                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed flex-grow relative z-10 text-base sm:text-lg">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6 relative z-10 text-slate-900 dark:text-white">{feature.title}</h3>
+                  <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed flex-grow relative z-10 font-medium">
                     {feature.description}
                   </p>
                 </div>
@@ -589,13 +578,13 @@ const LandingPage = () => {
         </div>
       </motion.section>
 
-      {/* Testimonials Section */}
+      {/* Testimonials Section - optimized mobile typography */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-x-hidden"
+        className="py-16 sm:py-20 lg:py-24 px-6 sm:px-8 lg:px-12"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
@@ -605,16 +594,38 @@ const LandingPage = () => {
                 viewport={{ once: true }}
             className="text-center mb-12 sm:mb-16 lg:mb-20"
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 sm:mb-6">
               Loved by <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Professionals</span>
             </h2>
-            <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               See what our users say about transforming their networking experience
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
-            {testimonials.map((testimonial, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12">
+            {[
+              {
+                name: "Kwame Asante",
+                role: "Marketing Director",
+                company: "Tech Ghana",
+                content: "Scan2Tap has completely transformed how I network at events. One tap and people have all my information instantly.",
+                rating: 5
+              },
+              {
+                name: "Sarah Johnson",
+                role: "Business Development",
+                company: "StartupLab",
+                content: "The analytics feature helps me understand which content resonates most with my audience. It's incredibly valuable.",
+                rating: 5
+              },
+              {
+                name: "Michael Chen",
+                role: "Creative Director",
+                company: "Design Studio",
+                content: "Professional, sleek, and so much more convenient than traditional business cards. My clients love it.",
+                rating: 5
+              }
+            ].map((testimonial, i) => (
               <motion.div
                 key={testimonial.name}
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
@@ -632,12 +643,12 @@ const LandingPage = () => {
                   scale: 1.02,
                   transition: { duration: 0.3 }
                 }}
-                className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-500 border border-slate-200/50 dark:border-slate-700/50 hover:border-blue-500/30 relative overflow-hidden group"
+                className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 lg:p-10 shadow-sm hover:shadow-md transition-all duration-500 border border-slate-200/50 dark:border-slate-700/50 hover:border-blue-500/30 relative overflow-hidden group"
               >
                 {/* Subtle background gradient on hover */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
-                <div className="flex items-center gap-1 mb-4 relative z-10">
+                <div className="flex items-center gap-1 mb-4 sm:mb-6 relative z-10">
                   {[...Array(testimonial.rating)].map((_, i) => (
                 <motion.div
                       key={i}
@@ -651,28 +662,19 @@ const LandingPage = () => {
                   }}
                       viewport={{ once: true }}
                 >
-                      <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                      <Star className="w-5 h-5 sm:w-6 sm:h-6 fill-yellow-400 text-yellow-400" />
                 </motion.div>
                   ))}
                 </div>
-                <p className="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed relative z-10 text-base sm:text-lg">
+                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mb-6 sm:mb-8 leading-relaxed relative z-10 font-medium">
                   "{testimonial.content}"
                 </p>
-                <div className="flex items-center gap-4 relative z-10">
-                  <motion.img
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover shadow-lg"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <div>
-                    <div className="font-semibold text-slate-900 dark:text-white text-base sm:text-lg">
-                      {testimonial.name}
-                    </div>
-                    <div className="text-sm sm:text-base text-slate-600 dark:text-slate-300">
-                      {testimonial.role} at {testimonial.company}
-                    </div>
+                <div className="relative z-10">
+                  <div className="font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+                    {testimonial.name}
+                  </div>
+                  <div className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium">
+                    {testimonial.role} at {testimonial.company}
                   </div>
                 </div>
               </motion.div>
@@ -681,13 +683,13 @@ const LandingPage = () => {
         </div>
       </motion.section>
 
-      {/* CTA Section */}
+      {/* CTA Section - optimized mobile typography */}
       <motion.section 
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white relative overflow-hidden"
+        className="py-16 sm:py-20 lg:py-24 px-6 sm:px-8 lg:px-12 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white relative overflow-hidden"
       >
         {/* Background patterns */}
         <div className="absolute inset-0 opacity-10">
@@ -701,24 +703,24 @@ const LandingPage = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="max-w-5xl mx-auto text-center relative z-10"
+          className="max-w-6xl mx-auto text-center relative z-10"
         >
           <motion.div 
             initial={{ scale: 0 }}
             whileInView={{ scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 bg-white/20 rounded-full mb-6">
-              <Target className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white/20 rounded-full mb-6 sm:mb-8">
+              <Target className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </div>
           </motion.div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-6 sm:mb-8">
             Ready to Transform Your Networking?
           </h2>
-          <p className="text-lg sm:text-xl lg:text-2xl text-white/90 max-w-4xl mx-auto mb-10 leading-relaxed">
+          <p className="text-base sm:text-xl text-white/90 mb-8 sm:mb-10 leading-relaxed font-medium">
             Join thousands of professionals who are connecting smarter, not harder. Start building your digital presence today.
           </p>
           
@@ -727,14 +729,14 @@ const LandingPage = () => {
              whileInView={{ opacity: 1, y: 0 }}
              transition={{ duration: 0.8, delay: 0.4 }}
              viewport={{ once: true }}
-             className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full"
+             className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center w-full"
           >
                          <Link to="/dashboard/profile" className="w-full sm:w-auto">
               <Button 
                 size="lg" 
-                 className="bg-white text-blue-600 hover:bg-slate-100 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 font-semibold w-full sm:w-auto"
+                 className="bg-white text-blue-600 hover:bg-slate-100 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3 sm:px-10 sm:py-4 font-bold text-base sm:text-lg w-full sm:w-auto"
               >
-                 <Rocket className="mr-2 w-5 h-5" />
+                 <Rocket className="mr-2 w-5 h-5 sm:w-6 sm:h-6" />
                  Get Started Free
                </Button>
              </Link>
@@ -742,7 +744,7 @@ const LandingPage = () => {
                <Button
                  variant="outline"
                  size="lg"
-                 className="bg-blue-600 text-white hover:bg-white hover:text-blue-600 transition-colors px-8 font-semibold w-full sm:w-auto"
+                 className="bg-blue-600 text-white hover:bg-white hover:text-blue-600 transition-colors px-8 py-3 sm:px-10 sm:py-4 font-bold text-base sm:text-lg w-full sm:w-auto"
                >
                  View Pricing
               </Button>
@@ -754,19 +756,19 @@ const LandingPage = () => {
              whileInView={{ opacity: 1 }}
              transition={{ duration: 0.8, delay: 0.6 }}
              viewport={{ once: true }}
-             className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-white/80 text-sm"
+             className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-8 text-white/80 text-sm sm:text-base"
            >
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4" />
-              <span>Free forever plan</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="font-medium">Free forever plan</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4" />
-              <span>No credit card required</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="font-medium">No credit card required</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4" />
-              <span>Setup in 2 minutes</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="font-medium">Setup in 2 minutes</span>
             </div>
           </motion.div>
         </motion.div>

@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import OrderEmailService, { OrderEmailData } from '@/services/orderEmailService';
+import { GhanaLocationService } from '@/services/ghanaLocationService';
 
 export interface OrderData {
   // Design details
@@ -59,6 +60,42 @@ export const orderService = {
     const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
     const userId = Math.random().toString(36).substring(2, 6).toUpperCase();
     return `ORD-${timestamp}-${userId}-${random}`;
+  },
+
+  /**
+   * Calculate Ghana-specific shipping
+   */
+  calculateGhanaShipping(
+    city: string,
+    region: string,
+    orderTotal: number,
+    quantity: number = 1
+  ): {
+    success: boolean;
+    cost?: number;
+    deliveryDays?: string;
+    region?: any;
+    isFree?: boolean;
+    error?: string;
+  } {
+    try {
+      const result = GhanaLocationService.calculateShipping(city, region, orderTotal, quantity);
+      
+      if (result.success && result.data) {
+        return {
+          success: true,
+          cost: result.data.cost,
+          deliveryDays: result.data.deliveryDays,
+          region: result.data.region,
+          isFree: result.data.isFree
+        };
+      }
+
+      return { success: false, error: result.error || 'Failed to calculate shipping' };
+    } catch (error) {
+      console.error('Error calculating Ghana shipping:', error);
+      return { success: false, error: 'Shipping calculation failed' };
+    }
   },
 
   // Helper function to convert order to email data

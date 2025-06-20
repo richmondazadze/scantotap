@@ -321,8 +321,8 @@ class EmailService {
       h1 { font-size: 24px; }
       h2 { font-size: 20px; }
       .cta-button, .secondary-button { 
-        display: block; 
-        width: 100%; 
+        display: block;
+        width: 100%;
         margin: 10px 0;
         box-sizing: border-box;
       }
@@ -330,34 +330,34 @@ class EmailService {
   </style>
 </head>
 <body>
-  <div class="email-container">
-    <!-- Header -->
-    <div class="header">
-      <div class="logo">
+          <div class="email-container">
+            <!-- Header -->
+            <div class="header">
+              <div class="logo">
         SCAN<span class="number-2">2</span>TAP
-      </div>
+              </div>
       <div class="tagline">Your Digital Identity, One Tap Away</div>
-    </div>
-    
-    <!-- Content -->
-    <div class="content">
-      ${content}
-    </div>
-    
-    <!-- Footer -->
-    <div class="footer">
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+              ${content}
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer">
       <div class="footer-text">
         <strong>Scan2Tap</strong><br>
         Making networking effortless with digital business cards
-      </div>
+              </div>
       <div class="footer-text">
         <a href="https://scan2tap.vercel.app" class="footer-link">www.scan2tap.vercel.app</a>
-      </div>
+              </div>
       <div class="footer-text" style="font-size: 12px; margin-top: 15px;">
         This email was sent from your Scan2Tap account.<br>
         If you have any questions, please contact our support team.
-      </div>
-    </div>
+              </div>
+            </div>
   </div>
 </body>
 </html>`;

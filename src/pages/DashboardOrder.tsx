@@ -31,6 +31,8 @@ import {
   AlertCircle
 } from 'lucide-react';
 import Loading from '@/components/ui/loading';
+import GhanaLocationSelector from '@/components/GhanaLocationSelector';
+import DeliveryLocationNotice from '@/components/DeliveryLocationNotice';
 
 // Convert inventory data to display format
 const convertCardTypeToDesign = (cardType: CardType) => ({
@@ -145,6 +147,14 @@ export default function DashboardOrder() {
     zipCode: '',
     country: 'Ghana',
     specialInstructions: ''
+  });
+
+  // Ghana location state
+  const [ghanaLocation, setGhanaLocation] = useState({
+    city: '',
+    region: '',
+    shippingCost: 0,
+    deliveryDays: ''
   });
 
   // Load inventory data
@@ -282,7 +292,7 @@ export default function DashboardOrder() {
   const basePrice = selectedDesign?.price || 0;
   const materialPrice = selectedMaterial?.priceModifier || 0;
   const subtotal = (basePrice + materialPrice) * quantity;
-  const shipping = quantity > 5 ? 0 : 5; // Free shipping for 5+ cards
+  const shipping = ghanaLocation.shippingCost; // Use Ghana location-based shipping
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + shipping + tax;
 
@@ -293,6 +303,19 @@ export default function DashboardOrder() {
 
   const handleOrderFormChange = (field: string, value: string) => {
     setOrderForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Handle Ghana location selection
+  const handleGhanaLocationSelect = (city: string, region: string, shippingCost: number, deliveryDays: string) => {
+    setGhanaLocation({ city, region, shippingCost, deliveryDays });
+    
+    // Update order form with location
+    setOrderForm(prev => ({
+      ...prev,
+      city,
+      state: region,
+      country: 'Ghana'
+    }));
   };
 
   const handleCancelOrder = async (orderId: string) => {
@@ -916,97 +939,111 @@ export default function DashboardOrder() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 p-4 sm:p-6">
-              {/* Personal Information */}
-              <div>
-                <h3 className="font-semibold mb-3">Personal Information</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* International User Notice */}
+              <DeliveryLocationNotice />
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Left Column - Customer Information */}
+                <div className="space-y-6">
+                  {/* Personal Information */}
                   <div>
-                    <label className="block text-sm font-medium mb-1">First Name *</label>
-                    <Input
-                      value={orderForm.firstName}
-                      onChange={(e) => handleOrderFormChange('firstName', e.target.value)}
-                      placeholder="John"
-                    />
+                    <h3 className="font-semibold mb-3">Customer Information</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">First Name *</label>
+                        <Input
+                          value={orderForm.firstName}
+                          onChange={(e) => handleOrderFormChange('firstName', e.target.value)}
+                          placeholder="John"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Last Name *</label>
+                        <Input
+                          value={orderForm.lastName}
+                          onChange={(e) => handleOrderFormChange('lastName', e.target.value)}
+                          placeholder="Doe"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Email *</label>
+                        <Input
+                          type="email"
+                          value={orderForm.email}
+                          onChange={(e) => handleOrderFormChange('email', e.target.value)}
+                          placeholder="john@example.com"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Phone</label>
+                        <Input
+                          type="tel"
+                          value={orderForm.phone}
+                          onChange={(e) => handleOrderFormChange('phone', e.target.value)}
+                          placeholder="+233 20 123 4567"
+                        />
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Ghana Delivery Address */}
                   <div>
-                    <label className="block text-sm font-medium mb-1">Last Name *</label>
-                    <Input
-                      value={orderForm.lastName}
-                      onChange={(e) => handleOrderFormChange('lastName', e.target.value)}
-                      placeholder="Doe"
-                    />
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold">Ghana Delivery Address</h3>
+                      <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300">
+                        🇬🇭 Ghana Only
+                      </Badge>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Street Address *</label>
+                        <Input
+                          value={orderForm.address}
+                          onChange={(e) => handleOrderFormChange('address', e.target.value)}
+                          placeholder="123 Main Street, Neighborhood"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">ZIP/Postal Code</label>
+                        <Input
+                          value={orderForm.zipCode}
+                          onChange={(e) => handleOrderFormChange('zipCode', e.target.value)}
+                          placeholder="Optional"
+                        />
+                      </div>
+                      {/* Show selected location */}
+                      {ghanaLocation.city && (
+                        <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                          <div className="text-sm text-green-700 dark:text-green-300">
+                            📍 <strong>Delivering to:</strong> {ghanaLocation.city}, {ghanaLocation.region}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
+
+                  {/* Special Instructions */}
                   <div>
-                    <label className="block text-sm font-medium mb-1">Email *</label>
-                    <Input
-                      type="email"
-                      value={orderForm.email}
-                      onChange={(e) => handleOrderFormChange('email', e.target.value)}
-                      placeholder="john@example.com"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Phone</label>
-                    <Input
-                      type="tel"
-                      value={orderForm.phone}
-                      onChange={(e) => handleOrderFormChange('phone', e.target.value)}
-                      placeholder="+233 20 123 4567"
+                    <label className="block text-sm font-medium mb-1">Special Instructions</label>
+                    <Textarea
+                      value={orderForm.specialInstructions}
+                      onChange={(e) => handleOrderFormChange('specialInstructions', e.target.value)}
+                      placeholder="Any special delivery instructions..."
+                      rows={3}
                     />
                   </div>
                 </div>
-              </div>
 
-              {/* Shipping Address */}
-              <div>
-                <h3 className="font-semibold mb-3">Shipping Address</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Address *</label>
-                    <Input
-                      value={orderForm.address}
-                      onChange={(e) => handleOrderFormChange('address', e.target.value)}
-                      placeholder="123 Main Street"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">City *</label>
-                      <Input
-                        value={orderForm.city}
-                        onChange={(e) => handleOrderFormChange('city', e.target.value)}
-                        placeholder="Accra"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">State *</label>
-                      <Input
-                        value={orderForm.state}
-                        onChange={(e) => handleOrderFormChange('state', e.target.value)}
-                        placeholder="Greater Accra"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">ZIP Code *</label>
-                      <Input
-                        value={orderForm.zipCode}
-                        onChange={(e) => handleOrderFormChange('zipCode', e.target.value)}
-                        placeholder="00233"
-                      />
-                    </div>
-                  </div>
+                {/* Right Column - Ghana Location Selection */}
+                <div>
+                  <GhanaLocationSelector
+                    onLocationSelect={handleGhanaLocationSelect}
+                    orderTotal={subtotal}
+                    quantity={quantity}
+                    currentCity={ghanaLocation.city}
+                    currentRegion={ghanaLocation.region}
+                  />
                 </div>
-              </div>
-
-              {/* Special Instructions */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Special Instructions</label>
-                <Textarea
-                  value={orderForm.specialInstructions}
-                  onChange={(e) => handleOrderFormChange('specialInstructions', e.target.value)}
-                  placeholder="Any special delivery instructions..."
-                  rows={3}
-                />
               </div>
 
               {/* Order Summary */}
@@ -1023,10 +1060,24 @@ export default function DashboardOrder() {
                           <span className="font-mono text-gray-900 dark:text-white tracking-wide">₵{(materialPrice * quantity).toFixed(2)}</span>
                         </div>
                       )}
-                      <div className="flex justify-between">
-                        <span>Shipping</span>
-                        <span className="font-mono text-gray-900 dark:text-white tracking-wide">{shipping === 0 ? 'Free' : `₵${shipping.toFixed(2)}`}</span>
+                      <div className="flex justify-between items-center">
+                        <span>
+                          Shipping {ghanaLocation.city && `to ${ghanaLocation.city}`}
+                          {ghanaLocation.deliveryDays && (
+                            <span className="text-xs text-gray-500 ml-1">
+                              ({ghanaLocation.deliveryDays})
+                            </span>
+                          )}
+                        </span>
+                        <span className="font-mono text-gray-900 dark:text-white tracking-wide">
+                          {shipping === 0 ? 'FREE' : `₵${shipping.toFixed(2)}`}
+                        </span>
                       </div>
+                      {shipping === 0 && ghanaLocation.city && (
+                        <div className="text-xs text-green-600 dark:text-green-400 pl-4">
+                          🎉 {quantity >= 5 ? 'Free shipping for 5+ cards!' : 'Free shipping applied!'}
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <span>Tax</span>
                         <span className="font-mono text-gray-900 dark:text-white tracking-wide">₵{tax.toFixed(2)}</span>
@@ -1061,7 +1112,7 @@ export default function DashboardOrder() {
                 </Button>
                 <Button 
                   onClick={handlePlaceOrder}
-                  disabled={isSubmittingOrder}
+                  disabled={isSubmittingOrder || !ghanaLocation.city}
                   className="w-full sm:flex-1 bg-gradient-to-r from-scan-blue to-scan-purple order-1 sm:order-2"
                 >
                   {isSubmittingOrder ? (
@@ -1070,6 +1121,8 @@ export default function DashboardOrder() {
                       <span className="hidden sm:inline">Processing Payment...</span>
                       <span className="sm:hidden">Processing...</span>
                     </>
+                  ) : !ghanaLocation.city ? (
+                    'Select Location to Continue'
                   ) : (
                     <>
                       <Zap className="w-4 h-4 mr-2" />
@@ -1079,9 +1132,15 @@ export default function DashboardOrder() {
                   )}
                 </Button>
               </div>
+              
+              {!ghanaLocation.city && (
+                <p className="text-sm text-gray-500 text-center mt-2">
+                  Please select your city to calculate shipping costs and continue
+                </p>
+              )}
             </CardContent>
           </Card>
-      </motion.div>
+        </motion.div>
       )}
 
     </div>

@@ -71,11 +71,11 @@ const AdminQRViewer: React.FC<AdminQRViewerProps> = ({ profile }) => {
 
       // Now generate QR code using the qrcode library with the loaded logo
       const { default: QRCode } = await import('qrcode');
-      
-      const canvas = document.createElement('canvas');
-      canvas.width = qrSize;
-      canvas.height = qrSize;
-      const ctx = canvas.getContext('2d');
+
+    const canvas = document.createElement('canvas');
+    canvas.width = qrSize;
+    canvas.height = qrSize;
+    const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Could not get canvas context');
 
       // Generate QR code to canvas

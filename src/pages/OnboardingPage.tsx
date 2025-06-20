@@ -564,14 +564,14 @@ function ProfileStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitti
               className="h-8 text-sm font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 text-white border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
             >
               <span className="flex items-center">
-                {generatingBio ? (
-                  <Loading size="sm" />
-                ) : (
+              {generatingBio ? (
+                <Loading size="sm" />
+              ) : (
                   <>
                     <Wand2 className="w-4 h-4 mr-1" />
                     <span className="font-bold">✨ AI</span>
                   </>
-                )}
+              )}
               </span>
             </Button>
           </div>

@@ -131,7 +131,7 @@ const Navigation = () => {
                   <Menu size={24} />
                 </button>
               </DrawerTrigger>
-              <DrawerContent className="max-h-[90vh] pb-8">
+              <DrawerContent className="pb-8">
                 <div className="px-4 pt-6 pb-2">
                   <div className="flex items-center justify-between mb-6">
                     <Link to="/" className="flex-shrink-0 flex items-center gap-2">

@@ -13,33 +13,33 @@ import Scan2TapLogo from "@/components/Scan2TapLogo";
 
 const Footer = () => {
   return (
-    <footer className="bg-scan-dark text-white py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="mb-8 md:mb-0 md:col-span-2">
-            <Link to="/" className="flex-shrink-0 flex items-center gap-2">
+    <footer className="bg-scan-dark text-white py-16 sm:py-20">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 sm:gap-12 lg:gap-16">
+          <div className="mb-10 md:mb-0 md:col-span-2">
+            <Link to="/" className="flex-shrink-0 flex items-center gap-2 mb-6">
               <Scan2TapLogo />
             </Link>
-            <p className="mt-4 text-sm text-gray-300 max-w-md">
+            <p className="text-base sm:text-lg text-gray-300 max-w-md leading-relaxed">
               Your digital identity, one tap away. Scan2Tap helps professionals connect instantly with a smart business card that's as unique as you are.
             </p>
-            <div className="mt-6 space-x-4 flex">
+            <div className="mt-8 space-x-6 flex">
               <a href="#" className="text-scan-blue-light hover:text-scan-blue transition-colors hover:scale-110 transform">
-                <Twitter size={24} />
+                <Twitter size={28} />
               </a>
               <a href="#" className="text-scan-blue-light hover:text-scan-blue transition-colors hover:scale-110 transform">
-                <Linkedin size={24} />
+                <Linkedin size={28} />
               </a>
               <a href="#" className="text-scan-blue-light hover:text-scan-blue transition-colors hover:scale-110 transform">
-                <Instagram size={24} />
+                <Instagram size={28} />
               </a>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 md:col-span-2">
+          <div className="grid grid-cols-2 gap-10 sm:gap-12 md:col-span-2">
           <div>
-            <h3 className="text-lg font-semibold mb-4">Platform</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="text-xl font-bold mb-6">Platform</h3>
+            <ul className="space-y-4 text-base">
               <li>
                 <Link to="/dashboard" className="text-gray-300 hover:text-scan-blue transition-colors">
                   Dashboard
@@ -54,8 +54,8 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Company</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="text-xl font-bold mb-6">Company</h3>
+            <ul className="space-y-4 text-base">
               <li>
                 <a href="#" className="text-gray-300 hover:text-scan-blue transition-colors">
                   About Us
@@ -69,104 +69,160 @@ const Footer = () => {
               <li>
                 <Dialog>
                   <DialogTrigger className="text-gray-300 hover:text-scan-blue transition-colors flex items-center gap-2 text-left">
-                    <Shield size={16} />
+                    <Shield size={18} />
                     Privacy Policy
                   </DialogTrigger>
-                  <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden bg-gradient-to-br from-white/95 via-blue-50/90 to-indigo-100/95 dark:from-slate-900/95 dark:via-slate-800/90 dark:to-slate-700/95 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-2xl rounded-xl">
+                  <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-4xl max-h-[85vh] bg-gradient-to-br from-white/95 via-blue-50/90 to-indigo-100/95 dark:from-slate-900/95 dark:via-slate-800/90 dark:to-slate-700/95 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-2xl rounded-xl">
                     {/* Animated background elements */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
                       <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
                       <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-cyan-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
                     </div>
                     
-                    <div className="relative p-4 sm:p-1">
-                      <DialogHeader className="pb-6 border-b border-slate-200/50 dark:border-slate-700/50">
-                        <DialogTitle className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-900 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent flex items-center gap-2 sm:gap-3">
-                          <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg">
-                            <Shield size={20} className="sm:w-6 sm:h-6 text-white" />
+                    <div className="relative">
+                      <DialogHeader className="p-4 sm:p-6 pb-4 border-b border-slate-200/50 dark:border-slate-700/50">
+                        <DialogTitle className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-900 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent flex items-center gap-2 sm:gap-3">
+                          <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg flex-shrink-0">
+                            <Shield size={16} className="sm:w-5 sm:h-5 text-white" />
                           </div>
                         Privacy Policy
                       </DialogTitle>
-                        <p className="text-slate-600 dark:text-slate-300 mt-2 text-base sm:text-lg">
-                          Your privacy and data protection are our top priorities
+                        <p className="text-slate-600 dark:text-slate-300 mt-2 text-sm sm:text-base">
+                          Your privacy and data protection are our highest priorities
                         </p>
                       </DialogHeader>
                       
-                      <div className="mt-6 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600 scrollbar-track-transparent pr-2">
-                        <div className="space-y-8">
-                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-700/50 p-4 rounded-lg border border-blue-200/50 dark:border-slate-600/50">
-                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                              <span className="font-semibold text-blue-600 dark:text-blue-400">Last updated:</span> May 16, 2025
+                      <div className="max-h-[55vh] overflow-y-auto p-4 sm:p-6">
+                        <div className="space-y-6 sm:space-y-8">
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-700/50 p-3 sm:p-4 rounded-lg border border-blue-200/50 dark:border-slate-600/50">
+                            <p className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+                              <span className="font-semibold text-blue-600 dark:text-blue-400">Last updated:</span> June 20, 2025
                             </p>
                           </div>
                           
-                          <div className="space-y-6">
-                                                         <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">1</span>
-                                 Data Collection
-                               </h3>
-                               <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-8 sm:pl-10 text-sm sm:text-base">
-                                 We collect personal information that you voluntarily provide when creating your Scan2Tap profile, including your name, email address, profile image, contact information, and any links you choose to add to your profile.
-                               </p>
-                             </div>
+                          <div className="space-y-4 sm:space-y-6">
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">1</span>
+                                Information We Collect
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base mb-3">
+                                We collect information you provide directly to us, including:
+                              </p>
+                              <ul className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base list-disc ml-4 space-y-1">
+                                <li>Personal identification information (name, email address, phone number)</li>
+                                <li>Profile information and content you choose to share</li>
+                                <li>Account preferences and settings</li>
+                                <li>Communication records when you contact our support</li>
+                                <li>Payment information processed securely through third-party providers</li>
+                              </ul>
+                            </div>
                             
-                                                         <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">2</span>
-                                 QR Code Access
-                               </h3>
-                               <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-8 sm:pl-10 text-sm sm:text-base">
-                                 When someone scans your QR code, we collect basic analytics data such as time of scan, approximate location (city/country level), and device type. This information is used to provide you with insights about your profile's visibility.
-                               </p>
-                             </div>
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">2</span>
+                                Automatic Data Collection
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base mb-3">
+                                We automatically collect certain information when you use our services:
+                              </p>
+                              <ul className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base list-disc ml-4 space-y-1">
+                                <li>Device information (IP address, browser type, operating system)</li>
+                                <li>Usage analytics (pages visited, time spent, click patterns)</li>
+                                <li>QR code scan data (timestamp, general location, device type)</li>
+                                <li>Technical data for service optimization and security</li>
+                              </ul>
+                            </div>
                              
-                             <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">3</span>
-                                 Data Usage
-                               </h3>
-                               <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-8 sm:pl-10 text-sm sm:text-base">
-                                 The information we collect is used to provide and improve our services, process transactions, send notifications about your account, and provide customer support.
-                               </p>
-                             </div>
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">3</span>
+                                How We Use Your Information
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base mb-3">
+                                We use collected information for legitimate business purposes including:
+                              </p>
+                              <ul className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base list-disc ml-4 space-y-1">
+                                <li>Providing and maintaining our digital identity services</li>
+                                <li>Processing transactions and fulfilling orders</li>
+                                <li>Improving our services and user experience</li>
+                                <li>Providing customer support and responding to inquiries</li>
+                                <li>Sending service-related communications and updates</li>
+                                <li>Protecting against fraud and ensuring platform security</li>
+                              </ul>
+                            </div>
                              
-                             <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">4</span>
-                                 Third-Party Sharing
-                               </h3>
-                               <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-8 sm:pl-10 text-sm sm:text-base">
-                                 We do not share your personal information with third parties except as necessary to provide our services (such as processing payments or shipping cards) or as required by law.
-                               </p>
-                             </div>
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">4</span>
+                                Information Sharing and Disclosure
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base mb-3">
+                                We do not sell or rent your personal information. We may share information only in these limited circumstances:
+                              </p>
+                              <ul className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base list-disc ml-4 space-y-1">
+                                <li>With service providers who assist in business operations under strict confidentiality</li>
+                                <li>When required by law or legal process</li>
+                                <li>To protect our rights, property, or safety, or that of others</li>
+                                <li>In connection with a business transfer or acquisition (with notice)</li>
+                                <li>With your explicit consent for specific purposes</li>
+                              </ul>
+                            </div>
                              
-                             <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">5</span>
-                                 Data Security
-                               </h3>
-                               <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-8 sm:pl-10 text-sm sm:text-base">
-                                 We implement appropriate security measures to protect against unauthorized access, alteration, disclosure, or destruction of your personal information.
-                               </p>
-                             </div>
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">5</span>
+                                Data Security and Retention
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base mb-3">
+                                We implement appropriate technical and organizational measures to protect your information:
+                              </p>
+                              <ul className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base list-disc ml-4 space-y-1">
+                                <li>Industry-standard encryption for data transmission and storage</li>
+                                <li>Regular security assessments and updates</li>
+                                <li>Limited access controls and employee training</li>
+                                <li>Data retention only for as long as necessary for stated purposes</li>
+                                <li>Secure data deletion when no longer required</li>
+                              </ul>
+                            </div>
+
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">6</span>
+                                Your Rights and Choices
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base mb-3">
+                                You have the following rights regarding your personal information:
+                              </p>
+                              <ul className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base list-disc ml-4 space-y-1">
+                                <li>Access and review your personal information</li>
+                                <li>Request corrections to inaccurate data</li>
+                                <li>Request deletion of your account and associated data</li>
+                                <li>Control marketing communications preferences</li>
+                                <li>Data portability where technically feasible</li>
+                                <li>Withdraw consent for optional data processing</li>
+                              </ul>
+                            </div>
                              
-                             <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">6</span>
-                                 Contact Us
-                               </h3>
-                               <div className="pl-8 sm:pl-10">
-                                 <p className="text-slate-700 dark:text-slate-300 leading-relaxed mb-3 text-sm sm:text-base">
-                                   If you have questions about this Privacy Policy, please contact us at:
-                                 </p>
-                                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-700/50 p-3 sm:p-4 rounded-lg border border-blue-200/50 dark:border-slate-600/50">
-                                   <a href="mailto:privacy@scantotap.com" className="text-blue-600 dark:text-blue-400 font-medium hover:underline text-sm sm:text-base">
-                                     privacy@scantotap.com
-                                   </a>
-                                 </div>
-                               </div>
-                             </div>
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">7</span>
+                                Contact Information
+                              </h3>
+                              <div className="pl-7 sm:pl-8 lg:pl-10">
+                                <p className="text-slate-700 dark:text-slate-300 leading-relaxed mb-3 text-xs sm:text-sm lg:text-base">
+                                  For privacy-related questions, concerns, or to exercise your rights, please contact us:
+                                </p>
+                                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-700/50 p-3 sm:p-4 rounded-lg border border-blue-200/50 dark:border-slate-600/50">
+                                  <p className="text-xs sm:text-sm lg:text-base font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                    Email: <a href="mailto:privacy@scan2tap.com" className="text-blue-600 dark:text-blue-400 font-medium hover:underline">privacy@scan2tap.com</a>
+                                  </p>
+                                  <p className="text-xs sm:text-sm lg:text-base text-slate-600 dark:text-slate-400">
+                                    We will respond to your inquiry within 30 days.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -177,114 +233,172 @@ const Footer = () => {
               <li>
                 <Dialog>
                   <DialogTrigger className="text-gray-300 hover:text-scan-blue transition-colors flex items-center gap-2 text-left">
-                    <FileText size={16} />
+                    <FileText size={18} />
                     Terms of Service
                   </DialogTrigger>
-                  <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden bg-gradient-to-br from-white/95 via-blue-50/90 to-indigo-100/95 dark:from-slate-900/95 dark:via-slate-800/90 dark:to-slate-700/95 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-2xl rounded-xl">
+                  <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-4xl max-h-[85vh] bg-gradient-to-br from-white/95 via-blue-50/90 to-indigo-100/95 dark:from-slate-900/95 dark:via-slate-800/90 dark:to-slate-700/95 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-2xl rounded-xl">
                     {/* Animated background elements */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
                       <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-blue-600/20 rounded-full blur-3xl animate-pulse"></div>
                       <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
                     </div>
                     
-                    <div className="relative p-4 sm:p-1">
-                      <DialogHeader className="pb-6 border-b border-slate-200/50 dark:border-slate-700/50">
-                        <DialogTitle className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-900 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent flex items-center gap-2 sm:gap-3">
-                          <div className="p-1.5 sm:p-2 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-lg shadow-lg">
-                            <FileText size={20} className="sm:w-6 sm:h-6 text-white" />
+                    <div className="relative">
+                      <DialogHeader className="p-4 sm:p-6 pb-4 border-b border-slate-200/50 dark:border-slate-700/50">
+                        <DialogTitle className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-900 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent flex items-center gap-2 sm:gap-3">
+                          <div className="p-1.5 sm:p-2 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-lg shadow-lg flex-shrink-0">
+                            <FileText size={16} className="sm:w-5 sm:h-5 text-white" />
                           </div>
                         Terms of Service
                       </DialogTitle>
-                        <p className="text-slate-600 dark:text-slate-300 mt-2 text-base sm:text-lg">
+                        <p className="text-slate-600 dark:text-slate-300 mt-2 text-sm sm:text-base">
                           Please read these terms carefully before using our services
                         </p>
                       </DialogHeader>
                       
-                      <div className="mt-6 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600 scrollbar-track-transparent pr-2">
-                        <div className="space-y-8">
-                          <div className="bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-slate-800/50 dark:to-slate-700/50 p-4 rounded-lg border border-emerald-200/50 dark:border-slate-600/50">
-                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                              <span className="font-semibold text-emerald-600 dark:text-emerald-400">Last updated:</span> May 16, 2025
+                      <div className="max-h-[55vh] overflow-y-auto p-4 sm:p-6">
+                        <div className="space-y-6 sm:space-y-8">
+                          <div className="bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-slate-800/50 dark:to-slate-700/50 p-3 sm:p-4 rounded-lg border border-emerald-200/50 dark:border-slate-600/50">
+                            <p className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+                              <span className="font-semibold text-emerald-600 dark:text-emerald-400">Last updated:</span> June 20, 2025
                             </p>
                           </div>
                           
-                          <div className="space-y-6">
-                                                         <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">1</span>
-                                 Acceptance of Terms
-                               </h3>
-                               <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-8 sm:pl-10 text-sm sm:text-base">
-                                 By accessing or using Scan2Tap services, you agree to be bound by these Terms of Service and all applicable laws and regulations.
-                               </p>
-                             </div>
+                          <div className="space-y-4 sm:space-y-6">
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">1</span>
+                                Acceptance and Agreement
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base">
+                                By accessing or using Scan2Tap services ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service. These Terms constitute a legally binding agreement between you and Scan2Tap.
+                              </p>
+                            </div>
                              
-                             <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">2</span>
-                                 User Accounts
-                               </h3>
-                               <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-8 sm:pl-10 text-sm sm:text-base">
-                                 You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. You must immediately notify Scan2Tap of any unauthorized use of your account.
-                               </p>
-                             </div>
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">2</span>
+                                Service Description
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base mb-3">
+                                Scan2Tap provides digital identity management services including:
+                              </p>
+                              <ul className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base list-disc ml-4 space-y-1">
+                                <li>Digital profile creation and management</li>
+                                <li>QR code generation and analytics</li>
+                                <li>Physical business card ordering and fulfillment</li>
+                                <li>Contact information sharing and networking tools</li>
+                              </ul>
+                            </div>
                              
-                             <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">3</span>
-                                 Identity Ownership
-                               </h3>
-                               <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-8 sm:pl-10 text-sm sm:text-base">
-                                 You retain all rights to the content you add to your profile. By using our services, you grant us a license to display and process this content as needed to provide our services.
-                               </p>
-                             </div>
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">3</span>
+                                User Accounts and Responsibilities
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base mb-3">
+                                When creating an account, you agree to:
+                              </p>
+                              <ul className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base list-disc ml-4 space-y-1">
+                                <li>Provide accurate and complete information</li>
+                                <li>Maintain the security of your account credentials</li>
+                                <li>Notify us immediately of any unauthorized access</li>
+                                <li>Accept responsibility for all activities under your account</li>
+                                <li>Use the Service only for lawful purposes</li>
+                              </ul>
+                            </div>
                              
-                             <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">4</span>
-                                 Prohibited Content
-                               </h3>
-                               <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-8 sm:pl-10 text-sm sm:text-base">
-                                 You may not use Scan2Tap to share illegal, harmful, threatening, abusive, harassing, defamatory, or otherwise objectionable content.
-                               </p>
-                             </div>
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">4</span>
+                                Intellectual Property Rights
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base mb-3">
+                                Regarding intellectual property:
+                              </p>
+                              <ul className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base list-disc ml-4 space-y-1">
+                                <li>You retain ownership of content you upload to your profile</li>
+                                <li>You grant us a limited license to display and process your content</li>
+                                <li>Scan2Tap owns all rights to the platform and underlying technology</li>
+                                <li>You may not use our trademarks without written permission</li>
+                                <li>You warrant you have rights to all content you upload</li>
+                              </ul>
+                            </div>
                              
-                             <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">5</span>
-                                 Service Modifications
-                               </h3>
-                               <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-8 sm:pl-10 text-sm sm:text-base">
-                                 Scan2Tap reserves the right to modify or discontinue the service at any time, with or without notice.
-                               </p>
-                             </div>
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">5</span>
+                                Prohibited Uses and Content
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base mb-3">
+                                You may not use our Service to share or promote:
+                              </p>
+                              <ul className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base list-disc ml-4 space-y-1">
+                                <li>Illegal, harmful, or fraudulent activities</li>
+                                <li>Harassment, discrimination, or hate speech</li>
+                                <li>Copyrighted material without permission</li>
+                                <li>Spam, malware, or security threats</li>
+                                <li>False or misleading information</li>
+                                <li>Content that violates others' privacy or rights</li>
+                              </ul>
+                            </div>
+
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">6</span>
+                                Payment Terms and Refunds
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base mb-3">
+                                For paid services:
+                              </p>
+                              <ul className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base list-disc ml-4 space-y-1">
+                                <li>All fees are charged in advance and non-refundable except as required by law</li>
+                                <li>We reserve the right to change pricing with 30 days notice</li>
+                                <li>Failed payments may result in service suspension</li>
+                                <li>Refunds for defective products will be processed within 14 days</li>
+                                <li>Subscription cancellations take effect at the end of the billing period</li>
+                              </ul>
+                            </div>
                              
-                             <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">6</span>
-                                 Termination
-                               </h3>
-                               <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-8 sm:pl-10 text-sm sm:text-base">
-                                 Scan2Tap may terminate your access to the service, without cause or notice, which may result in the deletion of all information associated with your account.
-                               </p>
-                             </div>
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">7</span>
+                                Limitation of Liability
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base">
+                                To the maximum extent permitted by law, Scan2Tap shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or business opportunities. Our total liability shall not exceed the amount paid by you for the Service in the 12 months preceding the claim.
+                              </p>
+                            </div>
+
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">8</span>
+                                Termination
+                              </h3>
+                              <p className="text-slate-700 dark:text-slate-300 leading-relaxed pl-7 sm:pl-8 lg:pl-10 text-xs sm:text-sm lg:text-base">
+                                Either party may terminate this agreement at any time. We reserve the right to suspend or terminate accounts that violate these Terms. Upon termination, your right to use the Service ceases immediately, and we may delete your account and data in accordance with our data retention policies.
+                              </p>
+                            </div>
                              
-                             <div className="group">
-                               <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                                 <span className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold">7</span>
-                                 Contact
-                               </h3>
-                               <div className="pl-8 sm:pl-10">
-                                 <p className="text-slate-700 dark:text-slate-300 leading-relaxed mb-3 text-sm sm:text-base">
-                                   If you have any questions about these Terms, please contact us at:
-                                 </p>
-                                 <div className="bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-slate-800/50 dark:to-slate-700/50 p-3 sm:p-4 rounded-lg border border-emerald-200/50 dark:border-slate-600/50">
-                                   <a href="mailto:terms@scantotap.com" className="text-emerald-600 dark:text-emerald-400 font-medium hover:underline text-sm sm:text-base">
-                                     terms@scantotap.com
-                                   </a>
-                                 </div>
-                               </div>
-                             </div>
+                            <div className="group">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                                <span className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 bg-gradient-to-br from-emerald-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">9</span>
+                                Contact Information
+                              </h3>
+                              <div className="pl-7 sm:pl-8 lg:pl-10">
+                                <p className="text-slate-700 dark:text-slate-300 leading-relaxed mb-3 text-xs sm:text-sm lg:text-base">
+                                  For questions about these Terms or our Service, please contact us:
+                                </p>
+                                <div className="bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-slate-800/50 dark:to-slate-700/50 p-3 sm:p-4 rounded-lg border border-emerald-200/50 dark:border-slate-600/50">
+                                  <p className="text-xs sm:text-sm lg:text-base font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                    Email: <a href="mailto:legal@scan2tap.com" className="text-emerald-600 dark:text-emerald-400 font-medium hover:underline">legal@scan2tap.com</a>
+                                  </p>
+                                  <p className="text-xs sm:text-sm lg:text-base text-slate-600 dark:text-slate-400">
+                                    We will respond to your inquiry within 5 business days.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -297,8 +411,8 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-800">
-          <p className="text-sm text-gray-400">
+        <div className="mt-16 pt-8 border-t border-gray-800 text-center">
+          <p className="text-base text-gray-400 font-medium">
             © {new Date().getFullYear()} Scan2Tap. All rights reserved.
           </p>
         </div>
