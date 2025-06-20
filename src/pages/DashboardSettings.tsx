@@ -982,15 +982,6 @@ export default function DashboardSettings() {
                             {planFeatures.maxLinks === Infinity ? 'Unlimited' : `Up to ${planFeatures.maxLinks}`}
                           </p>
                         </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Palette className="w-4 h-4 text-gray-500" />
-                            <span className="text-sm font-medium">Card Designs</span>
-                          </div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 ml-6">
-                            {planFeatures.canOrderPremiumCards ? 'All designs' : 'Basic only'}
-                          </p>
-                        </div>
                       </div>
 
                       {/* Subscription Details for Pro Users */}
@@ -1046,7 +1037,7 @@ export default function DashboardSettings() {
                               <div className="flex-1">
                                 <h4 className="font-semibold text-scan-blue mb-2">Upgrade to Pro</h4>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                  Get unlimited links, premium card designs, and priority support.
+                                  Get unlimited links, advanced analytics, and priority support.
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-2">
                                   <Button 

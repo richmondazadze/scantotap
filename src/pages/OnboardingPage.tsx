@@ -700,15 +700,12 @@ function PlanStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting 
       { name: "Add up to 7 social or custom links", included: true },
       { name: "Dynamic QR code & download", included: true },
       { name: "Basic profile layout", included: true },
-      { name: "Order Classic cards", included: true },
       { name: "Unlimited links", included: false },
-      { name: "Premium & Metal card designs", included: false },
     ],
     pro: [
       { name: "Everything in Free Plan", included: true },
       { name: "Unlimited links", included: true },
       { name: "All profile layout options", included: true },
-      { name: "Premium & Metal card designs", included: true },
       { name: "Coming soon: Profile analytics", included: true },
       { name: "Coming soon: Custom themes", included: true },
     ]

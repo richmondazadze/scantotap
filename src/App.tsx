@@ -34,12 +34,42 @@ const queryClient = new QueryClient();
 const globalStyles = `
   html {
     scroll-behavior: smooth;
+    overflow-y: auto !important;
+    overflow-x: hidden;
   }
   
   body {
     overflow-x: hidden;
+    overflow-y: auto !important;
     min-height: 100vh;
     position: relative;
+  }
+  
+  #root {
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+  
+  /* Prevent inner scrollbars on sections */
+  section, .section, main, div[class*="motion-section"] {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+  
+  /* Specifically target framer motion sections */
+  [data-projection-id] {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+  
+  /* Remove any container height constraints */
+  .max-w-7xl, .max-w-6xl, .max-w-5xl, .max-w-4xl {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
   }
   
   /* Enhanced mobile scroll behavior */

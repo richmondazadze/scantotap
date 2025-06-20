@@ -109,6 +109,18 @@
     overflow-x: hidden;
   }
 
+  /* Prevent unwanted scrollbars on sections */
+  html, body, #root {
+    overflow-y: auto !important;
+  }
+
+  /* Remove any height constraints that might cause inner scrollbars */
+  section, .section {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
   /* Ensure all containers respect viewport width */
   * {
     box-sizing: border-box;

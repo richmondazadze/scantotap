@@ -157,7 +157,7 @@ const LandingPage = () => {
   ];
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 overflow-x-hidden scroll-smooth">
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 overflow-x-hidden scroll-smooth" style={{ overflow: 'visible', height: 'auto' }}>
       {/* Animated background elements - contained and non-interfering */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -388,6 +388,7 @@ const LandingPage = () => {
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
         className="py-16 sm:py-20 lg:py-24 px-6 sm:px-8 lg:px-12"
+        style={{ overflow: 'visible', height: 'auto', maxHeight: 'none' }}
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
@@ -517,6 +518,7 @@ const LandingPage = () => {
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
         className="py-16 sm:py-20 lg:py-24 px-6 sm:px-8 lg:px-12 bg-slate-50/50 dark:bg-slate-900/50"
+        style={{ overflow: 'visible', height: 'auto', maxHeight: 'none' }}
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
@@ -585,6 +587,7 @@ const LandingPage = () => {
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
         className="py-16 sm:py-20 lg:py-24 px-6 sm:px-8 lg:px-12"
+        style={{ overflow: 'visible', height: 'auto', maxHeight: 'none' }}
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 

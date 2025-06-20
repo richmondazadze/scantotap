@@ -13,33 +13,33 @@ import Scan2TapLogo from "@/components/Scan2TapLogo";
 
 const Footer = () => {
   return (
-    <footer className="bg-scan-dark text-white py-16 sm:py-20">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 sm:gap-12 lg:gap-16">
-          <div className="mb-10 md:mb-0 md:col-span-2">
-            <Link to="/" className="flex-shrink-0 flex items-center gap-2 mb-6">
+    <footer className="bg-scan-dark text-white py-8 sm:py-16 lg:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 sm:gap-10 lg:gap-16">
+          <div className="mb-6 md:mb-0 md:col-span-2">
+            <Link to="/" className="flex-shrink-0 flex items-center gap-2 mb-4 sm:mb-6">
               <Scan2TapLogo />
             </Link>
-            <p className="text-base sm:text-lg text-gray-300 max-w-md leading-relaxed">
+            <p className="text-sm sm:text-base lg:text-lg text-gray-300 max-w-md leading-relaxed">
               Your digital identity, one tap away. Scan2Tap helps professionals connect instantly with a smart business card that's as unique as you are.
             </p>
-            <div className="mt-8 space-x-6 flex">
+            <div className="mt-4 sm:mt-8 space-x-4 sm:space-x-6 flex">
               <a href="#" className="text-scan-blue-light hover:text-scan-blue transition-colors hover:scale-110 transform">
-                <Twitter size={28} />
+                <Twitter size={20} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
               </a>
               <a href="#" className="text-scan-blue-light hover:text-scan-blue transition-colors hover:scale-110 transform">
-                <Linkedin size={28} />
+                <Linkedin size={20} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
               </a>
               <a href="#" className="text-scan-blue-light hover:text-scan-blue transition-colors hover:scale-110 transform">
-                <Instagram size={28} />
+                <Instagram size={20} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
               </a>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-10 sm:gap-12 md:col-span-2">
+          <div className="grid grid-cols-2 gap-6 sm:gap-10 lg:gap-12 md:col-span-2">
           <div>
-            <h3 className="text-xl font-bold mb-6">Platform</h3>
-            <ul className="space-y-4 text-base">
+            <h3 className="text-base sm:text-lg lg:text-xl font-bold mb-3 sm:mb-4 lg:mb-6">Platform</h3>
+            <ul className="space-y-2 sm:space-y-3 lg:space-y-4 text-sm sm:text-base">
               <li>
                 <Link to="/dashboard" className="text-gray-300 hover:text-scan-blue transition-colors">
                   Dashboard
@@ -54,8 +54,8 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-xl font-bold mb-6">Company</h3>
-            <ul className="space-y-4 text-base">
+            <h3 className="text-base sm:text-lg lg:text-xl font-bold mb-3 sm:mb-4 lg:mb-6">Company</h3>
+            <ul className="space-y-2 sm:space-y-3 lg:space-y-4 text-sm sm:text-base">
               <li>
                 <a href="#" className="text-gray-300 hover:text-scan-blue transition-colors">
                   About Us
@@ -68,8 +68,8 @@ const Footer = () => {
               </li>
               <li>
                 <Dialog>
-                  <DialogTrigger className="text-gray-300 hover:text-scan-blue transition-colors flex items-center gap-2 text-left">
-                    <Shield size={18} />
+                  <DialogTrigger className="text-gray-300 hover:text-scan-blue transition-colors flex items-center gap-1 sm:gap-2 text-left">
+                    <Shield size={14} className="sm:w-4 sm:h-4 lg:w-[18px] lg:h-[18px]" />
                     Privacy Policy
                   </DialogTrigger>
                   <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-4xl max-h-[85vh] bg-gradient-to-br from-white/95 via-blue-50/90 to-indigo-100/95 dark:from-slate-900/95 dark:via-slate-800/90 dark:to-slate-700/95 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-2xl rounded-xl">
@@ -232,8 +232,8 @@ const Footer = () => {
               </li>
               <li>
                 <Dialog>
-                  <DialogTrigger className="text-gray-300 hover:text-scan-blue transition-colors flex items-center gap-2 text-left">
-                    <FileText size={18} />
+                  <DialogTrigger className="text-gray-300 hover:text-scan-blue transition-colors flex items-center gap-1 sm:gap-2 text-left">
+                    <FileText size={14} className="sm:w-4 sm:h-4 lg:w-[18px] lg:h-[18px]" />
                     Terms of Service
                   </DialogTrigger>
                   <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-4xl max-h-[85vh] bg-gradient-to-br from-white/95 via-blue-50/90 to-indigo-100/95 dark:from-slate-900/95 dark:via-slate-800/90 dark:to-slate-700/95 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-2xl rounded-xl">
@@ -411,8 +411,8 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-gray-800 text-center">
-          <p className="text-base text-gray-400 font-medium">
+        <div className="mt-8 sm:mt-12 lg:mt-16 pt-4 sm:pt-6 lg:pt-8 border-t border-gray-800 text-center">
+          <p className="text-xs sm:text-sm lg:text-base text-gray-400 font-medium">
             © {new Date().getFullYear()} Scan2Tap. All rights reserved.
           </p>
         </div>

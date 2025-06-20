@@ -6,11 +6,6 @@ export interface PlanFeatures {
   maxLinks: number;
   canAddUnlimitedLinks: boolean;
   
-  // Card design access
-  canOrderPremiumCards: boolean;
-  canOrderMetalCards: boolean;
-  availableDesigns: string[];
-  
   // Future features
   canAccessAnalytics: boolean;
   canUseCustomThemes: boolean;
@@ -37,11 +32,6 @@ export const usePlanFeatures = (): PlanFeatures => {
     maxLinks: isProUser ? Infinity : 7,
     canAddUnlimitedLinks: isProUser,
     
-    // Card design access
-    canOrderPremiumCards: isProUser,
-    canOrderMetalCards: isProUser,
-    availableDesigns: isProUser ? ['classic', 'premium', 'metal'] : ['classic'],
-    
     // Future features (all Pro-only)
     canAccessAnalytics: isProUser,
     canUseCustomThemes: isProUser,
@@ -66,7 +56,6 @@ export const canAddMoreLinks = (currentLinkCount: number, planType: PlanType = '
 export const getUpgradeMessage = (feature: string): string => {
   const messages: Record<string, string> = {
     links: 'Upgrade to Pro to add unlimited links to your profile (free users limited to 7 links)',
-    premium_cards: 'Upgrade to Pro to access Premium and Metal card designs',
     analytics: 'Upgrade to Pro to access detailed profile analytics',
     themes: 'Upgrade to Pro to customize your profile with premium themes',
     domains: 'Upgrade to Pro to use your own custom domain',
