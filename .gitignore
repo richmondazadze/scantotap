@@ -23,6 +23,7 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+send-upgrade-notification.cjs
 .idea
 .DS_Store
 *.suo

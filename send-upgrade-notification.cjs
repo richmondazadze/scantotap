@@ -13,10 +13,10 @@
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const USER_EMAILS = [
-  // Add your test user emails here
-  'richverseecotech@gmail.com',
-  // 'user2@example.com',
-  // 'user3@example.com',
+  
+
+
+
 ];
 
 // Optional: Set the upgrade date (leave null if not known yet)
