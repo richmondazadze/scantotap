@@ -1097,7 +1097,7 @@ export default function DashboardSettings() {
                                         Cancel Subscription
                                       </Button>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent className="m-4 w-[calc(100vw-2rem)] max-w-md sm:mx-auto">
+                                    <AlertDialogContent className="m-4 w-[calc(100vw-2rem)] max-w-md sm:max-w-lg mx-auto">
                                       <AlertDialogHeader>
                                         <AlertDialogTitle>Cancel Subscription?</AlertDialogTitle>
                                         <AlertDialogDescription>

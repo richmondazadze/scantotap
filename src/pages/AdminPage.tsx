@@ -754,38 +754,42 @@ const AdminPage = () => {
           </div>
         </motion.div>
 
-        {/* Tab Navigation */}
+        {/* Tab Navigation - Mobile Responsive */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-6"
+          className="mb-4 sm:mb-6"
         >
           <div className="border-b border-gray-200 dark:border-gray-700">
-            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'overview'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <BarChart3 className="w-4 h-4 mr-2 inline" />
-                Analytics Overview
-              </button>
-              <button
-                onClick={() => setActiveTab('inventory')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'inventory'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <Settings className="w-4 h-4 mr-2 inline" />
-                Inventory Management
-              </button>
-            </nav>
+            <div className="overflow-x-auto">
+              <nav className="-mb-px flex space-x-4 sm:space-x-8 min-w-max px-1" aria-label="Tabs">
+                <button
+                  onClick={() => setActiveTab('overview')}
+                  className={`py-2 px-2 sm:px-4 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
+                    activeTab === 'overview'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 inline" />
+                  <span className="hidden sm:inline">Analytics Overview</span>
+                  <span className="sm:hidden">Analytics</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('inventory')}
+                  className={`py-2 px-2 sm:px-4 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
+                    activeTab === 'inventory'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 inline" />
+                  <span className="hidden sm:inline">Inventory Management</span>
+                  <span className="sm:hidden">Inventory</span>
+                </button>
+              </nav>
+            </div>
           </div>
         </motion.div>
 
