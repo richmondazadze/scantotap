@@ -13,7 +13,8 @@ import { orderService, type OrderData, type Order } from '@/lib/orderService';
 import { paymentService, type PaymentData } from '@/lib/paymentService';
 import { CardDesignPreview } from '@/components/CardDesignPreview';
 import { CardMaterialShowcase } from '@/components/CardMaterialShowcase';
-import inventoryService, { type CardType, type Material, type ColorScheme } from '@/services/inventoryService';
+import inventoryService, { type CardType, type ColorScheme } from '@/services/inventoryService';
+
 import { 
   CreditCard, 
   Truck, 
@@ -34,6 +35,19 @@ import Loading from '@/components/ui/loading';
 import GhanaLocationSelector from '@/components/GhanaLocationSelector';
 import DeliveryLocationNotice from '@/components/DeliveryLocationNotice';
 
+// Card type ID mapping (UUID to string names for frontend)
+const CARD_TYPE_MAPPING = {
+  "classic": "ab889570-cd24-45a8-a8aa-9b64e7f047c9",
+  "premium": "2455d29b-d7de-4dcd-aa54-95d9ceaa8f3f", 
+  "metal": "6eebcc1a-b072-40fa-90e7-a11ac13708a1"
+};
+
+// Helper to get string name from UUID
+const getCardTypeNameFromId = (id: string): string => {
+  const entry = Object.entries(CARD_TYPE_MAPPING).find(([name, uuid]) => uuid === id);
+  return entry ? entry[0] : id;
+};
+
 // Convert inventory data to display format
 const convertCardTypeToDesign = (cardType: CardType) => ({
   id: cardType.id,
@@ -45,18 +59,9 @@ const convertCardTypeToDesign = (cardType: CardType) => ({
   isAvailable: cardType.is_available,
   hasStockLimit: cardType.has_stock_limit,
   stockQuantity: cardType.stock_quantity,
-  isOutOfStock: cardType.has_stock_limit && (cardType.stock_quantity || 0) <= 0
-});
-
-const convertMaterialToOption = (material: Material) => ({
-  id: material.id,
-  name: material.name,
-  description: material.description || '',
-  priceModifier: material.price_modifier,
-  isAvailable: material.is_available,
-  hasStockLimit: material.has_stock_limit,
-  stockQuantity: material.stock_quantity,
-  isOutOfStock: material.has_stock_limit && (material.stock_quantity || 0) <= 0
+  isOutOfStock: cardType.has_stock_limit && (cardType.stock_quantity || 0) <= 0,
+  // Add string name for easier identification
+  stringId: getCardTypeNameFromId(cardType.id)
 });
 
 const convertColorSchemeToOption = (colorScheme: ColorScheme) => ({
@@ -105,6 +110,8 @@ const getStockStatusBadge = (item: { isAvailable: boolean; hasStockLimit: boolea
   return null;
 };
 
+// Materials are now inherent to each card type - no validation needed
+
 export default function DashboardOrder() {
   useAuthGuard(); // Ensure user is authenticated
   const { profile } = useProfile();
@@ -116,7 +123,6 @@ export default function DashboardOrder() {
   
   // Inventory data state
   const [cardDesigns, setCardDesigns] = useState<Array<ReturnType<typeof convertCardTypeToDesign>>>([]);
-  const [materials, setMaterials] = useState<Array<ReturnType<typeof convertMaterialToOption>>>([]);
   const [colorSchemes, setColorSchemes] = useState<Array<ReturnType<typeof convertColorSchemeToOption>>>([]);
   const [loadingInventory, setLoadingInventory] = useState(true);
   
@@ -128,7 +134,6 @@ export default function DashboardOrder() {
   const [loadingOrder, setLoadingOrder] = useState(!!editOrderId);
   
   const [selectedDesign, setSelectedDesign] = useState<ReturnType<typeof convertCardTypeToDesign> | null>(null);
-  const [selectedMaterial, setSelectedMaterial] = useState<ReturnType<typeof convertMaterialToOption> | null>(null);
   const [selectedColor, setSelectedColor] = useState<ReturnType<typeof convertColorSchemeToOption> | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showOrderForm, setShowOrderForm] = useState(false);
@@ -165,24 +170,19 @@ export default function DashboardOrder() {
         const inventory = await inventoryService.getAvailableInventory();
         
         const designs = inventory.cardTypes.map(convertCardTypeToDesign);
-        const mats = inventory.materials.map(convertMaterialToOption);
         const colors = inventory.colorSchemes.map(convertColorSchemeToOption);
         
         setCardDesigns(designs);
-        setMaterials(mats);
         setColorSchemes(colors);
         
         // Filter available items for default selection
         const availableDesigns = designs.filter(d => d.isAvailable && !d.isOutOfStock);
-        const availableMaterials = mats.filter(m => m.isAvailable && !m.isOutOfStock);
         const availableColors = colors.filter(c => c.isAvailable && !c.isOutOfStock);
         
         // Set defaults if not already set (only from available items)
         if (!selectedDesign && availableDesigns.length > 0) {
-          setSelectedDesign(availableDesigns.find(d => d.name === 'Premium') || availableDesigns[0]);
-        }
-        if (!selectedMaterial && availableMaterials.length > 0) {
-          setSelectedMaterial(availableMaterials[0]);
+          const defaultDesign = availableDesigns.find(d => d.name === 'Premium') || availableDesigns[0];
+          setSelectedDesign(defaultDesign);
         }
         if (!selectedColor && availableColors.length > 0) {
           setSelectedColor(availableColors[0]);
@@ -196,13 +196,6 @@ export default function DashboardOrder() {
             toast.warning('Your selected design is no longer available');
           }
         }
-        if (selectedMaterial && (!selectedMaterial.isAvailable || selectedMaterial.isOutOfStock)) {
-          const fallback = availableMaterials[0];
-          setSelectedMaterial(fallback || null);
-          if (!fallback) {
-            toast.warning('Your selected material is no longer available');
-          }
-        }
         if (selectedColor && (!selectedColor.isAvailable || selectedColor.isOutOfStock)) {
           const fallback = availableColors[0];
           setSelectedColor(fallback || null);
@@ -214,11 +207,9 @@ export default function DashboardOrder() {
         // If editing an order, set selections based on order data
         if (editingOrder && isEditMode) {
           const design = designs.find(d => d.id === editingOrder.design_id);
-          const material = mats.find(m => m.id === editingOrder.material_id);
           const color = colors.find(c => c.id === editingOrder.color_scheme_id);
           
           if (design) setSelectedDesign(design);
-          if (material) setSelectedMaterial(material);
           if (color) setSelectedColor(color);
         }
       } catch (error) {
@@ -290,8 +281,7 @@ export default function DashboardOrder() {
 
   // Calculate total price
   const basePrice = selectedDesign?.price || 0;
-  const materialPrice = selectedMaterial?.priceModifier || 0;
-  const subtotal = (basePrice + materialPrice) * quantity;
+  const subtotal = basePrice * quantity;
   const shipping = ghanaLocation.shippingCost; // Use Ghana location-based shipping
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + shipping + tax;
@@ -356,7 +346,7 @@ export default function DashboardOrder() {
     }
     
     // Validate selections
-    if (!selectedDesign || !selectedMaterial || !selectedColor) {
+    if (!selectedDesign || !selectedColor) {
       toast.error('Please complete your card selection');
       return;
     }
@@ -369,11 +359,6 @@ export default function DashboardOrder() {
         design_id: selectedDesign.id,
         design_name: selectedDesign.name,
         design_price: selectedDesign.price,
-        
-        // Material details
-        material_id: selectedMaterial.id,
-        material_name: selectedMaterial.name,
-        material_price_modifier: selectedMaterial.priceModifier,
         
         // Color scheme
         color_scheme_id: selectedColor.id,
@@ -575,14 +560,6 @@ export default function DashboardOrder() {
                             return;
                           }
                           setSelectedDesign(design);
-                          // Auto-select appropriate material based on design
-                          const availableMaterials = materials.filter(m => m.isAvailable && !m.isOutOfStock);
-                          if (design.id === 'metal') {
-                            const metalMaterial = availableMaterials.find(m => m.id === 'metal');
-                            setSelectedMaterial(metalMaterial || availableMaterials[0]);
-                          } else {
-                            setSelectedMaterial(availableMaterials[0]); // Default to first available for classic and premium
-                          }
                         }}
                       >
                       {/* Stock Status Badge */}
@@ -603,7 +580,6 @@ export default function DashboardOrder() {
                             design={design}
                             profile={profile}
                             colorScheme={selectedColor}
-                            material={selectedMaterial}
                             className="w-full"
                           />
                         </div>
@@ -630,63 +606,6 @@ export default function DashboardOrder() {
                             ))}
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  );})}
-                </div>
-              </motion.div>
-
-              {/* Material Selection */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className={cardBase}
-              >
-                <h2 className={cardTitle}>Material</h2>
-                <p className={cardDesc}>Choose the material for your card</p>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                  {materials.map((material) => {
-                    const isUnavailable = !material.isAvailable || material.isOutOfStock;
-                    return (
-                      <div
-                        key={material.id}
-                        className={`relative rounded-2xl border-2 p-4 sm:p-6 md:p-4 lg:p-6 transition-all duration-300 ${
-                          isUnavailable 
-                            ? 'opacity-50 cursor-not-allowed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800' 
-                            : `cursor-pointer hover:shadow-lg ${
-                                selectedMaterial?.id === material.id
-                                  ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
-                                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                              }`
-                        }`}
-                        onClick={() => {
-                          if (isUnavailable) {
-                            toast.error(`${material.name} material is currently out of stock`);
-                            return;
-                          }
-                          setSelectedMaterial(material);
-                        }}
-                      >
-                      {/* Stock Status Badge */}
-                      {getStockStatusBadge(material)}
-                      
-                      <CardMaterialShowcase 
-                        material={material}
-                        isSelected={selectedMaterial?.id === material.id}
-                        onClick={() => {
-                          if (isUnavailable) {
-                            toast.error(`${material.name} material is currently out of stock`);
-                            return;
-                          }
-                          setSelectedMaterial(material);
-                        }}
-                      />
-                      <h3 className="font-semibold mb-2 text-base sm:text-lg md:text-base lg:text-lg mt-4 text-gray-900 dark:text-white">{material.name}</h3>
-                      <p className="text-xs sm:text-sm md:text-xs lg:text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">{material.description}</p>
-                      <div className="text-sm sm:text-base md:text-sm lg:text-base font-medium font-mono bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent tracking-wide">
-                        {material.priceModifier > 0 ? `+₵${material.priceModifier}` : 'Included'}
                       </div>
                     </div>
                   );})}
@@ -764,14 +683,13 @@ export default function DashboardOrder() {
                   design={selectedDesign}
                   profile={profile}
                   colorScheme={selectedColor}
-                  material={selectedMaterial}
                 />
                 <div className="mt-4 space-y-2">
                   <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                     <div className="w-8 h-8 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-lg flex items-center justify-center">
                       <Package className="w-4 h-4 text-scan-blue" />
                     </div>
-                    <span>{selectedMaterial?.name || 'No Material'} Material</span>
+                    <span>{selectedColor?.name || 'No Color'} Color</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                     <div className="w-8 h-8 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-lg flex items-center justify-center">
@@ -836,12 +754,6 @@ export default function DashboardOrder() {
                       <span className="text-gray-600 dark:text-gray-400">{selectedDesign?.name || 'Design'} × {quantity}</span>
                       <span className="font-medium font-mono text-gray-900 dark:text-white tracking-wide">₵{(basePrice * quantity).toFixed(2)}</span>
                     </div>
-                    {materialPrice > 0 && (
-                      <div className="flex justify-between text-sm sm:text-base">
-                        <span className="text-gray-600 dark:text-gray-400">{selectedMaterial?.name || 'Material'} upgrade × {quantity}</span>
-                        <span className="font-medium font-mono text-gray-900 dark:text-white tracking-wide">₵{(materialPrice * quantity).toFixed(2)}</span>
-                      </div>
-                    )}
                     <div className="flex justify-between text-sm sm:text-base">
                       <span className="text-gray-600 dark:text-gray-400">Shipping</span>
                       <span className="font-medium font-mono text-gray-900 dark:text-white tracking-wide">{shipping === 0 ? 'Free' : `₵${shipping.toFixed(2)}`}</span>
@@ -858,7 +770,7 @@ export default function DashboardOrder() {
                   </div>
 
                   {/* Out of Stock Warning */}
-                  {(selectedDesign?.isOutOfStock || selectedMaterial?.isOutOfStock || selectedColor?.isOutOfStock) && (
+                  {(selectedDesign?.isOutOfStock || selectedColor?.isOutOfStock) && (
                     <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
                       <div className="text-sm text-red-700 dark:text-red-400 flex items-center gap-2">
                         <AlertCircle className="w-4 h-4" />
@@ -871,18 +783,13 @@ export default function DashboardOrder() {
                     className="w-full h-12 sm:h-14 bg-gradient-to-r from-scan-blue to-scan-purple text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => {
                       // Check if all required selections are available
-                      if (!selectedDesign || !selectedMaterial || !selectedColor) {
+                      if (!selectedDesign || !selectedColor) {
                         toast.error('Please complete your card selection');
                         return;
                       }
                       
                       if (selectedDesign.isOutOfStock || !selectedDesign.isAvailable) {
                         toast.error('Selected design is out of stock');
-                        return;
-                      }
-                      
-                      if (selectedMaterial.isOutOfStock || !selectedMaterial.isAvailable) {
-                        toast.error('Selected material is out of stock');
                         return;
                       }
                       
@@ -894,9 +801,8 @@ export default function DashboardOrder() {
                       setShowOrderForm(true);
                     }}
                     disabled={
-                      !selectedDesign || !selectedMaterial || !selectedColor ||
+                      !selectedDesign || !selectedColor ||
                       selectedDesign.isOutOfStock || !selectedDesign.isAvailable ||
-                      selectedMaterial.isOutOfStock || !selectedMaterial.isAvailable ||
                       selectedColor.isOutOfStock || !selectedColor.isAvailable
                     }
                   >
@@ -1054,15 +960,8 @@ export default function DashboardOrder() {
                         <span>{selectedDesign?.name || 'Design'} × {quantity}</span>
                         <span className="font-mono text-gray-900 dark:text-white tracking-wide">₵{(basePrice * quantity).toFixed(2)}</span>
                       </div>
-                      {materialPrice > 0 && (
-                        <div className="flex justify-between">
-                          <span>{selectedMaterial?.name || 'Material'} upgrade</span>
-                          <span className="font-mono text-gray-900 dark:text-white tracking-wide">₵{(materialPrice * quantity).toFixed(2)}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between items-center">
-                        <span>
-                          Shipping {ghanaLocation.city && `to ${ghanaLocation.city}`}
+                      <div className="flex justify-between">
+                        <span>Shipping {ghanaLocation.city && `to ${ghanaLocation.city}`}
                           {ghanaLocation.deliveryDays && (
                             <span className="text-xs text-gray-500 ml-1">
                               ({ghanaLocation.deliveryDays})

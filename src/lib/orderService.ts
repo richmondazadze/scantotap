@@ -8,11 +8,6 @@ export interface OrderData {
   design_name: string;
   design_price: number;
   
-  // Material details
-  material_id: string;
-  material_name: string;
-  material_price_modifier: number;
-  
   // Color scheme
   color_scheme_id: string;
   color_scheme_name: string;
@@ -104,9 +99,9 @@ export const orderService = {
       orderNumber: order.order_number,
       total: order.total,
       items: [{
-        name: `${order.design_name} (${order.material_name})`,
+        name: order.design_name,
         quantity: order.quantity,
-        price: order.design_price + (order.material_price_modifier || 0)
+        price: order.design_price
       }],
       shippingAddress: `${order.shipping_address}, ${order.shipping_city}, ${order.shipping_state} ${order.shipping_zip_code}, ${order.shipping_country}`,
       estimatedDelivery: order.status === 'confirmed' ? '2-5 business days' : undefined,

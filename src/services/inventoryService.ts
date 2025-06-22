@@ -1,17 +1,7 @@
+import { supabase } from '@/lib/supabaseClient';
+
 // Type definitions
 export interface CardType {
-  id: string;
-  name: string;
-  description?: string;
-  is_available: boolean;
-  has_stock_limit: boolean;
-  stock_quantity?: number;
-  price_modifier: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Material {
   id: string;
   name: string;
   description?: string;
@@ -38,13 +28,6 @@ export interface ColorScheme {
   updated_at: string;
 }
 
-export interface InventoryItem extends Omit<CardType | Material | ColorScheme, 'primary_color' | 'secondary_color' | 'accent_color'> {
-  primary_color?: string;
-  secondary_color?: string;
-  accent_color?: string;
-  type: 'card_type' | 'material' | 'color_scheme';
-}
-
 export interface InventoryUpdateRequest {
   id: string;
   is_available?: boolean;
@@ -54,310 +37,167 @@ export interface InventoryUpdateRequest {
 }
 
 class InventoryService {
-  // Storage keys for localStorage
-  private storageKeys = {
-    cardTypes: 'admin_inventory_card_types',
-    materials: 'admin_inventory_materials',
-    colorSchemes: 'admin_inventory_color_schemes'
-  };
-
-  // Default inventory data - matches DashboardOrder.tsx exactly
-  private DEFAULT_CARD_TYPES: CardType[] = [
-    {
-      id: 'classic',
-      name: 'Classic',
-      description: 'Clean and professional design',
-      is_available: true,
-      has_stock_limit: false,
-      stock_quantity: null,
-      price_modifier: 15,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 'premium', 
-      name: 'Premium',
-      description: 'Elegant design with premium materials',
-      is_available: true,
-      has_stock_limit: false,
-      stock_quantity: null,
-      price_modifier: 25,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 'metal',
-      name: 'Metal', 
-      description: 'Luxury metal card with engraving',
-      is_available: true,
-      has_stock_limit: false,
-      stock_quantity: null,
-      price_modifier: 45,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
-  ];
-
-  private DEFAULT_MATERIALS: Material[] = [
-    {
-      id: 'plastic',
-      name: 'Plastic',
-      description: 'Durable PVC material',
-      is_available: true,
-      has_stock_limit: false,
-      stock_quantity: null,
-      price_modifier: 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 'metal',
-      name: 'Metal',
-      description: 'Premium stainless steel',
-      is_available: true,
-      has_stock_limit: false,
-      stock_quantity: null,
-      price_modifier: 20,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
-  ];
-
-  private DEFAULT_COLOR_SCHEMES: ColorScheme[] = [
-    {
-      id: 'gold',
-      name: 'Luxury Gold',
-      primary_color: '#D4AF37',
-      secondary_color: '#B8860B',
-      accent_color: '#FFD700',
-      description: 'Elegant gold tones',
-      is_available: true,
-      has_stock_limit: false,
-      stock_quantity: null,
-      price_modifier: 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 'white',
-      name: 'Pure White',
-      primary_color: '#FFFFFF',
-      secondary_color: '#F5F5F5',
-      accent_color: '#E5E5E5',
-      description: 'Clean white design',
-      is_available: true,
-      has_stock_limit: false,
-      stock_quantity: null,
-      price_modifier: 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 'black',
-      name: 'Midnight Black',
-      primary_color: '#000000',
-      secondary_color: '#1A1A1A',
-      accent_color: '#333333',
-      description: 'Sophisticated black design',
-      is_available: true,
-      has_stock_limit: false,
-      stock_quantity: null,
-      price_modifier: 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 'goldblack',
-      name: 'Gold & Black',
-      primary_color: '#D4AF37',
-      secondary_color: '#000000',
-      accent_color: '#FFD700',
-      description: 'Luxury gold and black combination',
-      is_available: true,
-      has_stock_limit: false,
-      stock_quantity: null,
-      price_modifier: 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 'cream',
-      name: 'Cream Gold',
-      primary_color: '#F5DEB3',
-      secondary_color: '#DAA520',
-      accent_color: '#DDD',
-      description: 'Soft cream and gold tones',
-      is_available: true,
-      has_stock_limit: false,
-      stock_quantity: null,
-      price_modifier: 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
-  ];
-
-  // Helper methods for localStorage
-  private getStoredData<T>(key: string, defaultData: T[]): T[] {
-    try {
-      const stored = localStorage.getItem(key);
-      return stored ? JSON.parse(stored) : defaultData;
-    } catch (error) {
-      console.error('Error loading stored data:', error);
-      return defaultData;
-    }
-  }
-
-  private saveData<T>(key: string, data: T[]): void {
-    try {
-      localStorage.setItem(key, JSON.stringify(data));
-    } catch (error) {
-      console.error('Error saving data:', error);
-    }
-  }
-
-  // Card Types
+  
+  // ========================================
+  // CARD TYPES - Database-driven
+  // ========================================
+  
   async getCardTypes(includeUnavailable = false): Promise<CardType[]> {
-    const data = this.getStoredData(this.storageKeys.cardTypes, this.DEFAULT_CARD_TYPES);
-    return includeUnavailable ? data : data.filter(item => item.is_available);
+    try {
+      let query = supabase.from('card_types').select('*');
+      
+      if (!includeUnavailable) {
+        query = query.eq('is_available', true);
+      }
+      
+      const { data, error } = await query.order('created_at', { ascending: true });
+      
+      if (error) {
+        console.error('Error fetching card types:', error);
+        throw error;
+      }
+      
+      return data || [];
+    } catch (error) {
+      console.error('Error in getCardTypes:', error);
+      return [];
+    }
   }
 
   async updateCardType(id: string, updates: Partial<CardType>): Promise<CardType> {
-    const data = this.getStoredData(this.storageKeys.cardTypes, this.DEFAULT_CARD_TYPES);
-    const index = data.findIndex(item => item.id === id);
-    
-    if (index === -1) {
-      throw new Error('Card type not found');
+    try {
+      const { data, error } = await supabase
+        .from('card_types')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating card type:', error);
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error in updateCardType:', error);
+      throw error;
     }
-    
-    data[index] = { ...data[index], ...updates, updated_at: new Date().toISOString() };
-    this.saveData(this.storageKeys.cardTypes, data);
-    
-    return data[index];
   }
 
-  async createCardType(cardType: Omit<CardType, 'id' | 'created_at' | 'updated_at'>): Promise<CardType> {
-    const data = this.getStoredData(this.storageKeys.cardTypes, this.DEFAULT_CARD_TYPES);
-    const newItem: CardType = {
-      ...cardType,
-      id: Date.now().toString(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    
-    data.push(newItem);
-    this.saveData(this.storageKeys.cardTypes, data);
-    
-    return newItem;
-  }
+  // ========================================
+  // COLOR SCHEMES - Database Management
+  // ========================================
 
-  async deleteCardType(id: string): Promise<void> {
-    const data = this.getStoredData(this.storageKeys.cardTypes, this.DEFAULT_CARD_TYPES);
-    const filtered = data.filter(item => item.id !== id);
-    this.saveData(this.storageKeys.cardTypes, filtered);
-  }
-
-  // Materials
-  async getMaterials(includeUnavailable = false): Promise<Material[]> {
-    const data = this.getStoredData(this.storageKeys.materials, this.DEFAULT_MATERIALS);
-    return includeUnavailable ? data : data.filter(item => item.is_available);
-  }
-
-  async updateMaterial(id: string, updates: Partial<Material>): Promise<Material> {
-    const data = this.getStoredData(this.storageKeys.materials, this.DEFAULT_MATERIALS);
-    const index = data.findIndex(item => item.id === id);
-    
-    if (index === -1) {
-      throw new Error('Material not found');
-    }
-    
-    data[index] = { ...data[index], ...updates, updated_at: new Date().toISOString() };
-    this.saveData(this.storageKeys.materials, data);
-    
-    return data[index];
-  }
-
-  async createMaterial(material: Omit<Material, 'id' | 'created_at' | 'updated_at'>): Promise<Material> {
-    const data = this.getStoredData(this.storageKeys.materials, this.DEFAULT_MATERIALS);
-    const newItem: Material = {
-      ...material,
-      id: Date.now().toString(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    
-    data.push(newItem);
-    this.saveData(this.storageKeys.materials, data);
-    
-    return newItem;
-  }
-
-  async deleteMaterial(id: string): Promise<void> {
-    const data = this.getStoredData(this.storageKeys.materials, this.DEFAULT_MATERIALS);
-    const filtered = data.filter(item => item.id !== id);
-    this.saveData(this.storageKeys.materials, filtered);
-  }
-
-  // Color Schemes
   async getColorSchemes(includeUnavailable = false): Promise<ColorScheme[]> {
-    const data = this.getStoredData(this.storageKeys.colorSchemes, this.DEFAULT_COLOR_SCHEMES);
-    return includeUnavailable ? data : data.filter(item => item.is_available);
+    try {
+      let query = supabase.from('color_schemes').select('*');
+      
+      if (!includeUnavailable) {
+        query = query.eq('is_available', true);
+      }
+      
+      const { data, error } = await query.order('created_at', { ascending: true });
+      
+      if (error) {
+        console.error('Error fetching color schemes:', error);
+        throw error;
+      }
+      
+      return data || [];
+    } catch (error) {
+      console.error('Error in getColorSchemes:', error);
+      return [];
+    }
   }
 
   async updateColorScheme(id: string, updates: Partial<ColorScheme>): Promise<ColorScheme> {
-    const data = this.getStoredData(this.storageKeys.colorSchemes, this.DEFAULT_COLOR_SCHEMES);
-    const index = data.findIndex(item => item.id === id);
-    
-    if (index === -1) {
-      throw new Error('Color scheme not found');
+    try {
+      // Remove description field since it doesn't exist in the database
+      const { description, ...dbUpdates } = updates;
+      
+      const { data, error } = await supabase
+        .from('color_schemes')
+        .update({
+          ...dbUpdates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating color scheme:', error);
+        throw error;
+      }
+
+      // Add description back to the returned data (will be empty)
+      return { ...data, description: '' };
+    } catch (error) {
+      console.error('Error in updateColorScheme:', error);
+      throw error;
     }
-    
-    data[index] = { ...data[index], ...updates, updated_at: new Date().toISOString() };
-    this.saveData(this.storageKeys.colorSchemes, data);
-    
-    return data[index];
   }
 
   async createColorScheme(colorScheme: Omit<ColorScheme, 'id' | 'created_at' | 'updated_at'>): Promise<ColorScheme> {
-    const data = this.getStoredData(this.storageKeys.colorSchemes, this.DEFAULT_COLOR_SCHEMES);
-    const newItem: ColorScheme = {
-      ...colorScheme,
-      id: Date.now().toString(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    
-    data.push(newItem);
-    this.saveData(this.storageKeys.colorSchemes, data);
-    
-    return newItem;
+    try {
+      // Remove description field since it doesn't exist in the database
+      const { description, ...dbColorScheme } = colorScheme;
+      
+      const { data, error } = await supabase
+        .from('color_schemes')
+        .insert([dbColorScheme])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating color scheme:', error);
+        throw error;
+      }
+
+      // Add description back to the returned data (will be empty)
+      return { ...data, description: '' };
+    } catch (error) {
+      console.error('Error in createColorScheme:', error);
+      throw error;
+    }
   }
 
   async deleteColorScheme(id: string): Promise<void> {
-    const data = this.getStoredData(this.storageKeys.colorSchemes, this.DEFAULT_COLOR_SCHEMES);
-    const filtered = data.filter(item => item.id !== id);
-    this.saveData(this.storageKeys.colorSchemes, filtered);
+    try {
+      const { error } = await supabase
+        .from('color_schemes')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting color scheme:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error in deleteColorScheme:', error);
+      throw error;
+    }
   }
 
-  // Bulk operations
+  // ========================================
+  // BULK OPERATIONS
+  // ========================================
+
   async bulkUpdateCardTypes(updates: InventoryUpdateRequest[]): Promise<CardType[]> {
     const results: CardType[] = [];
     
     for (const update of updates) {
       const { id, ...updateData } = update;
-      const result = await this.updateCardType(id, updateData);
-      results.push(result);
-    }
-    
-    return results;
-  }
-
-  async bulkUpdateMaterials(updates: InventoryUpdateRequest[]): Promise<Material[]> {
-    const results: Material[] = [];
-    
-    for (const update of updates) {
-      const { id, ...updateData } = update;
-      const result = await this.updateMaterial(id, updateData);
-      results.push(result);
+      try {
+        const result = await this.updateCardType(id, updateData);
+        results.push(result);
+      } catch (error) {
+        console.error(`Error updating card type ${id}:`, error);
+      }
     }
     
     return results;
@@ -368,119 +208,202 @@ class InventoryService {
     
     for (const update of updates) {
       const { id, ...updateData } = update;
-      const result = await this.updateColorScheme(id, updateData);
-      results.push(result);
+      try {
+        const result = await this.updateColorScheme(id, updateData);
+        results.push(result);
+      } catch (error) {
+        console.error(`Error updating color scheme ${id}:`, error);
+      }
     }
     
     return results;
   }
 
-  // Utility methods
+  // ========================================
+  // UTILITY METHODS
+  // ========================================
+
   async getAllInventory(): Promise<{
     cardTypes: CardType[];
-    materials: Material[];
     colorSchemes: ColorScheme[];
   }> {
-    const [cardTypes, materials, colorSchemes] = await Promise.all([
-      this.getCardTypes(true),
-      this.getMaterials(true),
-      this.getColorSchemes(true)
-    ]);
+    try {
+      const [cardTypes, colorSchemes] = await Promise.all([
+        this.getCardTypes(true),
+        this.getColorSchemes(true)
+      ]);
 
-    return {
-      cardTypes,
-      materials,
-      colorSchemes
-    };
+      return {
+        cardTypes,
+        colorSchemes
+      };
+    } catch (error) {
+      console.error('Error in getAllInventory:', error);
+      return {
+        cardTypes: [],
+        colorSchemes: []
+      };
+    }
   }
 
   async getAvailableInventory(): Promise<{
     cardTypes: CardType[];
-    materials: Material[];
     colorSchemes: ColorScheme[];
   }> {
-    const [cardTypes, materials, colorSchemes] = await Promise.all([
-      this.getCardTypes(false),
-      this.getMaterials(false),
-      this.getColorSchemes(false)
-    ]);
+    try {
+      const [cardTypes, colorSchemes] = await Promise.all([
+        this.getCardTypes(false),
+        this.getColorSchemes(false)
+      ]);
 
-    return {
-      cardTypes,
-      materials,
-      colorSchemes
-    };
-  }
-
-  // Stock management
-  async decrementStock(type: 'card_type' | 'material' | 'color_scheme', id: string, quantity = 1): Promise<void> {
-    if (type === 'card_type') {
-      const data = this.getStoredData(this.storageKeys.cardTypes, this.DEFAULT_CARD_TYPES);
-      const index = data.findIndex(item => item.id === id);
-      if (index !== -1 && data[index].has_stock_limit && data[index].stock_quantity !== null) {
-        const newQuantity = Math.max(0, (data[index].stock_quantity || 0) - quantity);
-        data[index].stock_quantity = newQuantity;
-        data[index].is_available = newQuantity > 0;
-        data[index].updated_at = new Date().toISOString();
-        this.saveData(this.storageKeys.cardTypes, data);
-      }
-    } else if (type === 'material') {
-      const data = this.getStoredData(this.storageKeys.materials, this.DEFAULT_MATERIALS);
-      const index = data.findIndex(item => item.id === id);
-      if (index !== -1 && data[index].has_stock_limit && data[index].stock_quantity !== null) {
-        const newQuantity = Math.max(0, (data[index].stock_quantity || 0) - quantity);
-        data[index].stock_quantity = newQuantity;
-        data[index].is_available = newQuantity > 0;
-        data[index].updated_at = new Date().toISOString();
-        this.saveData(this.storageKeys.materials, data);
-      }
-    } else if (type === 'color_scheme') {
-      const data = this.getStoredData(this.storageKeys.colorSchemes, this.DEFAULT_COLOR_SCHEMES);
-      const index = data.findIndex(item => item.id === id);
-      if (index !== -1 && data[index].has_stock_limit && data[index].stock_quantity !== null) {
-        const newQuantity = Math.max(0, (data[index].stock_quantity || 0) - quantity);
-        data[index].stock_quantity = newQuantity;
-        data[index].is_available = newQuantity > 0;
-        data[index].updated_at = new Date().toISOString();
-        this.saveData(this.storageKeys.colorSchemes, data);
-      }
+      return {
+        cardTypes,
+        colorSchemes
+      };
+    } catch (error) {
+      console.error('Error in getAvailableInventory:', error);
+      return {
+        cardTypes: [],
+        colorSchemes: []
+      };
     }
   }
 
-  async incrementStock(type: 'card_type' | 'material' | 'color_scheme', id: string, quantity = 1): Promise<void> {
-    if (type === 'card_type') {
-      const data = this.getStoredData(this.storageKeys.cardTypes, this.DEFAULT_CARD_TYPES);
-      const index = data.findIndex(item => item.id === id);
-      if (index !== -1 && data[index].has_stock_limit) {
-        const newQuantity = (data[index].stock_quantity || 0) + quantity;
-        data[index].stock_quantity = newQuantity;
-        data[index].is_available = true;
-        data[index].updated_at = new Date().toISOString();
-        this.saveData(this.storageKeys.cardTypes, data);
+  // ========================================
+  // STOCK MANAGEMENT (Color Schemes Only)
+  // ========================================
+
+  async decrementStock(type: 'color_scheme', id: string, quantity = 1): Promise<void> {
+    try {
+      const tableName = 'color_schemes';
+      
+      // Get current stock
+      const { data: currentItem, error: fetchError } = await supabase
+        .from(tableName)
+        .select('stock_quantity, has_stock_limit')
+        .eq('id', id)
+        .single();
+
+      if (fetchError || !currentItem) {
+        console.error(`Error fetching ${type} for stock decrement:`, fetchError);
+        return;
       }
-    } else if (type === 'material') {
-      const data = this.getStoredData(this.storageKeys.materials, this.DEFAULT_MATERIALS);
-      const index = data.findIndex(item => item.id === id);
-      if (index !== -1 && data[index].has_stock_limit) {
-        const newQuantity = (data[index].stock_quantity || 0) + quantity;
-        data[index].stock_quantity = newQuantity;
-        data[index].is_available = true;
-        data[index].updated_at = new Date().toISOString();
-        this.saveData(this.storageKeys.materials, data);
+
+      // Only decrement if stock limit is enabled
+      if (!currentItem.has_stock_limit) {
+        return;
       }
-    } else if (type === 'color_scheme') {
-      const data = this.getStoredData(this.storageKeys.colorSchemes, this.DEFAULT_COLOR_SCHEMES);
-      const index = data.findIndex(item => item.id === id);
-      if (index !== -1 && data[index].has_stock_limit) {
-        const newQuantity = (data[index].stock_quantity || 0) + quantity;
-        data[index].stock_quantity = newQuantity;
-        data[index].is_available = true;
-        data[index].updated_at = new Date().toISOString();
-        this.saveData(this.storageKeys.colorSchemes, data);
+
+      const currentStock = currentItem.stock_quantity || 0;
+      const newQuantity = Math.max(0, currentStock - quantity);
+      
+      // Update stock and availability
+      const { error: updateError } = await supabase
+        .from(tableName)
+        .update({
+          stock_quantity: newQuantity,
+          is_available: newQuantity > 0,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (updateError) {
+        console.error(`Error updating ${type} stock:`, updateError);
       }
+    } catch (error) {
+      console.error(`Error in decrementStock for ${type}:`, error);
+    }
+  }
+
+  async incrementStock(type: 'color_scheme', id: string, quantity = 1): Promise<void> {
+    try {
+      const tableName = 'color_schemes';
+      
+      // Get current stock
+      const { data: currentItem, error: fetchError } = await supabase
+        .from(tableName)
+        .select('stock_quantity, has_stock_limit')
+        .eq('id', id)
+        .single();
+
+      if (fetchError || !currentItem) {
+        console.error(`Error fetching ${type} for stock increment:`, fetchError);
+        return;
+      }
+
+      // Only increment if stock limit is enabled
+      if (!currentItem.has_stock_limit) {
+        return;
+      }
+
+      const currentStock = currentItem.stock_quantity || 0;
+      const newQuantity = currentStock + quantity;
+      
+      // Update stock and availability
+      const { error: updateError } = await supabase
+        .from(tableName)
+        .update({
+          stock_quantity: newQuantity,
+          is_available: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (updateError) {
+        console.error(`Error updating ${type} stock:`, updateError);
+      }
+    } catch (error) {
+      console.error(`Error in incrementStock for ${type}:`, error);
+    }
+  }
+
+  // ========================================
+  // ORDER INTEGRATION (Simplified)
+  // ========================================
+
+  async processOrderStockDecrement(orderData: {
+    design_id: string;
+    color_scheme_id: string;
+    quantity: number;
+  }): Promise<{ success: boolean; message?: string }> {
+    try {
+      // Check card type availability
+      const cardTypes = await this.getCardTypes(false);
+      const selectedCardType = cardTypes.find(ct => ct.id === orderData.design_id);
+      if (!selectedCardType) {
+        return { success: false, message: 'Selected card design is currently unavailable' };
+      }
+
+      // Check color scheme stock
+      const { data: colorScheme, error } = await supabase
+        .from('color_schemes')
+        .select('stock_quantity, has_stock_limit, is_available')
+        .eq('id', orderData.color_scheme_id)
+        .single();
+
+      if (error || !colorScheme?.is_available) {
+        return { success: false, message: 'Selected color scheme is currently unavailable' };
+      }
+
+      // Check stock levels for color schemes with stock limits
+      if (colorScheme.has_stock_limit && (colorScheme.stock_quantity || 0) < orderData.quantity) {
+        return { 
+          success: false, 
+          message: 'Insufficient stock for selected color scheme' 
+        };
+      }
+
+      // Decrement stock for color schemes only
+      await this.decrementStock('color_scheme', orderData.color_scheme_id, orderData.quantity);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error processing order stock decrement:', error);
+      return { success: false, message: 'Error processing stock update' };
     }
   }
 }
 
-export const inventoryService = new InventoryService();
-export default inventoryService; 
+// Export singleton instance
+const inventoryService = new InventoryService();
+export default inventoryService;

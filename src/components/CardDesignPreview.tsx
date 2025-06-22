@@ -37,8 +37,11 @@ export const CardDesignPreview: React.FC<CardDesignPreviewProps> = ({
 
 
 
+  // Get card design name (handle both string names and UUIDs)
+  const designName = design.name?.toLowerCase() || '';
+
   // Classic Design
-  if (design.id === 'classic') {
+  if (designName === 'classic') {
     return (
       <div className={`w-full h-0 pb-[57%] relative rounded-lg overflow-hidden shadow-lg ${className}`}>
         <img 
@@ -46,16 +49,12 @@ export const CardDesignPreview: React.FC<CardDesignPreviewProps> = ({
           alt="Classic Card Design"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        {/* Optional overlay for material effects */}
-        {material?.id === 'metal' && (
-          <div className="absolute inset-0 bg-gray-400/30" />
-        )}
       </div>
     );
   }
 
   // Premium Design
-  if (design.id === 'premium') {
+  if (designName === 'premium') {
     return (
       <div className={`w-full h-0 pb-[57%] relative rounded-lg overflow-hidden shadow-xl ${className}`}>
         <img 
@@ -63,16 +62,12 @@ export const CardDesignPreview: React.FC<CardDesignPreviewProps> = ({
           alt="Premium Card Design"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        {/* Optional overlay for material effects */}
-        {material?.id === 'metal' && (
-          <div className="absolute inset-0 bg-gray-400/30" />
-        )}
       </div>
     );
   }
 
   // Metal Design
-  if (design.id === 'metal') {
+  if (designName === 'metal') {
     return (
       <div className={`w-full h-0 pb-[57%] relative rounded-lg overflow-hidden shadow-2xl ${className}`}>
         <img 
@@ -80,10 +75,6 @@ export const CardDesignPreview: React.FC<CardDesignPreviewProps> = ({
           alt="Metal Card Design"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        {/* Optional overlay for material effects */}
-        {material?.id === 'metal' && (
-          <div className="absolute inset-0 bg-gray-400/30" />
-        )}
       </div>
     );
   }

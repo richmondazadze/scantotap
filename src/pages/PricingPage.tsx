@@ -504,7 +504,7 @@ const PricingPage = () => {
               type="single" 
               collapsible 
                 className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-slate-200/50 dark:border-slate-700/50 overflow-hidden space-y-0"
-              >
+            >
                 {[
                   {
                     question: "How does the digital business card work?",

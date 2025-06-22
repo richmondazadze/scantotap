@@ -9,6 +9,123 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      card_types: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          is_available: boolean
+          has_stock_limit: boolean
+          stock_quantity: number | null
+          price_modifier: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          is_available?: boolean
+          has_stock_limit?: boolean
+          stock_quantity?: number | null
+          price_modifier: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          is_available?: boolean
+          has_stock_limit?: boolean
+          stock_quantity?: number | null
+          price_modifier?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      color_schemes: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          primary_color: string
+          secondary_color: string | null
+          accent_color: string | null
+          is_available: boolean
+          has_stock_limit: boolean
+          stock_quantity: number | null
+          price_modifier: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          primary_color: string
+          secondary_color?: string | null
+          accent_color?: string | null
+          is_available?: boolean
+          has_stock_limit?: boolean
+          stock_quantity?: number | null
+          price_modifier: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          primary_color?: string
+          secondary_color?: string | null
+          accent_color?: string | null
+          is_available?: boolean
+          has_stock_limit?: boolean
+          stock_quantity?: number | null
+          price_modifier?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      materials: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          is_available: boolean
+          has_stock_limit: boolean
+          stock_quantity: number | null
+          price_modifier: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          is_available?: boolean
+          has_stock_limit?: boolean
+          stock_quantity?: number | null
+          price_modifier: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          is_available?: boolean
+          has_stock_limit?: boolean
+          stock_quantity?: number | null
+          price_modifier?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_shipments: {
         Row: {
           carrier_id: string | null
