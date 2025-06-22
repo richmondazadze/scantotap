@@ -1,7 +1,7 @@
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useProfile, type PlanType, type SubscriptionStatus } from '@/contexts/ProfileContext';
 import { useState, useEffect, useRef, useMemo } from 'react';
-import AvatarUploader from '@/components/AvatarUploader';
+import { AvatarUploader } from '@/components/AvatarUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -67,7 +67,6 @@ export default function DashboardProfile() {
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
 
   const slugCheckTimeout = useRef<NodeJS.Timeout | null>(null);
-  const avatarTriggerRef = useRef<HTMLDivElement>(null);
 
   // Plan features
   const planFeatures = usePlanFeatures();
@@ -404,54 +403,7 @@ export default function DashboardProfile() {
     // hasUnsavedChanges will automatically become false when profile is updated
   };
 
-  const handleRemoveAvatar = async () => {
-    // Delete the old avatar from storage if it exists
-    if (avatarUrl && profile?.id) {
-      try {
-        // Extract file path from URL
-        const url = new URL(avatarUrl);
-        const filePath = url.pathname.split('/').slice(-2).join('/'); // Get 'avatars/filename'
-        
-        // Delete from Supabase storage
-        await supabase.storage.from('avatars').remove([filePath]);
-      } catch (error) {
-        console.log('Could not delete old avatar:', error);
-        // Continue even if deletion fails
-      }
-    }
 
-    // Update local state immediately
-    setAvatarUrl("");
-    
-    // Also update the profile in the database to remove the avatar_url
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({ avatar_url: '' })
-        .eq('id', profile.id)
-        .select()
-        .single();
-        
-      if (error) throw error;
-      
-      // Update the profile context with the new data
-      if (data) {
-        // Cast database types to our typed interface (same as ProfileContext)
-        const updatedProfile = {
-          ...data,
-          plan_type: (data.plan_type as PlanType) || 'free',
-          subscription_status: data.subscription_status as SubscriptionStatus | undefined,
-        };
-        setProfile(updatedProfile);
-      }
-      
-      toast.success('Avatar removed successfully!');
-    } catch (err) {
-      toast.error('Failed to remove avatar. Please try again.');
-      // Revert local state if database update failed
-      setAvatarUrl(profile?.avatar_url || '');
-    }
-  };
 
   // Card styles - updated to match other dashboard pages
   const cardBase = 'relative rounded-xl shadow-lg p-6 sm:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30';
@@ -485,64 +437,25 @@ export default function DashboardProfile() {
           <div className="flex flex-col xl:flex-row xl:items-start gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
             {/* Avatar Section */}
             <div className="flex flex-col items-center xl:items-start gap-4 sm:gap-6 w-full xl:w-1/3">
-              <div ref={avatarTriggerRef} className="relative group cursor-pointer select-none">
-                <div className="w-36 h-36 sm:w-44 sm:h-44 lg:w-52 lg:h-52 xl:w-56 xl:h-56 rounded-full overflow-hidden border-4 border-scan-blue/20 dark:border-scan-blue/30 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 flex items-center justify-center transition-all duration-300 lg:group-hover:border-scan-blue/40 dark:lg:group-hover:border-scan-blue/50 shadow-xl lg:group-hover:shadow-2xl">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="object-cover w-full h-full" />
-                ) : (
-                    <span className="text-gray-400 text-5xl sm:text-6xl lg:text-7xl">?</span>
-                )}
-                
-              </div>
-                <AvatarUploader 
-                  onUpload={(newUrl) => {
-                    // Clean up old avatar when uploading new one
-                    if (avatarUrl && avatarUrl !== newUrl) {
-                      try {
-                        const url = new URL(avatarUrl);
-                        const filePath = url.pathname.split('/').slice(-2).join('/');
-                        supabase.storage.from('avatars').remove([filePath]);
-                      } catch (error) {
-                        console.log('Could not delete old avatar:', error);
-                      }
+              <AvatarUploader
+                currentAvatar={avatarUrl || undefined}
+                onAvatarUpdate={(newUrl) => {
+                  // Clean up old avatar when uploading new one
+                  if (avatarUrl && avatarUrl !== newUrl && newUrl) {
+                    try {
+                      const url = new URL(avatarUrl);
+                      const filePath = url.pathname.split('/').slice(-2).join('/');
+                      supabase.storage.from('avatars').remove([filePath]);
+                    } catch (error) {
+                      console.log('Could not delete old avatar:', error);
                     }
-                    setAvatarUrl(newUrl);
-                  }} 
-                  triggerRef={avatarTriggerRef} 
-                />
-                <div className="flex flex-col items-center mt-3 sm:mt-4 gap-3">
-              {!avatarUrl ? (
-                <button
-                      className="text-sm sm:text-base text-scan-blue dark:text-scan-blue-light font-semibold hover:text-scan-blue-dark dark:hover:text-scan-blue transition-colors cursor-pointer px-6 py-3 rounded-xl hover:bg-scan-blue/5 dark:hover:bg-scan-blue/10 border border-scan-blue/20 hover:border-scan-blue/40 shadow-sm hover:shadow-md"
-                  tabIndex={0}
-                  role="button"
-                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && avatarTriggerRef.current?.click()}
-                  onClick={() => avatarTriggerRef.current?.click()}
-                >
-                  📸 Add Profile Photo
-                </button>
-              ) : (
-                <div className="flex flex-col gap-2 items-center">
-                  <button
-                        className="text-sm sm:text-base text-scan-blue dark:text-scan-blue-light font-semibold hover:text-scan-blue-dark dark:hover:text-scan-blue transition-colors cursor-pointer px-6 py-3 rounded-xl hover:bg-scan-blue/5 dark:hover:bg-scan-blue/10 border border-scan-blue/20 hover:border-scan-blue/40 shadow-sm hover:shadow-md"
-                    tabIndex={0}
-                    role="button"
-                    onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && avatarTriggerRef.current?.click()}
-                    onClick={() => avatarTriggerRef.current?.click()}
-                  >
-                    🔄 Update Photo
-                  </button>
-                  <button
-                    type="button"
-                        className="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium transition-colors px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 border border-red-200 dark:border-red-500/20 hover:border-red-300 dark:hover:border-red-500/40"
-                    onClick={handleRemoveAvatar}
-                  >
-                    🗑️ Remove Photo
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+                  }
+                  setAvatarUrl(newUrl);
+                }}
+                userId={session?.user.id || ''}
+                size="lg"
+                showRemove={true}
+              />
             </div>
 
           {/* Profile Fields */}

@@ -18,6 +18,7 @@ import { PaystackService } from '@/services/paystackService';
 import { usePlanFeatures } from '@/hooks/usePlanFeatures';
 import AIService from '@/services/aiService';
 import BioEnhancementModal from '@/components/BioEnhancementModal';
+import { AvatarUploader } from '@/components/AvatarUploader';
 import { EmailTriggers, EmailUtils } from '@/utils/emailHelpers';
 
 // Simple Threads icon component
@@ -376,51 +377,18 @@ function ProfileStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitti
   const [profileTitle, setProfileTitle] = useState("");
   const [bio, setBio] = useState("");
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
   const [generatingBio, setGeneratingBio] = useState(false);
   const [showBioModal, setShowBioModal] = useState(false);
 
-  // Handle file upload
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be smaller than 5MB");
-      return;
-    }
-
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      toast.error("Please select an image file");
-      return;
-    }
-
-    setUploading(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${session?.user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-      setUploadedImage(publicUrl);
+  // Handle avatar upload from new component
+  const handleAvatarUpdate = (avatarUrl: string) => {
+    if (avatarUrl) {
+      setUploadedImage(avatarUrl);
       setSelectedAvatar('upload');
-      toast.success("Image uploaded successfully!");
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error("Failed to upload image. Please try again.");
+    } else {
+      setUploadedImage(null);
+      setSelectedAvatar('avatar1'); // Default back to first preset
     }
-    setUploading(false);
   };
 
   // Generate AI bio - now opens modal
@@ -493,50 +461,43 @@ function ProfileStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitti
         {/* Avatar Selection */}
         <div>
           <Label className="text-base font-bold mb-3 block">Profile Image</Label>
-          <div className="flex justify-center gap-3">
-            {AVATAR_OPTIONS.map((option) => (
-              <button
-                key={option.id}
-                onClick={() => {
-                  if (option.type === 'upload') {
-                    document.getElementById('avatar-upload')?.click();
-                  } else {
+          <div className="flex flex-col items-center gap-4">
+            {/* Preset Avatar Options */}
+            <div className="flex justify-center gap-3">
+              {AVATAR_OPTIONS.filter(option => option.type !== 'upload').map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => {
                     setSelectedAvatar(option.id);
-                  }
-                }}
-                className={`relative w-16 h-16 rounded-full border-2 transition-all ${
-                  selectedAvatar === option.id 
-                    ? 'border-blue-500' 
-                    : 'border-gray-200'
-                }`}
-              >
-                {option.type === 'upload' ? (
-                  <div className="w-full h-full rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
-                    {uploading ? (
-                      <Loading size="sm" />
-                    ) : uploadedImage && selectedAvatar === 'upload' ? (
-                      <img src={uploadedImage} alt="Uploaded" className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      <Upload className="w-6 h-6 text-gray-400" />
-                    )}
-                  </div>
-                ) : (
+                    setUploadedImage(null); // Clear uploaded image when selecting preset
+                  }}
+                  className={`relative w-24 h-24 xs:w-20 xs:h-20 sm:w-20 sm:h-20 rounded-full border-2 transition-all ${
+                    selectedAvatar === option.id && !uploadedImage
+                      ? 'border-blue-500' 
+                      : 'border-gray-200'
+                  }`}
+                >
                   <img 
                     src={option.url} 
                     alt={option.alt}
                     className="w-full h-full rounded-full object-cover"
                   />
-                )}
-              </button>
-            ))}
+                </button>
+              ))}
+            </div>
+            
+            {/* Custom Upload Section */}
+            <div className="text-center">
+              <p className="text-sm text-gray-600 mb-2">Or upload your own photo:</p>
+              <AvatarUploader
+                currentAvatar={uploadedImage || undefined}
+                onAvatarUpdate={handleAvatarUpdate}
+                userId={session?.user.id || ''}
+                size="md"
+                showRemove={true}
+              />
+            </div>
           </div>
-          <input
-            id="avatar-upload"
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-          />
         </div>
 
         {/* Title */}

@@ -265,3 +265,118 @@ html {
     scroll-behavior: auto !important;
   }
 }
+
+/* Avatar Upload Mobile Optimizations */
+@layer components {
+  /* Better touch targets for mobile */
+  .avatar-upload-button {
+    @apply min-h-[44px] min-w-[44px] touch-manipulation;
+  }
+  
+  /* File input improvements for mobile */
+  input[type="file"] {
+    @apply cursor-pointer;
+  }
+  
+  /* Mobile Options Modal Styling */
+  .avatar-upload-modal {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  .avatar-upload-modal-content {
+    @apply bg-white/95 dark:bg-gray-800/95;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  
+  /* Mobile-specific avatar upload styles */
+  @media (max-width: 768px) {
+    .avatar-upload-container {
+      @apply w-full flex flex-col items-center;
+    }
+    
+    /* Ensure proper touch handling */
+    [data-avatar-clickable="true"] {
+      @apply cursor-pointer touch-manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Larger profile pictures on mobile */
+    .avatar-upload-container [data-avatar-clickable="true"] {
+      @apply w-44 h-44 min-w-[176px] min-h-[176px];
+    }
+    
+    /* Make mobile profile pictures more prominent */
+    @media (max-width: 640px) {
+      .avatar-upload-container [data-avatar-clickable="true"] {
+        @apply w-48 h-48 min-w-[192px] min-h-[192px];
+      }
+    }
+    
+    /* Better spacing for mobile */
+    .avatar-upload-buttons {
+      @apply flex flex-col gap-3 w-full max-w-xs;
+    }
+    
+    .avatar-upload-buttons button {
+      @apply w-full justify-center;
+    }
+    
+    /* Mobile modal specific styles */
+    .avatar-upload-modal-content {
+      @apply mx-4 w-[calc(100vw-2rem)] max-w-sm;
+    }
+    
+    /* Improve modal button spacing on mobile */
+    .avatar-upload-modal-content .space-y-3 > button {
+      @apply min-h-[52px] text-base font-medium;
+    }
+  }
+  
+  /* Desktop hover effects */
+  @media (min-width: 769px) {
+    [data-avatar-clickable="true"]:hover {
+      @apply opacity-80 transform scale-105;
+    }
+    
+    /* Ensure desktop profile pictures are prominent too */
+    .avatar-upload-container [data-avatar-clickable="true"] {
+      @apply min-w-[208px] min-h-[208px];
+    }
+    
+    /* Make large size even bigger on desktop */
+    .avatar-upload-container [data-avatar-clickable="true"] {
+      @apply w-60 h-60 min-w-[240px] min-h-[240px];
+    }
+    
+    /* Override for extra large desktop avatars */
+    @media (min-width: 1024px) {
+      .avatar-upload-container [data-avatar-clickable="true"] {
+        @apply w-64 h-64 min-w-[256px] min-h-[256px];
+      }
+    }
+  }
+  
+  /* Animation for modal */
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  .avatar-upload-modal-content {
+    animation: modalFadeIn 0.2s ease-out;
+  }
+  
+  /* Ensure modal is above everything */
+  .avatar-upload-modal {
+    z-index: 9999;
+  }
+}

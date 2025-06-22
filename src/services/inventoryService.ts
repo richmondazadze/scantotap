@@ -193,8 +193,8 @@ class InventoryService {
     for (const update of updates) {
       const { id, ...updateData } = update;
       try {
-        const result = await this.updateCardType(id, updateData);
-        results.push(result);
+      const result = await this.updateCardType(id, updateData);
+      results.push(result);
       } catch (error) {
         console.error(`Error updating card type ${id}:`, error);
       }
@@ -209,8 +209,8 @@ class InventoryService {
     for (const update of updates) {
       const { id, ...updateData } = update;
       try {
-        const result = await this.updateColorScheme(id, updateData);
-        results.push(result);
+      const result = await this.updateColorScheme(id, updateData);
+      results.push(result);
       } catch (error) {
         console.error(`Error updating color scheme ${id}:`, error);
       }
@@ -229,14 +229,14 @@ class InventoryService {
   }> {
     try {
       const [cardTypes, colorSchemes] = await Promise.all([
-        this.getCardTypes(true),
-        this.getColorSchemes(true)
-      ]);
+      this.getCardTypes(true),
+      this.getColorSchemes(true)
+    ]);
 
-      return {
-        cardTypes,
-        colorSchemes
-      };
+    return {
+      cardTypes,
+      colorSchemes
+    };
     } catch (error) {
       console.error('Error in getAllInventory:', error);
       return {
@@ -252,14 +252,14 @@ class InventoryService {
   }> {
     try {
       const [cardTypes, colorSchemes] = await Promise.all([
-        this.getCardTypes(false),
-        this.getColorSchemes(false)
-      ]);
+      this.getCardTypes(false),
+      this.getColorSchemes(false)
+    ]);
 
-      return {
-        cardTypes,
-        colorSchemes
-      };
+    return {
+      cardTypes,
+      colorSchemes
+    };
     } catch (error) {
       console.error('Error in getAvailableInventory:', error);
       return {
@@ -406,4 +406,4 @@ class InventoryService {
 
 // Export singleton instance
 const inventoryService = new InventoryService();
-export default inventoryService;
+export default inventoryService; 
