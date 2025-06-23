@@ -8,6 +8,11 @@ export interface OrderData {
   design_name: string;
   design_price: number;
   
+  // Material details (now hardcoded in card types)
+  material_id: string;
+  material_name: string;
+  material_price_modifier?: number;
+  
   // Color scheme
   color_scheme_id: string;
   color_scheme_name: string;
@@ -20,6 +25,7 @@ export interface OrderData {
   shipping: number;
   tax: number;
   total: number;
+  currency?: string;
   
   // Customer information
   customer_first_name: string;
@@ -33,7 +39,13 @@ export interface OrderData {
   shipping_state: string;
   shipping_zip_code: string;
   shipping_country: string;
+  shipping_zone_id?: string;
   special_instructions?: string;
+  shipping_notes?: string;
+  
+  // Delivery preferences
+  requires_signature?: boolean;
+  is_priority?: boolean;
 }
 
 export interface Order extends OrderData {
@@ -41,9 +53,17 @@ export interface Order extends OrderData {
   user_id: string;
   order_number: string;
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  
+  // Tracking and shipping
   tracking_number?: string;
+  carrier_id?: string;
   shipped_at?: string;
   delivered_at?: string;
+  actual_delivery_date?: string;
+  estimated_delivery_date?: string;
+  tracking_events?: any;
+  
+  // Timestamps
   created_at: string;
   updated_at: string;
 }

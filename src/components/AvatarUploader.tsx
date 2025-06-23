@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
-import { Camera, Upload, X, Image } from 'lucide-react';
+import { Camera, Upload, X, Image, Crop } from 'lucide-react';
 import { uploadAvatar } from '../lib/uploadAvatar';
 import { useToast } from '../hooks/use-toast';
+import { ImageCropModal } from './ImageCropModal';
 
 interface AvatarUploaderProps {
   currentAvatar?: string;
@@ -23,8 +24,11 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showMobileOptions, setShowMobileOptions] = useState(false);
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [selectedImageForCrop, setSelectedImageForCrop] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const cropInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const sizeClasses = {
@@ -41,16 +45,23 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
     if (isMobile) {
       setShowMobileOptions(true);
     } else {
-      if (fileInputRef.current) {
-        fileInputRef.current.click();
+      if (cropInputRef.current) {
+        cropInputRef.current.click();
       }
     }
   }, [isMobile]);
 
-  // Handle upload button click - directly opens native picker
+  // Handle upload button click - now opens crop modal
   const handleUploadButtonClick = useCallback(() => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
+    if (cropInputRef.current) {
+      cropInputRef.current.click();
+    }
+  }, []);
+
+  // Handle crop button click
+  const handleCropButtonClick = useCallback(() => {
+    if (cropInputRef.current) {
+      cropInputRef.current.click();
     }
   }, []);
 
@@ -76,6 +87,45 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
     }
   }, [handleAvatarClick]);
 
+  const uploadImageFile = async (file: File) => {
+    setIsUploading(true);
+    setShowMobileOptions(false); // Close mobile options
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreviewUrl(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    try {
+      const avatarUrl = await uploadAvatar(file, userId);
+      onAvatarUpdate(avatarUrl);
+      
+      // Silent success - no toast
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+      setPreviewUrl(null);
+    } finally {
+      setIsUploading(false);
+      // Reset file inputs
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      if (cameraInputRef.current) {
+        cameraInputRef.current.value = '';
+      }
+      if (cropInputRef.current) {
+        cropInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -100,46 +150,50 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
       return;
     }
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreviewUrl(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+    // Upload directly without cropping
+    await uploadImageFile(file);
+  };
 
-    setIsUploading(true);
-    setShowMobileOptions(false); // Close mobile options
+  const handleCropFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    try {
-      const avatarUrl = await uploadAvatar(file, userId);
-      onAvatarUpdate(avatarUrl);
-      
-      // Removed success toast - silent success
-    } catch (error) {
-      console.error('Upload error:', error);
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
       toast({
-        title: "Upload failed",
-        description: error instanceof Error ? error.message : "Failed to upload image. Please try again.",
+        title: "Invalid file type",
+        description: "Please select an image file.",
         variant: "destructive",
       });
-      setPreviewUrl(null);
-    } finally {
-      setIsUploading(false);
-      // Reset file inputs
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-      if (cameraInputRef.current) {
-        cameraInputRef.current.value = '';
-      }
+      return;
     }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image smaller than 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Set the image for cropping and show modal
+    setSelectedImageForCrop(file);
+    setShowCropModal(true);
+    setShowMobileOptions(false);
+  };
+
+  const handleCropComplete = async (croppedFile: File) => {
+    await uploadImageFile(croppedFile);
+    setSelectedImageForCrop(null);
   };
 
   const handleRemoveAvatar = () => {
     setPreviewUrl(null);
     onAvatarUpdate('');
     setShowMobileOptions(false);
-    // Removed success toast - silent success
+    // Silent success - no toast
   };
 
   const handleCameraClick = () => {
@@ -152,6 +206,13 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
   const handleGalleryClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+    setShowMobileOptions(false);
+  };
+
+  const handleCropClick = () => {
+    if (cropInputRef.current) {
+      cropInputRef.current.click();
     }
     setShowMobileOptions(false);
   };
@@ -181,7 +242,7 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
         </div>
       </div>
 
-      {/* Hidden file inputs - Main input opens native device picker */}
+      {/* Hidden file inputs */}
       <input
         ref={fileInputRef}
         type="file"
@@ -198,6 +259,16 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
         accept="image/*"
         capture="environment"
         onChange={handleFileSelect}
+        className="hidden"
+        disabled={isUploading}
+      />
+
+      {/* Crop input for modal option */}
+      <input
+        ref={cropInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleCropFileSelect}
         className="hidden"
         disabled={isUploading}
       />
@@ -225,12 +296,24 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
                 type="button"
                 variant="outline"
                 size="lg"
+                onClick={handleCropClick}
+                disabled={isUploading}
+                className="w-full justify-start gap-3 h-12 bg-blue-50 border-blue-200 hover:bg-blue-100 dark:bg-blue-900/20 dark:border-blue-800 dark:hover:bg-blue-900/30"
+              >
+                <Crop className="h-5 w-5" />
+                Upload & Crop Photo
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
                 onClick={handleGalleryClick}
                 disabled={isUploading}
                 className="w-full justify-start gap-3 h-12"
               >
                 <Image className="h-5 w-5" />
-                Choose from Gallery
+                Quick Upload (No Crop)
               </Button>
               
               {showRemove && displayAvatar && (
@@ -260,7 +343,7 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
         </div>
       )}
 
-      {/* Upload buttons - Always use native picker */}
+      {/* Upload buttons - Crop is now the default */}
       <div className="avatar-upload-buttons flex flex-col gap-2 w-full max-w-xs">
         <Button
           type="button"
@@ -291,10 +374,24 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
 
       <p className="text-xs text-gray-500 text-center max-w-xs">
         {isMobile 
-          ? 'Tap "Upload Photo" to choose from camera or gallery. Tap avatar for more options.'
-          : 'Click the avatar or upload button to change your profile picture. Supported formats: JPG, PNG, GIF (max 5MB)'
+          ? 'Tap "Upload Photo" to crop and upload your profile picture. Tap avatar for more options.'
+          : 'Click "Upload Photo" to crop and upload your profile picture. Supported formats: JPG, PNG, GIF (max 5MB)'
         }
       </p>
+
+      {/* Image Crop Modal */}
+      <ImageCropModal
+        isOpen={showCropModal}
+        onClose={() => {
+          setShowCropModal(false);
+          setSelectedImageForCrop(null);
+        }}
+        onCropComplete={handleCropComplete}
+        initialImage={selectedImageForCrop}
+        maxFileSize={5}
+        aspectRatio={1}
+        circular={true}
+      />
     </div>
   );
 }; 

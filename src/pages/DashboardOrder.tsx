@@ -354,11 +354,27 @@ export default function DashboardOrder() {
     setIsSubmittingOrder(true);
     
     try {
+      // Determine material based on card type
+      const getMaterialForCardType = (cardTypeName: string) => {
+        const name = cardTypeName.toLowerCase();
+        if (name === 'metal') {
+          return { id: 'metal', name: 'Metal' };
+        } else {
+          return { id: 'plastic', name: 'Plastic' };
+        }
+      };
+
+      const material = getMaterialForCardType(selectedDesign.name);
+
       const orderData: OrderData = {
         // Design details
         design_id: selectedDesign.id,
         design_name: selectedDesign.name,
         design_price: selectedDesign.price,
+        
+        // Material details (auto-selected based on card type)
+        material_id: material.id,
+        material_name: material.name,
         
         // Color scheme
         color_scheme_id: selectedColor.id,
