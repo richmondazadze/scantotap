@@ -204,7 +204,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
   };
 
   const renderSelectStep = () => (
-    <div className="flex flex-col items-center justify-center p-8 text-center">
+    <div className="flex flex-col items-center justify-center p-6 sm:p-8 text-center">
       <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 flex items-center justify-center mb-6 shadow-sm">
         <Camera className="w-12 h-12 text-blue-600 dark:text-blue-400" />
       </div>
@@ -240,7 +240,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
   const renderCropStep = () => (
     <div className="flex flex-col h-full">
       {/* Crop area */}
-      <div className="relative flex-1 min-h-[400px] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl overflow-hidden mx-4 mb-4 shadow-inner">
+      <div className="relative flex-1 min-h-[350px] sm:min-h-[400px] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl overflow-hidden mx-2 sm:mx-4 mb-4 shadow-inner">
         <Cropper
           image={imageSrc}
           crop={crop}
@@ -272,7 +272,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
       </div>
 
       {/* Controls */}
-      <div className="p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-t-2xl border-t border-gray-200 dark:border-gray-600">
+      <div className="p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-t-2xl border-t border-gray-200 dark:border-gray-600">
         {/* Zoom control */}
         <div className="mb-6">
           <label className="block text-sm font-semibold mb-3 text-gray-700 dark:text-gray-200">Zoom</label>
@@ -290,13 +290,13 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
         </div>
 
         {/* Action buttons */}
-        <div className="flex justify-between items-center gap-3">
-          <div className="flex space-x-3">
+        <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-3">
+          <div className="flex space-x-2 sm:space-x-3 w-full sm:w-auto">
             <Button
               variant="outline"
               size="sm"
               onClick={handleRotate}
-              className="touch-manipulation rounded-xl border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 shadow-sm"
+              className="touch-manipulation rounded-xl border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 shadow-sm flex-1 sm:flex-none"
             >
               <RotateCcw className="w-4 h-4" />
             </Button>
@@ -304,24 +304,24 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
               variant="outline"
               size="sm"
               onClick={handleReset}
-              className="touch-manipulation rounded-xl border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 shadow-sm"
+              className="touch-manipulation rounded-xl border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 shadow-sm flex-1 sm:flex-none"
             >
               Reset
             </Button>
           </div>
           
-          <div className="flex space-x-3">
+          <div className="flex space-x-2 sm:space-x-3 w-full sm:w-auto">
             <Button
               variant="outline"
               onClick={() => setStep('select')}
-              className="touch-manipulation rounded-xl border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 shadow-sm"
+              className="touch-manipulation rounded-xl border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 shadow-sm flex-1 sm:flex-none"
             >
               Back
             </Button>
             <Button
               onClick={handleCropConfirm}
               disabled={isProcessing}
-              className="touch-manipulation rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="touch-manipulation rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none"
             >
               {isProcessing ? 'Uploading...' : 'Upload'}
               <Check className="w-4 h-4 ml-2" />
@@ -334,9 +334,9 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md sm:max-w-2xl w-[calc(100vw-2rem)] mx-auto p-0 gap-0 overflow-hidden rounded-2xl shadow-2xl border-0 bg-white dark:bg-gray-900">
+      <DialogContent className="max-w-md sm:max-w-2xl w-[calc(100vw-1rem)] sm:w-[calc(100vw-2rem)] m-2 sm:m-4 mx-auto p-0 gap-0 overflow-hidden rounded-2xl shadow-2xl border-0 bg-white dark:bg-gray-900">
         {step === 'select' && (
-          <DialogHeader className="p-6 pb-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-700">
+          <DialogHeader className="p-4 sm:p-6 pb-3 sm:pb-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
                 Select Image
