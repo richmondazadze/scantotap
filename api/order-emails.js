@@ -88,6 +88,16 @@ export default async function handler(req, res) {
       html: html,
     });
 
+    // Send admin notification for new orders
+    if (type === 'order-confirmation') {
+      await resend.emails.send({
+        from: 'SCAN2TAP Orders <orders@richverseecotech.com>',
+        to: ['scan2tap@gmail.com'],
+        subject: `New Order Received - ${orderData.orderNumber}`,
+        html: generateAdminOrderNotificationEmail(orderData, profile),
+      });
+    }
+
     return res.status(200).json({ success: true, id: result.id });
   } catch (error) {
     console.error('Order email sending error:', error);
@@ -794,6 +804,179 @@ function generateOrderCancelledEmail(orderData, userName) {
       <div class="footer-text">
         <strong>SCAN2TAP</strong><br>
         Your Digital Identity, One Tap Away
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+function generateAdminOrderNotificationEmail(orderData, profile) {
+  const { orderNumber, total, items, shippingAddress } = orderData;
+  
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Order Notification - ${orderNumber}</title>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333333;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      padding: 30px 20px;
+      text-align: center;
+      color: white;
+    }
+    
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    
+    .logo .number-2 {
+      color: #60a5fa;
+      text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+    }
+    
+    .content {
+      padding: 30px 25px;
+      background-color: #ffffff;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      background-color: #10b981;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 10px 0 20px 0;
+    }
+    
+    .order-summary {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .order-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .order-row:last-child {
+      border-bottom: none;
+      font-weight: bold;
+      padding-top: 15px;
+      margin-top: 10px;
+      border-top: 2px solid #e2e8f0;
+    }
+    
+    .customer-info {
+      background-color: #f1f5f9;
+      border-left: 4px solid #2563eb;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    
+    .footer {
+      background-color: #f9fafb;
+      padding: 25px 20px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    .footer-text {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <div class="logo">
+        SCAN<span class="number-2">2</span>TAP
+      </div>
+      <div class="header-subtitle">New Order Notification</div>
+    </div>
+    
+    <div class="content">
+      <h2>New Order Received</h2>
+      <div class="status-badge">New Order</div>
+      
+      <div class="customer-info">
+        <h4 style="margin-bottom: 10px; color: #1f2937;">Customer Information</h4>
+        <p><strong>Name:</strong> ${profile.name}</p>
+        <p><strong>Email:</strong> ${profile.email}</p>
+      </div>
+      
+      <div class="order-summary">
+        <h3 style="margin-bottom: 15px; color: #1f2937;">Order Details</h3>
+        <div class="order-row">
+          <span><strong>Order Number:</strong></span>
+          <span>${orderNumber}</span>
+        </div>
+        ${items.map(item => `
+          <div class="order-row">
+            <span>${item.name} × ${item.quantity}</span>
+            <span>₵${item.price.toFixed(2)}</span>
+          </div>
+        `).join('')}
+        <div class="order-row">
+          <span><strong>Total:</strong></span>
+          <span><strong>₵${total.toFixed(2)}</strong></span>
+        </div>
+      </div>
+      
+      <div class="customer-info">
+        <h4 style="margin-bottom: 10px; color: #1f2937;">Shipping Address</h4>
+        <p>${shippingAddress}</p>
+      </div>
+      
+      <p style="margin-top: 25px; color: #6b7280;">
+        Please process this order as soon as possible. You can manage this order from the admin dashboard.
+      </p>
+    </div>
+    
+    <div class="footer">
+      <div class="footer-text">
+        <strong>SCAN2TAP</strong><br>
+        Your Digital Identity, One Tap Away
+      </div>
+      <div class="footer-text">
+        © 2025 SCAN2TAP. All rights reserved.
       </div>
     </div>
   </div>

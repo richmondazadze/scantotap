@@ -24,8 +24,8 @@ export class GhanaLocationService {
       id: 'greater-accra',
       name: 'Greater Accra',
       cities: ['Accra', 'Tema', 'Kasoa', 'Madina', 'Adenta', 'Ashaiman', 'Teshie', 'Nungua', 'La', 'Dansoman', 'Kaneshie', 'Osu'],
-      baseShippingCost: 5,
-      freeShippingThreshold: 50,
+      baseShippingCost: 40,
+      freeShippingThreshold: 400,
       estimatedDeliveryDays: '1-2 days',
       isMetro: true
     },
@@ -33,8 +33,8 @@ export class GhanaLocationService {
       id: 'ashanti',
       name: 'Ashanti Region',
       cities: ['Kumasi', 'Obuasi', 'Ejisu', 'Konongo', 'Mampong', 'Bekwai', 'Tepa', 'Agona'],
-      baseShippingCost: 8,
-      freeShippingThreshold: 75,
+      baseShippingCost: 50,
+      freeShippingThreshold: 500,
       estimatedDeliveryDays: '2-3 days',
       isMetro: false
     },
@@ -42,8 +42,8 @@ export class GhanaLocationService {
       id: 'western',
       name: 'Western Region',
       cities: ['Takoradi', 'Sekondi', 'Tarkwa', 'Axim', 'Half Assini', 'Elubo', 'Prestea'],
-      baseShippingCost: 10,
-      freeShippingThreshold: 80,
+      baseShippingCost: 55,
+      freeShippingThreshold: 550,
       estimatedDeliveryDays: '2-4 days',
       isMetro: false
     },
@@ -51,8 +51,8 @@ export class GhanaLocationService {
       id: 'central',
       name: 'Central Region',
       cities: ['Cape Coast', 'Elmina', 'Winneba', 'Kasoa', 'Swedru', 'Saltpond', 'Agona Swedru'],
-      baseShippingCost: 8,
-      freeShippingThreshold: 75,
+      baseShippingCost: 45,
+      freeShippingThreshold: 450,
       estimatedDeliveryDays: '2-3 days',
       isMetro: false
     },
@@ -60,8 +60,8 @@ export class GhanaLocationService {
       id: 'eastern',
       name: 'Eastern Region',
       cities: ['Koforidua', 'Akosombo', 'Nkawkaw', 'Mpraeso', 'Begoro', 'Somanya', 'Aburi'],
-      baseShippingCost: 7,
-      freeShippingThreshold: 70,
+      baseShippingCost: 45,
+      freeShippingThreshold: 450,
       estimatedDeliveryDays: '2-3 days',
       isMetro: false
     },
@@ -69,8 +69,8 @@ export class GhanaLocationService {
       id: 'volta',
       name: 'Volta Region',
       cities: ['Ho', 'Hohoe', 'Keta', 'Aflao', 'Akatsi', 'Kpando', 'Dzodze'],
-      baseShippingCost: 12,
-      freeShippingThreshold: 85,
+      baseShippingCost: 60,
+      freeShippingThreshold: 600,
       estimatedDeliveryDays: '3-5 days',
       isMetro: false
     },
@@ -78,8 +78,8 @@ export class GhanaLocationService {
       id: 'northern',
       name: 'Northern Region',
       cities: ['Tamale', 'Yendi', 'Savelugu', 'Tolon', 'Kumbungu'],
-      baseShippingCost: 15,
-      freeShippingThreshold: 100,
+      baseShippingCost: 70,
+      freeShippingThreshold: 700,
       estimatedDeliveryDays: '4-6 days',
       isMetro: false
     },
@@ -87,8 +87,8 @@ export class GhanaLocationService {
       id: 'upper-east',
       name: 'Upper East Region',
       cities: ['Bolgatanga', 'Navrongo', 'Bawku', 'Paga'],
-      baseShippingCost: 18,
-      freeShippingThreshold: 120,
+      baseShippingCost: 80,
+      freeShippingThreshold: 800,
       estimatedDeliveryDays: '5-7 days',
       isMetro: false
     },
@@ -96,8 +96,8 @@ export class GhanaLocationService {
       id: 'upper-west',
       name: 'Upper West Region',
       cities: ['Wa', 'Lawra', 'Jirapa', 'Tumu'],
-      baseShippingCost: 18,
-      freeShippingThreshold: 120,
+      baseShippingCost: 80,
+      freeShippingThreshold: 800,
       estimatedDeliveryDays: '5-7 days',
       isMetro: false
     },
@@ -105,8 +105,8 @@ export class GhanaLocationService {
       id: 'brong-ahafo',
       name: 'Bono Region',
       cities: ['Sunyani', 'Techiman', 'Berekum', 'Dormaa Ahenkro', 'Wenchi'],
-      baseShippingCost: 12,
-      freeShippingThreshold: 85,
+      baseShippingCost: 60,
+      freeShippingThreshold: 600,
       estimatedDeliveryDays: '3-5 days',
       isMetro: false
     }
@@ -257,16 +257,16 @@ export class GhanaLocationService {
   }>> {
     const popularCities = [
       // Metro areas first
-      { city: 'Accra', region: 'Greater Accra', regionId: 'greater-accra', shippingCost: 5, isMetro: true },
-      { city: 'Tema', region: 'Greater Accra', regionId: 'greater-accra', shippingCost: 5, isMetro: true },
+      { city: 'Accra', region: 'Greater Accra', regionId: 'greater-accra', shippingCost: 40, isMetro: true },
+      { city: 'Tema', region: 'Greater Accra', regionId: 'greater-accra', shippingCost: 40, isMetro: true },
       
       // Major regional capitals
-      { city: 'Kumasi', region: 'Ashanti Region', regionId: 'ashanti', shippingCost: 8, isMetro: false },
-      { city: 'Takoradi', region: 'Western Region', regionId: 'western', shippingCost: 10, isMetro: false },
-      { city: 'Cape Coast', region: 'Central Region', regionId: 'central', shippingCost: 8, isMetro: false },
-      { city: 'Tamale', region: 'Northern Region', regionId: 'northern', shippingCost: 15, isMetro: false },
-      { city: 'Ho', region: 'Volta Region', regionId: 'volta', shippingCost: 12, isMetro: false },
-      { city: 'Koforidua', region: 'Eastern Region', regionId: 'eastern', shippingCost: 7, isMetro: false },
+      { city: 'Kumasi', region: 'Ashanti Region', regionId: 'ashanti', shippingCost: 50, isMetro: false },
+      { city: 'Takoradi', region: 'Western Region', regionId: 'western', shippingCost: 55, isMetro: false },
+      { city: 'Cape Coast', region: 'Central Region', regionId: 'central', shippingCost: 45, isMetro: false },
+      { city: 'Tamale', region: 'Northern Region', regionId: 'northern', shippingCost: 70, isMetro: false },
+      { city: 'Ho', region: 'Volta Region', regionId: 'volta', shippingCost: 60, isMetro: false },
+      { city: 'Koforidua', region: 'Eastern Region', regionId: 'eastern', shippingCost: 45, isMetro: false },
     ];
 
     return { success: true, data: popularCities };
