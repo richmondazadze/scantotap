@@ -30,7 +30,8 @@ import {
   Loader2,
   RefreshCw,
   AlertCircle,
-  ArrowLeft
+  ArrowLeft,
+  ArrowRight
 } from 'lucide-react';
 import Loading from '@/components/ui/loading';
 import GhanaLocationSelector from '@/components/GhanaLocationSelector';
@@ -138,6 +139,7 @@ export default function DashboardOrder() {
   const [selectedColor, setSelectedColor] = useState<ReturnType<typeof convertColorSchemeToOption> | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showOrderForm, setShowOrderForm] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<'location' | 'shipping'>(isEditMode ? 'shipping' : 'location');
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [isCancellingOrder, setIsCancellingOrder] = useState(false);
   
@@ -262,8 +264,9 @@ export default function DashboardOrder() {
             specialInstructions: order.special_instructions || ''
           });
           
-          // Go directly to order form
+          // Go directly to shipping step for editing
           setShowOrderForm(true);
+          setCheckoutStep('shipping');
         } else {
           toast.error('Order not found');
           window.location.href = '/dashboard/shipping';
@@ -307,6 +310,23 @@ export default function DashboardOrder() {
       state: region,
       country: 'Ghana'
     }));
+  };
+
+  // Handle checkout step navigation
+  const handleLocationStepContinue = () => {
+    if (!ghanaLocation.city) {
+      toast.error('Please select your location to continue');
+      return;
+    }
+    setCheckoutStep('shipping');
+    // Scroll to top when moving to shipping step
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleBackToLocation = () => {
+    setCheckoutStep('location');
+    // Scroll to top when going back to location step
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCancelOrder = async (orderId: string) => {
@@ -863,6 +883,9 @@ export default function DashboardOrder() {
                       }
                       
                       setShowOrderForm(true);
+                      setCheckoutStep('location');
+                      // Scroll to top when opening checkout
+                      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
                     }}
                     disabled={
                       !selectedDesign || !selectedColor ||
@@ -911,21 +934,141 @@ export default function DashboardOrder() {
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
                 <div>
-                  <CardTitle className="text-xl sm:text-2xl">{isEditMode ? 'Update Order' : 'Checkout'}</CardTitle>
+                  <CardTitle className="text-xl sm:text-2xl">
+                    {isEditMode ? 'Update Order' : 
+                     checkoutStep === 'location' ? 'Checkout - Select Location' : 
+                     'Checkout - Shipping Information'}
+                  </CardTitle>
                   <CardDescription className="text-sm sm:text-base">
                     {isEditMode 
                       ? 'Modify your order details and complete payment'
-                      : 'Complete your order information'
+                      : checkoutStep === 'location' 
+                        ? 'Choose your delivery location in Ghana'
+                        : 'Enter your shipping details and complete payment'
                     }
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6">
+              {/* Step Progress Indicator */}
+              {!isEditMode && (
+                <div className="flex items-center justify-center mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className={`flex items-center gap-2 ${checkoutStep === 'location' ? 'text-blue-600' : 'text-green-600'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        checkoutStep === 'location' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
+                      }`}>
+                        {checkoutStep === 'shipping' ? '✓' : '1'}
+                      </div>
+                      <span className="text-sm font-medium">Location</span>
+                    </div>
+                    <div className={`w-8 h-0.5 ${checkoutStep === 'shipping' ? 'bg-green-200' : 'bg-gray-200'}`}></div>
+                    <div className={`flex items-center gap-2 ${checkoutStep === 'shipping' ? 'text-blue-600' : 'text-gray-400'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        checkoutStep === 'shipping' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'
+                      }`}>
+                        2
+                      </div>
+                      <span className="text-sm font-medium">Shipping</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* International User Notice */}
               <DeliveryLocationNotice />
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+              {/* Step 1: Location Selection */}
+              {checkoutStep === 'location' && (
+                <>
+                  <div className="max-w-2xl mx-auto">
+                    <GhanaLocationSelector
+                      onLocationSelect={handleGhanaLocationSelect}
+                      orderTotal={subtotal}
+                      quantity={quantity}
+                      currentCity={ghanaLocation.city}
+                      currentRegion={ghanaLocation.region}
+                    />
+                  </div>
+
+                  {/* Quick Order Summary for Location Step */}
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 sm:p-6 max-w-2xl mx-auto">
+                    <h3 className="font-semibold mb-4 text-base sm:text-lg">Order Summary</h3>
+                    <div className="space-y-3 text-sm sm:text-base">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 dark:text-gray-300">{selectedDesign?.name || 'Design'} × {quantity}</span>
+                        <span className="font-mono text-gray-900 dark:text-white tracking-wide font-medium">₵{(basePrice * quantity).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-start">
+                        <div className="flex flex-col">
+                          <span className="text-gray-700 dark:text-gray-300">Shipping {ghanaLocation.city && `to ${ghanaLocation.city}`}</span>
+                          {ghanaLocation.deliveryDays && (
+                            <span className="text-xs text-gray-500 mt-1">
+                              ({ghanaLocation.deliveryDays})
+                            </span>
+                          )}
+                        </div>
+                        <span className="font-mono text-gray-900 dark:text-white tracking-wide font-medium">
+                          {!ghanaLocation.city ? (
+                            <span className="text-blue-600 dark:text-blue-400 italic text-sm">Select location</span>
+                          ) : (shipping === 0 ? 'FREE' : `₵${shipping.toFixed(2)}`)}
+                        </span>
+                      </div>
+                      {shipping === 0 && ghanaLocation.city && (
+                        <div className="text-xs sm:text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-md">
+                          🎉 {quantity >= 5 ? 'Free shipping for 5+ cards!' : 'Free shipping applied!'}
+                        </div>
+                      )}
+                      <Separator className="my-3" />
+                      <div className="flex justify-between items-center font-bold text-lg sm:text-xl">
+                        <span className="text-gray-900 dark:text-white">Total{!ghanaLocation.city && <span className="text-xs font-normal text-gray-500 ml-1">(+shipping)</span>}</span>
+                        <span className="font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent font-bold tracking-wider">₵{total.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Location Step Action Buttons */}
+                  <div className="flex flex-col gap-3 sm:gap-4 max-w-2xl mx-auto">
+                    <Button 
+                      onClick={handleLocationStepContinue}
+                      disabled={!ghanaLocation.city}
+                      className="w-full h-14 sm:h-12 bg-gradient-to-r from-scan-blue to-scan-purple text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all text-base disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:scale-[0.98]"
+                    >
+                      {!ghanaLocation.city ? (
+                        'Select Location to Continue'
+                      ) : (
+                        <>
+                                                     <ArrowLeft className="w-5 h-5 mr-2 rotate-180" />
+                          Continue to Shipping Information
+                        </>
+                      )}
+                    </Button>
+                    
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowOrderForm(false)}
+                      className="w-full h-12 sm:h-10 border-2 hover:bg-gray-50 dark:hover:bg-gray-800 touch-manipulation active:scale-[0.98]"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      Back to Design
+                    </Button>
+                  </div>
+
+                  {!ghanaLocation.city && (
+                    <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 max-w-2xl mx-auto">
+                      <p className="text-sm text-amber-700 dark:text-amber-300">
+                        📍 Please select your city to calculate shipping costs and continue
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Step 2: Shipping Information */}
+              {checkoutStep === 'shipping' && (
+                <>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
                 {/* Left Column - Customer Information */}
                 <div className="space-y-4 sm:space-y-6">
                   {/* Personal Information */}
@@ -1113,11 +1256,11 @@ export default function DashboardOrder() {
                 
                 <Button 
                   variant="outline" 
-                  onClick={() => setShowOrderForm(false)}
+                  onClick={isEditMode ? () => setShowOrderForm(false) : handleBackToLocation}
                   className="w-full h-12 sm:h-10 border-2 hover:bg-gray-50 dark:hover:bg-gray-800 touch-manipulation active:scale-[0.98]"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Design
+                  {isEditMode ? 'Back to Design' : 'Back to Location'}
                 </Button>
               </div>
               
@@ -1127,6 +1270,8 @@ export default function DashboardOrder() {
                     📍 Please select your city to calculate shipping costs and continue
                   </p>
                 </div>
+              )}
+                </>
               )}
             </CardContent>
           </Card>
