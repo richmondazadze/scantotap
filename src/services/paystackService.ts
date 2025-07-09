@@ -36,14 +36,14 @@ export class PaystackService {
   static readonly PLANS = {
     pro_monthly: {
       name: 'Pro Monthly',
-      plan_code: 'PLN_wqbbt20tf5ru5li', // You'll get this from Paystack dashboard
+      plan_code: 'PLN_i256tzoat6rkqom', // Updated with new Paystack account plan code
       amount: 40, // $4 in kobo (400 kobo = $4 for USD, adjust for your currency)
       interval: 'monthly' as const,
       currency: 'USD'
     },
     pro_annually: {
       name: 'Pro Annual',
-      plan_code: 'PLN_bi0vr5cavabiwyz', // You'll get this from Paystack dashboard
+      plan_code: 'PLN_fdlwxe47s2x6ho1', // Updated with new Paystack account plan code
       amount: 400, // $40 in kobo (4000 kobo = $40 for USD)
       interval: 'annually' as const,
       currency: 'USD'

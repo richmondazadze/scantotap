@@ -1628,12 +1628,21 @@ export default function OnboardingPage() {
       
       // Handle avatar URL based on selection
       let avatarUrl = null;
-      if (profileData.selectedAvatar === 'upload' && profileData.uploadedImage) {
-        avatarUrl = profileData.uploadedImage;
+      if (profileData.selectedAvatar === 'upload') {
+        // Check both new format (avatarData.url) and old format (uploadedImage) for backwards compatibility
+        avatarUrl = profileData.avatarData?.url || profileData.uploadedImage;
       } else if (profileData.selectedAvatar && profileData.selectedAvatar !== 'upload') {
         const avatarOption = AVATAR_OPTIONS.find(opt => opt.id === profileData.selectedAvatar);
         avatarUrl = avatarOption?.url || null;
       }
+
+      // Debug logging to help identify issues
+      console.log('Avatar processing:', {
+        selectedAvatar: profileData.selectedAvatar,
+        avatarData: profileData.avatarData,
+        uploadedImage: profileData.uploadedImage,
+        finalAvatarUrl: avatarUrl
+      });
 
       // Combine all links
       const allLinks = [];
