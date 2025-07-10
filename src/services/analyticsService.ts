@@ -316,6 +316,14 @@ class AnalyticsService {
       console.log('📊 ANALYTICS: Raw visits data count:', visitsData?.length || 0);
       console.log('📊 ANALYTICS: Raw clicks data count:', clicksData?.length || 0);
 
+      // Debug: Show actual dates in the data
+      if (visitsData && visitsData.length > 0) {
+        console.log('📊 ANALYTICS: Sample visit dates:', visitsData.slice(0, 3).map(v => v.visited_at));
+      }
+      if (clicksData && clicksData.length > 0) {
+        console.log('📊 ANALYTICS: Sample click dates:', clicksData.slice(0, 3).map(c => c.clicked_at));
+      }
+
       // If we have no raw data but analytics show totals, get analytics data and distribute it
       if ((!visitsData || visitsData.length === 0) && (!clicksData || clicksData.length === 0)) {
         console.log('📊 ANALYTICS: No raw visit/click data found, checking analytics totals...');
@@ -372,25 +380,36 @@ class AnalyticsService {
 
       // Process data into daily buckets (original logic for when we have raw data)
       const chartData: AnalyticsChartData[] = [];
+      const today = new Date();
+      
+      console.log('📊 ANALYTICS: Generating dates for last', days, 'days from today:', today.toISOString().split('T')[0]);
       
       for (let i = 0; i < days; i++) {
-        const date = new Date(startDate);
-        date.setDate(startDate.getDate() + i);
+        // Generate dates going backward from today
+        const date = new Date(today);
+        date.setDate(today.getDate() - (days - 1 - i)); // This gives us dates from oldest to newest
         const dateStr = date.toISOString().split('T')[0];
 
-        const viewsCount = visitsData?.filter(visit => 
-          visit.visited_at.startsWith(dateStr)
-        ).length || 0;
+        const viewsCount = visitsData?.filter(visit => {
+          const visitDate = visit.visited_at.split('T')[0]; // Get just the date part
+          return visitDate === dateStr;
+        }).length || 0;
 
-        const clicksCount = clicksData?.filter(click => 
-          click.clicked_at.startsWith(dateStr)
-        ).length || 0;
+        const clicksCount = clicksData?.filter(click => {
+          const clickDate = click.clicked_at.split('T')[0]; // Get just the date part
+          return clickDate === dateStr;
+        }).length || 0;
 
         chartData.push({
           date: dateStr,
           views: viewsCount,
           clicks: clicksCount
         });
+
+        // Debug specific days with data
+        if (viewsCount > 0 || clicksCount > 0) {
+          console.log(`📊 ANALYTICS: Found data for ${dateStr}: ${viewsCount} views, ${clicksCount} clicks`);
+        }
       }
 
       console.log('📈 ANALYTICS: Generated chart data from raw data:');
