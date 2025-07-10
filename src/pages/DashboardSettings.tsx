@@ -1061,12 +1061,12 @@ export default function DashboardSettings() {
                   </Card>
 
               {/* Analytics Chart */}
-              {analytics && analytics.total_views > 0 && (
+              {analytics && (
                 <AnalyticsChart data={chartData} loading={analyticsLoading} />
               )}
 
               {/* Analytics Grid */}
-              {analytics && analytics.total_views > 0 && (
+              {analytics && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <TopLinks data={topLinks} loading={analyticsLoading} />
                   <DeviceBreakdownComponent data={deviceBreakdown} loading={analyticsLoading} />

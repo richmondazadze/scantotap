@@ -84,26 +84,26 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="h-full">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
+      <Card className="h-full hover:shadow-lg transition-shadow duration-200">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 lg:pb-4">
+          <CardTitle className="text-sm lg:text-base font-medium text-gray-600 dark:text-gray-400">
             {title}
           </CardTitle>
-          <div className={`p-2 rounded-lg bg-${color}-100 dark:bg-${color}-900/20`}>
+          <div className={`p-2 lg:p-3 rounded-lg bg-${color}-100 dark:bg-${color}-900/20`}>
             {React.cloneElement(icon as React.ReactElement, {
-              className: `w-4 h-4 text-${color}-600 dark:text-${color}-400`
+              className: `w-4 h-4 lg:w-6 lg:h-6 text-${color}-600 dark:text-${color}-400`
             })}
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-gray-900 dark:text-white">
+        <CardContent className="pt-0">
+          <div className="text-2xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2 lg:mb-3">
             {typeof value === 'number' ? value.toLocaleString() : value}
           </div>
           {change !== undefined && (
-            <div className="flex items-center gap-1 mt-1">
-              {isPositiveChange && <TrendingUp className="w-3 h-3 text-green-500" />}
-              {isNegativeChange && <TrendingDown className="w-3 h-3 text-red-500" />}
-              <span className={`text-xs ${
+            <div className="flex items-center gap-1 mb-2">
+              {isPositiveChange && <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4 text-green-500" />}
+              {isNegativeChange && <TrendingDown className="w-3 h-3 lg:w-4 lg:h-4 text-red-500" />}
+              <span className={`text-xs lg:text-sm font-medium ${
                 isPositiveChange ? 'text-green-600' : 
                 isNegativeChange ? 'text-red-600' : 
                 'text-gray-500'
@@ -113,7 +113,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
             </div>
           )}
           {description && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
               {description}
             </p>
           )}
@@ -135,15 +135,15 @@ export const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
         {[1, 2, 3, 4].map((i) => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader className="pb-2">
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+          <Card key={i} className="animate-pulse h-32 lg:h-40">
+            <CardHeader className="pb-3 lg:pb-4">
+              <div className="h-4 lg:h-5 bg-gray-200 dark:bg-gray-700 rounded w-24 lg:w-28"></div>
             </CardHeader>
-            <CardContent>
-              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-2"></div>
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+            <CardContent className="pt-0">
+              <div className="h-8 lg:h-10 bg-gray-200 dark:bg-gray-700 rounded w-16 lg:w-20 mb-2"></div>
+              <div className="h-3 lg:h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 lg:w-24"></div>
             </CardContent>
           </Card>
         ))}
@@ -152,7 +152,7 @@ export const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
       <MetricCard
         title="Total Views"
         value={analytics.total_views}
@@ -211,6 +211,11 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
   const [selectedMetric, setSelectedMetric] = useState<'both' | 'views' | 'clicks'>('both');
   const chartRef = useRef<HTMLDivElement>(null);
 
+  // Debug logging
+  console.log('📈 CHART: Received data:', data);
+  console.log('📈 CHART: Data length:', data?.length || 0);
+  console.log('📈 CHART: Loading state:', loading);
+
   if (loading) {
     return (
       <Card>
@@ -221,6 +226,27 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
         <CardContent>
           <div className="h-80 flex items-center justify-center">
             <RefreshCw className="w-8 h-8 animate-spin text-gray-400" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Check if we have data
+  if (!data || data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Views & Clicks Over Time</CardTitle>
+          <CardDescription>Track your profile performance</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80 flex items-center justify-center">
+            <div className="text-center">
+              <BarChart3 className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+              <p className="text-gray-500 dark:text-gray-400">No chart data available</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">Data will appear as you get more visits</p>
+            </div>
           </div>
         </CardContent>
       </Card>
