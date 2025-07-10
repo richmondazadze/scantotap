@@ -32,43 +32,63 @@
 
 /* Global Font Application */
 html {
-  font-family: var(--font-link-sans);
+  font-family: var(--font-link-sans) !important;
 }
 
 body {
-  font-family: var(--font-link-sans);
+  font-family: var(--font-link-sans) !important;
   font-weight: 500;
+}
+
+/* Stronger font enforcement for all elements */
+* {
+  font-family: var(--font-link-sans) !important;
+}
+
+/* Specific overrides for React components and elements */
+div, span, p, h1, h2, h3, h4, h5, h6, a, button, input, textarea, select, label {
+  font-family: var(--font-link-sans) !important;
+}
+
+/* Force font on specific page containers */
+.min-h-screen, [class*="gradient"], [class*="bg-"], main, section, nav, header, footer {
+  font-family: var(--font-link-sans) !important;
+}
+
+/* Override any framework or component library fonts */
+.font-sans, .font-system, .font-default, [class*="font-"] {
+  font-family: var(--font-link-sans) !important;
 }
 
 /* Typography Utility Classes */
 @layer utilities {
   .font-link-light {
-    font-family: var(--font-link-light);
+    font-family: var(--font-link-light) !important;
     font-weight: 300;
   }
   
   .font-link-regular {
-    font-family: var(--font-link-regular);
+    font-family: var(--font-link-regular) !important;
     font-weight: 400;
   }
   
   .font-link-medium {
-    font-family: var(--font-link-medium);
+    font-family: var(--font-link-medium) !important;
     font-weight: 500;
   }
   
   .font-link-semibold {
-    font-family: var(--font-link-semibold);
+    font-family: var(--font-link-semibold) !important;
     font-weight: 600;
   }
   
   .font-link-bold {
-    font-family: var(--font-link-bold);
+    font-family: var(--font-link-bold) !important;
     font-weight: 700;
   }
   
   .font-link-extrabold {
-    font-family: var(--font-link-extrabold);
+    font-family: var(--font-link-extrabold) !important;
     font-weight: 800;
   }
 }
@@ -158,12 +178,13 @@ body {
 @layer base {
   * {
     @apply border-border;
+    font-family: var(--font-link-sans) !important;
   }
 
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    font-family: var(--font-link-sans);
+    font-family: var(--font-link-sans) !important;
     font-weight: 500;
     overflow-x: hidden;
     min-height: 100vh;
@@ -317,6 +338,7 @@ body {
   margin: 0;
   padding: 0;
   text-align: left;
+  font-family: var(--font-link-sans) !important;
 }
 
 /* Ensure proper scroll behavior */
