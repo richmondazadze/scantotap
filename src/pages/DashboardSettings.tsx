@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { useLanguage } from '@/hooks/useLanguage';
+
 import { 
   Settings, 
   Crown, 
@@ -67,7 +67,7 @@ export default function DashboardSettings() {
   const { refreshProfile, profile } = useProfile();
   const planFeatures = usePlanFeatures();
   const [searchParams] = useSearchParams();
-  const { t, changeLanguage, currentLanguage, supportedLanguages } = useLanguage();
+
   
   // Get URL parameters
   const urlTab = searchParams.get('tab');
@@ -281,7 +281,7 @@ export default function DashboardSettings() {
              email_marketing: result.preferences.email_marketing,
            },
            preferences: {
-             language: currentLanguage || 'en', // Use current i18n language
+             language: 'en', // English only
              theme: 'system', // TODO: Add theme preference to database
            }
          };
@@ -333,11 +333,6 @@ export default function DashboardSettings() {
   };
 
   const updateSetting = (category: keyof UserSettings, key: string, value: any) => {
-    if (category === 'preferences' && key === 'language') {
-      // Immediately change language in i18n
-      changeLanguage(value);
-    }
-    
     setSettings(prev => ({
       ...prev,
       [category]: {
@@ -418,10 +413,10 @@ export default function DashboardSettings() {
   };
 
   const sections = [
-    { id: 'account', label: t('settings.account'), icon: User },
-    { id: 'notifications', label: t('settings.notifications'), icon: Bell },
-    { id: 'preferences', label: t('settings.preferences'), icon: Palette },
-    { id: 'subscription', label: t('settings.subscription'), icon: Crown },
+    { id: 'account', label: 'Account', icon: User },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'preferences', label: 'Preferences', icon: Palette },
+    { id: 'subscription', label: 'Subscription', icon: Crown },
   ];
 
   const handleSectionChange = (sectionId: string) => {
@@ -459,7 +454,7 @@ export default function DashboardSettings() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div>
               <h1 className={cardTitle}>
-                {t('settings.title')}
+                Settings
               </h1>
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300">
                 Manage your account preferences and profile settings
@@ -474,7 +469,7 @@ export default function DashboardSettings() {
                 className="min-w-[140px] rounded-xl bg-gradient-to-r from-scan-blue to-scan-purple hover:from-scan-blue/90 hover:to-scan-purple/90 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 <Save className={`w-4 h-4 mr-2 ${saving ? 'animate-spin' : ''}`} />
-                {saving ? t('common.loading') : t('settings.saveChanges')}
+                {saving ? 'Loading...' : 'Save Changes'}
               </Button>
             </div>
           </div>
@@ -508,7 +503,7 @@ export default function DashboardSettings() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Settings className="w-5 h-5" />
-                {t('common.settings')}
+                Settings
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0 mb-4">
@@ -763,7 +758,7 @@ export default function DashboardSettings() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                     <Bell className="w-5 h-5" />
-                    {t('settings.notifications')}
+                    Notifications
                   </CardTitle>
                   <CardDescription className="text-sm sm:text-base">
                     Choose when you want to receive email notifications
@@ -774,9 +769,9 @@ export default function DashboardSettings() {
                     {/* Order Updates Section */}
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm sm:text-base">{t('settings.orderUpdates')}</p>
+                        <p className="font-medium text-sm sm:text-base">Order Updates</p>
                         <p className="text-xs sm:text-sm text-gray-500 break-words">
-                          {t('settings.orderUpdatesDesc')}
+                          Receive emails about your order status and shipping
                         </p>
                       </div>
                       <Switch
@@ -791,9 +786,9 @@ export default function DashboardSettings() {
                     {/* Marketing & Promotions Section */}
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm sm:text-base">{t('settings.marketing')}</p>
+                        <p className="font-medium text-sm sm:text-base">Marketing & Promotions</p>
                         <p className="text-xs sm:text-sm text-gray-500 break-words">
-                          {t('settings.marketingDesc')}
+                          Get notified about new features and special offers
                         </p>
                       </div>
                       <Switch
@@ -815,44 +810,25 @@ export default function DashboardSettings() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                     <Palette className="w-5 h-5" />
-                    {t('settings.appearance')}
+                    Appearance & Preferences
                   </CardTitle>
                   <CardDescription className="text-sm sm:text-base">
-                    {t('settings.appearanceDesc')}
+                    Customize your experience and language settings
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Theme */}
                   <div className="space-y-3">
-                    <label className="text-sm font-medium">{t('settings.theme')}</label>
+                    <label className="text-sm font-medium">Theme</label>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                       <ThemeSwitcher />
                       <span className="text-xs sm:text-sm text-gray-500">
-                        {t('settings.chooseTheme')}
+                        Choose your preferred color scheme
                       </span>
                     </div>
                   </div>
 
-                  <Separator />
 
-                  {/* Language */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium">{t('settings.language')}</label>
-                    <select
-                      className="w-full p-3 text-sm sm:text-base border rounded-md bg-background focus:ring-2 focus:ring-scan-blue focus:border-transparent"
-                      value={currentLanguage}
-                      onChange={(e) => updateSetting('preferences', 'language', e.target.value)}
-                    >
-                      {supportedLanguages.map((lang) => (
-                        <option key={lang.code} value={lang.code}>
-                          {lang.nativeName}
-                        </option>
-                      ))}
-                    </select>
-                    <p className="text-xs text-gray-500">
-                      {t('settings.selectLanguage')}
-                    </p>
-                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -1146,7 +1122,7 @@ export default function DashboardSettings() {
             size="lg"
           >
             <Save className={`w-4 h-4 mr-2 ${saving ? 'animate-spin' : ''}`} />
-            {saving ? t('common.loading') : t('settings.saveChanges')}
+            {saving ? 'Loading...' : 'Save Changes'}
           </Button>
         </div>
       )}

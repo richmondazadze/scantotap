@@ -25,10 +25,10 @@ import {
   Rocket,
 } from "lucide-react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import { useLanguage } from "@/hooks/useLanguage";
+
 
 const LandingPage = () => {
-  const { t } = useLanguage();
+
   const featureCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const { scrollYProgress } = useScroll();
   const heroRef = useRef(null);
@@ -120,38 +120,38 @@ const LandingPage = () => {
   const features = [
     {
       icon: Zap,
-      title: t('landing.features.fastSetup'),
-      description: t('landing.features.fastSetupDesc'),
+      title: "Lightning Fast Setup",
+      description: "Create your link in bio page in under 2 minutes. No technical skills required.",
       color: "from-yellow-400 to-orange-500"
     },
     {
       icon: Shield,
-      title: t('landing.features.privacy'),
-      description: t('landing.features.privacyDesc'),
+      title: "Privacy Controls",
+      description: "Choose exactly what to show and hide. Your data, your control.",
       color: "from-green-400 to-blue-500"
     },
     {
       icon: TrendingUp,
-      title: t('landing.features.analytics'),
-      description: t('landing.features.analyticsDesc'),
+      title: "Analytics & Insights",
+      description: "Track clicks, views, and engagement to grow your audience effectively.",
       color: "from-purple-400 to-pink-500"
     },
     {
       icon: Smartphone,
-      title: t('landing.features.mobile'),
-      description: t('landing.features.mobileDesc'),
+      title: "Mobile First Design",
+      description: "Beautiful, responsive design that looks perfect on every device.",
       color: "from-blue-400 to-indigo-500"
     },
     {
       icon: Globe,
-      title: t('landing.features.unlimited'),
-      description: t('landing.features.unlimitedDesc'),
+      title: "Unlimited Links",
+      description: "Add as many links as you want. No limits, no restrictions.",
       color: "from-indigo-400 to-purple-500"
     },
     {
       icon: CreditCard,
-      title: t('landing.features.cards'),
-      description: t('landing.features.cardsDesc'),
+      title: "Physical Business Cards",
+      description: "Order premium business cards with your QR code for offline networking.",
       color: "from-pink-400 to-red-500"
     }
   ];
@@ -266,7 +266,7 @@ const LandingPage = () => {
                 transition={{ duration: 0.8, delay: 0.8 }}
                 className="text-base sm:text-xl lg:text-2xl text-slate-600 dark:text-slate-300 leading-relaxed text-center lg:text-left font-medium"
             >
-                {t('landing.hero.subtitle')}
+                Create your professional online profile, build the perfect link in bio page, and order premium business cards with QR codes.
             </motion.p>
 
             <motion.div 
@@ -280,7 +280,7 @@ const LandingPage = () => {
                     size="lg" 
                     className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-8 py-3 sm:px-10 sm:py-4 text-base sm:text-lg font-semibold w-full sm:w-auto"
                   >
-                    {t('landing.hero.getStarted')}
+                    Get Started Free
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
