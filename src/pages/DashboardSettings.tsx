@@ -253,7 +253,7 @@ export default function DashboardSettings() {
       }
 
       // Load chart data
-      const chartResult = await analyticsService.getAnalyticsChartData(profile.id, 30);
+      const chartResult = await analyticsService.getAnalyticsChartData(profile.id, 7);
       if (chartResult.success && chartResult.data) {
         console.log('📊 DASHBOARD: Chart data loaded:', chartResult.data);
         console.log('📊 DASHBOARD: Sample dates:', chartResult.data.slice(0, 3).map(d => d.date));
@@ -1062,7 +1062,11 @@ export default function DashboardSettings() {
 
               {/* Analytics Chart */}
               {analytics && (
-                <AnalyticsChart data={chartData} loading={analyticsLoading} />
+                <AnalyticsChart 
+                  data={chartData} 
+                  loading={analyticsLoading} 
+                  profileId={profile?.id}
+                />
               )}
 
               {/* Analytics Grid */}

@@ -200,23 +200,62 @@ export const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({
 interface AnalyticsChartProps {
   data: AnalyticsChartData[];
   loading?: boolean;
+  profileId?: string;
 }
 
 export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
   data,
-  loading = false
+  loading = false,
+  profileId
 }) => {
   const [chartType, setChartType] = useState<'line' | 'area' | 'bar'>('area');
-  const [timeRange, setTimeRange] = useState<'7' | '14' | '30'>('30');
+  const [timeRange, setTimeRange] = useState<'7' | '14' | '30'>('7');
   const [selectedMetric, setSelectedMetric] = useState<'both' | 'views' | 'clicks'>('both');
+  const [localData, setLocalData] = useState<AnalyticsChartData[]>(data);
+  const [localLoading, setLocalLoading] = useState(false);
   const chartRef = useRef<HTMLDivElement>(null);
 
-  // Debug logging
-  console.log('📈 CHART: Received data:', data);
-  console.log('📈 CHART: Data length:', data?.length || 0);
-  console.log('📈 CHART: Loading state:', loading);
+  // Update local data when props change
+  React.useEffect(() => {
+    setLocalData(data);
+  }, [data]);
 
-  if (loading) {
+  // Load data when time range changes
+  React.useEffect(() => {
+    const loadTimeRangeData = async () => {
+      if (!profileId) return;
+      
+      setLocalLoading(true);
+      try {
+        // Import the service dynamically to avoid circular imports
+        const { default: analyticsService } = await import('@/services/analyticsService');
+        const result = await analyticsService.getAnalyticsChartData(profileId, parseInt(timeRange));
+        
+        if (result.success && result.data) {
+          setLocalData(result.data);
+        }
+      } catch (error) {
+        console.error('Error loading time range data:', error);
+      } finally {
+        setLocalLoading(false);
+      }
+    };
+
+    if (profileId && timeRange !== '7') { // Only reload for non-default ranges
+      loadTimeRangeData();
+    }
+  }, [timeRange, profileId]);
+
+  // Use local data and loading states
+  const isLoading = loading || localLoading;
+  const chartData = localData;
+
+  // Debug logging
+  console.log('📈 CHART: Received data:', chartData);
+  console.log('📈 CHART: Data length:', chartData?.length || 0);
+  console.log('📈 CHART: Loading state:', isLoading);
+
+  if (isLoading) {
     return (
       <Card>
         <CardHeader>
@@ -233,7 +272,7 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
   }
 
   // Check if we have data
-  if (!data || data.length === 0) {
+  if (!chartData || chartData.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -254,7 +293,7 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
   }
 
   // Filter data based on time range
-  const filteredData = data.slice(-parseInt(timeRange));
+  const filteredData = chartData.slice(-parseInt(timeRange));
 
   // Format data for better mobile display
   const formattedData = filteredData.map(item => {
