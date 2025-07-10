@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { motion } from 'framer-motion';
 import Loading from '@/components/ui/loading';
 import {
-  FaInstagram, FaTwitter, FaLinkedin, FaFacebook, FaGithub, FaWhatsapp, FaYoutube, FaSnapchat, FaTiktok, FaLink, FaSpotify
+  FaInstagram, FaTwitter, FaLinkedin, FaFacebook, FaGithub, FaWhatsapp, FaYoutube, FaSnapchat, FaTiktok, FaLink, FaSpotify, FaTelegram, FaDiscord
 } from 'react-icons/fa6';
 import { 
   Phone, 
@@ -28,7 +28,8 @@ import {
   Crown,
   Star,
   Zap,
-  UserCheck
+  UserCheck,
+  AtSign
 } from 'lucide-react';
 
 const SOCIAL_ICON_MAP: Record<string, any> = {
@@ -43,10 +44,13 @@ const SOCIAL_ICON_MAP: Record<string, any> = {
   snapchat: FaSnapchat,
   tiktok: FaTiktok,
   spotify: FaSpotify,
+  telegram: FaTelegram,
+  discord: FaDiscord,
+  threads: AtSign,
 };
 
 const SOCIAL_ICON_LIST = [
-  'twitter', 'facebook', 'instagram', 'spotify', 'linkedin', 'github', 'whatsapp', 'youtube', 'snapchat', 'tiktok', 'x'
+  'twitter', 'facebook', 'instagram', 'spotify', 'linkedin', 'github', 'whatsapp', 'youtube', 'snapchat', 'tiktok', 'x', 'telegram', 'discord', 'threads'
 ];
 
 // Generate dynamic colors based on user name
@@ -607,6 +611,9 @@ END:VCARD`;
                           snapchat: { bg: 'bg-yellow-400', hover: 'hover:bg-yellow-500', text: 'text-black' },
                           tiktok: { bg: 'bg-black', hover: 'hover:bg-gray-800', text: 'text-white' },
                           spotify: { bg: 'bg-green-600', hover: 'hover:bg-green-700', text: 'text-white' },
+                          telegram: { bg: 'bg-blue-500', hover: 'hover:bg-blue-600', text: 'text-white' },
+                          discord: { bg: 'bg-indigo-600', hover: 'hover:bg-indigo-700', text: 'text-white' },
+                          threads: { bg: 'bg-black', hover: 'hover:bg-gray-800', text: 'text-white' },
                         };
                         return colors[platform] || { bg: 'bg-gray-500', hover: 'hover:bg-gray-600', text: 'text-white' };
                       };

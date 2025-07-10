@@ -17,8 +17,8 @@ import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 
 
 import { motion } from 'framer-motion';
-import { Camera, Plus, X, Phone, Globe, Link as LinkIcon, ExternalLink, Save, AlertCircle, CheckCircle, Shield, Mail, Crown } from 'lucide-react';
-import { FaInstagram, FaTwitter, FaSnapchat, FaTiktok, FaWhatsapp, FaYoutube, FaFacebook, FaLinkedin, FaSpotify, FaPinterest, FaTwitch } from 'react-icons/fa6';
+import { Camera, Plus, X, Phone, Globe, Link as LinkIcon, ExternalLink, Save, AlertCircle, CheckCircle, Shield, Mail, Crown, AtSign } from 'lucide-react';
+import { FaInstagram, FaTwitter, FaSnapchat, FaTiktok, FaWhatsapp, FaYoutube, FaFacebook, FaLinkedin, FaSpotify, FaPinterest, FaTwitch, FaTelegram, FaDiscord } from 'react-icons/fa6';
 
 const SOCIAL_PRESETS = [
   { label: 'Instagram', icon: FaInstagram, placeholder: 'Username or Instagram URL', key: 'instagram' },
@@ -33,6 +33,9 @@ const SOCIAL_PRESETS = [
   { label: 'Website', icon: Globe, placeholder: 'Website URL', key: 'website' },
   { label: 'Pinterest', icon: FaPinterest, placeholder: 'Username or Pinterest URL', key: 'pinterest' },
   { label: 'Twitch', icon: FaTwitch, placeholder: 'Username or Twitch URL', key: 'twitch' },
+  { label: 'Telegram', icon: FaTelegram, placeholder: 'Username or Telegram URL', key: 'telegram' },
+  { label: 'Discord', icon: FaDiscord, placeholder: 'Server invite or Discord URL', key: 'discord' },
+  { label: 'Threads', icon: AtSign, placeholder: 'Username or Threads URL', key: 'threads' },
 ];
 
 export default function DashboardProfile() {

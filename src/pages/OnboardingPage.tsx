@@ -6,8 +6,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import Scan2TapLogo from "@/components/Scan2TapLogo";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, AlertCircle, Loader2, User, ArrowRight, Globe, ArrowLeft, Upload, Wand2, ChevronRight, Plus, Trash2, Users, Crown, Check, X, Star, Shield, Infinity } from "lucide-react";
-import { FaInstagram, FaTwitter, FaSnapchat, FaTiktok, FaWhatsapp, FaYoutube, FaFacebook, FaLinkedin, FaSpotify, FaPinterest, FaTwitch } from 'react-icons/fa6';
+import { CheckCircle, AlertCircle, Loader2, User, ArrowRight, Globe, ArrowLeft, Upload, Wand2, ChevronRight, Plus, Trash2, Users, Crown, Check, X, Star, Shield, Infinity, AtSign } from "lucide-react";
+import { FaInstagram, FaTwitter, FaSnapchat, FaTiktok, FaWhatsapp, FaYoutube, FaFacebook, FaLinkedin, FaSpotify, FaPinterest, FaTwitch, FaTelegram, FaDiscord } from 'react-icons/fa6';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -152,6 +152,30 @@ const PLATFORMS = [
     bgColor: 'bg-purple-600',
     placeholder: 'username',
     urlFormat: (username: string) => `https://twitch.tv/${username}`
+  },
+  {
+    id: 'telegram',
+    name: 'Telegram',
+    icon: FaTelegram,
+    bgColor: 'bg-blue-500',
+    placeholder: '@username',
+    urlFormat: (username: string) => `https://t.me/${username.replace('@', '')}`
+  },
+  {
+    id: 'discord',
+    name: 'Discord',
+    icon: FaDiscord,
+    bgColor: 'bg-indigo-600',
+    placeholder: 'server invite',
+    urlFormat: (input: string) => input.includes('discord.gg') ? input : `https://discord.gg/${input}`
+  },
+  {
+    id: 'threads',
+    name: 'Threads',
+    icon: AtSign,
+    bgColor: 'bg-black',
+    placeholder: '@username',
+    urlFormat: (username: string) => `https://threads.net/@${username.replace('@', '')}`
   }
 ];
 

@@ -120,6 +120,38 @@ export const SOCIAL_PLATFORMS: Record<string, SocialPlatform> = {
       /^([a-zA-Z0-9._-]+)$/
     ],
     urlTemplate: 'https://pinterest.com/{username}',
+  },
+  telegram: {
+    label: 'Telegram',
+    domains: ['t.me', 'telegram.me'],
+    patterns: [
+      /(?:t\.me|telegram\.me)\/([^\/\?\s]+)/i,
+      /^@?([a-zA-Z0-9_]+)$/
+    ],
+    urlTemplate: 'https://t.me/{username}',
+    usernamePrefix: '@'
+  },
+  discord: {
+    label: 'Discord',
+    domains: ['discord.gg', 'discord.com'],
+    patterns: [
+      /discord\.gg\/([^\/\?\s]+)/i,
+      /discord\.com\/invite\/([^\/\?\s]+)/i,
+      /discord\.com\/users\/([^\/\?\s]+)/i,
+      /^([a-zA-Z0-9._-]+)$/
+    ],
+    urlTemplate: 'https://discord.gg/{username}',
+  },
+  threads: {
+    label: 'Threads',
+    domains: ['threads.net'],
+    patterns: [
+      /threads\.net\/@([^\/\?\s]+)/i,
+      /threads\.net\/([^\/\?\s]+)/i,
+      /^@?([a-zA-Z0-9._]+)$/
+    ],
+    urlTemplate: 'https://threads.net/@{username}',
+    usernamePrefix: '@'
   }
 };
 
