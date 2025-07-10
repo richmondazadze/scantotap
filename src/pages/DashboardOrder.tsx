@@ -623,29 +623,29 @@ export default function DashboardOrder() {
                         
                         {/* Desktop/Tablet: Row layout */}
                         <div className="hidden md:flex gap-4 lg:gap-6 items-start">
-                          {/* Card Preview */}
+                        {/* Card Preview */}
                           <div className="w-48 lg:w-52 xl:w-56 flex-shrink-0">
-                            <CardDesignPreview 
-                              design={design}
-                              profile={profile}
-                              colorScheme={selectedColor}
-                              className="w-full"
-                            />
-                          </div>
-                          
-                          {/* Card Details */}
-                          <div className="flex-1 min-w-0">
+                          <CardDesignPreview 
+                            design={design}
+                            profile={profile}
+                            colorScheme={selectedColor}
+                            className="w-full"
+                          />
+                        </div>
+                        
+                        {/* Card Details */}
+                        <div className="flex-1 min-w-0">
                             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 lg:gap-4 mb-4">
-                              <div className="flex-1">
+                            <div className="flex-1">
                                 <h3 className="font-semibold text-lg lg:text-xl text-gray-900 dark:text-white mb-2">{design.name}</h3>
                                 <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400 leading-relaxed">{design.description}</p>
-                              </div>
-                              <div className="text-2xl lg:text-3xl font-bold font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent lg:text-right tracking-wider">₵{design.price}</div>
                             </div>
-                            
+                              <div className="text-2xl lg:text-3xl font-bold font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent lg:text-right tracking-wider">₵{design.price}</div>
+                          </div>
+                          
                             {/* Features */}
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-3">
-                              {design.features.map((feature, idx) => (
+                            {design.features.map((feature, idx) => (
                                 <div key={idx} className="flex items-center gap-3 text-sm lg:text-base text-gray-600 dark:text-gray-400">
                                   <div className="w-5 h-5 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
                                     <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
@@ -940,13 +940,13 @@ export default function DashboardOrder() {
                      'Checkout - Shipping Information'}
                   </CardTitle>
                   <CardDescription className="text-sm sm:text-base">
-                    {isEditMode 
-                      ? 'Modify your order details and complete payment'
+                {isEditMode 
+                  ? 'Modify your order details and complete payment'
                       : checkoutStep === 'location' 
                         ? 'Choose your delivery location in Ghana'
                         : 'Enter your shipping details and complete payment'
-                    }
-                  </CardDescription>
+                }
+              </CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -1224,7 +1224,7 @@ export default function DashboardOrder() {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-8 h-8 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
                     <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  </div>
+                </div>
                   <span className="font-semibold text-blue-900 dark:text-blue-100 text-base">Secure Payment</span>
                 </div>
                 <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
@@ -1268,7 +1268,7 @@ export default function DashboardOrder() {
                 <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
                   <p className="text-sm text-amber-700 dark:text-amber-300">
                     📍 Please select your city to calculate shipping costs and continue
-                  </p>
+                </p>
                 </div>
               )}
                 </>

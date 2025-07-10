@@ -422,6 +422,65 @@ html {
 }
 
 /* Enhanced slider styles for crop modal */
+.modern-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modern-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.modern-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5), 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.modern-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.modern-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+}
+
+/* Animated gradient background */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-shift {
+  background-size: 400% 400%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Enhanced mobile slider styles for crop modal */
 .slider-enhanced {
   -webkit-appearance: none;
   appearance: none;
@@ -514,5 +573,34 @@ html {
   
   .slider-enhanced::-moz-range-thumb:hover {
     background: linear-gradient(135deg, #3b82f6, #6366f1);
+  }
+}
+
+/* Dialog overlay and content positioning for better modal centering */
+[data-radix-dialog-overlay] {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 50 !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+[data-radix-dialog-content] {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  z-index: 50 !important;
+  transform: translate(-50%, -50%) !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+}
+
+/* Ensure dialog content is always centered on mobile */
+@media (max-width: 768px) {
+  [data-radix-dialog-content] {
+    max-height: 95vh !important;
+    margin: 0 !important;
+    width: calc(100vw - 1rem) !important;
+    max-width: calc(100vw - 1rem) !important;
   }
 }
