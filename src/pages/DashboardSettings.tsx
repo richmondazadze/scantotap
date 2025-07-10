@@ -255,7 +255,11 @@ export default function DashboardSettings() {
       // Load chart data
       const chartResult = await analyticsService.getAnalyticsChartData(profile.id, 30);
       if (chartResult.success && chartResult.data) {
+        console.log('📊 DASHBOARD: Chart data loaded:', chartResult.data);
+        console.log('📊 DASHBOARD: Sample dates:', chartResult.data.slice(0, 3).map(d => d.date));
         setChartData(chartResult.data);
+      } else {
+        console.log('❌ DASHBOARD: Chart data error:', chartResult.error);
       }
 
       // Load top links

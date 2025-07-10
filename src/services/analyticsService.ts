@@ -287,6 +287,10 @@ class AnalyticsService {
       const startDate = new Date();
       startDate.setDate(endDate.getDate() - days);
 
+      console.log('📅 ANALYTICS: Date range for chart data:');
+      console.log('📅 Start date:', startDate.toISOString());
+      console.log('📅 End date:', endDate.toISOString());
+
       // Get daily views
       const { data: visitsData, error: visitsError } = await supabase
         .from('profile_visits')
@@ -313,6 +317,9 @@ class AnalyticsService {
         return { success: false, error: clicksError.message };
       }
 
+      console.log('📊 ANALYTICS: Raw visits data count:', visitsData?.length || 0);
+      console.log('📊 ANALYTICS: Raw clicks data count:', clicksData?.length || 0);
+
       // Process data into daily buckets
       const chartData: AnalyticsChartData[] = [];
       
@@ -335,6 +342,10 @@ class AnalyticsService {
           clicks: clicksCount
         });
       }
+
+      console.log('📈 ANALYTICS: Generated chart data:');
+      console.log('📈 First 3 dates:', chartData.slice(0, 3));
+      console.log('📈 Last 3 dates:', chartData.slice(-3));
 
       return { success: true, data: chartData };
     } catch (error) {

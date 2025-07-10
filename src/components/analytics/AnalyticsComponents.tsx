@@ -231,13 +231,20 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
   const filteredData = data.slice(-parseInt(timeRange));
 
   // Format data for better mobile display
-  const formattedData = filteredData.map(item => ({
-    ...item,
-    shortDate: new Date(item.date).toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
-    })
-  }));
+  const formattedData = filteredData.map(item => {
+    // Ensure proper date parsing - item.date should be in YYYY-MM-DD format
+    const dateObj = new Date(item.date + 'T00:00:00.000Z'); // Force UTC to avoid timezone issues
+    
+    return {
+      ...item,
+      shortDate: dateObj.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        timeZone: 'UTC'
+      }),
+      fullDate: item.date // Keep original date string for tooltip
+    };
+  });
 
   const maxViews = Math.max(...formattedData.map(d => d.views));
   const maxClicks = Math.max(...formattedData.map(d => d.clicks));
@@ -247,13 +254,18 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
   // Custom tooltip for mobile
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      // Find the original data item to get the full date
+      const dataItem = formattedData.find(item => item.shortDate === label);
+      const fullDate = dataItem?.fullDate || label;
+      
       return (
         <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
           <p className="font-medium text-gray-900 dark:text-white mb-2">
-            {new Date(label).toLocaleDateString('en-US', { 
+            {new Date(fullDate + 'T00:00:00.000Z').toLocaleDateString('en-US', { 
               month: 'short', 
               day: 'numeric',
-              year: 'numeric'
+              year: 'numeric',
+              timeZone: 'UTC'
             })}
           </p>
           {payload.map((entry: any, index: number) => (
@@ -743,82 +755,85 @@ export const ExportData: React.FC<ExportDataProps> = ({
 
     try {
       const timestamp = new Date().toISOString().split('T')[0];
-      const filename = `analytics-${profileId}-${timestamp}`;
+      const filename = `analytics-summary-${profileId}-${timestamp}.csv`;
 
-      // Prepare analytics summary data
-      const summaryData = analytics ? [{
-        'Metric': 'Total Views',
-        'Value': analytics.total_views,
-        'This Week': analytics.views_this_week,
-        'This Month': analytics.views_this_month,
-        'Today': analytics.views_today
-      }, {
-        'Metric': 'Total Link Clicks',
-        'Value': analytics.total_link_clicks,
-        'This Week': analytics.link_clicks_this_week,
-        'This Month': analytics.link_clicks_this_month,
-        'Today': analytics.link_clicks_today
-      }, {
-        'Metric': 'Unique Visitors',
-        'Value': analytics.unique_visitors,
-        'This Week': '-',
-        'This Month': '-',
-        'Today': '-'
-      }] : [];
+      // Prepare comprehensive analytics summary data
+      const summaryData = [];
+      
+      if (analytics) {
+        // Main metrics
+        summaryData.push({
+          'Category': 'Views',
+          'Metric': 'Total Views',
+          'Value': analytics.total_views,
+          'This Week': analytics.views_this_week,
+          'This Month': analytics.views_this_month,
+          'Today': analytics.views_today
+        });
 
-      setExportProgress(40);
+        summaryData.push({
+          'Category': 'Engagement',
+          'Metric': 'Total Link Clicks',
+          'Value': analytics.total_link_clicks,
+          'This Week': analytics.link_clicks_this_week,
+          'This Month': analytics.link_clicks_this_month,
+          'Today': analytics.link_clicks_today
+        });
 
-      // Prepare daily chart data
-      const dailyData = chartData.map(item => ({
-        'Date': item.date,
-        'Views': item.views,
-        'Clicks': item.clicks
-      }));
+        summaryData.push({
+          'Category': 'Audience',
+          'Metric': 'Unique Visitors',
+          'Value': analytics.unique_visitors,
+          'This Week': '-',
+          'This Month': '-',
+          'Today': '-'
+        });
 
-      setExportProgress(60);
+        // Add device breakdown if available
+        if (deviceBreakdown.length > 0) {
+          deviceBreakdown.forEach(device => {
+            summaryData.push({
+              'Category': 'Devices',
+              'Metric': `${device.device} Views`,
+              'Value': device.views,
+              'This Week': '-',
+              'This Month': '-',
+              'Today': `${device.percentage}%`
+            });
+          });
+        }
 
-      // Prepare top links data
-      const linksData = topLinks.map((link, index) => ({
-        'Rank': index + 1,
-        'Platform': link.platform,
-        'Clicks': link.clicks,
-        'Percentage': `${link.percentage}%`
-      }));
+        // Add top links if available
+        if (topLinks.length > 0) {
+          topLinks.slice(0, 5).forEach((link, index) => {
+            summaryData.push({
+              'Category': 'Top Links',
+              'Metric': `#${index + 1} ${link.platform}`,
+              'Value': link.clicks,
+              'This Week': '-',
+              'This Month': '-',
+              'Today': `${link.percentage}%`
+            });
+          });
+        }
+      }
 
       setExportProgress(80);
 
-      // Prepare device breakdown data
-      const deviceData = deviceBreakdown.map(device => ({
-        'Device Type': device.device,
-        'Views': device.views,
-        'Percentage': `${device.percentage}%`
-      }));
-
-      setExportProgress(90);
-
-      // Create and download multiple CSV files in a structured way
-      const csvFiles = [
-        { name: `${filename}-summary.csv`, data: summaryData },
-        { name: `${filename}-daily.csv`, data: dailyData },
-        { name: `${filename}-links.csv`, data: linksData },
-        { name: `${filename}-devices.csv`, data: deviceData }
-      ];
-
-      for (const file of csvFiles) {
-        if (file.data.length > 0) {
-          const csv = Papa.unparse(file.data as any[]);
-          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-          const link = document.createElement('a');
-          
-          if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', file.name);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          }
+      // Create and download single CSV file
+      if (summaryData.length > 0) {
+        const csv = Papa.unparse(summaryData as any[]);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        
+        if (link.download !== undefined) {
+          const url = URL.createObjectURL(blob);
+          link.setAttribute('href', url);
+          link.setAttribute('download', filename);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
         }
       }
 
@@ -1004,51 +1019,65 @@ export const ExportData: React.FC<ExportDataProps> = ({
               Export Format
             </label>
             <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant={exportFormat === 'csv' ? 'default' : 'outline'}
+              <button
                 onClick={() => setExportFormat('csv')}
-                className="flex items-center gap-2 h-auto p-4"
+                className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
+                  exportFormat === 'csv' 
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
                 disabled={isExporting}
               >
-                <FileSpreadsheet className="w-5 h-5" />
+                <FileSpreadsheet className={`w-6 h-6 ${exportFormat === 'csv' ? 'text-blue-600' : 'text-gray-400'}`} />
                 <div className="text-left">
-                  <div className="font-medium">CSV Files</div>
-                  <div className="text-xs opacity-70">Multiple spreadsheet files</div>
+                  <div className={`font-medium ${exportFormat === 'csv' ? 'text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                    CSV Files
+                  </div>
+                  <div className={`text-xs ${exportFormat === 'csv' ? 'text-blue-700 dark:text-blue-300' : 'text-gray-500'}`}>
+                    Summary spreadsheet file
+                  </div>
                 </div>
-              </Button>
+              </button>
               
-              <Button
-                variant={exportFormat === 'pdf' ? 'default' : 'outline'}
+              <button
                 onClick={() => setExportFormat('pdf')}
-                className="flex items-center gap-2 h-auto p-4"
+                className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
+                  exportFormat === 'pdf' 
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
                 disabled={isExporting}
               >
-                <FileText className="w-5 h-5" />
+                <FileText className={`w-6 h-6 ${exportFormat === 'pdf' ? 'text-blue-600' : 'text-gray-400'}`} />
                 <div className="text-left">
-                  <div className="font-medium">PDF Report</div>
-                  <div className="text-xs opacity-70">Complete visual report</div>
+                  <div className={`font-medium ${exportFormat === 'pdf' ? 'text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                    PDF Report
+                  </div>
+                  <div className={`text-xs ${exportFormat === 'pdf' ? 'text-blue-700 dark:text-blue-300' : 'text-gray-500'}`}>
+                    Complete visual report
+                  </div>
                 </div>
-              </Button>
+              </button>
             </div>
           </div>
 
           {/* Export Description */}
-          <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <div className="text-sm text-gray-600 dark:text-gray-400">
               {exportFormat === 'csv' ? (
                 <div>
-                  <p className="font-medium mb-1">CSV Export includes:</p>
-                  <ul className="text-xs space-y-1 ml-4">
+                  <p className="font-medium mb-2">CSV Export includes:</p>
+                  <ul className="text-sm space-y-1">
                     <li>• Analytics summary with metrics breakdown</li>
-                    <li>• Daily views and clicks data</li>
-                    <li>• Top performing links ranking</li>
                     <li>• Device breakdown statistics</li>
+                    <li>• Top performing links ranking</li>
+                    <li>• All key metrics in one organized file</li>
                   </ul>
                 </div>
               ) : (
                 <div>
-                  <p className="font-medium mb-1">PDF Report includes:</p>
-                  <ul className="text-xs space-y-1 ml-4">
+                  <p className="font-medium mb-2">PDF Report includes:</p>
+                  <ul className="text-sm space-y-1">
                     <li>• Complete analytics summary</li>
                     <li>• Visual charts and graphs</li>
                     <li>• Formatted tables and statistics</li>
