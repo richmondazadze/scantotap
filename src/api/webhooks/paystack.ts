@@ -125,7 +125,7 @@ export function expressWebhookHandler(req: any, res: any) {
       "last_name": "Doe",
       "email": "john@example.com",
       "customer_code": "CUS_xnxdt6s1zg5f4nx",
-      "phone": "+2348123456789",
+      "phone": "+233203285781",
       "metadata": {}
     }
   }

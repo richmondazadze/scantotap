@@ -216,10 +216,15 @@ const ContactPage = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-1">Phone</h3>
-                      <a href="tel:+15551234567" className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-base">
-                        +1 (555) 123-4567
-                      </a>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Mon-Fri, 9am-5pm EST</p>
+                      <div className="space-y-1">
+                        <a href="tel:+233203285781" className="block text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-base">
+                          +233 20 328 5781 (Ghana)
+                        </a>
+                        <a href="tel:+15126509818" className="block text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-base">
+                          +1 (512) 650-9818 (US)
+                        </a>
+                      </div>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Mon-Fri, 9am-5pm GMT</p>
                     </div>
                   </motion.div>
 
@@ -233,21 +238,21 @@ const ContactPage = () => {
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-1">Live Chat</h3>
                       <p className="text-slate-600 dark:text-slate-300 text-base">Available 24/7</p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Instant support when you need it</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Instant support anytime you need it</p>
                   </div>
                   </motion.div>
                 </div>
 
                 <div className="mt-10 pt-8 border-t border-slate-200/50 dark:border-slate-700/50 relative z-10">
                   <h3 className="text-xl font-semibold mb-6 text-slate-900 dark:text-white">Business Hours</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600 dark:text-slate-300">Monday - Friday</span>
-                      <span className="font-medium text-slate-900 dark:text-white">9:00 AM - 5:00 PM</span>
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
+                      <span className="text-slate-600 dark:text-slate-300 text-base">Monday - Friday</span>
+                      <span className="font-medium text-slate-900 dark:text-white text-base">9:00 AM - 5:00 PM</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600 dark:text-slate-300">Weekend</span>
-                      <span className="font-medium text-slate-900 dark:text-white">Emergency only</span>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
+                      <span className="text-slate-600 dark:text-slate-300 text-base">Weekend</span>
+                      <span className="font-medium text-slate-900 dark:text-white text-base">Emergency only</span>
                     </div>
                   </div>
                 </div>

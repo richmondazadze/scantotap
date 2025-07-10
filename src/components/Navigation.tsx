@@ -286,7 +286,7 @@ const Navigation = () => {
                           {isActive(link.path) && (
                             <motion.div
                               layoutId="mobileActiveIndicator"
-                              className="absolute left-3 top-1/3.5 -translate-y-1/2 w-0.5 h-6 bg-white rounded-full"
+                              className="absolute left-3 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-white rounded-full"
                               initial={{ opacity: 0, scale: 0 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ duration: 0.3 }}

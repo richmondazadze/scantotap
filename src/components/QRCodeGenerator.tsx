@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -183,6 +184,9 @@ const QRCodeGenerator = forwardRef(function QRCodeGenerator(
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Customize QR Code</DialogTitle>
+              <DialogDescription>
+                Adjust the QR code's appearance to match your preferences.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-6 py-4">
               <div className="space-y-2">

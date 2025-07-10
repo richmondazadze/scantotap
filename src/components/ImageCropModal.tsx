@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Cropper from 'react-easy-crop';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
 import { useToast } from '../hooks/use-toast';
@@ -424,6 +424,13 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-3xl w-full max-h-[90vh] sm:max-h-[85vh] p-0 gap-0 overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl border-0 bg-white/98 dark:bg-gray-900/98 backdrop-blur-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Image Crop Editor</DialogTitle>
+          <DialogDescription>
+            Crop and adjust your profile image to the perfect size and position
+          </DialogDescription>
+        </DialogHeader>
+        
         {/* Universal close button */}
         <button
           onClick={onClose}

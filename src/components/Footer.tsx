@@ -87,6 +87,9 @@ const Footer = () => {
                           </div>
                         Privacy Policy
                       </DialogTitle>
+                        <DialogDescription className="sr-only">
+                          Detailed privacy policy explaining how we collect, use, and protect your personal information
+                        </DialogDescription>
                         <p className="text-slate-600 dark:text-slate-300 mt-2 text-sm sm:text-base">
                           Your privacy and data protection are our highest priorities
                         </p>
@@ -251,6 +254,9 @@ const Footer = () => {
                           </div>
                         Terms of Service
                       </DialogTitle>
+                        <DialogDescription className="sr-only">
+                          Terms and conditions governing the use of our digital identity platform and services
+                        </DialogDescription>
                         <p className="text-slate-600 dark:text-slate-300 mt-2 text-sm sm:text-base">
                           Please read these terms carefully before using our services
                         </p>
