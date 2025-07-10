@@ -429,7 +429,7 @@ export default function DashboardProfile() {
                 <h3 className="font-semibold text-scan-blue dark:text-scan-blue-light text-base sm:text-lg">Welcome! Let's create your digital profile</h3>
               </div>
               <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                Fill in your information below to create your digital business card. Don't worry, you can always edit this later!
+                Fill in your information below to create your digital profile. Don't worry, you can always edit this later!
               </p>
             </div>
           )}

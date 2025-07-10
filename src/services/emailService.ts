@@ -348,7 +348,7 @@ class EmailService {
             <div class="footer">
       <div class="footer-text">
         <strong>Scan2Tap</strong><br>
-        Making networking effortless with digital business cards
+        Making networking effortless with digital profiles
               </div>
       <div class="footer-text">
         <a href="https://scan2tap.vercel.app" class="footer-link">www.scan2tap.vercel.app</a>
@@ -372,7 +372,7 @@ class EmailService {
         <div class="message">
           <p>We're thrilled to have you join our community of professionals who are revolutionizing the way they network and share their digital presence.</p>
           
-          <p>With ${this.brandName}, you're just a few steps away from creating your stunning digital business card that will make lasting impressions wherever you go.</p>
+          <p>With ${this.brandName}, you're just a few steps away from creating your stunning digital profile that will make lasting impressions wherever you go.</p>
         </div>
         
         <div class="info-card">
@@ -412,7 +412,7 @@ class EmailService {
         <h2 class="greeting">🎉 Congratulations, ${data.userName}!</h2>
         
         <div class="message">
-          <p>Your digital business card is now live and ready to make an amazing first impression! You've successfully created a professional digital presence that you can share instantly with anyone, anywhere.</p>
+          <p>Your digital profile is now live and ready to make an amazing first impression! You've successfully created a professional digital presence that you can share instantly with anyone, anywhere.</p>
         </div>
         
         <div class="info-card">
@@ -453,8 +453,8 @@ class EmailService {
       const result = await resend.emails.send({
         from: `${this.brandName} <${this.fromEmail}>`,
         to: data.userEmail,
-        subject: `🎉 Your digital business card is live!`,
-        html: this.getBaseTemplate(content, "Your Scan2Tap profile is ready! Start sharing your digital business card."),
+              subject: `🎉 Your digital profile is live!`,
+      html: this.getBaseTemplate(content, "Your Scan2Tap profile is ready! Start sharing your digital presence."),
       });
 
       return !!result.data;
@@ -725,7 +725,7 @@ class EmailService {
         <div class="message">
           <p><strong>You'll still have access to:</strong></p>
           <ul style="margin: 16px 0; padding-left: 20px; color: #059669;">
-            <li>Your basic digital business card</li>
+                            <li>Your basic digital profile</li>
             <li>Up to 7 social links</li>
             <li>QR code generation</li>
             <li>Basic analytics</li>

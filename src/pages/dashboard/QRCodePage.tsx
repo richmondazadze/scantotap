@@ -12,7 +12,7 @@ const QRCodePage = () => {
         <CardHeader>
           <CardTitle>Your QR Code</CardTitle>
           <CardDescription>
-            Share your digital business card with others by scanning this QR code
+            Share your digital profile with others by scanning this QR code
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -169,7 +169,7 @@ const ContactPage = () => {
               Contact Us
             </h1>
             <p className="text-lg sm:text-xl lg:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed">
-              Have questions about our digital business cards? We're here to help.
+              Have questions about our digital profiles? We're here to help.
               Send us a message and we'll respond as soon as possible.
             </p>
           </motion.div>

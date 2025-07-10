@@ -201,7 +201,7 @@ const AdminQRViewer: React.FC<AdminQRViewerProps> = ({ profile }) => {
             </div>
             <div class="profile-url">${profileUrl}</div>
             <div class="footer">
-              Scan to view digital business card • Generated on ${new Date().toLocaleDateString()}
+              Scan to view digital profile • Generated on ${new Date().toLocaleDateString()}
             </div>
           </div>
         </body>

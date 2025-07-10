@@ -154,7 +154,7 @@ export default function DashboardShipping() {
               Order Tracking & Shipping
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-              Track your digital business card orders and shipping status
+              Track your physical business card orders and shipping status
             </p>
           </div>
           <Button 

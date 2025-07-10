@@ -708,7 +708,7 @@ const AdminPage = () => {
         >
           <div className="text-center lg:text-left">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white font-serif">Analytics Overview</h1>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">Manage and monitor your digital business card platform</p>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">Manage and monitor your digital profile platform</p>
             
             {/* Session Info */}
             <div className="flex items-center gap-4 mt-3 justify-center lg:justify-start">

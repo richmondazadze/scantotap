@@ -296,7 +296,7 @@ class ContactEmailService {
     <div class="footer">
       <div class="footer-text">
         <strong>Scan2Tap</strong><br>
-        Making networking effortless with digital business cards
+        Making networking effortless with digital profiles
       </div>
       <div class="footer-text">
         <a href="https://scan2tap.vercel.app" class="footer-link">www.scan2tap.vercel.app</a>

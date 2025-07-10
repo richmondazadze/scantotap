@@ -221,12 +221,12 @@ function generateWelcomeEmail(data) {
       <div class="features">
         <h3>🚀 What You Can Achieve with SCAN2TAP</h3>
         <ul>
-          <li>Create a stunning digital business card with your professional information</li>
+          <li>Create a stunning digital profile with your professional information</li>
           <li>Generate QR codes for instant profile sharing at networking events</li>
           <li>Connect your social media and professional links in one place</li>
           <li>Track engagement and connections with built-in analytics</li>
           <li>Update your information instantly across all shared profiles</li>
-          <li>Make lasting impressions with a modern, eco-friendly approach</li>
+          <li>Order premium physical business cards with your QR code</li>
           <li>Stand out from the crowd with customizable design options</li>
         </ul>
       </div>
@@ -388,11 +388,11 @@ function generateOnboardingCompleteEmail(data) {
       <h1 class="greeting">🎉 Congratulations, ${userName}!</h1>
       
       <p class="message">
-        Your SCAN2TAP profile is now complete and ready to share! You've successfully set up your digital business card.
+        Your SCAN2TAP profile is now complete and ready to share! You've successfully created your professional digital identity.
       </p>
       
       <p class="message">
-        Start networking and sharing your professional information with just one tap. Your digital identity is now at your fingertips!
+        Start networking and sharing your professional information with just one tap. Your complete online presence is now at your fingertips!
       </p>
       
       <!-- CTA -->

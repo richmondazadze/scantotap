@@ -189,7 +189,7 @@ export default function AuthPage() {
         transition={{ duration: 0.6, delay: 1 }}
         className="mt-6 sm:mt-8 text-center text-sm text-gray-500 dark:text-gray-400 relative z-10 px-4"
       >
-        <p>Transform your networking with smart digital business cards</p>
+                  <p>Transform your networking with smart digital profiles</p>
       </motion.div>
     </div>
   );

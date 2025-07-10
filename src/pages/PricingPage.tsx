@@ -92,7 +92,7 @@ const PricingPage = () => {
       icon: Users,
       gradient: "from-gray-500 to-gray-600",
       features: [
-        { name: "Create a digital profile", included: true, description: "Build your personalized digital business card" },
+        { name: "Create a digital profile", included: true, description: "Build your personalized digital profile" },
         { name: "Custom scan2tap link", included: true, description: "Get your own scan2tap.vercel.app/username URL" },
         { name: "Add up to 7 social or custom links", included: true, description: "Instagram, LinkedIn, website, etc." },
         { name: "Dynamic QR code & download", included: true, description: "Generate and download your QR code" },
@@ -487,7 +487,7 @@ const PricingPage = () => {
             Frequently Asked Questions
             </h2>
             <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Everything you need to know about our digital business cards
+              Everything you need to know about our digital profiles
             </p>
           </motion.div>
 
@@ -507,14 +507,14 @@ const PricingPage = () => {
             >
                 {[
                   {
-                    question: "How does the digital business card work?",
-                    answer: "Your digital business card is a personalized web page that contains all your professional information. You can share it via QR code, link, or NFC technology. When someone visits your profile, they can instantly access your contact info, social media, and links.",
+                    question: "How does the digital profile work?",
+                    answer: "Your digital profile is a personalized web page that contains all your professional information. You can share it via QR code, link, or NFC technology. When someone visits your profile, they can instantly access your contact info, social media, and links.",
                     icon: QrCode,
                     gradient: "from-blue-500 to-blue-600"
                   },
                   {
                     question: "Can I update my profile after creating it?",
-                    answer: "Yes! That's the beauty of digital business cards. You can update your information, add new links, change your photo, and modify your profile anytime from your dashboard. All changes are reflected immediately.",
+                    answer: "Yes! That's the beauty of digital profiles. You can update your information, add new links, change your photo, and modify your profile anytime from your dashboard. All changes are reflected immediately.",
                     icon: Users,
                     gradient: "from-green-500 to-green-600"
                   },
@@ -537,7 +537,7 @@ const PricingPage = () => {
                     gradient: "from-red-500 to-red-600"
                   },
                   {
-                    question: "How do I share my digital business card?",
+                    question: "How do I share my digital profile?",
                     answer: "Multiple ways! You can share your profile link directly, generate a QR code for people to scan, use NFC technology for tap-to-share, or even embed your profile link in email signatures and social media bios.",
                     icon: Zap,
                     gradient: "from-cyan-500 to-cyan-600"
@@ -586,14 +586,14 @@ const PricingPage = () => {
             <div className="hidden lg:grid lg:grid-cols-2 xl:grid-cols-2 gap-6 xl:gap-8">
               {[
                 {
-                  question: "How does the digital business card work?",
-                  answer: "Your digital business card is a personalized web page that contains all your professional information. You can share it via QR code, link, or NFC technology. When someone visits your profile, they can instantly access your contact info, social media, and links.",
+                  question: "How does the digital profile work?",
+                  answer: "Your digital profile is a personalized web page that contains all your professional information. You can share it via QR code, link, or NFC technology. When someone visits your profile, they can instantly access your contact info, social media, and links.",
                   icon: QrCode,
                   gradient: "from-blue-500 to-blue-600"
                 },
                 {
                   question: "Can I update my profile after creating it?",
-                  answer: "Yes! That's the beauty of digital business cards. You can update your information, add new links, change your photo, and modify your profile anytime from your dashboard. All changes are reflected immediately.",
+                  answer: "Yes! That's the beauty of digital profiles. You can update your information, add new links, change your photo, and modify your profile anytime from your dashboard. All changes are reflected immediately.",
                   icon: Users,
                   gradient: "from-green-500 to-green-600"
                 },
@@ -616,7 +616,7 @@ const PricingPage = () => {
                   gradient: "from-red-500 to-red-600"
                 },
                 {
-                  question: "How do I share my digital business card?",
+                  question: "How do I share my digital profile?",
                   answer: "Multiple ways! You can share your profile link directly, generate a QR code for people to scan, use NFC technology for tap-to-share, or even embed your profile link in email signatures and social media bios.",
                   icon: Zap,
                   gradient: "from-cyan-500 to-cyan-600"

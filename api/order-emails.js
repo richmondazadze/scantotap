@@ -667,7 +667,7 @@ function generateOrderDeliveredEmail(orderData, userName) {
       
       <div class="celebration">
         <h3 style="color: #059669; margin-bottom: 15px;">Welcome to the SCAN2TAP Community! 🌟</h3>
-        <p>We hope you love your new digital business cards. Start sharing your professional profile and make meaningful connections!</p>
+        <p>We hope you love your new physical business cards with QR codes. Start sharing your professional profile and make meaningful connections!</p>
       </div>
       
       <p>If you have any issues with your order or need support getting started, our team is here to help.</p>

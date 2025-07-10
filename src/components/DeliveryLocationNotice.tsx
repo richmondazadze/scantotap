@@ -61,7 +61,7 @@ export default function DeliveryLocationNotice() {
             <div className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
               <p>
                 <strong>Great news!</strong> You can place your order from anywhere in the world. 
-                We'll deliver your digital business cards to any address within Ghana.
+                We'll deliver your physical business cards to any address within Ghana.
               </p>
               <div className="flex items-start gap-2 mt-3 p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
                 <MapPin className="w-4 h-4 text-amber-600 mt-0.5" />

@@ -553,7 +553,7 @@ export default function DashboardOrder() {
             className="text-center"
           >
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-2 sm:mb-3 px-1 sm:px-2 leading-tight">
-              {isEditMode ? 'Modify Your Order' : 'Order Your Digital Business Card'}
+              {isEditMode ? 'Modify Your Order' : 'Order Your Physical Business Cards'}
             </h1>
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300 px-1 sm:px-2 leading-relaxed max-w-4xl mx-auto">
               {isEditMode 
@@ -574,7 +574,7 @@ export default function DashboardOrder() {
                 className={cardBase}
               >
                 <h2 className={cardTitle}>Choose Your Design</h2>
-                <p className={cardDesc}>Select the perfect design for your digital business card</p>
+                <p className={cardDesc}>Select the perfect design for your physical business cards</p>
                 
                 <div className="space-y-4 sm:space-y-6">
                   {cardDesigns.map((design) => {
@@ -755,7 +755,7 @@ export default function DashboardOrder() {
                 className={cardBase}
               >
                 <h2 className={cardTitle}>Preview</h2>
-                <p className={cardDesc}>How your card will look</p>
+                <p className={cardDesc}>Preview your card design with your chosen color scheme</p>
                 
                 <CardDesignPreview 
                   design={selectedDesign}
