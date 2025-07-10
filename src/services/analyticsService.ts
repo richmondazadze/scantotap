@@ -148,32 +148,45 @@ class AnalyticsService {
   // Track a profile visit
   async trackProfileVisit(profileId: string): Promise<{ success: boolean; error?: string }> {
     try {
+      console.log('🔍 ANALYTICS DEBUG: Starting to track profile visit for:', profileId);
+      
       const deviceType = this.getDeviceType();
       const { browser, os } = this.getBrowserInfo();
       const visitorId = this.generateVisitorId();
       const { referrer_url, referrer_domain } = this.getReferrerInfo();
 
+      const visitData = {
+        profile_id: profileId,
+        visitor_id: visitorId,
+        device_type: deviceType,
+        browser,
+        os,
+        referrer_url,
+        referrer_domain,
+        visited_at: new Date().toISOString(),
+        // Add missing required fields that the database expects
+        ip_address: null, // We don't collect real IPs for privacy compliance
+        user_agent: navigator.userAgent || null,
+        country: null, // Could add geolocation later if needed
+        city: null, // Could add geolocation later if needed
+        session_duration: 0
+      };
+
+      console.log('🔍 ANALYTICS DEBUG: Visit data to insert:', visitData);
+
       const { error } = await supabase
         .from('profile_visits')
-        .insert({
-          profile_id: profileId,
-          visitor_id: visitorId,
-          device_type: deviceType,
-          browser,
-          os,
-          referrer_url,
-          referrer_domain,
-          visited_at: new Date().toISOString()
-        });
+        .insert(visitData);
 
       if (error) {
-        console.error('Error tracking profile visit:', error);
+        console.error('❌ ANALYTICS ERROR: Failed to insert profile visit:', error);
         return { success: false, error: error.message };
       }
 
+      console.log('✅ ANALYTICS SUCCESS: Profile visit tracked successfully');
       return { success: true };
     } catch (error) {
-      console.error('Error tracking profile visit:', error);
+      console.error('❌ ANALYTICS CATCH: Error tracking profile visit:', error);
       return { success: false, error: 'Failed to track visit' };
     }
   }
@@ -187,30 +200,37 @@ class AnalyticsService {
     platform?: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
+      console.log('🔍 ANALYTICS DEBUG: Starting to track link click for:', profileId, 'Type:', linkType, 'Platform:', platform);
+      
       const deviceType = this.getDeviceType();
       const visitorId = this.generateVisitorId();
 
+      const clickData = {
+        profile_id: profileId,
+        link_type: linkType,
+        link_label: linkLabel,
+        link_url: linkUrl,
+        platform: platform || null,
+        visitor_id: visitorId,
+        device_type: deviceType,
+        clicked_at: new Date().toISOString()
+      };
+
+      console.log('🔍 ANALYTICS DEBUG: Click data to insert:', clickData);
+
       const { error } = await supabase
         .from('link_clicks')
-        .insert({
-          profile_id: profileId,
-          link_type: linkType,
-          link_label: linkLabel,
-          link_url: linkUrl,
-          platform: platform || null,
-          visitor_id: visitorId,
-          device_type: deviceType,
-          clicked_at: new Date().toISOString()
-        });
+        .insert(clickData);
 
       if (error) {
-        console.error('Error tracking link click:', error);
+        console.error('❌ ANALYTICS ERROR: Failed to insert link click:', error);
         return { success: false, error: error.message };
       }
 
+      console.log('✅ ANALYTICS SUCCESS: Link click tracked successfully');
       return { success: true };
     } catch (error) {
-      console.error('Error tracking link click:', error);
+      console.error('❌ ANALYTICS CATCH: Error tracking link click:', error);
       return { success: false, error: 'Failed to track click' };
     }
   }
@@ -495,6 +515,66 @@ class AnalyticsService {
     } catch (error) {
       console.error('Error clearing analytics data:', error);
       return { success: false, error: 'Failed to clear analytics data' };
+    }
+  }
+
+  // Test function to verify analytics are working (for debugging only)
+  async testAnalyticsInsertion(profileId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      console.log('🧪 TEST: Inserting test analytics data for profile:', profileId);
+      
+      // Insert a test visit
+      const testVisit = {
+        profile_id: profileId,
+        visitor_id: 'test_' + Date.now(),
+        device_type: 'desktop',
+        browser: 'Chrome',
+        os: 'Windows',
+        referrer_url: null,
+        referrer_domain: null,
+        visited_at: new Date().toISOString(),
+        ip_address: null,
+        user_agent: 'Test User Agent',
+        country: null,
+        city: null,
+        session_duration: 0
+      };
+
+      const { error: visitError } = await supabase
+        .from('profile_visits')
+        .insert(testVisit);
+
+      if (visitError) {
+        console.error('❌ TEST: Failed to insert test visit:', visitError);
+        return { success: false, error: visitError.message };
+      }
+
+      // Insert a test link click
+      const testClick = {
+        profile_id: profileId,
+        link_type: 'social',
+        link_label: 'Instagram',
+        link_url: 'https://instagram.com/test',
+        platform: 'instagram',
+        visitor_id: 'test_' + Date.now(),
+        device_type: 'desktop',
+        clicked_at: new Date().toISOString()
+      };
+
+      const { error: clickError } = await supabase
+        .from('link_clicks')
+        .insert(testClick);
+
+      if (clickError) {
+        console.error('❌ TEST: Failed to insert test click:', clickError);
+        return { success: false, error: clickError.message };
+      }
+
+      console.log('✅ TEST: Test analytics data inserted successfully');
+      return { success: true };
+    } catch (error) {
+      console.error('❌ TEST: Exception during test insertion:', error);
+      return { success: false, error: 'Failed to insert test data' };
     }
   }
 }

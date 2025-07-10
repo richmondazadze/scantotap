@@ -242,10 +242,15 @@ export default function DashboardSettings() {
     
     setAnalyticsLoading(true);
     try {
+      console.log('🔍 DASHBOARD: Loading analytics data for profile:', profile.id);
+      
       // Load analytics summary
       const analyticsResult = await analyticsService.getProfileAnalytics(profile.id);
       if (analyticsResult.success && analyticsResult.data) {
         setAnalytics(analyticsResult.data);
+        console.log('✅ DASHBOARD: Analytics loaded:', analyticsResult.data);
+      } else {
+        console.log('❌ DASHBOARD: Analytics error:', analyticsResult.error);
       }
 
       // Load chart data
@@ -266,7 +271,7 @@ export default function DashboardSettings() {
         setDeviceBreakdown(deviceResult.data);
       }
     } catch (error) {
-      console.error('Error loading analytics:', error);
+      console.error('❌ DASHBOARD: Error loading analytics:', error);
     } finally {
       setAnalyticsLoading(false);
     }
@@ -1024,13 +1029,27 @@ export default function DashboardSettings() {
                   {/* Analytics Overview */}
                   <Card>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                        <BarChart3 className="w-5 h-5" />
-                        Analytics Overview
-                      </CardTitle>
-                      <CardDescription className="text-sm sm:text-base">
-                        Track your profile performance and visitor engagement
-                      </CardDescription>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                            <BarChart3 className="w-5 h-5" />
+                            Analytics Overview
+                          </CardTitle>
+                          <CardDescription className="text-sm sm:text-base">
+                            Track your profile performance and visitor engagement
+                          </CardDescription>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={loadAnalyticsData}
+                          disabled={analyticsLoading}
+                          className="flex items-center gap-2"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${analyticsLoading ? 'animate-spin' : ''}`} />
+                          Refresh
+                        </Button>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       {analytics ? (
@@ -1040,6 +1059,16 @@ export default function DashboardSettings() {
                           <TrendingUp className="w-8 h-8 mx-auto mb-2 opacity-50" />
                           <p>No analytics data yet</p>
                           <p className="text-sm">Share your profile to start tracking visits!</p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={loadAnalyticsData}
+                            disabled={analyticsLoading}
+                            className="mt-4"
+                          >
+                            <RefreshCw className={`w-4 h-4 mr-2 ${analyticsLoading ? 'animate-spin' : ''}`} />
+                            Check for Data
+                          </Button>
                         </div>
                       )}
                     </CardContent>

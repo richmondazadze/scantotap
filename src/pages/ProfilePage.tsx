@@ -182,7 +182,17 @@ const ProfilePage = () => {
       
       // Track profile visit after successful profile load
       if (data?.id) {
-        await analyticsService.trackProfileVisit(data.id);
+        try {
+          console.log('🔍 PROFILE: Attempting to track visit for profile:', data.id);
+          const result = await analyticsService.trackProfileVisit(data.id);
+          if (result.success) {
+            console.log('✅ PROFILE: Visit tracked successfully');
+          } else {
+            console.error('❌ PROFILE: Visit tracking failed:', result.error);
+          }
+        } catch (error) {
+          console.error('❌ PROFILE: Exception during visit tracking:', error);
+        }
       }
       
       setLoading(false);
@@ -202,15 +212,21 @@ const ProfilePage = () => {
     if (!profile?.id) return;
     
     try {
-      await analyticsService.trackLinkClick(
+      console.log('🔍 PROFILE: Attempting to track link click for profile:', profile.id, 'Link:', link.label || link.platform || 'Unknown', 'Type:', linkType);
+      const result = await analyticsService.trackLinkClick(
         profile.id,
         linkType,
         link.platform || link.label || 'Unknown',
         link.url,
         linkType === 'social' ? (link.platform || link.label) : undefined
       );
+      if (result.success) {
+        console.log('✅ PROFILE: Link click tracked successfully');
+      } else {
+        console.error('❌ PROFILE: Link click tracking failed:', result.error);
+      }
     } catch (error) {
-      console.error('Error tracking link click:', error);
+      console.error('❌ PROFILE: Exception during link click tracking:', error);
     }
   };
 
