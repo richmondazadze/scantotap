@@ -211,7 +211,7 @@ export default function DashboardQR() {
                       Preview Your Profile
                     </Button>
                   </div>
-                  <ul className="text-sm sm:text-base text-gray-600 dark:text-gray-400 space-y-2 leading-relaxed">
+                  <ul className="text-sm sm:text-base text-gray-600 dark:text-gray-400 space-y-1 leading-relaxed">
                     <li>• Show the QR code to others to scan</li>
                     <li>• Share the link via email or messaging</li>
                     <li>• Preview how your profile looks to visitors</li>
@@ -270,15 +270,15 @@ export default function DashboardQR() {
                 <span className="hidden xs:inline">Digital Excellence</span>
                 <span className="xs:hidden">Excellence</span>
               </div>
-              <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-3 sm:mb-4 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent leading-tight px-2">
+              <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-black mb-3 sm:mb-4 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent leading-tight px-2">
                 <span className="block xs:hidden">Maximize Your Digital Presence</span>
                 <span className="hidden xs:block">Maximize Your Digital Presence</span>
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed max-w-4xl mx-auto px-2 sm:px-4">
+            </h2>
+              <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base md:text-lg lg:text-lg leading-relaxed max-w-4xl mx-auto px-2 sm:px-4">
                 <span className="block sm:hidden">Transform how you network with powerful digital identity tools</span>
                 <span className="hidden sm:block">Unlock the full potential of your SCAN2TAP digital identity and transform how you network</span>
-              </p>
-            </div>
+            </p>
+          </div>
 
             {/* Mobile: Single column layout */}
             <div className="block lg:hidden space-y-4 sm:space-y-6">
@@ -324,7 +324,7 @@ export default function DashboardQR() {
               <div className="group/item flex items-start gap-3 sm:gap-4 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition-all duration-300 border border-transparent hover:border-orange-500/20 dark:hover:border-orange-400/20">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-orange-500/10 to-orange-600/20 dark:from-orange-500/20 dark:to-orange-600/30 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 border border-orange-500/20 dark:border-orange-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
                   <Rocket className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-orange-600 dark:text-orange-400" />
-                </div>
+                  </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white group-hover/item:text-orange-600 dark:group-hover/item:text-orange-400 transition-colors duration-300 leading-tight">Scale Your Network</h4>
                   <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -343,8 +343,8 @@ export default function DashboardQR() {
                     <Users className="w-7 h-7 xl:w-8 xl:h-8 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-xl xl:text-2xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-blue-600 dark:group-hover/item:text-blue-400 transition-colors duration-300">Lead Generation</h4>
-                    <p className="text-base xl:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <h4 className="text-xl xl:text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-blue-600 dark:group-hover/item:text-blue-400 transition-colors duration-300">Lead Generation</h4>
+                    <p className="text-base xl:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
                       Turn every scan into a potential business opportunity. Capture leads directly from your digital profile with smart analytics.
                     </p>
                   </div>
@@ -354,9 +354,9 @@ export default function DashboardQR() {
                   <div className="w-16 h-16 xl:w-18 xl:h-18 bg-gradient-to-br from-purple-500/10 to-purple-600/20 dark:from-purple-500/20 dark:to-purple-600/30 rounded-2xl flex items-center justify-center flex-shrink-0 border border-purple-500/20 dark:border-purple-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
                     <Link className="w-7 h-7 xl:w-8 xl:h-8 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-xl xl:text-2xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-purple-600 dark:group-hover/item:text-purple-400 transition-colors duration-300">Social Integration</h4>
-                    <p className="text-base xl:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                <div className="flex-1 min-w-0">
+                    <h4 className="text-xl xl:text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-purple-600 dark:group-hover/item:text-purple-400 transition-colors duration-300">Social Integration</h4>
+                    <p className="text-base xl:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
                       Connect all your social profiles, websites, and contact methods in one powerful, unified digital identity.
                     </p>
                   </div>
@@ -368,10 +368,10 @@ export default function DashboardQR() {
                   <div className="w-16 h-16 xl:w-18 xl:h-18 bg-gradient-to-br from-emerald-500/10 to-emerald-600/20 dark:from-emerald-500/20 dark:to-emerald-600/30 rounded-2xl flex items-center justify-center flex-shrink-0 border border-emerald-500/20 dark:border-emerald-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
                     <Zap className="w-7 h-7 xl:w-8 xl:h-8 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-xl xl:text-2xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-emerald-600 dark:group-hover/item:text-emerald-400 transition-colors duration-300">Instant Updates</h4>
-                    <p className="text-base xl:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Change your contact info once, and it updates everywhere instantly. No more outdated business cards or missed connections.
+                <div className="flex-1 min-w-0">
+                    <h4 className="text-xl xl:text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-emerald-600 dark:group-hover/item:text-emerald-400 transition-colors duration-300">Instant Updates</h4>
+                    <p className="text-base xl:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                      Change your contact info once, and it updates everywhere instantly. No more outdated profile or missed connections.
                     </p>
                   </div>
                 </div>
@@ -380,16 +380,16 @@ export default function DashboardQR() {
                   <div className="w-16 h-16 xl:w-18 xl:h-18 bg-gradient-to-br from-orange-500/10 to-orange-600/20 dark:from-orange-500/20 dark:to-orange-600/30 rounded-2xl flex items-center justify-center flex-shrink-0 border border-orange-500/20 dark:border-orange-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
                     <Rocket className="w-7 h-7 xl:w-8 xl:h-8 text-orange-600 dark:text-orange-400" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-xl xl:text-2xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-orange-600 dark:group-hover/item:text-orange-400 transition-colors duration-300">Scale Your Network</h4>
-                    <p className="text-base xl:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                <div className="flex-1 min-w-0">
+                    <h4 className="text-xl xl:text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-orange-600 dark:group-hover/item:text-orange-400 transition-colors duration-300">Scale Your Network</h4>
+                    <p className="text-base xl:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
                       Build meaningful connections faster than traditional networking. One scan opens doors to unlimited opportunities.
                     </p>
+                  </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
         </div>
 
         {/* Statistics Cards */}

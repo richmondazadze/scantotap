@@ -41,7 +41,7 @@ import DeliveryLocationNotice from '@/components/DeliveryLocationNotice';
 const CARD_TYPE_MAPPING = {
   "classic": "ab889570-cd24-45a8-a8aa-9b64e7f047c9",
   "premium": "2455d29b-d7de-4dcd-aa54-95d9ceaa8f3f", 
-  "metal": "6eebcc1a-b072-40fa-90e7-a11ac13708a1"
+  "elite": "6eebcc1a-b072-40fa-90e7-a11ac13708a1"
 };
 
 // Helper to get string name from UUID
@@ -84,6 +84,7 @@ const getFeatures = (cardTypeName: string): string[] => {
       return ['QR Code', 'Contact Info', 'Social Links'];
     case 'premium':
       return ['QR Code', 'Contact Info', 'Social Links', 'Custom Colors', 'Premium Material'];
+    case 'elite':
     case 'metal':
       return ['QR Code', 'Contact Info', 'Social Links', 'Metal Material', 'Laser Engraving', 'Lifetime Warranty'];
     default:
@@ -95,7 +96,7 @@ const getFeatures = (cardTypeName: string): string[] => {
 const getStockStatusBadge = (item: { isAvailable: boolean; hasStockLimit: boolean; stockQuantity: number | null; isOutOfStock: boolean }) => {
   if (!item.isAvailable || item.isOutOfStock) {
     return (
-      <Badge variant="destructive" className="absolute top-2 left-2 bg-red-500 text-white">
+      <Badge variant="destructive" className="absolute top-2 left-2 bg-red-500 text-white z-20">
         Out of Stock
       </Badge>
     );
@@ -103,7 +104,7 @@ const getStockStatusBadge = (item: { isAvailable: boolean; hasStockLimit: boolea
   
   if (item.hasStockLimit && item.stockQuantity !== null && item.stockQuantity <= 5) {
     return (
-      <Badge variant="secondary" className="absolute top-2 left-2 bg-orange-500 text-white">
+      <Badge variant="secondary" className="absolute top-2 left-2 bg-orange-500 text-white z-20">
         {item.stockQuantity} left
       </Badge>
     );
@@ -378,7 +379,7 @@ export default function DashboardOrder() {
       // Determine material based on card type
       const getMaterialForCardType = (cardTypeName: string) => {
         const name = cardTypeName.toLowerCase();
-        if (name === 'metal') {
+        if (name === 'elite' || name === 'metal') {
           return { id: 'metal', name: 'Metal' };
         } else {
           return { id: 'plastic', name: 'Plastic' };
@@ -603,7 +604,7 @@ export default function DashboardOrder() {
                       {getStockStatusBadge(design)}
                       
                       {design.popular && !isUnavailable && (
-                        <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-scan-blue to-scan-purple text-white shadow-lg">
+                        <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-scan-blue to-scan-purple text-white shadow-lg z-10">
                           <Star className="w-3 h-3 mr-1 fill-current" />
                           Popular
                         </Badge>
@@ -721,7 +722,7 @@ export default function DashboardOrder() {
                       
                       {/* Selected indicator */}
                       {selectedColor?.id === color.id && (
-                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-scan-blue rounded-full flex items-center justify-center">
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-scan-blue rounded-full flex items-center justify-center z-10">
                           <Check className="w-4 h-4 text-white" />
                         </div>
                       )}

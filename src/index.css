@@ -1,11 +1,77 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poetsen+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 @import 'react-easy-crop/react-easy-crop.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Link Sans Medium Font Face Declaration */
+@font-face {
+  font-family: "Link Sans Medium";
+  src: url("https://db.onlinewebfonts.com/t/f1b774b595cc6c615b11d7299b2eda05.eot");
+  src: url("https://db.onlinewebfonts.com/t/f1b774b595cc6c615b11d7299b2eda05.eot?#iefix") format("embedded-opentype"),
+       url("https://db.onlinewebfonts.com/t/f1b774b595cc6c615b11d7299b2eda05.woff2") format("woff2"),
+       url("https://db.onlinewebfonts.com/t/f1b774b595cc6c615b11d7299b2eda05.woff") format("woff"),
+       url("https://db.onlinewebfonts.com/t/f1b774b595cc6c615b11d7299b2eda05.ttf") format("truetype"),
+       url("https://db.onlinewebfonts.com/t/f1b774b595cc6c615b11d7299b2eda05.svg#Link Sans Medium") format("svg");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap; /* Ensures fast font loading */
+}
+
+/* Custom CSS Variables for Font */
+:root {
+  --font-link-sans: "Link Sans Medium", "LinikSansRegular", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-link-light: "LinikSansLight", ui-sans-serif, system-ui, sans-serif;
+  --font-link-regular: "LinikSansRegular", ui-sans-serif, system-ui, sans-serif;
+  --font-link-medium: "Link Sans Medium", "LinikSansMedium", ui-sans-serif, system-ui, sans-serif;
+  --font-link-semibold: "LinikSansSemiBold", ui-sans-serif, system-ui, sans-serif;
+  --font-link-bold: "LinikSansBold", ui-sans-serif, system-ui, sans-serif;
+  --font-link-extrabold: "LinikSansExtraBold", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Global Font Application */
+html {
+  font-family: var(--font-link-sans);
+}
+
+body {
+  font-family: var(--font-link-sans);
+  font-weight: 500;
+}
+
+/* Typography Utility Classes */
+@layer utilities {
+  .font-link-light {
+    font-family: var(--font-link-light);
+    font-weight: 300;
+  }
+  
+  .font-link-regular {
+    font-family: var(--font-link-regular);
+    font-weight: 400;
+  }
+  
+  .font-link-medium {
+    font-family: var(--font-link-medium);
+    font-weight: 500;
+  }
+  
+  .font-link-semibold {
+    font-family: var(--font-link-semibold);
+    font-weight: 600;
+  }
+  
+  .font-link-bold {
+    font-family: var(--font-link-bold);
+    font-weight: 700;
+  }
+  
+  .font-link-extrabold {
+    font-family: var(--font-link-extrabold);
+    font-weight: 800;
+  }
+}
 
 @layer base {
   :root {
@@ -97,8 +163,8 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-weight: 400;
+    font-family: var(--font-link-sans);
+    font-weight: 500;
     overflow-x: hidden;
     min-height: 100vh;
     position: relative;
@@ -603,4 +669,34 @@ html {
     width: calc(100vw - 1rem) !important;
     max-width: calc(100vw - 1rem) !important;
   }
+}
+
+/* ========================================
+   LINK SANS MEDIUM FONT ENFORCEMENT
+   ======================================== */
+
+/* Force Link Sans Medium application across all elements */
+* {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+/* Ensure all interactive elements use Link Sans Medium */
+button, input, textarea, select, .btn, [role="button"] {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+/* Ensure headings use Link Sans Medium */
+h1, h2, h3, h4, h5, h6, .text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl, .text-6xl {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+  font-weight: 500 !important;
+}
+
+/* Ensure paragraphs and text elements use Link Sans Medium */
+p, span, div, a, li, td, th, label {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+/* Override any remaining font-family declarations */
+.font-sans, .font-inter {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
 }
