@@ -730,7 +730,7 @@ function PlanStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting 
       { name: "Everything in Free Plan", included: true },
       { name: "Unlimited links", included: true },
       { name: "All profile layout options", included: true },
-      { name: "Coming soon: Profile analytics", included: true },
+      { name: "Profile analytics", included: true },
       { name: "Coming soon: Custom themes", included: true },
     ]
   };

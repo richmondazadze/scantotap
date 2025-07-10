@@ -62,7 +62,7 @@ export const UpgradePrompt = ({
             <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-300">
               <li>• Unlimited links and features</li>
               <li>• Premium card designs</li>
-              <li>• Advanced analytics (coming soon)</li>
+              <li>• Advanced analytics</li>
               <li>• Priority support</li>
             </ul>
           </div>
