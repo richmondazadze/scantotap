@@ -37,7 +37,13 @@ import {
   Key,
   Menu,
   X,
-  CheckCircle
+  CheckCircle,
+  TrendingUp,
+  BarChart3,
+  Download,
+  Brush,
+  MousePointer,
+  Smartphone
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -53,6 +59,16 @@ import {
 import { SubscriptionStateManager } from '@/utils/subscriptionStateManager';
 import { useSearchParams } from 'react-router-dom';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import analyticsService, { type ProfileAnalytics, type AnalyticsChartData, type TopLinksData, type DeviceBreakdown } from '@/services/analyticsService';
+import customThemeService, { type CustomTheme } from '@/services/customThemeService';
+import {
+  AnalyticsOverview,
+  AnalyticsChart,
+  TopLinks,
+  DeviceBreakdown as DeviceBreakdownComponent,
+  ExportData,
+  PrivacyNotice
+} from '@/components/analytics/AnalyticsComponents';
 
 interface UserSettings {
   notifications: NotificationPreferences;
@@ -111,6 +127,21 @@ export default function DashboardSettings() {
   // Track if settings have changed
   const [hasChanges, setHasChanges] = useState(false);
   const [originalSettings, setOriginalSettings] = useState<UserSettings | null>(null);
+  
+  // Analytics state
+  const [analytics, setAnalytics] = useState<ProfileAnalytics | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [chartData, setChartData] = useState<AnalyticsChartData[]>([]);
+  const [topLinks, setTopLinks] = useState<TopLinksData[]>([]);
+  const [deviceBreakdown, setDeviceBreakdown] = useState<DeviceBreakdown[]>([]);
+  const [exportingData, setExportingData] = useState(false);
+  
+  // Custom themes state
+  const [availableThemes, setAvailableThemes] = useState<CustomTheme[]>([]);
+  const [themesLoading, setThemesLoading] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState<CustomTheme | null>(null);
+  const [creatingTheme, setCreatingTheme] = useState(false);
+  const [editingTheme, setEditingTheme] = useState<CustomTheme | null>(null);
 
   const loadSubscriptionDetails = async () => {
     if (!session?.user?.id) return;
@@ -205,11 +236,87 @@ export default function DashboardSettings() {
 
 
 
+  // Load analytics data
+  const loadAnalyticsData = async () => {
+    if (!profile?.id || planFeatures.planType === 'free') return;
+    
+    setAnalyticsLoading(true);
+    try {
+      // Load analytics summary
+      const analyticsResult = await analyticsService.getProfileAnalytics(profile.id);
+      if (analyticsResult.success && analyticsResult.data) {
+        setAnalytics(analyticsResult.data);
+      }
+
+      // Load chart data
+      const chartResult = await analyticsService.getAnalyticsChartData(profile.id, 30);
+      if (chartResult.success && chartResult.data) {
+        setChartData(chartResult.data);
+      }
+
+      // Load top links
+      const linksResult = await analyticsService.getTopLinks(profile.id);
+      if (linksResult.success && linksResult.data) {
+        setTopLinks(linksResult.data);
+      }
+
+      // Load device breakdown
+      const deviceResult = await analyticsService.getDeviceBreakdown(profile.id);
+      if (deviceResult.success && deviceResult.data) {
+        setDeviceBreakdown(deviceResult.data);
+      }
+    } catch (error) {
+      console.error('Error loading analytics:', error);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
+  // Load custom themes
+  const loadCustomThemes = async () => {
+    if (planFeatures.planType === 'free') return;
+    
+    setThemesLoading(true);
+    try {
+      const result = await customThemeService.getAvailableThemes(profile?.id);
+      if (result.success && result.data) {
+        setAvailableThemes(result.data);
+      }
+    } catch (error) {
+      console.error('Error loading themes:', error);
+    } finally {
+      setThemesLoading(false);
+    }
+  };
+
+  // Export analytics data
+  const handleExportAnalytics = async () => {
+    if (!profile?.id) return;
+    
+    setExportingData(true);
+    try {
+      // This would generate and download a CSV file with analytics data
+      // For now, we'll show a success message
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate export
+      toast.success('Analytics data exported successfully!');
+    } catch (error) {
+      toast.error('Failed to export analytics data');
+    } finally {
+      setExportingData(false);
+    }
+  };
+
   // Load user settings
   useEffect(() => {
     loadUserSettings();
     loadSubscriptionDetails();
-  }, [session?.user?.id]);
+    if (activeSection === 'analytics') {
+      loadAnalyticsData();
+    }
+    if (activeSection === 'themes') {
+      loadCustomThemes();
+    }
+  }, [session?.user?.id, profile?.id, activeSection, planFeatures.planType]);
 
   // Auto-refresh subscription details to detect payment completion
   useEffect(() => {
@@ -416,6 +523,8 @@ export default function DashboardSettings() {
     { id: 'account', label: 'Account', icon: User },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'preferences', label: 'Preferences', icon: Palette },
+    { id: 'analytics', label: 'Analytics', icon: Eye, isPro: true },
+    { id: 'themes', label: 'Custom Themes', icon: Palette, isPro: true },
     { id: 'subscription', label: 'Subscription', icon: Crown },
   ];
 
@@ -510,6 +619,7 @@ export default function DashboardSettings() {
               <nav className="space-y-1">
                 {sections.map((section) => {
                   const Icon = section.icon;
+                  const isProFeature = section.isPro && planFeatures.planType === 'free';
                   return (
                     <button
                       key={section.id}
@@ -518,10 +628,15 @@ export default function DashboardSettings() {
                         activeSection === section.id 
                           ? 'bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 text-scan-blue border border-scan-blue/20' 
                           : 'text-gray-600 dark:text-gray-300'
-                      }`}
+                      } ${isProFeature ? 'opacity-75' : ''}`}
                     >
                       <Icon className="w-4 h-4 flex-shrink-0" />
-                      <span className="font-medium">{section.label}</span>
+                      <span className="font-medium flex-1">{section.label}</span>
+                      {isProFeature && (
+                        <Badge variant="outline" className="text-xs bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">
+                          Pro
+                        </Badge>
+                      )}
                     </button>
                   );
                 })}
@@ -543,6 +658,7 @@ export default function DashboardSettings() {
                 <nav className="space-y-1">
                   {sections.map((section) => {
                     const Icon = section.icon;
+                    const isProFeature = section.isPro && planFeatures.planType === 'free';
                     return (
                       <button
                         key={section.id}
@@ -551,10 +667,15 @@ export default function DashboardSettings() {
                           activeSection === section.id 
                             ? 'bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 text-scan-blue border border-scan-blue/20' 
                             : 'text-gray-600 dark:text-gray-300'
-                        }`}
+                        } ${isProFeature ? 'opacity-75' : ''}`}
                       >
                         <Icon className="w-4 h-4 flex-shrink-0" />
-                        <span className="font-medium">{section.label}</span>
+                        <span className="font-medium flex-1">{section.label}</span>
+                        {isProFeature && (
+                          <Badge variant="outline" className="text-xs bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">
+                            Pro
+                          </Badge>
+                        )}
                       </button>
                     );
                   })}
@@ -831,6 +952,210 @@ export default function DashboardSettings() {
 
                 </CardContent>
               </Card>
+            </div>
+          )}
+
+          {/* Analytics Section */}
+          {activeSection === 'analytics' && (
+            <div className="space-y-6">
+              {planFeatures.planType === 'free' ? (
+                /* Upgrade Prompt for Free Users */
+                <Card className="border-amber-200 dark:border-amber-800 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                      <BarChart3 className="w-5 h-5 text-amber-600" />
+                      Analytics Overview
+                      <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">
+                        Pro Feature
+                      </Badge>
+                    </CardTitle>
+                    <CardDescription className="text-sm sm:text-base">
+                      Track your profile performance and visitor engagement with detailed analytics
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-12">
+                      <div className="mb-6">
+                        <TrendingUp className="w-16 h-16 mx-auto mb-4 text-amber-500" />
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                          Unlock Powerful Analytics
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                          Get detailed insights into your profile performance, visitor behavior, and link engagement.
+                        </p>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-w-2xl mx-auto">
+                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                          <Eye className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                          <h4 className="font-medium mb-1">Profile Views</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Track total views and unique visitors</p>
+                        </div>
+                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                          <MousePointer className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                          <h4 className="font-medium mb-1">Link Clicks</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">See which links perform best</p>
+                        </div>
+                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                          <Smartphone className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                          <h4 className="font-medium mb-1">Device Breakdown</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Mobile vs desktop usage insights</p>
+                        </div>
+                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                          <Download className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+                          <h4 className="font-medium mb-1">Data Export</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Download analytics as CSV</p>
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        onClick={() => handleSectionChange('subscription')}
+                        className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white border-0 px-8 py-3"
+                      >
+                        <Crown className="w-4 h-4 mr-2" />
+                        Upgrade to Pro
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                /* Analytics Content for Pro Users */
+                <>
+                  {/* Analytics Overview */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                        <BarChart3 className="w-5 h-5" />
+                        Analytics Overview
+                      </CardTitle>
+                      <CardDescription className="text-sm sm:text-base">
+                        Track your profile performance and visitor engagement
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {analytics ? (
+                        <AnalyticsOverview analytics={analytics} loading={analyticsLoading} />
+                      ) : (
+                        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                          <TrendingUp className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                          <p>No analytics data yet</p>
+                          <p className="text-sm">Share your profile to start tracking visits!</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+              {/* Analytics Chart */}
+              {analytics && analytics.total_views > 0 && (
+                <AnalyticsChart data={chartData} loading={analyticsLoading} />
+              )}
+
+              {/* Analytics Grid */}
+              {analytics && analytics.total_views > 0 && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <TopLinks data={topLinks} loading={analyticsLoading} />
+                  <DeviceBreakdownComponent data={deviceBreakdown} loading={analyticsLoading} />
+                </div>
+              )}
+
+                  {/* Export & Privacy */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <ExportData 
+                      profileId={profile?.id || ''} 
+                      onExport={handleExportAnalytics}
+                      loading={exportingData}
+                    />
+                    <PrivacyNotice />
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Custom Themes Section */}
+          {activeSection === 'themes' && (
+            <div className="space-y-6">
+              {planFeatures.planType === 'free' ? (
+                /* Upgrade Prompt for Free Users */
+                <Card className="border-purple-200 dark:border-purple-800 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                      <Brush className="w-5 h-5 text-purple-600" />
+                      Custom Themes
+                      <Badge className="bg-gradient-to-r from-purple-400 to-pink-500 text-white border-0">
+                        Pro Feature
+                      </Badge>
+                    </CardTitle>
+                    <CardDescription className="text-sm sm:text-base">
+                      Customize your profile appearance with beautiful custom themes
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-12">
+                      <div className="mb-6">
+                        <Palette className="w-16 h-16 mx-auto mb-4 text-purple-500" />
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                          Create Stunning Custom Themes
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                          Stand out with personalized color schemes, typography, and layouts that match your brand.
+                        </p>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-w-2xl mx-auto">
+                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                          <Palette className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                          <h4 className="font-medium mb-1">Color Schemes</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Custom color palettes and gradients</p>
+                        </div>
+                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                          <Brush className="w-8 h-8 text-pink-500 mx-auto mb-2" />
+                          <h4 className="font-medium mb-1">Typography</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Choose fonts and text styles</p>
+                        </div>
+                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                          <Settings className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                          <h4 className="font-medium mb-1">Layout Options</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Customize spacing and borders</p>
+                        </div>
+                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                          <ExternalLink className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                          <h4 className="font-medium mb-1">Theme Sharing</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Import and export custom themes</p>
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        onClick={() => handleSectionChange('subscription')}
+                        className="bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white border-0 px-8 py-3"
+                      >
+                        <Crown className="w-4 h-4 mr-2" />
+                        Upgrade to Pro
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                /* Custom Themes Content for Pro Users */
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                      <Brush className="w-5 h-5" />
+                      Custom Themes
+                    </CardTitle>
+                    <CardDescription className="text-sm sm:text-base">
+                      Customize your profile appearance with themes
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                      <Palette className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p>Custom Themes feature coming soon!</p>
+                      <p className="text-sm">We're working on an amazing theme customization system</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 

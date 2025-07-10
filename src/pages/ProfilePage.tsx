@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { supabase } from '@/lib/supabaseClient';
 import { motion } from 'framer-motion';
 import Loading from '@/components/ui/loading';
+import analyticsService from '@/services/analyticsService';
 import {
   FaInstagram, FaTwitter, FaLinkedin, FaFacebook, FaGithub, FaWhatsapp, FaYoutube, FaSnapchat, FaTiktok, FaLink, FaSpotify, FaTelegram, FaDiscord
 } from 'react-icons/fa6';
@@ -178,6 +179,12 @@ const ProfilePage = () => {
       }
 
       setProfile(data);
+      
+      // Track profile visit after successful profile load
+      if (data?.id) {
+        await analyticsService.trackProfileVisit(data.id);
+      }
+      
       setLoading(false);
     };
     fetchProfile();
@@ -188,6 +195,23 @@ const ProfilePage = () => {
     setCopied(true);
     toast.success("Copied to clipboard");
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Track link clicks
+  const trackLinkClick = async (link: any, linkType: string) => {
+    if (!profile?.id) return;
+    
+    try {
+      await analyticsService.trackLinkClick(
+        profile.id,
+        linkType,
+        link.platform || link.label || 'Unknown',
+        link.url,
+        linkType === 'social' ? (link.platform || link.label) : undefined
+      );
+    } catch (error) {
+      console.error('Error tracking link click:', error);
+    }
   };
 
   if (loading) {
@@ -448,6 +472,7 @@ const ProfilePage = () => {
                         <a
                           href={`tel:${profile.phone}`}
                           className="w-full"
+                          onClick={() => trackLinkClick({ platform: 'phone', label: 'Call', url: `tel:${profile.phone}` }, 'contact')}
                         >
                           <Button className="w-full bg-scan-blue hover:bg-scan-blue/90">
                             <Phone className="w-4 h-4 mr-2" />
@@ -460,6 +485,7 @@ const ProfilePage = () => {
                         <a
                           href={`mailto:${profile.email}`}
                           className="w-full"
+                          onClick={() => trackLinkClick({ platform: 'email', label: 'Email', url: `mailto:${profile.email}` }, 'contact')}
                         >
                           <Button className="w-full bg-purple-500 hover:bg-purple-600">
                             <Mail className="w-4 h-4 mr-2" />
@@ -474,6 +500,7 @@ const ProfilePage = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-full"
+                          onClick={() => trackLinkClick({ platform: 'whatsapp', label: 'WhatsApp', url: `https://wa.me/${profile.phone.replace(/\D/g, '')}` }, 'contact')}
                         >
                           <Button variant="outline" className="w-full border-green-500 text-green-600 hover:bg-green-50">
                             <FaWhatsapp className="w-4 h-4 mr-2" />
@@ -544,6 +571,7 @@ END:VCARD`;
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                        onClick={() => trackLinkClick(link, 'custom')}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.6 + idx * 0.1 }}
@@ -626,6 +654,7 @@ END:VCARD`;
                           href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => trackLinkClick(link, 'social')}
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.7 + idx * 0.1 }}

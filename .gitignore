@@ -15,6 +15,9 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 
+# Database migrations (apply manually in production)
+database_migrations.sql
+
 node_modules
 dist
 dist-ssr

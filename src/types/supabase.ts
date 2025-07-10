@@ -379,6 +379,8 @@ export type Database = {
           paystack_subscription_code: string | null
           email_order_updates: boolean
           email_marketing: boolean
+          custom_theme: Json | null
+          theme_settings: Json | null
         }
         Insert: {
           avatar_url?: string | null
@@ -406,6 +408,8 @@ export type Database = {
           paystack_subscription_code?: string | null
           email_order_updates?: boolean
           email_marketing?: boolean
+          custom_theme?: Json | null
+          theme_settings?: Json | null
         }
         Update: {
           avatar_url?: string | null
@@ -433,6 +437,8 @@ export type Database = {
           paystack_subscription_code?: string | null
           email_order_updates?: boolean
           email_marketing?: boolean
+          custom_theme?: Json | null
+          theme_settings?: Json | null
         }
         Relationships: []
       }
@@ -613,6 +619,192 @@ export type Database = {
           notes?: string | null
           order_id?: string
           status?: string
+        }
+        Relationships: []
+      }
+      profile_analytics: {
+        Row: {
+          id: string
+          profile_id: string
+          total_views: number
+          unique_visitors: number
+          views_this_month: number
+          views_this_week: number
+          views_today: number
+          total_link_clicks: number
+          link_clicks_this_month: number
+          link_clicks_this_week: number
+          link_clicks_today: number
+          mobile_views: number
+          desktop_views: number
+          tablet_views: number
+          last_view_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          total_views?: number
+          unique_visitors?: number
+          views_this_month?: number
+          views_this_week?: number
+          views_today?: number
+          total_link_clicks?: number
+          link_clicks_this_month?: number
+          link_clicks_this_week?: number
+          link_clicks_today?: number
+          mobile_views?: number
+          desktop_views?: number
+          tablet_views?: number
+          last_view_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          total_views?: number
+          unique_visitors?: number
+          views_this_month?: number
+          views_this_week?: number
+          views_today?: number
+          total_link_clicks?: number
+          link_clicks_this_month?: number
+          link_clicks_this_week?: number
+          link_clicks_today?: number
+          mobile_views?: number
+          desktop_views?: number
+          tablet_views?: number
+          last_view_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profile_visits: {
+        Row: {
+          id: string
+          profile_id: string
+          visitor_id: string
+          ip_address: string | null
+          user_agent: string | null
+          device_type: string
+          browser: string
+          os: string
+          country: string | null
+          city: string | null
+          referrer_url: string | null
+          referrer_domain: string | null
+          visited_at: string
+          session_duration: number
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          visitor_id: string
+          ip_address?: string | null
+          user_agent?: string | null
+          device_type: string
+          browser: string
+          os: string
+          country?: string | null
+          city?: string | null
+          referrer_url?: string | null
+          referrer_domain?: string | null
+          visited_at?: string
+          session_duration?: number
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          visitor_id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          device_type?: string
+          browser?: string
+          os?: string
+          country?: string | null
+          city?: string | null
+          referrer_url?: string | null
+          referrer_domain?: string | null
+          visited_at?: string
+          session_duration?: number
+        }
+        Relationships: []
+      }
+      link_clicks: {
+        Row: {
+          id: string
+          profile_id: string
+          link_type: string
+          link_label: string
+          link_url: string
+          platform: string | null
+          visitor_id: string
+          device_type: string
+          clicked_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          link_type: string
+          link_label: string
+          link_url: string
+          platform?: string | null
+          visitor_id: string
+          device_type: string
+          clicked_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          link_type?: string
+          link_label?: string
+          link_url?: string
+          platform?: string | null
+          visitor_id?: string
+          device_type?: string
+          clicked_at?: string
+        }
+        Relationships: []
+      }
+      custom_themes: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          theme_config: Json
+          created_by: string | null
+          is_public: boolean
+          is_premium: boolean
+          usage_count: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          theme_config: Json
+          created_by?: string | null
+          is_public?: boolean
+          is_premium?: boolean
+          usage_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          theme_config?: Json
+          created_by?: string | null
+          is_public?: boolean
+          is_premium?: boolean
+          usage_count?: number
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
