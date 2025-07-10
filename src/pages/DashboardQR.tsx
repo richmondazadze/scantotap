@@ -14,7 +14,14 @@ import {
   RefreshCw,
   QrCode,
   Mail,
-  MessageSquare
+  MessageSquare,
+  Users,
+  Link,
+  Zap,
+  Rocket,
+  Leaf,
+  Infinity,
+  Smartphone
 } from 'lucide-react';
 import Loading from '@/components/ui/loading';
 
@@ -250,100 +257,104 @@ export default function DashboardQR() {
         className="space-y-6 sm:space-y-8"
       >
         {/* Platform Features */}
-        <div className="relative rounded-xl shadow-lg p-6 sm:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30">
-          <div className="text-center mb-8 sm:mb-10">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent">
+        <div className="relative rounded-2xl shadow-xl p-6 sm:p-8 lg:p-10 bg-white/98 dark:bg-[#1A1D24]/98 border border-gray-200/30 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-500 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/50 dark:hover:border-scan-blue/30 group">
+          <div className="text-center mb-8 sm:mb-12">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 text-scan-blue dark:text-scan-blue-light px-4 py-2 rounded-full text-sm font-medium mb-6 border border-scan-blue/20 dark:border-scan-blue/30">
+              <Rocket className="w-4 h-4" />
+              Digital Excellence
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent">
               Maximize Your Digital Presence
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl mx-auto">
-              Unlock the full potential of your SCAN2TAP digital identity
+            <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg leading-relaxed max-w-3xl mx-auto">
+              Unlock the full potential of your SCAN2TAP digital identity and transform how you network
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
-            <div className="space-y-6 sm:space-y-8">
-              <div className="flex items-start gap-4 sm:gap-5">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-scan-blue/20 dark:border-scan-blue/30">
-                  <span className="text-xl sm:text-2xl">💼</span>
-                  </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">Lead Generation</h4>
-                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Turn every scan into a potential business opportunity. Capture leads directly from your digital profile.
-                    </p>
-                  </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12">
+            <div className="space-y-8">
+              <div className="group/item flex items-start gap-4 sm:gap-5 p-4 rounded-xl hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all duration-300">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500/10 to-blue-600/20 dark:from-blue-500/20 dark:to-blue-600/30 rounded-2xl flex items-center justify-center flex-shrink-0 border border-blue-500/20 dark:border-blue-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
+                  <Users className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400" />
                 </div>
-
-              <div className="flex items-start gap-4 sm:gap-5">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-scan-blue/20 dark:border-scan-blue/30">
-                  <span className="text-xl sm:text-2xl">🔗</span>
-                  </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">Social Integration</h4>
+                  <h4 className="text-lg sm:text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-blue-600 dark:group-hover/item:text-blue-400 transition-colors duration-300">Lead Generation</h4>
                   <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Connect all your social profiles, websites, and contact methods in one powerful digital identity.
-                    </p>
-                  </div>
+                    Turn every scan into a potential business opportunity. Capture leads directly from your digital profile with smart analytics.
+                  </p>
                 </div>
               </div>
 
-            <div className="space-y-6 sm:space-y-8">
-              <div className="flex items-start gap-4 sm:gap-5">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-scan-blue/20 dark:border-scan-blue/30">
-                  <span className="text-xl sm:text-2xl">⚡</span>
-                  </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">Instant Updates</h4>
-                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Change your contact info once, and it updates everywhere. No more outdated business cards.
-                    </p>
-                  </div>
+              <div className="group/item flex items-start gap-4 sm:gap-5 p-4 rounded-xl hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all duration-300">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500/10 to-purple-600/20 dark:from-purple-500/20 dark:to-purple-600/30 rounded-2xl flex items-center justify-center flex-shrink-0 border border-purple-500/20 dark:border-purple-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
+                  <Link className="w-6 h-6 sm:w-7 sm:h-7 text-purple-600 dark:text-purple-400" />
                 </div>
-
-              <div className="flex items-start gap-4 sm:gap-5">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 rounded-xl flex items-center justify-center flex-shrink-0 border border-scan-blue/20 dark:border-scan-blue/30">
-                  <span className="text-xl sm:text-2xl">🚀</span>
-                  </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-lg sm:text-xl font-bold mb-2 text-gray-900 dark:text-white">Scale Your Network</h4>
+                  <h4 className="text-lg sm:text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-purple-600 dark:group-hover/item:text-purple-400 transition-colors duration-300">Social Integration</h4>
                   <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Build meaningful connections faster than traditional networking. One scan opens doors to unlimited opportunities.
-                    </p>
-                  </div>
+                    Connect all your social profiles, websites, and contact methods in one powerful, unified digital identity.
+                  </p>
                 </div>
               </div>
             </div>
+
+            <div className="space-y-8">
+              <div className="group/item flex items-start gap-4 sm:gap-5 p-4 rounded-xl hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all duration-300">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-emerald-500/10 to-emerald-600/20 dark:from-emerald-500/20 dark:to-emerald-600/30 rounded-2xl flex items-center justify-center flex-shrink-0 border border-emerald-500/20 dark:border-emerald-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
+                  <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-lg sm:text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-emerald-600 dark:group-hover/item:text-emerald-400 transition-colors duration-300">Instant Updates</h4>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Change your contact info once, and it updates everywhere instantly. No more outdated business cards or missed connections.
+                  </p>
+                </div>
+              </div>
+
+              <div className="group/item flex items-start gap-4 sm:gap-5 p-4 rounded-xl hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all duration-300">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-500/10 to-orange-600/20 dark:from-orange-500/20 dark:to-orange-600/30 rounded-2xl flex items-center justify-center flex-shrink-0 border border-orange-500/20 dark:border-orange-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
+                  <Rocket className="w-6 h-6 sm:w-7 sm:h-7 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-lg sm:text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-orange-600 dark:group-hover/item:text-orange-400 transition-colors duration-300">Scale Your Network</h4>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Build meaningful connections faster than traditional networking. One scan opens doors to unlimited opportunities.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-          <div className="relative rounded-xl shadow-lg p-6 sm:p-8 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30 text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-green-200 dark:border-green-700/50">
-              <span className="text-green-600 dark:text-green-400 text-2xl sm:text-3xl font-bold">✓</span>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+          <div className="group relative rounded-2xl shadow-xl p-6 sm:p-8 bg-white/98 dark:bg-[#1A1D24]/98 border border-gray-200/30 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-500 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/50 dark:hover:border-scan-blue/30 text-center hover:-translate-y-1">
+            <div className="w-18 h-18 sm:w-20 sm:h-20 bg-gradient-to-br from-emerald-500/10 to-emerald-600/20 dark:from-emerald-500/20 dark:to-emerald-600/30 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-emerald-500/20 dark:border-emerald-500/30 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+              <Leaf className="w-8 h-8 sm:w-9 sm:h-9 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h3 className="text-lg sm:text-xl font-bold mb-3 text-gray-900 dark:text-white">Eco-Friendly</h3>
+            <h3 className="text-lg sm:text-xl font-bold mb-4 text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">Eco-Friendly</h3>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-              Digital business cards reduce paper waste and are environmentally sustainable
+              Digital business cards reduce paper waste and promote environmental sustainability for conscious networking
             </p>
           </div>
 
-          <div className="relative rounded-xl shadow-lg p-6 sm:p-8 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30 text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-scan-blue/10 to-scan-blue/20 dark:from-scan-blue/20 dark:to-scan-blue/30 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-scan-blue/20 dark:border-scan-blue/30">
-              <span className="text-scan-blue dark:text-scan-blue-light text-2xl sm:text-3xl font-bold">∞</span>
+          <div className="group relative rounded-2xl shadow-xl p-6 sm:p-8 bg-white/98 dark:bg-[#1A1D24]/98 border border-gray-200/30 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-500 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/50 dark:hover:border-scan-blue/30 text-center hover:-translate-y-1">
+            <div className="w-18 h-18 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500/10 to-blue-600/20 dark:from-blue-500/20 dark:to-blue-600/30 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-blue-500/20 dark:border-blue-500/30 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+              <Infinity className="w-8 h-8 sm:w-9 sm:h-9 text-blue-600 dark:text-blue-400" />
             </div>
-            <h3 className="text-lg sm:text-xl font-bold mb-3 text-gray-900 dark:text-white">Always Updated</h3>
+            <h3 className="text-lg sm:text-xl font-bold mb-4 text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">Always Updated</h3>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-              Your information stays current automatically when you update your profile
+              Your information stays current automatically when you update your profile - no reprinting ever needed
             </p>
           </div>
 
-          <div className="relative rounded-xl shadow-lg p-6 sm:p-8 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30 text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-scan-purple/10 to-scan-purple/20 dark:from-scan-purple/20 dark:to-scan-purple/30 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-scan-purple/20 dark:border-scan-purple/30">
-              <span className="text-scan-purple dark:text-scan-purple-light text-2xl sm:text-3xl">📱</span>
+          <div className="group relative rounded-2xl shadow-xl p-6 sm:p-8 bg-white/98 dark:bg-[#1A1D24]/98 border border-gray-200/30 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-500 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/50 dark:hover:border-scan-blue/30 text-center hover:-translate-y-1">
+            <div className="w-18 h-18 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500/10 to-purple-600/20 dark:from-purple-500/20 dark:to-purple-600/30 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-purple-500/20 dark:border-purple-500/30 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+              <Smartphone className="w-8 h-8 sm:w-9 sm:h-9 text-purple-600 dark:text-purple-400" />
             </div>
-            <h3 className="text-lg sm:text-xl font-bold mb-3 text-gray-900 dark:text-white">Mobile Ready</h3>
+            <h3 className="text-lg sm:text-xl font-bold mb-4 text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">Mobile Ready</h3>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-              Optimized for all smartphone cameras and QR code scanner apps
+              Optimized for all smartphone cameras and QR code scanner apps with lightning-fast recognition
             </p>
           </div>
         </div>
