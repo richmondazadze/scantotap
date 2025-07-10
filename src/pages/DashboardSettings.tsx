@@ -134,7 +134,6 @@ export default function DashboardSettings() {
   const [chartData, setChartData] = useState<AnalyticsChartData[]>([]);
   const [topLinks, setTopLinks] = useState<TopLinksData[]>([]);
   const [deviceBreakdown, setDeviceBreakdown] = useState<DeviceBreakdown[]>([]);
-  const [exportingData, setExportingData] = useState(false);
   
   // Custom themes state
   const [availableThemes, setAvailableThemes] = useState<CustomTheme[]>([]);
@@ -291,23 +290,6 @@ export default function DashboardSettings() {
       console.error('Error loading themes:', error);
     } finally {
       setThemesLoading(false);
-    }
-  };
-
-  // Export analytics data
-  const handleExportAnalytics = async () => {
-    if (!profile?.id) return;
-    
-    setExportingData(true);
-    try {
-      // This would generate and download a CSV file with analytics data
-      // For now, we'll show a success message
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate export
-      toast.success('Analytics data exported successfully!');
-    } catch (error) {
-      toast.error('Failed to export analytics data');
-    } finally {
-      setExportingData(false);
     }
   };
 
@@ -1091,8 +1073,11 @@ export default function DashboardSettings() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <ExportData 
                       profileId={profile?.id || ''} 
-                      onExport={handleExportAnalytics}
-                      loading={exportingData}
+                      analytics={analytics || undefined}
+                      chartData={chartData}
+                      topLinks={topLinks}
+                      deviceBreakdown={deviceBreakdown}
+                      loading={analyticsLoading}
                     />
                     <PrivacyNotice />
                   </div>

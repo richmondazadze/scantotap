@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   LineChart,
   Line,
@@ -15,7 +16,9 @@ import {
   Cell,
   BarChart,
   Bar,
-  Legend
+  Legend,
+  Area,
+  AreaChart
 } from 'recharts';
 import {
   TrendingUp,
@@ -30,9 +33,18 @@ import {
   Activity,
   ExternalLink,
   Download,
-  RefreshCw
+  RefreshCw,
+  FileText,
+  FileSpreadsheet,
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn,
+  BarChart3
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import Papa from 'papaparse';
 import type { 
   ProfileAnalytics, 
   AnalyticsChartData, 
@@ -184,7 +196,7 @@ export const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({
   );
 };
 
-// Analytics Chart Component
+// Enhanced Mobile-Friendly Analytics Chart Component
 interface AnalyticsChartProps {
   data: AnalyticsChartData[];
   loading?: boolean;
@@ -194,6 +206,11 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
   data,
   loading = false
 }) => {
+  const [chartType, setChartType] = useState<'line' | 'area' | 'bar'>('area');
+  const [timeRange, setTimeRange] = useState<'7' | '14' | '30'>('30');
+  const [selectedMetric, setSelectedMetric] = useState<'both' | 'views' | 'clicks'>('both');
+  const chartRef = useRef<HTMLDivElement>(null);
+
   if (loading) {
     return (
       <Card>
@@ -210,6 +227,187 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
     );
   }
 
+  // Filter data based on time range
+  const filteredData = data.slice(-parseInt(timeRange));
+
+  // Format data for better mobile display
+  const formattedData = filteredData.map(item => ({
+    ...item,
+    shortDate: new Date(item.date).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    })
+  }));
+
+  const maxViews = Math.max(...formattedData.map(d => d.views));
+  const maxClicks = Math.max(...formattedData.map(d => d.clicks));
+  const totalViews = formattedData.reduce((sum, d) => sum + d.views, 0);
+  const totalClicks = formattedData.reduce((sum, d) => sum + d.clicks, 0);
+
+  // Custom tooltip for mobile
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+          <p className="font-medium text-gray-900 dark:text-white mb-2">
+            {new Date(label).toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: 'numeric',
+              year: 'numeric'
+            })}
+          </p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
+              {entry.name}: <span className="font-medium">{entry.value}</span>
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const renderChart = () => {
+    const commonProps = {
+      data: formattedData,
+      margin: { top: 10, right: 10, left: 0, bottom: 0 }
+    };
+
+    const lineProps = {
+      strokeWidth: 3,
+      dot: { strokeWidth: 2, r: 4 },
+      activeDot: { r: 6, strokeWidth: 2 }
+    };
+
+    switch (chartType) {
+      case 'area':
+        return (
+          <AreaChart {...commonProps}>
+            <defs>
+              <linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#0066CC" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#0066CC" stopOpacity={0}/>
+              </linearGradient>
+              <linearGradient id="clicksGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+            <XAxis 
+              dataKey="shortDate" 
+              axisLine={false}
+              tickLine={false}
+              className="text-xs"
+              interval="preserveStartEnd"
+            />
+            <YAxis 
+              axisLine={false}
+              tickLine={false}
+              className="text-xs"
+              width={40}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            {selectedMetric !== 'clicks' && (
+              <Area
+                type="monotone"
+                dataKey="views"
+                stroke="#0066CC"
+                strokeWidth={2}
+                fill="url(#viewsGradient)"
+                name="Views"
+              />
+            )}
+            {selectedMetric !== 'views' && (
+              <Area
+                type="monotone"
+                dataKey="clicks"
+                stroke="#8B5CF6"
+                strokeWidth={2}
+                fill="url(#clicksGradient)"
+                name="Clicks"
+              />
+            )}
+          </AreaChart>
+        );
+
+      case 'bar':
+        return (
+          <BarChart {...commonProps}>
+            <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+            <XAxis 
+              dataKey="shortDate" 
+              axisLine={false}
+              tickLine={false}
+              className="text-xs"
+            />
+            <YAxis 
+              axisLine={false}
+              tickLine={false}
+              className="text-xs"
+              width={40}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+            {selectedMetric !== 'clicks' && (
+              <Bar 
+                dataKey="views" 
+                fill="#0066CC" 
+                name="Views"
+                radius={[2, 2, 0, 0]}
+              />
+            )}
+            {selectedMetric !== 'views' && (
+              <Bar 
+                dataKey="clicks" 
+                fill="#8B5CF6" 
+                name="Clicks"
+                radius={[2, 2, 0, 0]}
+              />
+            )}
+          </BarChart>
+        );
+
+      default: // line
+        return (
+          <LineChart {...commonProps}>
+            <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+            <XAxis 
+              dataKey="shortDate" 
+              axisLine={false}
+              tickLine={false}
+              className="text-xs"
+            />
+            <YAxis 
+              axisLine={false}
+              tickLine={false}
+              className="text-xs"
+              width={40}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            {selectedMetric !== 'clicks' && (
+              <Line 
+                type="monotone" 
+                dataKey="views" 
+                stroke="#0066CC" 
+                {...lineProps}
+                name="Views"
+              />
+            )}
+            {selectedMetric !== 'views' && (
+              <Line 
+                type="monotone" 
+                dataKey="clicks" 
+                stroke="#8B5CF6" 
+                {...lineProps}
+                name="Clicks"
+              />
+            )}
+          </LineChart>
+        );
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -218,53 +416,77 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
     >
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            Views & Clicks Over Time
-          </CardTitle>
-          <CardDescription>
-            Track your profile performance over the last 30 days
-          </CardDescription>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Views & Clicks Over Time
+              </CardTitle>
+              <CardDescription>
+                Track your profile performance trends
+              </CardDescription>
+            </div>
+            
+            {/* Mobile-friendly controls */}
+            <div className="flex flex-wrap gap-2">
+              <Select value={timeRange} onValueChange={(value: '7' | '14' | '30') => setTimeRange(value)}>
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7">7d</SelectItem>
+                  <SelectItem value="14">14d</SelectItem>
+                  <SelectItem value="30">30d</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedMetric} onValueChange={(value: 'both' | 'views' | 'clicks') => setSelectedMetric(value)}>
+                <SelectTrigger className="w-24">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="both">Both</SelectItem>
+                  <SelectItem value="views">Views</SelectItem>
+                  <SelectItem value="clicks">Clicks</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={chartType} onValueChange={(value: 'line' | 'area' | 'bar') => setChartType(value)}>
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="area">Area</SelectItem>
+                  <SelectItem value="line">Line</SelectItem>
+                  <SelectItem value="bar">Bar</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Summary stats */}
+          <div className="grid grid-cols-2 gap-4 mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">{totalViews}</div>
+              <div className="text-xs text-gray-500">Total Views</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">{totalClicks}</div>
+              <div className="text-xs text-gray-500">Total Clicks</div>
+            </div>
+          </div>
         </CardHeader>
+        
         <CardContent>
-          <div className="h-80">
+          <div ref={chartRef} className="h-64 sm:h-80 touch-pan-x touch-pan-y" data-chart-export>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis 
-                  dataKey="date" 
-                  tickFormatter={(value) => new Date(value).toLocaleDateString()}
-                  className="text-xs"
-                />
-                <YAxis className="text-xs" />
-                <Tooltip 
-                  labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                  contentStyle={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-                  }}
-                />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="views" 
-                  stroke="#0066CC" 
-                  strokeWidth={2}
-                  dot={{ fill: '#0066CC', strokeWidth: 2, r: 4 }}
-                  name="Views"
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="clicks" 
-                  stroke="#8B5CF6" 
-                  strokeWidth={2}
-                  dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 4 }}
-                  name="Clicks"
-                />
-              </LineChart>
+              {renderChart()}
             </ResponsiveContainer>
+          </div>
+          
+          {/* Mobile swipe hint */}
+          <div className="mt-4 text-center text-xs text-gray-400 sm:hidden">
+            💡 Tip: Touch and drag to explore the chart
           </div>
         </CardContent>
       </Card>
@@ -492,18 +714,277 @@ export const DeviceBreakdown: React.FC<DeviceBreakdownProps> = ({
   );
 };
 
-// Export Data Component
+// Enhanced Export Data Component with CSV and PDF support
 interface ExportDataProps {
   profileId: string;
-  onExport: () => void;
+  analytics?: ProfileAnalytics;
+  chartData?: AnalyticsChartData[];
+  topLinks?: TopLinksData[];
+  deviceBreakdown?: DeviceBreakdownData[];
   loading?: boolean;
 }
 
 export const ExportData: React.FC<ExportDataProps> = ({
   profileId,
-  onExport,
+  analytics,
+  chartData = [],
+  topLinks = [],
+  deviceBreakdown = [],
   loading = false
 }) => {
+  const [exportFormat, setExportFormat] = useState<'csv' | 'pdf'>('csv');
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+
+  // CSV Export Functions
+  const exportToCSV = async () => {
+    setIsExporting(true);
+    setExportProgress(20);
+
+    try {
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `analytics-${profileId}-${timestamp}`;
+
+      // Prepare analytics summary data
+      const summaryData = analytics ? [{
+        'Metric': 'Total Views',
+        'Value': analytics.total_views,
+        'This Week': analytics.views_this_week,
+        'This Month': analytics.views_this_month,
+        'Today': analytics.views_today
+      }, {
+        'Metric': 'Total Link Clicks',
+        'Value': analytics.total_link_clicks,
+        'This Week': analytics.link_clicks_this_week,
+        'This Month': analytics.link_clicks_this_month,
+        'Today': analytics.link_clicks_today
+      }, {
+        'Metric': 'Unique Visitors',
+        'Value': analytics.unique_visitors,
+        'This Week': '-',
+        'This Month': '-',
+        'Today': '-'
+      }] : [];
+
+      setExportProgress(40);
+
+      // Prepare daily chart data
+      const dailyData = chartData.map(item => ({
+        'Date': item.date,
+        'Views': item.views,
+        'Clicks': item.clicks
+      }));
+
+      setExportProgress(60);
+
+      // Prepare top links data
+      const linksData = topLinks.map((link, index) => ({
+        'Rank': index + 1,
+        'Platform': link.platform,
+        'Clicks': link.clicks,
+        'Percentage': `${link.percentage}%`
+      }));
+
+      setExportProgress(80);
+
+      // Prepare device breakdown data
+      const deviceData = deviceBreakdown.map(device => ({
+        'Device Type': device.device,
+        'Views': device.views,
+        'Percentage': `${device.percentage}%`
+      }));
+
+      setExportProgress(90);
+
+      // Create and download multiple CSV files in a structured way
+      const csvFiles = [
+        { name: `${filename}-summary.csv`, data: summaryData },
+        { name: `${filename}-daily.csv`, data: dailyData },
+        { name: `${filename}-links.csv`, data: linksData },
+        { name: `${filename}-devices.csv`, data: deviceData }
+      ];
+
+      for (const file of csvFiles) {
+        if (file.data.length > 0) {
+          const csv = Papa.unparse(file.data as any[]);
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          
+          if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', file.name);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }
+        }
+      }
+
+      setExportProgress(100);
+      
+      // Show success message
+      setTimeout(() => {
+        setIsExporting(false);
+        setExportProgress(0);
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      setIsExporting(false);
+      setExportProgress(0);
+    }
+  };
+
+  // PDF Export Function
+  const exportToPDF = async () => {
+    setIsExporting(true);
+    setExportProgress(10);
+
+    try {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      let yPosition = 20;
+
+      // Add header
+      pdf.setFontSize(20);
+      pdf.setTextColor(0, 102, 204);
+      pdf.text('Analytics Report', pageWidth / 2, yPosition, { align: 'center' });
+      
+      yPosition += 10;
+      pdf.setFontSize(12);
+      pdf.setTextColor(100);
+      pdf.text(`Generated on ${new Date().toLocaleDateString()}`, pageWidth / 2, yPosition, { align: 'center' });
+      
+      yPosition += 20;
+      setExportProgress(20);
+
+      // Add analytics summary
+      if (analytics) {
+        pdf.setFontSize(16);
+        pdf.setTextColor(0);
+        pdf.text('Summary Statistics', 20, yPosition);
+        yPosition += 10;
+
+        pdf.setFontSize(10);
+        const summaryText = [
+          `Total Views: ${analytics.total_views.toLocaleString()}`,
+          `Total Link Clicks: ${analytics.total_link_clicks.toLocaleString()}`,
+          `Unique Visitors: ${analytics.unique_visitors.toLocaleString()}`,
+          `Views Today: ${analytics.views_today}`,
+          `Views This Week: ${analytics.views_this_week}`,
+          `Views This Month: ${analytics.views_this_month}`,
+        ];
+
+        summaryText.forEach((text) => {
+          pdf.text(text, 20, yPosition);
+          yPosition += 6;
+        });
+
+        yPosition += 10;
+      }
+
+      setExportProgress(40);
+
+      // Add chart as image (if chart is visible)
+      const chartElement = document.querySelector('[data-chart-export]') as HTMLElement;
+      if (chartElement) {
+        try {
+          const canvas = await html2canvas(chartElement, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            logging: false
+          });
+          
+          const imgData = canvas.toDataURL('image/png');
+          const imgWidth = pageWidth - 40;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          
+          // Check if we need a new page
+          if (yPosition + imgHeight > pageHeight - 20) {
+            pdf.addPage();
+            yPosition = 20;
+          }
+          
+          pdf.addImage(imgData, 'PNG', 20, yPosition, imgWidth, imgHeight);
+          yPosition += imgHeight + 10;
+        } catch (imgError) {
+          console.warn('Could not capture chart image:', imgError);
+        }
+      }
+
+      setExportProgress(60);
+
+      // Add top links table
+      if (topLinks.length > 0) {
+        if (yPosition > pageHeight - 60) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+
+        pdf.setFontSize(14);
+        pdf.text('Top Performing Links', 20, yPosition);
+        yPosition += 10;
+
+        pdf.setFontSize(10);
+        topLinks.forEach((link, index) => {
+          pdf.text(`${index + 1}. ${link.platform}: ${link.clicks} clicks (${link.percentage}%)`, 20, yPosition);
+          yPosition += 6;
+        });
+
+        yPosition += 10;
+      }
+
+      setExportProgress(80);
+
+      // Add device breakdown
+      if (deviceBreakdown.length > 0) {
+        if (yPosition > pageHeight - 40) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+
+        pdf.setFontSize(14);
+        pdf.text('Device Breakdown', 20, yPosition);
+        yPosition += 10;
+
+        pdf.setFontSize(10);
+        deviceBreakdown.forEach((device) => {
+          pdf.text(`${device.device}: ${device.views} views (${device.percentage}%)`, 20, yPosition);
+          yPosition += 6;
+        });
+      }
+
+      setExportProgress(90);
+
+      // Save the PDF
+      const timestamp = new Date().toISOString().split('T')[0];
+      pdf.save(`analytics-report-${profileId}-${timestamp}.pdf`);
+
+      setExportProgress(100);
+      
+      setTimeout(() => {
+        setIsExporting(false);
+        setExportProgress(0);
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      setIsExporting(false);
+      setExportProgress(0);
+    }
+  };
+
+  const handleExport = () => {
+    if (exportFormat === 'csv') {
+      exportToCSV();
+    } else {
+      exportToPDF();
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -517,24 +998,99 @@ export const ExportData: React.FC<ExportDataProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Export includes profile views, link clicks, device breakdown, 
-            and visitor analytics in CSV format.
-          </p>
+          {/* Format Selection */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Export Format
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant={exportFormat === 'csv' ? 'default' : 'outline'}
+                onClick={() => setExportFormat('csv')}
+                className="flex items-center gap-2 h-auto p-4"
+                disabled={isExporting}
+              >
+                <FileSpreadsheet className="w-5 h-5" />
+                <div className="text-left">
+                  <div className="font-medium">CSV Files</div>
+                  <div className="text-xs opacity-70">Multiple spreadsheet files</div>
+                </div>
+              </Button>
+              
+              <Button
+                variant={exportFormat === 'pdf' ? 'default' : 'outline'}
+                onClick={() => setExportFormat('pdf')}
+                className="flex items-center gap-2 h-auto p-4"
+                disabled={isExporting}
+              >
+                <FileText className="w-5 h-5" />
+                <div className="text-left">
+                  <div className="font-medium">PDF Report</div>
+                  <div className="text-xs opacity-70">Complete visual report</div>
+                </div>
+              </Button>
+            </div>
+          </div>
+
+          {/* Export Description */}
+          <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              {exportFormat === 'csv' ? (
+                <div>
+                  <p className="font-medium mb-1">CSV Export includes:</p>
+                  <ul className="text-xs space-y-1 ml-4">
+                    <li>• Analytics summary with metrics breakdown</li>
+                    <li>• Daily views and clicks data</li>
+                    <li>• Top performing links ranking</li>
+                    <li>• Device breakdown statistics</li>
+                  </ul>
+                </div>
+              ) : (
+                <div>
+                  <p className="font-medium mb-1">PDF Report includes:</p>
+                  <ul className="text-xs space-y-1 ml-4">
+                    <li>• Complete analytics summary</li>
+                    <li>• Visual charts and graphs</li>
+                    <li>• Formatted tables and statistics</li>
+                    <li>• Professional report layout</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Export Progress */}
+          {isExporting && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span>Preparing {exportFormat.toUpperCase()}...</span>
+                <span>{exportProgress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${exportProgress}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
+
+          {/* Export Button */}
           <Button 
-            onClick={onExport}
-            disabled={loading}
-            className="w-full sm:w-auto"
+            onClick={handleExport}
+            disabled={loading || isExporting}
+            className="w-full"
+            size="lg"
           >
-            {loading ? (
+            {isExporting ? (
               <>
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                Exporting...
+                Exporting {exportFormat.toUpperCase()}...
               </>
             ) : (
               <>
                 <Download className="w-4 h-4 mr-2" />
-                Export Data
+                Export as {exportFormat.toUpperCase()}
               </>
             )}
           </Button>
