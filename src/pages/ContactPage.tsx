@@ -115,34 +115,14 @@ const ContactPage = () => {
     <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 flex flex-col overflow-x-hidden">
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {isMobile ? (
-          <>
-            <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-3xl" />
-          </>
-        ) : (
-          <>
-            <motion.div
-              animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }}
-              transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-              className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
-            />
-            <motion.div
-              animate={{ rotate: [360, 0], scale: [1, 1.3, 1] }}
-              transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-              className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"
-            />
-          </>
-        )}
+        <div className="absolute -top-40 -right-40 w-[32rem] h-[32rem] bg-scan-blue/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-[40rem] h-[40rem] bg-scan-purple/10 rounded-full blur-3xl" />
       </div>
 
       <Navigation />
 
-      <motion.section 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="pt-24 sm:pt-32 lg:pt-20 pb-16 sm:pb-20 lg:pb-24 px-4 sm:px-6 lg:px-8 flex-1 flex items-center justify-center relative z-10"
+      <section 
+        className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-5 sm:px-6 lg:px-8 text-center relative overflow-hidden fade-in-section"
       >
         <div className="w-full max-w-7xl">
           {/* Header Section */}
@@ -162,13 +142,23 @@ const ContactPage = () => {
               </span>
             </motion.div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6"
+            >
               Contact Us
-            </h1>
-            <p className="text-lg sm:text-xl lg:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed">
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.15 }}
+              className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed"
+            >
               Have questions about our digital profiles? We're here to help.
               Send us a message and we'll respond as soon as possible.
-            </p>
+            </motion.p>
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
@@ -312,7 +302,7 @@ const ContactPage = () => {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="font-semibold text-slate-900 dark:text-white text-base">Full Name</FormLabel>
+                            <FormLabel className="font-semibold text-slate-900 dark:text-white text-base text-left block">Full Name</FormLabel>
                             <FormControl>
                               <Input 
                                 placeholder="John Doe" 
@@ -329,7 +319,7 @@ const ContactPage = () => {
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="font-semibold text-slate-900 dark:text-white text-base">Email Address</FormLabel>
+                            <FormLabel className="font-semibold text-slate-900 dark:text-white text-base text-left block">Email Address</FormLabel>
                             <FormControl>
                               <Input 
                                 placeholder="john@example.com" 
@@ -349,7 +339,7 @@ const ContactPage = () => {
                       name="subject"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="font-semibold text-slate-900 dark:text-white text-base">Subject</FormLabel>
+                          <FormLabel className="font-semibold text-slate-900 dark:text-white text-base text-left block">Subject</FormLabel>
                           <FormControl>
                             <Input 
                               placeholder="How can we help you?" 
@@ -367,7 +357,7 @@ const ContactPage = () => {
                       name="message"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="font-semibold text-slate-900 dark:text-white text-base">Message</FormLabel>
+                          <FormLabel className="font-semibold text-slate-900 dark:text-white text-base text-left block">Message</FormLabel>
                           <FormControl>
                             <Textarea
                               placeholder="Please provide details about your inquiry..."
@@ -417,7 +407,7 @@ const ContactPage = () => {
             </motion.div>
           </div>
         </div>
-      </motion.section>
+      </section>
       <Footer />
     </div>
   );

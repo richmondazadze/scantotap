@@ -203,11 +203,8 @@ const PricingPage = () => {
       )}
 
       {/* Hero Section */}
-      <motion.section 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-5 sm:px-6 lg:px-8 text-center relative overflow-hidden"
+      <section 
+        className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-5 sm:px-6 lg:px-8 text-center relative overflow-hidden fade-in-section"
       >
         {/* Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
@@ -218,16 +215,8 @@ const PricingPage = () => {
             </>
           ) : (
             <>
-              <motion.div
-                animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }}
-                transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-                className="absolute top-1/4 left-1/4 w-72 h-72 bg-scan-blue/5 rounded-full blur-3xl"
-              />
-              <motion.div
-                animate={{ rotate: [360, 0], scale: [1, 1.3, 1] }}
-                transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-                className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-scan-purple/5 rounded-full blur-3xl"
-              />
+              <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-scan-blue/5 rounded-full blur-3xl" />
+              <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-scan-purple/5 rounded-full blur-3xl" />
             </>
           )}
         </div>
@@ -239,22 +228,22 @@ const PricingPage = () => {
               Simple, transparent pricing
             </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-scan-blue/10 dark:bg-scan-blue/20 text-scan-blue px-4 py-2 rounded-full text-sm font-medium mb-6"
-            >
-              <Sparkles className="w-4 h-4" />
-              Simple, transparent pricing
-            </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="inline-flex items-center gap-2 bg-scan-blue/10 dark:bg-scan-blue/20 text-scan-blue px-4 py-2 rounded-full text-sm font-medium mb-6"
+          >
+            <Sparkles className="w-4 h-4" />
+            Simple, transparent pricing
+          </motion.div>
           )}
 
           {isMobile ? (
             <motion.h1 
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+              transition={{ duration: 0.6 }}
               className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6"
             >
               Choose Your{" "}
@@ -263,37 +252,27 @@ const PricingPage = () => {
               </span>
             </motion.h1>
           ) : (
-            <motion.h1 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6"
-            >
-              Choose Your{" "}
-              <span className="bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent">
-                Digital Identity
-              </span>
-            </motion.h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 fade-in-section">
+            Choose Your{" "}
+            <span className="bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent">
+              Digital Identity
+            </span>
+            </h1>
           )}
 
           {isMobile ? (
             <motion.p 
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
+              transition={{ duration: 0.6, delay: 0.15 }}
               className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed"
             >
               Start free and upgrade when you're ready for advanced features. No contracts, cancel anytime.
             </motion.p>
           ) : (
-            <motion.p 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed"
-            >
-              Start free and upgrade when you're ready for advanced features. No contracts, cancel anytime.
-            </motion.p>
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed fade-in-section">
+            Start free and upgrade when you're ready for advanced features. No contracts, cancel anytime.
+            </p>
           )}
 
           {/* Billing Toggle */}
@@ -332,14 +311,11 @@ const PricingPage = () => {
             )}
           </motion.div>
         </div>
-      </motion.section>
+      </section>
 
       {/* Pricing Cards */}
-      <motion.section 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="pb-12 sm:pb-16 lg:pb-20 px-5 sm:px-6 lg:px-8"
+      <section 
+        className="pb-12 sm:pb-16 lg:pb-20 px-5 sm:px-6 lg:px-8 fade-in-section"
       >
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 max-w-4xl mx-auto">
@@ -497,7 +473,7 @@ const PricingPage = () => {
             </div>
           </motion.div>
         </div>
-      </motion.section>
+      </section>
 
       {/* FAQ Section - Modern Grid Design */}
       <motion.section 

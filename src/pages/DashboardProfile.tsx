@@ -588,7 +588,7 @@ export default function DashboardProfile() {
                       </div>
                     )}
                     <div className="mt-1.5 sm:mt-2 text-xs text-gray-500 dark:text-gray-400 break-all bg-white dark:bg-gray-800 p-2 sm:p-3 rounded-lg border">
-                      Your profile will be available at: <span className="font-mono text-blue-600 dark:text-blue-400">{window.location.origin}/{slug || 'your-username'}</span>
+                      Your profile will be available at: <br></br><span className="font-mono text-blue-600 dark:text-blue-400">{window.location.origin}/{slug || 'your-username'}</span>
                     </div>
                   </div>
                 </div>

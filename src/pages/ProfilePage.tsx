@@ -1323,8 +1323,8 @@ END:VCARD`;
                 <CardContent className="pt-0">
                   {/* More compact social links layout */}
                   <div className={`grid gap-2 ${
-                    profile.social_layout_style === 'horizontal'
-                      ? 'grid-cols-1'
+                    profile.social_layout_style === 'horizontal' 
+                      ? 'grid-cols-1' 
                       : 'grid-cols-2 lg:grid-cols-4'
                   }`}>
                     {socialLinks.map((link: any, idx: number) => {
