@@ -130,13 +130,13 @@ export default function DashboardQR() {
               {/* QR Code Display */}
               <div className="w-full xl:w-1/2 flex justify-center">
                 <div className="w-full aspect-square max-w-[240px] sm:max-w-[280px] lg:max-w-[320px] mx-auto">
-                  <QRCodeGenerator 
-                    ref={qrRef}
-                    profileUrl={profileUrl} 
-                    username={profile.slug || profile.id} 
-                  />
+                    <QRCodeGenerator 
+                      ref={qrRef}
+                      profileUrl={profileUrl} 
+                      username={profile.slug || profile.id} 
+                    />
+                  </div>
                 </div>
-              </div>
 
               {/* QR Code Actions */}
               <div className="w-full xl:w-1/2 space-y-3 sm:space-y-4 lg:space-y-6 min-w-0">
@@ -158,7 +158,7 @@ export default function DashboardQR() {
                     <Share2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     Share QR Code
                   </Button>
-                </div>
+              </div>
 
                 {/* Profile URL */}
                 <div className="space-y-2 sm:space-y-3">
@@ -217,8 +217,8 @@ export default function DashboardQR() {
           <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
               {/* Email Share */}
-              <Button 
-                variant="outline" 
+                  <Button 
+                    variant="outline" 
                 className="flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-6 h-auto rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all min-w-0"
                 onClick={() => window.open(`mailto:?subject=My Digital Profile&body=Check out my digital profile: ${profileUrl}`, '_blank')}
               >
@@ -229,11 +229,11 @@ export default function DashboardQR() {
                   <div className="font-medium text-gray-900 dark:text-white text-sm">Email</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Send via email</div>
                 </div>
-              </Button>
-
+                  </Button>
+                  
               {/* SMS Share */}
-              <Button 
-                variant="outline" 
+                  <Button 
+                    variant="outline" 
                 className="flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-6 h-auto rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-300 dark:hover:border-green-600 transition-all min-w-0"
                 onClick={() => window.open(`sms:?body=Check out my digital profile: ${profileUrl}`, '_blank')}
               >
@@ -244,7 +244,7 @@ export default function DashboardQR() {
                   <div className="font-medium text-gray-900 dark:text-white text-sm">SMS</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Send via text</div>
                 </div>
-              </Button>
+                  </Button>
 
               {/* Mobile Share */}
               <Button 
@@ -258,7 +258,7 @@ export default function DashboardQR() {
                 <div className="text-center min-w-0">
                   <div className="font-medium text-gray-900 dark:text-white text-sm">Preview</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">View your profile</div>
-                </div>
+              </div>
               </Button>
             </div>
           </CardContent>
@@ -280,12 +280,12 @@ export default function DashboardQR() {
               <div className="flex gap-2 sm:gap-3 lg:gap-4">
                 <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <span className="text-blue-600 dark:text-blue-400 font-bold text-xs">1</span>
-                </div>
+          </div>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm lg:text-base mb-1">Universal Compatibility</p>
                   <p className="leading-relaxed">Works with any smartphone camera or QR code scanner app.</p>
-                </div>
-              </div>
+                  </div>
+                  </div>
               <div className="flex gap-2 sm:gap-3 lg:gap-4">
                 <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <span className="text-purple-600 dark:text-purple-400 font-bold text-xs">2</span>

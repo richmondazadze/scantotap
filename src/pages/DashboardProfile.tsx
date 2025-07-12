@@ -808,19 +808,19 @@ export default function DashboardProfile() {
               {/* Link Input Form */}
               <div className="space-y-3">
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                  <Input
+              <Input
                     className="flex-1 text-sm"
-                    placeholder="Label (e.g. Portfolio)"
-                    value={newLink.label}
-                    onChange={e => setNewLink({ ...newLink, label: e.target.value })}
+                placeholder="Label (e.g. Portfolio)"
+                value={newLink.label}
+                onChange={e => setNewLink({ ...newLink, label: e.target.value })}
                     // maxLength removed to allow longer labels
-                  />
-                  <Input
+              />
+              <Input
                     className="flex-1 text-sm"
-                    placeholder="URL (e.g. https://...)"
-                    value={newLink.url}
-                    onChange={e => setNewLink({ ...newLink, url: e.target.value })}
-                  />
+                placeholder="URL (e.g. https://...)"
+                value={newLink.url}
+                onChange={e => setNewLink({ ...newLink, url: e.target.value })}
+              />
                 </div>
                 
                 {/* Thumbnail Upload Section */}
@@ -900,28 +900,28 @@ export default function DashboardProfile() {
                   ) : (
                     <>
                       <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                      Add Link
+                Add Link
                     </>
                   )}
-                </Button>
-              </div>
+              </Button>
+            </div>
               
               {/* Custom Links List */}
               <div className="space-y-2 sm:space-y-3">
-                {customLinks.length === 0 && (
+              {customLinks.length === 0 && (
                   <div className="text-center py-6 sm:py-8">
                     <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
                       <LinkIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
-                    </div>
+                  </div>
                     <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">No custom links added yet.</p>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Add your website, portfolio, or any other links above.</p>
-                  </div>
-                )}
-                {customLinks.map((link: any, idx: number) => (
-                  <motion.div 
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                </div>
+              )}
+              {customLinks.map((link: any, idx: number) => (
+                <motion.div 
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
                     className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all min-w-0 group"
                   >
                     {/* Thumbnail or Default Icon */}
@@ -935,31 +935,31 @@ export default function DashboardProfile() {
                       ) : (
                         <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
                       )}
-                    </div>
+                  </div>
                     
                     {/* Link Info - Fixed responsiveness */}
-                    <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0">
                       <div className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white break-words line-clamp-1" title={link.label}>
                         {link.label}
-                      </div>
+                  </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400 break-all line-clamp-1" title={link.url}>
                         {link.url}
                       </div>
                     </div>
                     
                     {/* Remove Button */}
-                    <Button 
-                      type="button"
-                      variant="ghost" 
-                      size="icon"
+                  <Button 
+            type="button"
+                    variant="ghost" 
+                    size="icon"
                       className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 h-7 w-7 sm:h-9 sm:w-9 rounded-lg flex-shrink-0" 
-                      onClick={() => handleRemoveLink(links.indexOf(link))}
-                    >
+                    onClick={() => handleRemoveLink(links.indexOf(link))}
+                  >
                       <X className="h-3 w-3 sm:h-4 sm:w-4" />
-                    </Button>
-                  </motion.div>
-                ))}
-              </div>
+                  </Button>
+                </motion.div>
+              ))}
+        </div>
             </CardContent>
           </Card>
           </motion.div>

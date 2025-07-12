@@ -578,7 +578,7 @@ export default function DashboardOrder() {
                             <div className="transform -rotate-12">
                               <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-500 shadow-xl text-white font-bold text-xs tracking-wide border-2 border-white dark:border-gray-900 drop-shadow-lg animate-pulse">
                                 <Star className="w-3 h-3 mr-1 text-white animate-bounce" />
-                                Popular
+                          Popular
                               </span>
                             </div>
                           </div>
@@ -610,7 +610,7 @@ export default function DashboardOrder() {
                                 {feature}
                               </Badge>
                             ))}
-                          </div>
+                            </div>
                         </div>
                       </div>
                     );

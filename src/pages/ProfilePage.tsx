@@ -519,7 +519,7 @@ const ProfilePage = () => {
     <div className="min-h-screen overflow-x-hidden flex flex-col relative" style={backgroundStyle}>
       {/* Dark overlay for custom background */}
       {customBackground && (
-        <div className="absolute inset-0 z-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.32)' }} />
+        <div className="absolute inset-0 z-0 pointer-events-none" style={{ background: 'rgba(0,0,0,0.54)' }} />
       )}
       {/* Professional Share Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
@@ -1323,14 +1323,13 @@ END:VCARD`;
                 <CardContent className="pt-0">
                   {/* More compact social links layout */}
                   <div className={`grid gap-2 ${
-                    profile.social_layout_style === 'horizontal' 
-                      ? 'grid-cols-1' 
-                      : 'grid-cols-2'
+                    profile.social_layout_style === 'horizontal'
+                      ? 'grid-cols-1'
+                      : 'grid-cols-2 lg:grid-cols-4'
                   }`}>
                     {socialLinks.map((link: any, idx: number) => {
                       const key = (link.platform || link.label || '').toLowerCase();
                       const Icon = SOCIAL_ICON_MAP[key] || FaLink;
-                      
                       // Define platform-specific colors
                       const getPlatformColor = (platform: string) => {
                         const colors: Record<string, { bg: string; hover: string; text: string }> = {
@@ -1348,9 +1347,7 @@ END:VCARD`;
                         };
                         return colors[platform] || { bg: 'bg-gray-600', hover: 'hover:bg-gray-700', text: 'text-white' };
                       };
-                      
                       const platformColors = getPlatformColor(key);
-                      
                       return (
                         <motion.a
                           key={idx}
@@ -1387,23 +1384,20 @@ END:VCARD`;
                               </div>
                             </div>
                           ) : (
-                            /* Grid layout - more compact square cards */
-                            <div className="aspect-square bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 hover:border-white/40 hover:bg-white/20 transition-all duration-300 p-3 sm:p-4 flex flex-col items-center justify-center text-center group-hover:scale-105 group-hover:shadow-lg">
+                            /* Grid layout - more compact square cards on large screens */
+                            <div className="aspect-square bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 hover:border-white/40 hover:bg-white/20 transition-all duration-300 flex flex-col items-center justify-center text-center group-hover:scale-105 group-hover:shadow-lg p-3 sm:p-4 lg:p-2 lg:w-28 lg:h-28">
                               {/* Grid Icon Container */}
-                              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${platformColors.bg} ${platformColors.hover} ${platformColors.text} flex items-center justify-center transition-all duration-300 mb-2 group-hover:scale-110 shadow-lg`}>
-                                <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                              <div className={`w-10 h-10 sm:w-12 sm:h-12 lg:w-8 lg:h-8 rounded-lg ${platformColors.bg} ${platformColors.hover} ${platformColors.text} flex items-center justify-center transition-all duration-300 mb-2 group-hover:scale-110 shadow-lg`}>
+                                <Icon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-5 lg:h-5" />
                               </div>
-                              
                               {/* Grid Platform Name */}
-                              <h3 className="font-semibold text-xs sm:text-sm capitalize mb-1" style={{ color: "white", textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
+                              <h3 className="font-semibold text-xs sm:text-sm lg:text-xs capitalize mb-1" style={{ color: "white", textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
                                 {link.platform || link.label}
                               </h3>
-                              
                               {/* Grid Username */}
-                              <p className="text-xs truncate w-full" style={{ color: "rgba(255, 255, 255, 0.8)", textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>
+                              <p className="text-xs lg:text-[11px] truncate w-full" style={{ color: "rgba(255, 255, 255, 0.8)", textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>
                                 @{extractSocialUsername(link.url)}
                               </p>
-                              
                               {/* Grid External Link Icon */}
                               <div className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <ExternalLink className="w-3 h-3" style={{ color: "white" }} />
