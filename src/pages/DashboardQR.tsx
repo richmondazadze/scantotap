@@ -137,7 +137,7 @@ export default function DashboardQR() {
                   />
                 </div>
               </div>
-
+              <br></br>
               {/* QR Code Actions */}
               <div className="w-full xl:w-1/2 flex flex-col justify-center space-y-3 sm:space-y-4 lg:space-y-6 min-w-0">
                 {/* Quick Actions */}
