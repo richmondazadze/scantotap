@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams, useLocation } from "react-router-dom";
-import { Check, X, Star, Zap, Shield, Crown, Sparkles, ArrowRight, Users, Infinity, QrCode } from "lucide-react";
+import { Check, X, Star, Zap, Shield, Crown, Sparkles, ArrowRight, Users, Infinity as InfinityIcon, QrCode } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/contexts/ProfileContext";
 import { PaystackService } from "@/services/paystackService";
 import { toast } from "sonner";
+import { useMediaQuery } from 'react-responsive';
 
 interface PlanFeature {
   name: string;
@@ -34,6 +35,7 @@ interface PricingPlan {
 }
 
 const PricingPage = () => {
+  const isMobile = useMediaQuery({ maxWidth: 640 });
   const [isAnnual, setIsAnnual] = useState(false);
   const [searchParams] = useSearchParams();
   const { session } = useAuth();
@@ -209,41 +211,90 @@ const PricingPage = () => {
       >
         {/* Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-scan-blue/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-scan-purple/5 rounded-full blur-3xl"></div>
+          {isMobile ? (
+            <>
+              <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-scan-blue/10 rounded-full blur-3xl" />
+              <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-scan-purple/10 rounded-full blur-3xl" />
+            </>
+          ) : (
+            <>
+              <motion.div
+                animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }}
+                transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+                className="absolute top-1/4 left-1/4 w-72 h-72 bg-scan-blue/5 rounded-full blur-3xl"
+              />
+              <motion.div
+                animate={{ rotate: [360, 0], scale: [1, 1.3, 1] }}
+                transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+                className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-scan-purple/5 rounded-full blur-3xl"
+              />
+            </>
+          )}
         </div>
 
         <div className="max-w-4xl mx-auto relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="inline-flex items-center gap-2 bg-scan-blue/10 dark:bg-scan-blue/20 text-scan-blue px-4 py-2 rounded-full text-sm font-medium mb-6"
-          >
-            <Sparkles className="w-4 h-4" />
-            Simple, transparent pricing
-          </motion.div>
+          {isMobile ? (
+            <div className="inline-flex items-center gap-2 bg-scan-blue/10 dark:bg-scan-blue/20 text-scan-blue px-4 py-2 rounded-full text-sm font-medium mb-6 opacity-100 translate-y-0 transition-none">
+              <Sparkles className="w-4 h-4" />
+              Simple, transparent pricing
+            </div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="inline-flex items-center gap-2 bg-scan-blue/10 dark:bg-scan-blue/20 text-scan-blue px-4 py-2 rounded-full text-sm font-medium mb-6"
+            >
+              <Sparkles className="w-4 h-4" />
+              Simple, transparent pricing
+            </motion.div>
+          )}
 
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6"
-          >
-            Choose Your{" "}
-            <span className="bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent">
-              Digital Identity
-            </span>
-          </motion.h1>
+          {isMobile ? (
+            <motion.h1 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6"
+            >
+              Choose Your{" "}
+              <span className="bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent">
+                Digital Identity
+              </span>
+            </motion.h1>
+          ) : (
+            <motion.h1 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6"
+            >
+              Choose Your{" "}
+              <span className="bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent">
+                Digital Identity
+              </span>
+            </motion.h1>
+          )}
 
-          <motion.p 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed"
-          >
-            Start free and upgrade when you're ready for advanced features. No contracts, cancel anytime.
-          </motion.p>
+          {isMobile ? (
+            <motion.p 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed"
+            >
+              Start free and upgrade when you're ready for advanced features. No contracts, cancel anytime.
+            </motion.p>
+          ) : (
+            <motion.p 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed"
+            >
+              Start free and upgrade when you're ready for advanced features. No contracts, cancel anytime.
+            </motion.p>
+          )}
 
           {/* Billing Toggle */}
           <motion.div
@@ -428,7 +479,7 @@ const PricingPage = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-scan-blue/20 to-scan-purple/20"></div>
               <div className="relative z-10">
                 <div className="inline-flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
-                  <Infinity className="w-4 h-4" />
+                  <InfinityIcon className="w-4 h-4" />
                   Enterprise Solutions
                 </div>
                 <h3 className="text-3xl sm:text-4xl font-bold text-white mb-4">Need something bigger?</h3>

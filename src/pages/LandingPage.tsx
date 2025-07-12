@@ -167,30 +167,30 @@ const LandingPage = () => {
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl" />
         ) : (
           <>
-            <motion.div
-              animate={{
-                rotate: [0, 360],
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: 20,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
-            />
-            <motion.div
-              animate={{
-                rotate: [360, 0],
-                scale: [1, 1.3, 1],
-              }}
-              transition={{
-                duration: 25,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"
-            />
+        <motion.div
+          animate={{
+            rotate: [0, 360],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
+        />
+        <motion.div
+        animate={{
+            rotate: [360, 0],
+            scale: [1, 1.3, 1],
+        }}
+        transition={{
+            duration: 25,
+          repeat: Infinity,
+            ease: "linear"
+        }}
+          className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"
+        />
           </>
         )}
       </div>
@@ -339,59 +339,59 @@ const LandingPage = () => {
                     style={{ borderRadius: '12px' }}
                   />
                 ) : (
-                  <motion.img
-                    src="/card_model.png"
-                    alt="Scan2Tap Digital Card"
-                    className="relative w-full h-auto object-contain rounded-xl shadow-lg drop-shadow-2xl"
-                    style={{ borderRadius: '12px' }}
-                    animate={{
-                      y: [0, -20, 0],
-                      rotateY: [0, 5, 0, -5, 0],
-                    }}
-                    transition={{
-                      duration: 6,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    whileHover={{
-                      scale: 1.05,
-                      rotateY: 15,
-                    }}
-                  />
+            <motion.img
+              src="/card_model.png"
+                  alt="Scan2Tap Digital Card"
+                  className="relative w-full h-auto object-contain rounded-xl shadow-lg drop-shadow-2xl"
+                  style={{ borderRadius: '12px' }}
+              animate={{
+                    y: [0, -20, 0],
+                    rotateY: [0, 5, 0, -5, 0],
+              }}
+              transition={{
+                    duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+                  whileHover={{
+                    scale: 1.05,
+                    rotateY: 15,
+                  }}
+                />
                 )}
                 {/* Floating elements - only on desktop */}
                 {!isMobile && (
                   <>
-                    <motion.div
-                      animate={{
-                        y: [0, -10, 0],
-                        rotate: [0, 5, 0],
-                      }}
-                      transition={{
-                        duration: 4,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: 1
-                      }}
-                      className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white dark:bg-slate-800 rounded-full p-2.5 shadow-lg"
-                    >
-                      <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
-                    </motion.div>
-                    <motion.div
-                      animate={{
-                        y: [0, 10, 0],
-                        rotate: [0, -5, 0],
-                      }}
-                      transition={{
-                        duration: 5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: 2
-                      }}
-                      className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white dark:bg-slate-800 rounded-full p-2.5 shadow-lg"
-                    >
-                      <Share2 className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
-                    </motion.div>
+                <motion.div
+                  animate={{
+                    y: [0, -10, 0],
+                    rotate: [0, 5, 0],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 1
+                  }}
+                  className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white dark:bg-slate-800 rounded-full p-2.5 shadow-lg"
+                >
+                  <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
+                </motion.div>
+                <motion.div
+                  animate={{
+                    y: [0, 10, 0],
+                    rotate: [0, -5, 0],
+                  }}
+                  transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 2
+                  }}
+                  className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white dark:bg-slate-800 rounded-full p-2.5 shadow-lg"
+                >
+                  <Share2 className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
+          </motion.div>
                   </>
                 )}
               </div>

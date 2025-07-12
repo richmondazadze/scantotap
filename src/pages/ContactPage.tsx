@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Twitter, Linkedin, Instagram, Mail, Phone, MapPin, Send, Loader2, MessageCircle, Clock, Users, Sparkles } from "lucide-react";
 import Loading from '@/components/ui/loading';
+import { useMediaQuery } from 'react-responsive';
 
 import {
   Form,
@@ -40,6 +41,7 @@ const contactFormSchema = z.object({
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 const ContactPage = () => {
+  const isMobile = useMediaQuery({ maxWidth: 640 });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<ContactFormValues>({
@@ -113,30 +115,25 @@ const ContactPage = () => {
     <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 flex flex-col overflow-x-hidden">
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{
-            rotate: [0, 360],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            rotate: [360, 0],
-            scale: [1, 1.3, 1],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"
-        />
+        {isMobile ? (
+          <>
+            <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-3xl" />
+          </>
+        ) : (
+          <>
+            <motion.div
+              animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }}
+              transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+              className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
+            />
+            <motion.div
+              animate={{ rotate: [360, 0], scale: [1, 1.3, 1] }}
+              transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+              className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"
+            />
+          </>
+        )}
       </div>
 
       <Navigation />
@@ -218,7 +215,7 @@ const ContactPage = () => {
                       <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-1">Phone</h3>
                       <div className="space-y-1">
                         <a href="tel:+233203285781" className="block text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-base">
-                          +233 20 328 5781 (Ghana)
+                          +233 55 879 7734 (Ghana)
                         </a>
                         <a href="tel:+15126509818" className="block text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-base">
                           +1 (512) 650-9818 (US)
