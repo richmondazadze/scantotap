@@ -266,38 +266,38 @@ const Navigation = () => {
                         transition={{ duration: 0.3, delay: index * 0.08 }}
                       >
                         <Link 
-                          to={link.path}
-                          onClick={(e) => {
-                            if (link.path.includes('#')) {
-                              e.preventDefault();
+                        to={link.path}
+                        onClick={(e) => {
+                          if (link.path.includes('#')) {
+                            e.preventDefault();
                               handleNavigation(link.path, link.action);
                             } else {
                               handleNavigation(link.path);
-                            }
-                          }}
+                          }
+                        }}
                           className={`group relative flex items-center gap-3 px-5 py-3.5 rounded-xl font-semibold text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-scan-blue/50 ${
-                            isActive(link.path) 
+                          isActive(link.path) 
                               ? 'text-white bg-gradient-to-r from-scan-blue to-scan-purple shadow-md shadow-blue-500/20' 
                               : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100/60 dark:hover:bg-slate-800/60 hover:text-scan-blue dark:hover:text-scan-blue-light'
-                          }`}
+                        }`}
                           aria-label={`Navigate to ${link.name}`}
-                        >
+                      >
                           {/* Active indicator */}
-                          {isActive(link.path) && (
-                            <motion.div
+                        {isActive(link.path) && (
+                          <motion.div
                               layoutId="mobileActiveIndicator"
                               className="absolute left-3 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-white rounded-full"
                               initial={{ opacity: 0, scale: 0 }}
                               animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.3 }}
-                            />
-                          )}
+                            transition={{ duration: 0.3 }}
+                          />
+                        )}
                           
                           {/* Hover background */}
                           {!isActive(link.path) && (
-                            <motion.div
+                        <motion.div
                               className="absolute inset-0 rounded-xl bg-gradient-to-r from-scan-blue/8 to-scan-purple/8 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                              initial={false}
+                          initial={false}
                             />
                           )}
                           
@@ -311,7 +311,7 @@ const Navigation = () => {
                           </motion.div>
                           
                           <span className="relative z-10 flex-1">{link.name}</span>
-                        </Link>
+                      </Link>
                       </motion.div>
                     ))}
                   </motion.div>
@@ -368,7 +368,7 @@ const Navigation = () => {
                             →
                           </motion.div>
                         </motion.span>
-                      </Button>
+                        </Button>
                     </motion.div>
                   </motion.div>
 

@@ -2,6 +2,7 @@ import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useProfile, type PlanType, type SubscriptionStatus } from '@/contexts/ProfileContext';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { AvatarUploader } from '@/components/AvatarUploader';
+import { ImageCropModal } from '@/components/ImageCropModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,11 +15,10 @@ import { processSocialInput, SOCIAL_PLATFORMS, getDisplayUsername } from '@/lib/
 import { usePlanFeatures, canAddMoreLinks } from '@/hooks/usePlanFeatures';
 import { UpgradePrompt } from '@/components/UpgradePrompt';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
-
-
 import { motion } from 'framer-motion';
-import { Camera, Plus, X, Phone, Globe, Link as LinkIcon, ExternalLink, Save, AlertCircle, CheckCircle, Shield, Mail, Crown, AtSign } from 'lucide-react';
+import { Camera, Plus, X, Phone, Globe, Link as LinkIcon, ExternalLink, Save, AlertCircle, CheckCircle, Shield, Mail, Crown, AtSign, User, Smartphone, Upload, Image as ImageIcon } from 'lucide-react';
 import { FaInstagram, FaTwitter, FaSnapchat, FaTiktok, FaWhatsapp, FaYoutube, FaFacebook, FaLinkedin, FaSpotify, FaPinterest, FaTwitch, FaTelegram, FaDiscord } from 'react-icons/fa6';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const SOCIAL_PRESETS = [
   { label: 'Instagram', icon: FaInstagram, placeholder: 'Username or Instagram URL', key: 'instagram' },
@@ -38,12 +38,62 @@ const SOCIAL_PRESETS = [
   { label: 'Threads', icon: AtSign, placeholder: 'Username or Threads URL', key: 'threads' },
 ];
 
+// Helper function to validate and fix URL
+const validateAndFixUrl = (url: string): string => {
+  if (!url) return url;
+  
+  // Remove any leading/trailing whitespace
+  url = url.trim();
+  
+  // Check if it already has a protocol
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  
+  // Check if it looks like a URL (contains a dot)
+  if (url.includes('.') || url.includes('/')) {
+    return `https://${url}`;
+  }
+  
+  // Return as-is if it doesn't look like a URL
+  return url;
+};
+
+// Helper function to upload thumbnail
+const uploadThumbnail = async (file: File, userId: string, linkId: string): Promise<string | null> => {
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}/link-thumbnails/${linkId}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: file.type
+      });
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      return null;
+    }
+
+    const { data } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(fileName);
+
+    return data.publicUrl;
+  } catch (error) {
+    console.error('Error uploading thumbnail:', error);
+    return null;
+  }
+};
+
 export default function DashboardProfile() {
   const { session, loading: authLoading } = useAuthGuard();
   const { profile, loading: profileLoading, setProfile } = useProfile();
   const navigate = useNavigate();
   const location = useLocation();
-
   
   // State declarations
   const [name, setName] = useState(profile?.name || '');
@@ -51,13 +101,12 @@ export default function DashboardProfile() {
   const [bio, setBio] = useState(profile?.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '');
   const [links, setLinks] = useState<any[]>(Array.isArray(profile?.links) ? profile.links : []);
-  const [newLink, setNewLink] = useState({ label: '', url: '' });
+  const [newLink, setNewLink] = useState({ label: '', url: '', thumbnail: '' });
   const [saving, setSaving] = useState(false);
   const [slug, setSlug] = useState(profile?.slug || '');
   const [slugAvailable, setSlugAvailable] = useState(true);
   const [checkingSlug, setCheckingSlug] = useState(false);
   const [hasUnsavedChangesState, setHasUnsavedChanges] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [showSocialDialog, setShowSocialDialog] = useState(false);
   const [selectedSocial, setSelectedSocial] = useState(null);
   const [socialInput, setSocialInput] = useState('');
@@ -68,6 +117,11 @@ export default function DashboardProfile() {
   const [showPhone, setShowPhone] = useState(profile?.show_phone ?? true);
   const [showWhatsapp, setShowWhatsapp] = useState(profile?.show_whatsapp ?? true);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  
+  // New states for thumbnail functionality
+  const [showThumbnailModal, setShowThumbnailModal] = useState(false);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
 
   const slugCheckTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -82,7 +136,6 @@ export default function DashboardProfile() {
   // Effect to update form fields when profile changes
   useEffect(() => {
     if (profile) {
-      console.log('[ProfileEffect] Syncing form state from profile:', profile);
       setName(profile.name || '');
       setTitle(profile.title || '');
       setBio(profile.bio || '');
@@ -97,16 +150,11 @@ export default function DashboardProfile() {
     }
   }, [profile]);
 
-  // Effect to check for unsaved changes by comparing form state with database profile, with debug logs
-  // Excludes auto-saved fields to prevent interference with unsaved changes detection
+  // Effect to check for unsaved changes
   const hasUnsavedChanges = useMemo(() => {
-    if (!profile) {
-      console.log('[UnsavedChanges] No profile loaded, hasUnsavedChanges = false');
-      return false;
-    }
+    if (!profile) return false;
     
     const profileLinks = Array.isArray(profile.links) ? profile.links : [];
-    // Only check main fields that require manual save, exclude auto-saved fields
     const diffs = {
       name: name !== (profile.name || ''),
       title: title !== (profile.title || ''),
@@ -115,18 +163,9 @@ export default function DashboardProfile() {
       slug: slug !== (profile.slug || ''),
       phone: phone !== (profile.phone || ''),
       links: JSON.stringify(links) !== JSON.stringify(profileLinks),
-      // Exclude auto-saved fields: socialLayoutStyle, showEmail, showPhone, showWhatsapp
     };
     
-    const isChanged = Object.values(diffs).some(Boolean);
-    
-    // Only log when the state actually changes to reduce console noise
-    if (isChanged !== hasUnsavedChangesState) {
-      console.log('[UnsavedChanges] Field diffs (main fields only):', diffs);
-    console.log('[UnsavedChanges] isChanged:', isChanged);
-    }
-    
-    return isChanged;
+    return Object.values(diffs).some(Boolean);
   }, [name, title, bio, avatarUrl, links, slug, phone, profile, hasUnsavedChangesState]);
 
   // Update the context when hasUnsavedChanges changes
@@ -134,7 +173,7 @@ export default function DashboardProfile() {
     setHasUnsavedChanges(hasUnsavedChanges);
   }, [hasUnsavedChanges]);
 
-  // Slug (username) availability check
+  // Slug availability check
   useEffect(() => {
     if (!slug) {
       setSlugAvailable(true);
@@ -152,7 +191,6 @@ export default function DashboardProfile() {
       setSlugAvailable(!data);
       setCheckingSlug(false);
     }, 500);
-    // eslint-disable-next-line
   }, [slug]);
 
   // Helper: get platforms already added
@@ -169,7 +207,6 @@ export default function DashboardProfile() {
       return;
     }
 
-    // Handle website separately (no parsing needed)
     if (selectedSocial.key === 'website') {
       const isValidUrl = socialInput.startsWith('http://') || socialInput.startsWith('https://') || socialInput.includes('.');
       setSocialPreview({
@@ -180,7 +217,6 @@ export default function DashboardProfile() {
       return;
     }
 
-    // Use smart parsing for social platforms
     const result = processSocialInput(socialInput, selectedSocial.key);
     setSocialPreview(result);
   }, [socialInput, selectedSocial]);
@@ -192,71 +228,32 @@ export default function DashboardProfile() {
     setShowSocialDialog(true);
   };
 
-  const handleSocialLayoutChange = async (newStyle: string) => {
-    // Prevent free users from selecting grid layout
-    if (newStyle === 'grid' && planFeatures.isFreeUser) {
-      setShowUpgradePrompt(true);
-      toast.error('Grid layout is available with Pro plan');
-      return;
-    }
 
-    setSocialLayoutStyle(newStyle);
-    
-    // Auto-save to database if profile exists
-    if (profile?.id) {
-      try {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ social_layout_style: newStyle })
-          .eq('id', profile.id);
-        
-        if (error) throw error;
-        
-        // Update the profile context
-        setProfile({ ...profile, social_layout_style: newStyle });
-        
-        toast.success(`Layout changed to ${newStyle === 'grid' ? 'Grid' : 'Horizontal'}`);
-      } catch (err) {
-        console.error('Failed to update layout style:', err);
-        toast.error('Failed to update layout style');
-        // Revert the local state if database update failed
-        setSocialLayoutStyle(profile.social_layout_style || 'horizontal');
-      }
-    }
-  };
 
   const handlePrivacySettingChange = async (setting: 'show_email' | 'show_phone' | 'show_whatsapp', value: boolean) => {
-    // Update local state immediately
     if (setting === 'show_email') {
       setShowEmail(value);
     } else if (setting === 'show_phone') {
       setShowPhone(value);
-      // If hiding phone, also hide WhatsApp
-      if (!value) {
-        setShowWhatsapp(false);
-      }
+      if (!value) setShowWhatsapp(false);
     } else if (setting === 'show_whatsapp') {
       setShowWhatsapp(value);
     }
 
-    // Auto-save to database if profile exists
     if (profile?.id) {
       try {
         const updateData: any = { [setting]: value };
-        
-        // If hiding phone, also hide WhatsApp
         if (setting === 'show_phone' && !value) {
           updateData.show_whatsapp = false;
         }
 
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('profiles')
           .update(updateData)
           .eq('id', profile.id);
         
         if (error) throw error;
         
-        // Update the profile context
         const updatedProfile = { ...profile, ...updateData };
         setProfile(updatedProfile);
         
@@ -271,7 +268,6 @@ export default function DashboardProfile() {
         console.error('Failed to update privacy setting:', err);
         toast.error('Failed to update privacy setting');
         
-        // Revert the local state if database update failed
         if (setting === 'show_email') {
           setShowEmail(profile.show_email ?? true);
         } else if (setting === 'show_phone') {
@@ -285,7 +281,6 @@ export default function DashboardProfile() {
   };
 
   const handleAddSocial = () => {
-    // Check plan limits first
     if (!canAddLink) {
       setShowUpgradePrompt(true);
       return;
@@ -296,10 +291,8 @@ export default function DashboardProfile() {
     let finalUrl = '';
     
     if (selectedSocial.key === 'website') {
-      // Handle website URLs
       finalUrl = socialInput.startsWith('http') ? socialInput : `https://${socialInput}`;
     } else {
-      // Use smart parsing for social platforms
       const result = processSocialInput(socialInput, selectedSocial.key);
       if (!result.isValid) {
         toast.error('Please enter a valid username or URL');
@@ -315,20 +308,41 @@ export default function DashboardProfile() {
     setSocialPreview({ url: '', username: '', isValid: false });
   };
 
-  if (authLoading || profileLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
-  const handleAddLink = () => {
-    // Check plan limits first
+  const handleAddLink = async () => {
     if (!canAddLink) {
       setShowUpgradePrompt(true);
       return;
     }
 
     if (newLink.label && newLink.url) {
-      setLinks([...links, newLink]);
-      setNewLink({ label: '', url: '' });
+      // Validate and fix URL
+      const fixedUrl = validateAndFixUrl(newLink.url);
+      
+      // Create new link object
+      const linkToAdd = {
+        ...newLink,
+        url: fixedUrl,
+        id: Date.now().toString() // Generate unique ID for the link
+      };
+
+      // If there's a thumbnail file, upload it
+      if (thumbnailFile && session?.user?.id) {
+        setUploadingThumbnail(true);
+        const thumbnailUrl = await uploadThumbnail(thumbnailFile, session.user.id, linkToAdd.id);
+        if (thumbnailUrl) {
+          linkToAdd.thumbnail = thumbnailUrl;
+        }
+        setUploadingThumbnail(false);
+      }
+
+      setLinks([...links, linkToAdd]);
+      setNewLink({ label: '', url: '', thumbnail: '' });
+      setThumbnailFile(null);
+      
+      // Show success message if URL was fixed
+      if (fixedUrl !== newLink.url) {
+        toast.success('Link added! URL automatically prefixed with https://');
+      }
     }
   };
 
@@ -345,7 +359,6 @@ export default function DashboardProfile() {
     try {
       let data, error;
       if (!profile) {
-        // Create new profile
         ({ data, error } = await supabase.from('profiles').insert({
           id: session.user.id,
           user_id: session.user.id,
@@ -362,7 +375,6 @@ export default function DashboardProfile() {
           show_whatsapp: showWhatsapp,
         }).select().single());
       } else {
-        // Update existing profile
         ({ data, error } = await supabase.from('profiles').update({
         name,
         title,
@@ -379,14 +391,13 @@ export default function DashboardProfile() {
       }
       if (error) throw error;
       
-      // Cast database types to our typed interface (same as ProfileContext)
       const savedProfile = {
         ...data,
         plan_type: (data.plan_type as PlanType) || 'free',
         subscription_status: data.subscription_status as SubscriptionStatus | undefined,
       };
       setProfile(savedProfile);
-      // Reset form state to match saved profile
+      
       setName(data.name || '');
       setTitle(data.title || '');
       setBio(data.bio || '');
@@ -403,47 +414,92 @@ export default function DashboardProfile() {
       toast.error(err.message || 'Failed to save profile');
     }
     setSaving(false);
-    // hasUnsavedChanges will automatically become false when profile is updated
   };
 
+  const handleThumbnailUpload = (file: File) => {
+    setThumbnailFile(file);
+    setShowThumbnailModal(false);
+    toast.success('Thumbnail selected! It will be uploaded when you add the link.');
+  };
 
+  const removeThumbnail = () => {
+    setThumbnailFile(null);
+    setNewLink({ ...newLink, thumbnail: '' });
+  };
 
-  // Card styles - updated to match other dashboard pages
-  const cardBase = 'relative rounded-xl shadow-lg p-6 sm:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30';
-  const cardTitle = 'text-3xl sm:text-4xl lg:text-5xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent';
-  const cardDesc = 'text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed';
+  if (authLoading || profileLoading) {
+    return (
+      <div className="space-y-4 sm:space-y-6 pb-20 lg:pb-8 pt-4 sm:pt-6 lg:pt-8">
+        <div className="flex items-center justify-center min-h-screen">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className="w-full max-w-7xl mx-auto pb-24 sm:pb-8 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-6 lg:mt-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 overflow-x-hidden space-y-6 sm:space-y-8 lg:space-y-10">
-      {/* Profile Info Card */}
+      <div className="space-y-3 sm:space-y-4 lg:space-y-6 pb-20 lg:pb-8 pt-3 sm:pt-4 lg:pt-6 overflow-x-hidden">
+        {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className={cardBase}
+          className="mb-4 sm:mb-6 lg:mb-8"
         >
-        <h2 className={cardTitle}>Your Digital Identity</h2>
-          <p className={cardDesc}>Create your unique digital presence that will be displayed when someone scans your QR code.</p>
-          
-          {!profile && (
-            <div className="mb-8 p-6 sm:p-8 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 dark:from-scan-blue/10 dark:to-scan-purple/10 border border-scan-blue/20 dark:border-scan-blue/30 rounded-xl backdrop-blur-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-3 h-3 bg-scan-blue rounded-full animate-pulse"></div>
-                <h3 className="font-semibold text-scan-blue dark:text-scan-blue-light text-base sm:text-lg">Welcome! Let's create your digital profile</h3>
-              </div>
-              <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                Fill in your information below to create your digital profile. Don't worry, you can always edit this later!
+          <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-2">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+              <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 dark:text-white leading-tight">
+                Your Digital Identity
+              </h1>
+              <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
+                Create your unique digital presence that others will see when they scan your QR code
               </p>
             </div>
-          )}
+          </div>
           
-          <div className="flex flex-col xl:flex-row xl:items-start gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
+          {!profile && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mt-3 sm:mt-4 p-3 sm:p-4 lg:p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-xl"
+            >
+              <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <h3 className="font-semibold text-blue-600 dark:text-blue-400 text-xs sm:text-sm lg:text-base">Welcome! Let's create your digital profile</h3>
+              </div>
+              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                Fill in your information below to create your digital profile. Don't worry, you can always edit this later!
+              </p>
+            </motion.div>
+          )}
+        </motion.div>
+
+        {/* Profile Information Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 overflow-hidden">
+            <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-blue-600 flex-shrink-0" />
+                <span>Profile Information</span>
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                Your basic information that will be displayed on your public profile.
+                This is what others will see when they visit your digital business card.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+              <div className="flex flex-col lg:flex-row lg:items-start gap-4 sm:gap-6 lg:gap-8">
             {/* Avatar Section */}
-            <div className="flex flex-col items-center xl:items-start gap-4 sm:gap-6 w-full xl:w-1/3">
+                <div className="flex flex-col items-center lg:items-start gap-3 sm:gap-4 lg:gap-6 w-full lg:w-64 lg:flex-shrink-0">
               <AvatarUploader
                 currentAvatar={avatarUrl || undefined}
                 onAvatarUpdate={(newUrl) => {
-                  // Clean up old avatar when uploading new one
                   if (avatarUrl && avatarUrl !== newUrl && newUrl) {
                     try {
                       const url = new URL(avatarUrl);
@@ -462,59 +518,106 @@ export default function DashboardProfile() {
             </div>
 
           {/* Profile Fields */}
-            <div className="flex-1 space-y-4 sm:space-y-6">
+                <div className="flex-1 space-y-3 sm:space-y-4 lg:space-y-6 min-w-0">
             <div>
-                <label className="block text-sm sm:text-base font-semibold mb-2 text-gray-700 dark:text-gray-200">Full Name</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 text-gray-700 dark:text-gray-200">Full Name *</label>
               <Input
-                  className="w-full bg-white/95 dark:bg-[#1A1D24]/90 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 sm:py-4 focus:ring-2 focus:ring-scan-blue/30 focus:border-scan-blue/50 transition-all text-sm sm:text-base shadow-sm hover:shadow-md"
+                      className="w-full text-sm"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
+                      placeholder="Your full name"
               />
             </div>
             <div>
-                <label className="block text-sm sm:text-base font-semibold mb-2 text-gray-700 dark:text-gray-200">Title / Role</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 text-gray-700 dark:text-gray-200">Title / Role</label>
               <Input
-                  className="w-full bg-white/95 dark:bg-[#1A1D24]/90 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 sm:py-4 focus:ring-2 focus:ring-scan-blue/30 focus:border-scan-blue/50 transition-all text-sm sm:text-base shadow-sm hover:shadow-md"
+                      className="w-full text-sm"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
+                      placeholder="e.g. Software Engineer, Designer, CEO"
               />
             </div>
             <div>
-                <label className="block text-sm sm:text-base font-semibold mb-2 text-gray-700 dark:text-gray-200">Bio</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 text-gray-700 dark:text-gray-200">Bio</label>
               <Textarea
-                  className="w-full bg-white/95 dark:bg-[#1A1D24]/90 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 sm:py-4 focus:ring-2 focus:ring-scan-blue/30 focus:border-scan-blue/50 transition-all min-h-[120px] text-sm sm:text-base shadow-sm hover:shadow-md resize-none"
+                      className="w-full min-h-[100px] sm:min-h-[120px] resize-none text-sm"
                 value={bio}
                 onChange={e => setBio(e.target.value)}
                   rows={4}
+                      placeholder="Tell people about yourself..."
                 />
               </div>
               <div>
-                <label className="block text-sm sm:text-base font-semibold mb-2 text-gray-700 dark:text-gray-200 flex items-center gap-2"><Phone className="w-4 h-4 sm:w-5 sm:h-5" /> Phone Number</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 text-gray-700 dark:text-gray-200 flex items-center gap-1.5 sm:gap-2">
+                      <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
+                      Phone Number
+                    </label>
                 <Input
-                  className="w-full bg-white/95 dark:bg-[#1A1D24]/90 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 sm:py-4 focus:ring-2 focus:ring-scan-blue/30 focus:border-scan-blue/50 transition-all text-sm sm:text-base shadow-sm hover:shadow-md"
+                      className="w-full text-sm"
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
                   placeholder="e.g. +1234567890"
                   type="tel"
                 />
               </div>
-              
-              {/* Privacy Settings */}
-              <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
-                <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-scan-blue" />
-                  Privacy Settings
-                </h4>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 text-gray-700 dark:text-gray-200">Username *</label>
+                    <div className="relative">
+                      <Input
+                        className="w-full text-sm pr-8"
+                        value={slug}
+                        onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                        placeholder="your-username"
+                      />
+                      {checkingSlug && (
+                        <div className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2">
+                          <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                      )}
+                    </div>
+                    {slug && (
+                      <div className="mt-1.5 sm:mt-2 text-xs sm:text-sm">
+                        {checkingSlug ? (
+                          <span className="text-gray-500">Checking availability...</span>
+                        ) : slugAvailable ? (
+                          <span className="text-green-600 font-medium">✓ Available</span>
+                        ) : (
+                          <span className="text-red-600 font-medium">✗ Username taken</span>
+                        )}
+                      </div>
+                    )}
+                    <div className="mt-1.5 sm:mt-2 text-xs text-gray-500 dark:text-gray-400 break-all bg-white dark:bg-gray-800 p-2 sm:p-3 rounded-lg border">
+                      Your profile will be available at: <span className="font-mono text-blue-600 dark:text-blue-400">{window.location.origin}/{slug || 'your-username'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Privacy Settings Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                <span>Privacy Settings</span>
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
                   Control what information is visible on your public profile
-                </p>
-                
-                <div className="space-y-4">
-                  {/* Show Email Setting */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+              <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
                         Show Email Address
                       </label>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -524,14 +627,13 @@ export default function DashboardProfile() {
                     <Switch
                       checked={showEmail}
                       onCheckedChange={(checked) => handlePrivacySettingChange('show_email', checked)}
-                      className="ml-4"
+                    className="ml-2 sm:ml-4 flex-shrink-0"
                     />
                   </div>
                   
-                  {/* Show Phone Setting */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
                         Show Phone Number
                       </label>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -541,14 +643,13 @@ export default function DashboardProfile() {
                     <Switch
                       checked={showPhone}
                       onCheckedChange={(checked) => handlePrivacySettingChange('show_phone', checked)}
-                      className="ml-4"
+                    className="ml-2 sm:ml-4 flex-shrink-0"
                     />
                   </div>
                   
-                  {/* Show WhatsApp Setting */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <label className={`text-sm font-medium ${!showPhone ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-200'}`}>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <label className={`text-xs sm:text-sm font-medium ${!showPhone ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-200'}`}>
                         Show WhatsApp Link
                       </label>
                       <p className={`text-xs mt-1 ${!showPhone ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'}`}>
@@ -562,67 +663,44 @@ export default function DashboardProfile() {
                       checked={showWhatsapp && showPhone}
                       onCheckedChange={(checked) => handlePrivacySettingChange('show_whatsapp', checked)}
                       disabled={!showPhone}
-                      className="ml-4"
+                    className="ml-2 sm:ml-4 flex-shrink-0"
                     />
                   </div>
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm sm:text-base font-semibold mb-2 text-gray-700 dark:text-gray-200">Username</label>
-                <div className="relative">
-                  <Input
-                    className="w-full bg-white/95 dark:bg-[#1A1D24]/90 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 sm:py-4 focus:ring-2 focus:ring-scan-blue/30 focus:border-scan-blue/50 transition-all text-sm sm:text-base shadow-sm hover:shadow-md"
-                    value={slug}
-                    onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                    placeholder="your-username"
-                  />
-                  {checkingSlug && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                  )}
-                </div>
-                {slug && (
-                  <div className="mt-2 text-sm">
-                    {checkingSlug ? (
-                      <span className="text-gray-500">Checking availability...</span>
-                    ) : slugAvailable ? (
-                      <span className="text-green-600 font-medium">✓ Available</span>
-                    ) : (
-                      <span className="text-red-600 font-medium">✗ Username taken</span>
-                    )}
-                  </div>
-                )}
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2 break-all bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
-                  Your profile will be available at: <span className="font-mono text-scan-blue">{window.location.origin}/{slug || 'your-username'}</span>
-                </p>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
       {/* Social Links Card */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className={cardBase}
+          transition={{ delay: 0.3 }}
         >
-        <h3 className={cardTitle}>Social Links</h3>
-          <p className={cardDesc}>Add your social profiles and websites to create a complete digital presence.</p>
-
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                <AtSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                <span>Social Links</span>
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                Add your social profiles and websites to create a complete digital presence.
+                Your links will be displayed beautifully on your profile page.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6 space-y-3 sm:space-y-4 lg:space-y-6">
           {/* Plan Status Display */}
           {planFeatures.isFreeUser && (
-            <div className="mb-6 p-3 sm:p-4 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 rounded-xl border border-scan-blue/20">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="p-3 sm:p-4 lg:p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-scan-blue flex items-center gap-2 mb-1">
+                      <h4 className="font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1.5 sm:gap-2 mb-1 text-xs sm:text-sm">
                     🆓 Free Plan
                     <Badge variant="outline" className="text-xs">
                       {remainingLinks === Infinity ? 'Unlimited' : `${remainingLinks} remaining`}
                     </Badge>
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
                     {remainingLinks > 0 
                       ? `You can add ${remainingLinks === Infinity ? 'unlimited' : remainingLinks} more links` 
                       : 'You\'ve reached your 7-link limit'
@@ -631,8 +709,8 @@ export default function DashboardProfile() {
                 </div>
                 <div className="flex-shrink-0">
                   <RouterLink to="/dashboard/settings?section=subscription">
-                    <Button size="sm" className="bg-gradient-to-r from-scan-blue to-scan-purple text-white w-full sm:w-auto">
-                      <Crown className="w-4 h-4 mr-1" />
+                        <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white w-full sm:w-auto text-xs h-8">
+                          <Crown className="w-3 h-3 mr-1" />
                       Upgrade
                     </Button>
                   </RouterLink>
@@ -641,158 +719,25 @@ export default function DashboardProfile() {
             </div>
           )}
 
-          {/* Layout Style Toggle - Show when user has social links or would benefit from layout options */}
-          {(socialLinks.length > 0 || profile?.onboarding_complete) && (
-            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Profile Display Style</h4>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">Choose how your social media links appear on your profile page</p>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleSocialLayoutChange('grid')}
-                  disabled={planFeatures.isFreeUser}
-                  className={`flex-1 p-3 rounded-lg border-2 transition-all relative ${
-                    socialLayoutStyle === 'grid'
-                      ? 'border-scan-blue bg-scan-blue/10 text-scan-blue'
-                      : planFeatures.isFreeUser
-                      ? 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                  }`}
-                >
-                  {planFeatures.isFreeUser && (
-                    <div className="absolute -top-1 -right-1 bg-scan-purple text-white text-xs px-1.5 py-0.5 rounded-full">
-                      PRO
-                    </div>
-                  )}
-                  <div className="text-center">
-                    <div className="text-lg mb-1">⊞</div>
-                    <div className="text-sm font-medium">Grid Layout</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Square cards in rows</div>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSocialLayoutChange('horizontal')}
-                  className={`flex-1 p-3 rounded-lg border-2 transition-all ${
-                    socialLayoutStyle === 'horizontal'
-                      ? 'border-scan-blue bg-scan-blue/10 text-scan-blue'
-                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                  }`}
-                >
-                  <div className="text-center">
-                    <div className="text-lg mb-1">☰</div>
-                    <div className="text-sm font-medium">Horizontal Layout</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Full-width cards stacked</div>
-                  </div>
-                </button>
-              </div>
-              {planFeatures.isFreeUser && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-                  Grid layout is available with Pro plan
-                </p>
-              )}
-            </div>
-          )}
 
-          {/* Preset Social Icons */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 mb-8">
+
+              {/* Social Platform Presets */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
             {availablePresets.map(preset => (
               <button
                 key={preset.label}
-                className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 lg:p-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-[#1A1D24]/90 hover:bg-scan-blue/5 dark:hover:bg-scan-blue/10 hover:border-scan-blue/30 transition-all focus:outline-none focus:ring-2 focus:ring-scan-blue/30 shadow-sm hover:shadow-lg min-w-0 group"
+                    className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/30 shadow-sm hover:shadow-md min-w-0 group"
                 onClick={() => handlePresetClick(preset)}
                 type="button"
               >
-                <preset.icon className="text-xl sm:text-2xl lg:text-3xl flex-shrink-0 group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm lg:text-base font-medium truncate min-w-0">{preset.label}</span>
+                    <preset.icon className="text-sm sm:text-lg flex-shrink-0 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-medium truncate min-w-0">{preset.label}</span>
               </button>
             ))}
           </div>
 
-          {/* Social Add Dialog */}
-          {showSocialDialog && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
-              <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowSocialDialog(false)} />
-              <motion.div 
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="relative z-10 bg-white/95 dark:bg-[#1A1D24]/95 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 w-full max-w-md mx-3"
-              >
-                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                  <selectedSocial.icon className="text-xl sm:text-2xl" />
-                  <h4 className="text-base sm:text-lg font-semibold">Add {selectedSocial?.label}</h4>
-                </div>
-                
-                <div className="space-y-4">
-                  <Input
-                    autoFocus
-                    placeholder={selectedSocial?.placeholder}
-                    value={socialInput}
-                    onChange={e => setSocialInput(e.target.value)}
-                    className={`text-sm transition-all ${
-                      socialInput && !socialPreview.isValid 
-                        ? 'border-red-300 focus:border-red-500 focus:ring-red-200' 
-                        : socialInput && socialPreview.isValid 
-                        ? 'border-green-300 focus:border-green-500 focus:ring-green-200'
-                        : ''
-                    }`}
-                  />
-                  
-                  {/* Real-time validation feedback */}
-                  {socialInput && (
-                    <div className="space-y-2">
-                      <div className={`flex items-center gap-2 text-xs ${
-                        socialPreview.isValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                      }`}>
-                        {socialPreview.isValid ? (
-                          <CheckCircle className="w-4 h-4" />
-                        ) : (
-                          <AlertCircle className="w-4 h-4" />
-                        )}
-                        <span>
-                          {socialPreview.isValid 
-                            ? 'Valid input detected' 
-                            : 'Please enter a valid username or URL'
-                          }
-                        </span>
-                      </div>
-                      
-                      {/* URL Preview */}
-                      {socialPreview.isValid && socialPreview.url && (
-                        <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border">
-                          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Preview:</div>
-                          <div className="text-sm font-mono text-scan-blue dark:text-scan-blue-light break-all">
-                            {socialPreview.url}
-                          </div>
-                          {socialPreview.username && selectedSocial.key !== 'website' && (
-                            <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">
-                              Username: <span className="font-medium">{getDisplayUsername(socialPreview.url, selectedSocial.key)}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex gap-2 justify-end mt-6">
-                  <Button variant="outline" onClick={() => setShowSocialDialog(false)} className="text-sm">
-                    Cancel
-                  </Button>
-                  <Button 
-                    onClick={handleAddSocial} 
-                    disabled={!socialInput || !socialPreview.isValid} 
-                    className="text-sm"
-                  >
-                    Add {selectedSocial?.label}
-                  </Button>
-                </div>
-              </motion.div>
-            </div>
-          )}
-
-          {/* Social Links List */}
-          <div className="space-y-3 sm:space-y-4">
+              {/* Added Social Links */}
+              <div className="space-y-2 sm:space-y-3">
             {socialLinks.map((link: any, idx: number) => {
               const preset = SOCIAL_PRESETS.find(p => p.label === link.label);
               const Icon = preset ? preset.icon : null;
@@ -805,133 +750,319 @@ export default function DashboardProfile() {
                   key={idx}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl bg-white/95 dark:bg-[#1A1D24]/90 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all min-w-0 group"
+                      className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all min-w-0 group"
                 >
                   {Icon && (
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-scan-blue/20 dark:group-hover:bg-scan-blue/30 transition-colors">
-                      <Icon className="text-xl sm:text-2xl text-scan-blue" />
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
+                          <Icon className="text-sm sm:text-lg text-blue-600 dark:text-blue-400" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="text-sm sm:text-base font-semibold truncate text-gray-900 dark:text-white">
+                        <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                          <div className="text-xs sm:text-sm font-medium truncate text-gray-900 dark:text-white">
                         {link.label}
                       </div>
                       {displayUsername && (
-                        <div className="text-xs sm:text-sm text-scan-blue dark:text-scan-blue-light font-medium bg-scan-blue/10 dark:bg-scan-blue/20 px-2 py-1 rounded-md flex-shrink-0">
+                            <div className="text-xs text-blue-600 dark:text-blue-400 font-medium bg-blue-50 dark:bg-blue-900/20 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md flex-shrink-0">
                           {displayUsername}
                         </div>
                       )}
                     </div>
-                    <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{link.url}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{link.url}</div>
                   </div>
                   <Button 
                     type="button"
                     variant="ghost" 
                     size="icon"
-                    className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex-shrink-0" 
+                        className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 h-7 w-7 sm:h-9 sm:w-9 rounded-lg flex-shrink-0" 
                     onClick={() => handleRemoveLink(links.indexOf(link))}
                   >
-                    <X className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <X className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 </motion.div>
               );
             })}
           </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
-        {/* Custom Links Section */}
+        {/* Custom Links Card */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className={cardBase}
+          transition={{ delay: 0.4 }}
         >
-            <h3 className={cardTitle}>Custom Links</h3>
-            <p className={cardDesc}>Add any other links you want to share. For example, your website, portfolio, or any other resource.</p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8">
-              <Input
-                className="flex-1 bg-white/95 dark:bg-[#1A1D24]/90 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 sm:py-4 focus:ring-2 focus:ring-scan-blue/30 focus:border-scan-blue/50 transition-all text-sm sm:text-base shadow-sm hover:shadow-md"
-                placeholder="Label (e.g. Portfolio)"
-                value={newLink.label}
-                onChange={e => setNewLink({ ...newLink, label: e.target.value })}
-              />
-              <Input
-                className="flex-1 bg-white/95 dark:bg-[#1A1D24]/90 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 sm:py-4 focus:ring-2 focus:ring-scan-blue/30 focus:border-scan-blue/50 transition-all text-sm sm:text-base shadow-sm hover:shadow-md"
-                placeholder="URL (e.g. https://...)"
-                value={newLink.url}
-                onChange={e => setNewLink({ ...newLink, url: e.target.value })}
-              />
-              <Button onClick={handleAddLink} className="h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base bg-scan-blue hover:bg-scan-blue-dark shadow-lg hover:shadow-xl transition-all rounded-xl font-medium" disabled={!newLink.label || !newLink.url}>
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                Add Link
-              </Button>
-            </div>
-            <div className="space-y-3 sm:space-y-4">
-              {customLinks.length === 0 && (
-                <div className="text-center py-8 sm:py-12">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
-                    <LinkIcon className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
-                  </div>
-                  <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">No custom links added yet.</p>
-                  <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 mt-1">Add your website, portfolio, or any other links above.</p>
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                <LinkIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                <span>Custom Links</span>
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                Add any other links you want to share. For example, your website, portfolio, or any other resource.
+                These will appear alongside your social media links.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6 space-y-3 sm:space-y-4 lg:space-y-6">
+              {/* Link Input Form */}
+              <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                  <Input
+                    className="flex-1 text-sm"
+                    placeholder="Label (e.g. Portfolio)"
+                    value={newLink.label}
+                    onChange={e => setNewLink({ ...newLink, label: e.target.value })}
+                  />
+                  <Input
+                    className="flex-1 text-sm"
+                    placeholder="URL (e.g. https://...)"
+                    value={newLink.url}
+                    onChange={e => setNewLink({ ...newLink, url: e.target.value })}
+                  />
                 </div>
-              )}
-              {customLinks.map((link: any, idx: number) => (
-                <motion.div 
-                  key={idx}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl bg-white/95 dark:bg-[#1A1D24]/90 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all min-w-0 group"
+                
+                {/* Thumbnail Upload Section */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <ImageIcon className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Thumbnail</span>
+                  </div>
+                  
+                  {thumbnailFile ? (
+                    <div className="flex items-center gap-2 flex-1 w-full">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 flex-shrink-0">
+                        <img 
+                          src={URL.createObjectURL(thumbnailFile)} 
+                          alt="Thumbnail preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={removeThumbnail}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 h-7 w-7 sm:h-8 sm:w-8 p-0 flex-shrink-0"
+                      >
+                        <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 flex-1 w-full">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setThumbnailFile(file);
+                            setShowThumbnailModal(true);
+                          }
+                        }}
+                        className="hidden"
+                        id="thumbnail-upload"
+                      />
+                      <label
+                        htmlFor="thumbnail-upload"
+                        className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-colors flex-shrink-0"
+                      >
+                        <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="hidden sm:inline">Upload Icon</span>
+                        <span className="sm:hidden">Upload</span>
+                      </label>
+                      <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex-1">
+                        Optional - Add a custom icon for your link
+                      </span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Add Link Button */}
+                <Button 
+                  onClick={handleAddLink} 
+                  className="w-full sm:w-auto h-9 sm:h-10 text-xs sm:text-sm" 
+                  disabled={!newLink.label || !newLink.url || uploadingThumbnail}
                 >
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-scan-blue/20 dark:group-hover:bg-scan-blue/30 transition-colors">
-                    <ExternalLink className="w-5 h-5 sm:w-6 sm:h-6 text-scan-blue" />
+                  {uploadingThumbnail ? (
+                    <>
+                      <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1 sm:mr-2" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      Add Link
+                    </>
+                  )}
+                </Button>
+              </div>
+              
+              {/* Custom Links List */}
+              <div className="space-y-2 sm:space-y-3">
+                {customLinks.length === 0 && (
+                  <div className="text-center py-6 sm:py-8">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                      <LinkIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+                    </div>
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">No custom links added yet.</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Add your website, portfolio, or any other links above.</p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm sm:text-base font-semibold truncate text-gray-900 dark:text-white">{link.label}</div>
-                    <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{link.url}</div>
-                  </div>
-                  <Button 
-            type="button"
-                    variant="ghost" 
-                    size="icon"
-                    className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex-shrink-0" 
-                    onClick={() => handleRemoveLink(links.indexOf(link))}
+                )}
+                {customLinks.map((link: any, idx: number) => (
+                  <motion.div 
+                    key={idx}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all min-w-0 group"
                   >
-                    <X className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </Button>
-                </motion.div>
-              ))}
-        </div>
+                    {/* Thumbnail or Default Icon */}
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors overflow-hidden">
+                      {link.thumbnail ? (
+                        <img 
+                          src={link.thumbnail} 
+                          alt={`${link.label} thumbnail`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
+                      )}
+                    </div>
+                    
+                    {/* Link Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs sm:text-sm font-medium truncate text-gray-900 dark:text-white">{link.label}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{link.url}</div>
+                    </div>
+                    
+                    {/* Remove Button */}
+                    <Button 
+                      type="button"
+                      variant="ghost" 
+                      size="icon"
+                      className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 h-7 w-7 sm:h-9 sm:w-9 rounded-lg flex-shrink-0" 
+                      onClick={() => handleRemoveLink(links.indexOf(link))}
+                    >
+                      <X className="h-3 w-3 sm:h-4 sm:w-4" />
+                    </Button>
+                  </motion.div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
           </motion.div>
 
       {/* Save Button */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex justify-center mt-4 mb-8 sm:mb-0"
+          transition={{ delay: 0.5 }}
         >
+          <Card className="overflow-hidden">
+            <CardContent className="pt-4 sm:pt-6 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+              <div className="flex justify-center">
         <Button
           onClick={handleSave}
-            className="h-12 sm:h-14 px-8 sm:px-12 bg-gradient-to-r from-scan-blue to-scan-purple text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl hover:from-scan-blue-dark hover:to-scan-purple/80 transition-all text-sm sm:text-base min-w-[200px] sm:min-w-[240px]"
+                  className="h-10 sm:h-12 px-6 sm:px-8 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-xl shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-purple-600 transition-all text-xs sm:text-sm min-w-[180px] sm:min-w-[200px]"
           disabled={saving}
         >
             {saving ? (
               <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                      <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
                 Saving...
               </>
             ) : (
               <>
-                <Save className="w-5 h-5 mr-2" />
-                {!profile ? 'Create Profile' : 'Save Profile'}
+                      <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                      {!profile ? 'Create Profile' : 'Save Profile'}
               </>
             )}
         </Button>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
-        
       </div>
+
+      {/* Social Add Dialog */}
+      {showSocialDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-3">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowSocialDialog(false)} />
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="relative z-10 bg-white dark:bg-gray-800 backdrop-blur-xl p-4 sm:p-6 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-sm sm:max-w-md mx-2 sm:mx-3"
+          >
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <selectedSocial.icon className="text-lg sm:text-xl" />
+              <h4 className="text-base sm:text-lg font-semibold">Add {selectedSocial?.label}</h4>
+      </div>
+            
+            <div className="space-y-3 sm:space-y-4">
+              <Input
+                autoFocus
+                placeholder={selectedSocial?.placeholder}
+                value={socialInput}
+                onChange={e => setSocialInput(e.target.value)}
+                className={`text-sm transition-all ${
+                  socialInput && !socialPreview.isValid 
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200' 
+                    : socialInput && socialPreview.isValid 
+                    ? 'border-green-300 focus:border-green-500 focus:ring-green-200'
+                    : ''
+                }`}
+              />
+              
+              {socialInput && (
+                <div className="space-y-2">
+                  <div className={`flex items-center gap-2 text-xs ${
+                    socialPreview.isValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                  }`}>
+                    {socialPreview.isValid ? (
+                      <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    ) : (
+                      <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    )}
+                    <span>
+                      {socialPreview.isValid 
+                        ? 'Valid input detected' 
+                        : 'Please enter a valid username or URL'
+                      }
+                    </span>
+                  </div>
+                  
+                  {socialPreview.isValid && socialPreview.url && (
+                    <div className="bg-gray-50 dark:bg-gray-800/50 p-2 sm:p-3 rounded-lg border">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Preview:</div>
+                      <div className="text-xs sm:text-sm font-mono text-blue-600 dark:text-blue-400 break-all">
+                        {socialPreview.url}
+                      </div>
+                      {socialPreview.username && selectedSocial.key !== 'website' && (
+                        <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">
+                          Username: <span className="font-medium">{getDisplayUsername(socialPreview.url, selectedSocial.key)}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            <div className="flex gap-2 justify-end mt-4 sm:mt-6">
+              <Button variant="outline" onClick={() => setShowSocialDialog(false)} className="text-xs sm:text-sm h-8 sm:h-9">
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleAddSocial} 
+                disabled={!socialInput || !socialPreview.isValid} 
+                className="text-xs sm:text-sm h-8 sm:h-9"
+              >
+                Add {selectedSocial?.label}
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Upgrade Prompt Modal */}
       {showUpgradePrompt && (
@@ -942,6 +1073,21 @@ export default function DashboardProfile() {
           feature="links"
           onClose={() => setShowUpgradePrompt(false)}
           showCloseButton={true}
+        />
+      )}
+
+      {/* Thumbnail Upload Modal */}
+      {showThumbnailModal && thumbnailFile && (
+        <ImageCropModal
+          isOpen={showThumbnailModal}
+          initialImage={thumbnailFile}
+          onCropComplete={(croppedImage) => {
+            handleThumbnailUpload(croppedImage);
+          }}
+          onClose={() => setShowThumbnailModal(false)}
+          aspectRatio={1}
+          circular={false}
+          maxFileSize={5}
         />
       )}
     </>

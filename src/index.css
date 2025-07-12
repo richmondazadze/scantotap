@@ -722,3 +722,189 @@ p, span, div, a, li, td, th, label {
 .font-sans, .font-inter {
   font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
 }
+
+/* Scrollbar hide utility for horizontal social sharing */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+/* Slide up animation for mobile modal - Enhanced and Gradual */
+@keyframes slide-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  20% {
+    transform: translateY(80%);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(40%);
+    opacity: 0.6;
+  }
+  80% {
+    transform: translateY(10%);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-down {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  30% {
+    transform: translateY(20%);
+    opacity: 0.8;
+  }
+  70% {
+    transform: translateY(60%);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-slide-down {
+  animation: slide-down 0.4s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+
+/* Share modal specific styling */
+.share-modal-content {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 1.25rem 1.25rem 0 0 !important;
+  max-height: 75vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  background: white !important;
+  box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1), 0 -10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  border: none !important;
+  padding: 0 !important;
+  z-index: 50 !important;
+}
+
+/* Social buttons horizontal scroll container */
+.social-scroll-container {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  padding: 0.5rem 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  height: auto !important;
+}
+
+.social-scroll-container::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Social buttons flex container - Two rows */
+.social-buttons-flex {
+  display: grid !important;
+  grid-template-rows: repeat(2, 1fr) !important;
+  grid-auto-flow: column !important;
+  gap: 0.5rem !important;
+  width: max-content !important;
+  min-width: 100% !important;
+  padding: 0 0.25rem !important;
+  height: auto !important;
+}
+
+/* Ensure individual social buttons maintain their size - Bigger */
+.social-button {
+  flex-shrink: 0 !important;
+  width: 3.5rem !important;
+  height: 3.5rem !important;
+  min-width: 3.5rem !important;
+  min-height: 3.5rem !important;
+  border-radius: 0.75rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Ensure social buttons container doesn't overflow */
+.social-scroll-container .flex {
+  min-width: max-content !important;
+  width: auto !important;
+}
+
+/* Desktop modal positioning - Larger and more responsive */
+@media (min-width: 769px) {
+  .share-modal-content {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    width: auto !important;
+    max-width: 42rem !important;
+    min-width: 38rem !important;
+    border-radius: 1rem !important;
+    max-height: 85vh !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* On desktop, social buttons can have more spacing */
+  .social-buttons-flex {
+    gap: 0.75rem !important;
+    padding: 0 0.5rem !important;
+  }
+  
+  /* Bigger social buttons on desktop */
+  .social-button {
+    width: 4rem !important;
+    height: 4rem !important;
+    min-width: 4rem !important;
+    min-height: 4rem !important;
+  }
+}
+
+/* Extra large screens */
+@media (min-width: 1200px) {
+  .share-modal-content {
+    max-width: 48rem !important;
+    min-width: 44rem !important;
+  }
+  
+  .social-buttons-flex {
+    gap: 1rem !important;
+  }
+  
+  .social-button {
+    width: 4.5rem !important;
+    height: 4.5rem !important;
+    min-width: 4.5rem !important;
+    min-height: 4.5rem !important;
+  }
+}
+
+/* Dark mode support */
+.dark .share-modal-content {
+  background: rgb(17 24 39) !important;
+}

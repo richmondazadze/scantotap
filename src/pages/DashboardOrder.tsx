@@ -31,7 +31,9 @@ import {
   RefreshCw,
   AlertCircle,
   ArrowLeft,
-  ArrowRight
+  ArrowRight,
+  ShoppingCart,
+  Eye
 } from 'lucide-react';
 import Loading from '@/components/ui/loading';
 import GhanaLocationSelector from '@/components/GhanaLocationSelector';
@@ -81,12 +83,38 @@ const convertColorSchemeToOption = (colorScheme: ColorScheme) => ({
 const getFeatures = (cardTypeName: string): string[] => {
   switch (cardTypeName.toLowerCase()) {
     case 'classic':
-      return ['QR Code', 'Contact Info', 'Social Links'];
+      return [
+        'Plastic NFC Card',
+        'QR Code',
+        'Contact Info',
+        'Social Links',
+        'Durable, Water Resistant',
+        'Standard Print'
+      ];
     case 'premium':
-      return ['QR Code', 'Contact Info', 'Social Links', 'Custom Colors', 'Premium Material'];
+      return [
+        'Plastic NFC Card',
+        'QR Code',
+        'Contact Info',
+        'Social Links',
+        'Custom Colors',
+        'Premium Card Print',
+        'Glossy Finish',
+        'Gift Packaging'
+      ];
     case 'elite':
     case 'metal':
-      return ['QR Code', 'Contact Info', 'Social Links', 'Metal Material', 'Laser Engraving', 'Lifetime Warranty'];
+      return [
+        'MFC Metallic Card',
+        'NFC + QR Code',
+        'Contact Info',
+        'Social Links',
+        'Laser Engraving',
+        'Lifetime Warranty',
+        'Premium Gift Box',
+        'Scratch & Water Resistant',
+        'Top-tier Finish'
+      ];
     default:
       return ['QR Code', 'Contact Info', 'Social Links'];
   }
@@ -113,16 +141,9 @@ const getStockStatusBadge = (item: { isAvailable: boolean; hasStockLimit: boolea
   return null;
 };
 
-// Materials are now inherent to each card type - no validation needed
-
 export default function DashboardOrder() {
   useAuthGuard(); // Ensure user is authenticated
   const { profile } = useProfile();
-  
-  // Card styles - mobile-optimized
-  const cardBase = 'relative rounded-xl shadow-lg p-4 sm:p-6 md:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30';
-  const cardTitle = 'text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent';
-  const cardDesc = 'text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 md:mb-8 text-sm sm:text-base leading-relaxed';
   
   // Inventory data state
   const [cardDesigns, setCardDesigns] = useState<Array<ReturnType<typeof convertCardTypeToDesign>>>([]);
@@ -191,8 +212,34 @@ export default function DashboardOrder() {
         if (!selectedColor && availableColors.length > 0) {
           setSelectedColor(availableColors[0]);
         }
+      } catch (error) {
+        console.error('Error loading inventory:', error);
+        toast.error('Failed to load inventory data');
+      } finally {
+        setLoadingInventory(false);
+      }
+    };
+
+    loadInventory();
+  }, []); // Initial load only
+
+  // Update selections when editing order
+  useEffect(() => {
+    if (editingOrder && isEditMode && cardDesigns.length > 0 && colorSchemes.length > 0) {
+      const design = cardDesigns.find(d => d.id === editingOrder.design_id);
+      const color = colorSchemes.find(c => c.id === editingOrder.color_scheme_id);
+      
+      if (design) setSelectedDesign(design);
+      if (color) setSelectedColor(color);
+    }
+  }, [editingOrder, isEditMode, cardDesigns, colorSchemes]);
         
         // Check if currently selected items are still available
+  useEffect(() => {
+    if (cardDesigns.length > 0 && colorSchemes.length > 0) {
+      const availableDesigns = cardDesigns.filter(d => d.isAvailable && !d.isOutOfStock);
+      const availableColors = colorSchemes.filter(c => c.isAvailable && !c.isOutOfStock);
+      
         if (selectedDesign && (!selectedDesign.isAvailable || selectedDesign.isOutOfStock)) {
           const fallback = availableDesigns.find(d => d.name === 'Premium') || availableDesigns[0];
           setSelectedDesign(fallback || null);
@@ -207,25 +254,8 @@ export default function DashboardOrder() {
             toast.warning('Your selected color is no longer available');
           }
         }
-        
-        // If editing an order, set selections based on order data
-        if (editingOrder && isEditMode) {
-          const design = designs.find(d => d.id === editingOrder.design_id);
-          const color = colors.find(c => c.id === editingOrder.color_scheme_id);
-          
-          if (design) setSelectedDesign(design);
-          if (color) setSelectedColor(color);
-        }
-      } catch (error) {
-        console.error('Error loading inventory:', error);
-        toast.error('Failed to load inventory data');
-      } finally {
-        setLoadingInventory(false);
-      }
-    };
-
-    loadInventory();
-  }, []);
+    }
+  }, [selectedDesign, selectedColor, cardDesigns, colorSchemes]);
 
   // Load order if in edit mode
   useEffect(() => {
@@ -248,33 +278,32 @@ export default function DashboardOrder() {
             return;
           }
           
-          // Populate form with existing order data (will be set once inventory loads)
-          // Note: Selection will be updated when inventory loads in the effect above
-          setQuantity(order.quantity);
-          
+          // Pre-fill order form with existing data
           setOrderForm({
-            firstName: order.customer_first_name,
-            lastName: order.customer_last_name,
-            email: order.customer_email,
+            firstName: order.customer_first_name || '',
+            lastName: order.customer_last_name || '',
+            email: order.customer_email || '',
             phone: order.customer_phone || '',
-            address: order.shipping_address,
-            city: order.shipping_city,
-            state: order.shipping_state,
-            zipCode: order.shipping_zip_code,
-            country: order.shipping_country,
+            address: order.shipping_address || '',
+            city: order.shipping_city || '',
+            state: order.shipping_state || '',
+            zipCode: order.shipping_zip_code || '',
+            country: order.shipping_country || 'Ghana',
             specialInstructions: order.special_instructions || ''
           });
           
-          // Go directly to shipping step for editing
+          // Set quantity
+          setQuantity(order.quantity);
+          
+          // Show order form
           setShowOrderForm(true);
-          setCheckoutStep('shipping');
         } else {
-          toast.error('Order not found');
+          toast.error(result.error || 'Order not found');
           window.location.href = '/dashboard/shipping';
         }
       } catch (error) {
-        console.error('Error loading order:', error);
-        toast.error('Failed to load order');
+        console.error('Error loading order for edit:', error);
+        toast.error('Failed to load order details');
         window.location.href = '/dashboard/shipping';
       } finally {
         setLoadingOrder(false);
@@ -284,50 +313,43 @@ export default function DashboardOrder() {
     loadOrderForEdit();
   }, [editOrderId]);
 
-  // Calculate total price
-  const basePrice = selectedDesign?.price || 0;
-  const subtotal = basePrice * quantity;
-  const shipping = ghanaLocation.shippingCost; // Use Ghana location-based shipping
-  const tax = subtotal * 0.08; // 8% tax
-  const total = subtotal + shipping + tax;
-
   const handleQuantityChange = (change: number) => {
-    const newQuantity = Math.max(1, Math.min(100, quantity + change));
-    setQuantity(newQuantity);
+    setQuantity(Math.max(1, quantity + change));
   };
 
   const handleOrderFormChange = (field: string, value: string) => {
     setOrderForm(prev => ({ ...prev, [field]: value }));
   };
 
-  // Handle Ghana location selection
   const handleGhanaLocationSelect = (city: string, region: string, shippingCost: number, deliveryDays: string) => {
-    setGhanaLocation({ city, region, shippingCost, deliveryDays });
+    setGhanaLocation({
+      city,
+      region,
+      shippingCost,
+      deliveryDays
+    });
     
-    // Update order form with location
+    // Update order form with location data
     setOrderForm(prev => ({
       ...prev,
       city,
-      state: region,
-      country: 'Ghana'
+      state: region
     }));
   };
 
-  // Handle checkout step navigation
   const handleLocationStepContinue = () => {
-    if (!ghanaLocation.city) {
-      toast.error('Please select your location to continue');
+    if (!ghanaLocation.city || !ghanaLocation.region) {
+      toast.error('Please select your delivery location');
       return;
     }
+    
     setCheckoutStep('shipping');
-    // Scroll to top when moving to shipping step
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setShowOrderForm(true);
   };
 
   const handleBackToLocation = () => {
     setCheckoutStep('location');
-    // Scroll to top when going back to location step
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setShowOrderForm(false);
   };
 
   const handleCancelOrder = async (orderId: string) => {
@@ -342,10 +364,8 @@ export default function DashboardOrder() {
       
       if (result.success) {
         toast.success('Order cancelled successfully');
-        // Redirect to shipping page to see updated status
-        setTimeout(() => {
+        // Redirect to shipping page
           window.location.href = '/dashboard/shipping';
-        }, 1500);
       } else {
         toast.error(result.error || 'Failed to cancel order');
       }
@@ -358,927 +378,630 @@ export default function DashboardOrder() {
   };
 
   const handlePlaceOrder = async () => {
-    // Validate required fields
-    const requiredFields = ['firstName', 'lastName', 'email', 'address', 'city', 'state', 'zipCode'];
-    const missingFields = requiredFields.filter(field => !orderForm[field]);
-    
-    if (missingFields.length > 0) {
-      toast.error('Please fill in all required fields');
+    if (!selectedDesign || !selectedColor) {
+      toast.error('Please select a design and color');
       return;
     }
     
-    // Validate selections
-    if (!selectedDesign || !selectedColor) {
-      toast.error('Please complete your card selection');
+    // Basic form validation
+    const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address'];
+    const missingFields = requiredFields.filter(field => !orderForm[field as keyof typeof orderForm]);
+    
+    if (missingFields.length > 0) {
+      toast.error(`Please fill in: ${missingFields.join(', ')}`);
       return;
     }
 
     setIsSubmittingOrder(true);
     
     try {
-      // Determine material based on card type
       const getMaterialForCardType = (cardTypeName: string) => {
-        const name = cardTypeName.toLowerCase();
-        if (name === 'elite' || name === 'metal') {
-          return { id: 'metal', name: 'Metal' };
-        } else {
-          return { id: 'plastic', name: 'Plastic' };
+        switch (cardTypeName.toLowerCase()) {
+          case 'classic':
+            return 'plastic';
+          case 'premium':
+            return 'premium_plastic';
+          case 'elite':
+          case 'metal':
+            return 'metal';
+          default:
+            return 'plastic';
         }
       };
 
-      const material = getMaterialForCardType(selectedDesign.name);
-
       const orderData: OrderData = {
-        // Design details
         design_id: selectedDesign.id,
         design_name: selectedDesign.name,
         design_price: selectedDesign.price,
-        
-        // Material details (auto-selected based on card type)
-        material_id: material.id,
-        material_name: material.name,
-        
-        // Color scheme
+        material_id: selectedDesign.id, // Using design ID as material is inherent to design
+        material_name: getMaterialForCardType(selectedDesign.name),
         color_scheme_id: selectedColor.id,
         color_scheme_name: selectedColor.name,
         color_primary: selectedColor.primary,
-        color_secondary: selectedColor.secondary,
-        
-        // Quantity and pricing
+        color_secondary: selectedColor.secondary || selectedColor.primary,
         quantity,
-        subtotal,
-        shipping,
-        tax,
-        total,
-        
-        // Customer information
+        subtotal: selectedDesign.price * quantity,
+        shipping: ghanaLocation.shippingCost,
+        tax: 0, // No tax for now
+        total: (selectedDesign.price * quantity) + ghanaLocation.shippingCost,
+        currency: 'GHS',
         customer_first_name: orderForm.firstName,
         customer_last_name: orderForm.lastName,
         customer_email: orderForm.email,
-        customer_phone: orderForm.phone || undefined,
-        
-        // Shipping address
+        customer_phone: orderForm.phone,
         shipping_address: orderForm.address,
         shipping_city: orderForm.city,
         shipping_state: orderForm.state,
         shipping_zip_code: orderForm.zipCode,
         shipping_country: orderForm.country,
-        special_instructions: orderForm.specialInstructions || undefined,
+        special_instructions: orderForm.specialInstructions
       };
 
-      let orderResult;
+      let result;
       
       if (isEditMode && editingOrder) {
         // Update existing order
-        orderResult = await orderService.updateOrder(editingOrder.id, orderData);
-        if (!orderResult.success || !orderResult.order) {
-          toast.error(orderResult.error || 'Failed to update order. Please try again.');
-          return;
-        }
+        result = await orderService.updateOrder(editingOrder.id, orderData);
       } else {
         // Create new order
-        orderResult = await orderService.createOrder(orderData);
-        if (!orderResult.success || !orderResult.order) {
-          toast.error(orderResult.error || 'Failed to create order. Please try again.');
-          return;
-        }
+        result = await orderService.createOrder(orderData);
       }
 
-      // Prepare payment data
-      const paymentReference = paymentService.generateReference();
-      const paymentData: PaymentData = {
+      if (result.success && result.order) {
+        const order = result.order;
+        
+        // Calculate total amount (base price + quantity + shipping)
+        const basePrice = selectedDesign.price || 0;
+        const totalAmount = (basePrice * quantity) + ghanaLocation.shippingCost;
+
+        // Prepare PaymentData
+        const paymentData = {
         email: orderForm.email,
-        amount: paymentService.toPesewas(total), // Convert to pesewas
+          amount: paymentService.toPesewas(totalAmount),
         currency: 'GHS',
-        reference: paymentReference,
-        orderId: orderResult.order.id,
+          reference: paymentService.generateReference(),
+          orderId: order.id,
         customerName: `${orderForm.firstName} ${orderForm.lastName}`,
-        phone: orderForm.phone,
+          phone: orderForm.phone
       };
 
-      // Process payment with Paystack
       const paymentResult = await paymentService.processPayment(paymentData);
       
       if (paymentResult.success) {
-        // Payment successful - verify payment
-        const verificationResult = await paymentService.verifyPayment(paymentResult.reference!);
-        
-        if (verificationResult.success) {
-          // Update order status to confirmed
-          await orderService.updateOrderStatus(orderResult.order.id, 'confirmed');
-          
-          const actionText = isEditMode ? 'updated and confirmed' : 'confirmed';
-          toast.success(`Payment successful! Order ${orderResult.order.order_number} has been ${actionText}. You will receive a confirmation email shortly.`);
-          
-          // Reset form and edit mode
-          setShowOrderForm(false);
-          setIsEditMode(false);
-          setEditingOrder(null);
-          setOrderForm({
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-            address: '',
-            city: '',
-            state: '',
-            zipCode: '',
-            country: 'Ghana',
-            specialInstructions: ''
-          });
-          
-          // Clear URL parameters
-          window.history.replaceState({}, document.title, window.location.pathname);
-          
-          // Redirect to shipping page to track order
-          setTimeout(() => {
-            window.location.href = '/dashboard/shipping';
-          }, 2000);
+          // Optionally, show a success message or redirect to a thank you page
+          toast.success('Payment completed!');
+          // You may want to verify payment or redirect here
         } else {
-          toast.error('Payment verification failed. Please contact support.');
+          toast.error(paymentResult.error || 'Failed to initiate payment');
         }
       } else {
-        // Payment failed or cancelled
-        if (paymentResult.error !== 'Payment was cancelled') {
-          toast.error(paymentResult.error || 'Payment processing failed. Please try again.');
-        }
-        // Order remains in pending status for retry
+        toast.error(result.error || `Failed to ${isEditMode ? 'update' : 'create'} order`);
       }
     } catch (error) {
       console.error('Error placing order:', error);
-      toast.error('An unexpected error occurred. Please try again.');
+      toast.error('An unexpected error occurred');
     } finally {
       setIsSubmittingOrder(false);
     }
   };
 
-  if (loadingOrder || loadingInventory) {
+  if (loadingInventory || (loadingOrder && isEditMode)) {
     return (
-      <div className="flex justify-center items-center h-full flex-1 pb-24 sm:pb-6 w-full px-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6 text-center">
-            <Loading size="lg" text={loadingOrder ? "Loading order details..." : "Loading inventory..."} />
-            <h3 className="text-lg font-semibold mb-2">{loadingOrder ? "Loading Order" : "Loading Inventory"}</h3>
-            <p className="text-gray-600 mb-4">{loadingOrder ? "Please wait while we load your order details..." : "Please wait while we load available options..."}</p>
-          </CardContent>
-        </Card>
+      <div className="space-y-3 sm:space-y-4 lg:space-y-6 pb-20 lg:pb-8 pt-3 sm:pt-4 lg:pt-6 overflow-x-hidden">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <Loading size="lg" text={loadingInventory ? "Loading inventory..." : "Loading order..."} />
       </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="flex justify-center items-center h-full flex-1 pb-24 sm:pb-6 w-full px-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6 text-center">
-            <User className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-            <h3 className="text-lg font-semibold mb-2">Profile Required</h3>
-            <p className="text-gray-600 mb-4">Please complete your profile before ordering a card.</p>
-            <Button onClick={() => window.location.href = '/dashboard/profile'}>
-              Complete Profile
-            </Button>
-          </CardContent>
-        </Card>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full mb-6 sm:mb-10 md:mb-12 lg:mb-16 gap-4 sm:gap-6 md:gap-8 lg:gap-10 mt-2 sm:mt-4 md:mt-6 lg:mt-8 px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16">
-      {!showOrderForm ? (
-        <>
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6 pb-20 lg:pb-8 pt-3 sm:pt-4 lg:pt-6 overflow-x-hidden">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-2 sm:mb-3 px-1 sm:px-2 leading-tight">
-              {isEditMode ? 'Modify Your Order' : 'Order Your Physical Business Cards'}
+        className="mb-4 sm:mb-6 lg:mb-8"
+      >
+        <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-2">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+            <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 dark:text-white leading-tight">
+              {isEditMode ? 'Edit Order' : 'Order Physical Cards'}
             </h1>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300 px-1 sm:px-2 leading-relaxed max-w-4xl mx-auto">
-              {isEditMode 
-                ? 'Update your order details and retry payment'
-                : 'Choose your design, customize your card, and get it delivered to your door'
-              }
+            <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
+              {isEditMode ? 'Modify your pending order details' : 'Get your digital profile printed on premium business cards'}
             </p>
+          </div>
+        </div>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
-            {/* Left Column - Design Selection */}
-            <div className="lg:col-span-2 space-y-4 sm:space-y-6 md:space-y-8">
-              {/* Card Designs */}
+      {!showOrderForm ? (
+        <>
+          {/* Split Layout for Large Screens */}
+          <div className="grid grid-cols-1 xl:grid-cols-7 gap-3 sm:gap-4 lg:gap-6">
+            {/* Left Side - Card Design Selection (4/7 width) */}
+            <div className="xl:col-span-4 space-y-3 sm:space-y-4 lg:space-y-6">
+              {/* Card Design Selection - stacked vertically on large screens */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className={cardBase}
               >
-                <h2 className={cardTitle}>Choose Your Design</h2>
-                <p className={cardDesc}>Select the perfect design for your physical business cards</p>
-                
-                <div className="space-y-4 sm:space-y-6">
+                <Card className="overflow-hidden">
+                  <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                      <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                      <span>Choose Your Card Design</span>
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                      Select the perfect card design for your business needs
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+                    <div className="flex flex-col gap-4">
                   {cardDesigns.map((design) => {
-                    const isUnavailable = !design.isAvailable || design.isOutOfStock;
+                        const getCardImage = (designName: string) => {
+                          switch (designName.toLowerCase()) {
+                            case 'classic':
+                              return '/classic-card.png';
+                            case 'premium':
+                              return '/prem_card.png';
+                            case 'elite':
+                            case 'metal':
+                              return '/metal_card.png';
+                            default:
+                              return '/classic-card.png';
+                          }
+                        };
                     return (
                       <div
                         key={design.id}
-                        className={`relative rounded-2xl border-2 p-4 sm:p-6 transition-all duration-300 ${
-                          isUnavailable 
-                            ? 'opacity-50 cursor-not-allowed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800' 
-                            : `cursor-pointer hover:shadow-lg ${
+                        className={`relative cursor-pointer rounded-xl border-2 transition-all p-3 sm:p-4 lg:p-6 flex flex-col md:flex-row gap-4 items-center ${
                                 selectedDesign?.id === design.id
-                                  ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg'
-                                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                              }`
-                        }`}
+                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg'
+                                : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md'
+                            } ${!design.isAvailable || design.isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        style={{ paddingTop: '2.5rem' }} // Add extra top padding for mobile so price badge doesn't cover content
                         onClick={() => {
-                          if (isUnavailable) {
-                            toast.error(`${design.name} design is currently out of stock`);
-                            return;
-                          }
+                              if (design.isAvailable && !design.isOutOfStock) {
                           setSelectedDesign(design);
+                              }
                         }}
                       >
-                      {/* Stock Status Badge */}
                       {getStockStatusBadge(design)}
-                      
-                      {design.popular && !isUnavailable && (
-                        <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-scan-blue to-scan-purple text-white shadow-lg z-10">
-                          <Star className="w-3 h-3 mr-1 fill-current" />
-                          Popular
-                        </Badge>
-                      )}
-                      
-                      {/* Mobile-optimized layout */}
-                      <div className="flex flex-col gap-4">
-                        {/* Mobile: Card Preview */}
-                        <div className="w-full max-w-xs mx-auto sm:max-w-sm md:hidden">
-                          <CardDesignPreview 
-                            design={design}
-                            profile={profile}
-                            colorScheme={selectedColor}
-                            className="w-full"
-                          />
-                        </div>
-                        
-                        {/* Desktop/Tablet: Row layout */}
-                        <div className="hidden md:flex gap-4 lg:gap-6 items-start">
-                        {/* Card Preview */}
-                          <div className="w-48 lg:w-52 xl:w-56 flex-shrink-0">
-                          <CardDesignPreview 
-                            design={design}
-                            profile={profile}
-                            colorScheme={selectedColor}
-                            className="w-full"
-                          />
-                        </div>
-                        
-                        {/* Card Details */}
-                        <div className="flex-1 min-w-0">
-                            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 lg:gap-4 mb-4">
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-lg lg:text-xl text-gray-900 dark:text-white mb-2">{design.name}</h3>
-                                <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400 leading-relaxed">{design.description}</p>
-                            </div>
-                              <div className="text-2xl lg:text-3xl font-bold font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent lg:text-right tracking-wider">₵{design.price}</div>
-                          </div>
-                          
-                            {/* Features */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-3">
-                            {design.features.map((feature, idx) => (
-                                <div key={idx} className="flex items-center gap-3 text-sm lg:text-base text-gray-600 dark:text-gray-400">
-                                  <div className="w-5 h-5 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
-                                  </div>
-                                  <span className="leading-tight">{feature}</span>
-                                </div>
-                              ))}
+                        {/* Popular Ribbon Badge */}
+                        {design.popular && (
+                          <div className="absolute -top-3 -left-3 z-30">
+                            <div className="transform -rotate-12">
+                              <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-500 shadow-xl text-white font-bold text-xs tracking-wide border-2 border-white dark:border-gray-900 drop-shadow-lg animate-pulse">
+                                <Star className="w-3 h-3 mr-1 text-white animate-bounce" />
+                                Popular
+                              </span>
                             </div>
                           </div>
+                        )}
+                        {/* Price at top right, floating above content */}
+                        <div className="absolute top-2 right-2 z-20 flex flex-col items-end gap-1 pointer-events-none select-none">
+                          <span className="inline-flex items-center px-2.5 py-1.5 rounded-full bg-gradient-to-r from-blue-500 via-blue-400 to-blue-600 shadow-lg text-white font-bold text-sm tracking-wide border-2 border-white dark:border-gray-900 drop-shadow-md">
+                            ₵{design.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            <span className="ml-1 text-xs font-medium text-blue-100">GHS</span>
+                          </span>
                         </div>
-
-                        {/* Mobile: Card Details */}
-                        <div className="md:hidden">
-                          <div className="text-center mb-4">
-                            <h3 className="font-semibold text-xl text-gray-900 dark:text-white mb-2">{design.name}</h3>
-                            <div className="text-3xl font-bold font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent tracking-wider mb-3">₵{design.price}</div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{design.description}</p>
-                          </div>
-                          
-                          {/* Features - mobile optimized */}
-                          <div className="space-y-2">
-                            {design.features.map((feature, idx) => (
-                              <div key={idx} className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
-                                <div className="w-5 h-5 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                                  <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
-                                </div>
-                                <span className="leading-tight">{feature}</span>
-                              </div>
+                        {/* Card image and content */}
+                        <div className="aspect-[1.6/1] w-64 min-w-[240px] max-w-[320px] mb-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 flex-shrink-0">
+                          <img
+                            src={getCardImage(design.name)}
+                            alt={`${design.name} card design`}
+                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder.svg';
+                            }}
+                          />
+                        </div>
+                        <div className="flex-1 text-left space-y-2">
+                          <div className="text-lg font-semibold">{design.name}</div>
+                          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{design.description}</div>
+                          <div className="flex flex-wrap gap-1">
+                            {design.features.map((feature) => (
+                              <Badge key={feature} variant="secondary" className="text-xs">
+                                {feature}
+                              </Badge>
                             ))}
                           </div>
                         </div>
                       </div>
+                    );
+                  })}
                     </div>
-                  );})}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+            {/* Right Side - Card Preview, Color, Order Summary (3/7 width) */}
+            <div className="xl:col-span-3 space-y-3 sm:space-y-4 lg:space-y-6">
+              {/* Card Preview */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Card className="overflow-hidden sticky top-4">
+                  <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                      <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                      <span>Card Preview</span>
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                      Preview of your selected design
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+                    {selectedDesign ? (
+                      <div className="space-y-4">
+                        {/* Card Image Preview */}
+                        <div className="aspect-[1.6/1] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700">
+                          <img
+                            src={selectedDesign.name.toLowerCase() === 'classic' ? '/classic-card.png' :
+                                 selectedDesign.name.toLowerCase() === 'premium' ? '/prem_card.png' :
+                                 selectedDesign.name.toLowerCase() === 'elite' || selectedDesign.name.toLowerCase() === 'metal' ? '/metal_card.png' :
+                                 '/classic-card.png'}
+                            alt={`${selectedDesign.name} preview`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder.svg';
+                            }}
+                          />
+                          </div>
+                          
+                        {/* Selected Details */}
+                        <div className="space-y-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <div className="flex justify-between text-xs sm:text-sm">
+                            <span className="text-gray-600 dark:text-gray-400">Design:</span>
+                            <span className="font-medium">{selectedDesign.name}</span>
+                                </div>
+                          {selectedColor && (
+                            <div className="flex justify-between text-xs sm:text-sm">
+                              <span className="text-gray-600 dark:text-gray-400">Color:</span>
+                              <div className="flex items-center gap-2">
+                                <div 
+                                  className="w-4 h-4 rounded-full border border-gray-300"
+                                  style={{ backgroundColor: selectedColor.primary }}
+                                />
+                                <span className="font-medium">{selectedColor.name}</span>
+                              </div>
+                          </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="aspect-[1.6/1] rounded-lg bg-gray-100 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center">
+                        <div className="text-center text-gray-500 dark:text-gray-400">
+                          <CreditCard className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                          <p className="text-xs sm:text-sm">Select a design to preview</p>
+                    </div>
                 </div>
+                    )}
+                  </CardContent>
+                </Card>
               </motion.div>
 
               {/* Color Selection */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className={cardBase}
+                transition={{ delay: 0.2 }}
               >
-                <h2 className={cardTitle}>Color Scheme</h2>
-                <p className={cardDesc}>Pick a color scheme that matches your brand</p>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-                  {colorSchemes.map((color) => {
-                    const isUnavailable = !color.isAvailable || color.isOutOfStock;
-                    return (
+                <Card className="overflow-hidden">
+                  <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                      <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                      <span>Select Color Scheme</span>
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                      Choose the color that represents your brand
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4">
+                      {colorSchemes.map((color) => (
                       <div
                         key={color.id}
-                        className={`relative rounded-2xl border-2 p-3 sm:p-4 transition-all duration-300 touch-manipulation ${
-                          isUnavailable 
-                            ? 'opacity-50 cursor-not-allowed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800' 
-                            : `cursor-pointer hover:shadow-md active:scale-95 ${
+                          className={`relative cursor-pointer rounded-xl border-2 transition-all p-3 sm:p-4 ${
                                 selectedColor?.id === color.id
-                                  ? 'border-scan-blue bg-scan-blue/5 dark:bg-scan-blue/10 shadow-lg scale-105'
-                                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                              }`
-                        }`}
+                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md'
+                          } ${!color.isAvailable || color.isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onClick={() => {
-                          if (isUnavailable) {
-                            toast.error(`${color.name} color is currently out of stock`)
-                            return
+                            if (color.isAvailable && !color.isOutOfStock) {
+                              setSelectedColor(color);
                           }
-                          setSelectedColor(color)
                         }}
                       >
-                      {/* Stock Status Badge */}
                       {getStockStatusBadge(color)}
-                      
-                      {/* Selected indicator */}
-                      {selectedColor?.id === color.id && (
-                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-scan-blue rounded-full flex items-center justify-center z-10">
-                          <Check className="w-4 h-4 text-white" />
-                        </div>
-                      )}
-                      
-                      <div className="flex justify-center gap-1.5 mb-3">
+                          <div className="text-center space-y-2">
                         <div 
-                          className="w-6 h-6 sm:w-7 sm:h-7 rounded-full shadow-sm border border-white/20"
+                              className="w-full h-8 sm:h-10 lg:h-12 rounded-lg mx-auto"
                           style={{ backgroundColor: color.primary }}
                         />
-                        <div 
-                          className="w-6 h-6 sm:w-7 sm:h-7 rounded-full shadow-sm border border-white/20"
-                          style={{ backgroundColor: color.secondary }}
-                        />
+                            <div className="text-xs sm:text-sm font-medium">{color.name}</div>
                       </div>
-                      <div className="text-xs sm:text-sm font-medium text-center leading-tight text-gray-900 dark:text-white">
-                        {color.name}
                       </div>
+                      ))}
                     </div>
-                  );})}
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Right Column - Preview & Order */}
-            <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-              {/* Card Preview */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className={cardBase}
-              >
-                <h2 className={cardTitle}>Preview</h2>
-                <p className={cardDesc}>Preview your card design with your chosen color scheme</p>
-                
-                <CardDesignPreview 
-                  design={selectedDesign}
-                  profile={profile}
-                  colorScheme={selectedColor}
-                />
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
-                    <div className="w-8 h-8 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-lg flex items-center justify-center">
-                      <Package className="w-4 h-4 text-scan-blue" />
-                    </div>
-                    <span>{selectedColor?.name || 'No Color'} Color</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
-                    <div className="w-8 h-8 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-lg flex items-center justify-center">
-                      <Sparkles className="w-4 h-4 text-scan-blue" />
-                    </div>
-                    <span>{selectedDesign?.name || 'No Design'} Design</span>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Order Summary */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className={cardBase}
-              >
-                <h2 className={cardTitle}>Order Summary</h2>
-                
-                <div className="space-y-6">
-                  {/* Quantity */}
-                  <div>
-                    <label className="block text-sm sm:text-base font-semibold mb-3 text-gray-700 dark:text-gray-300">Quantity</label>
-                    <div className="flex items-center justify-center gap-4 sm:gap-6">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleQuantityChange(-1)}
-                        disabled={quantity <= 1}
-                        className="h-12 w-12 sm:h-10 sm:w-10 rounded-xl border-2 touch-manipulation active:scale-95"
-                      >
-                        <Minus className="w-5 h-5 sm:w-4 sm:h-4" />
-                      </Button>
-                      <div className="flex items-center justify-center">
-                        <span className="w-16 sm:w-20 text-center font-semibold text-xl sm:text-lg bg-gray-50 dark:bg-gray-800 py-2 px-4 rounded-lg border">{quantity}</span>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleQuantityChange(1)}
-                        disabled={quantity >= 100}
-                        className="h-12 w-12 sm:h-10 sm:w-10 rounded-xl border-2 touch-manipulation active:scale-95"
-                      >
-                        <Plus className="w-5 h-5 sm:w-4 sm:h-4" />
-                      </Button>
-                    </div>
-                    {quantity >= 5 && (
-                      <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
-                        <div className="text-sm text-green-700 dark:text-green-400 flex items-center gap-2">
-                          <div className="w-5 h-5 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center">
-                            <Truck className="w-3 h-3 text-green-600 dark:text-green-400" />
-                          </div>
-                          Free shipping on 5+ cards!
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <Separator />
-
-                  {/* Pricing */}
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm sm:text-base">
-                      <span className="text-gray-600 dark:text-gray-400">{selectedDesign?.name || 'Design'} × {quantity}</span>
-                      <span className="font-medium font-mono text-gray-900 dark:text-white tracking-wide">₵{(basePrice * quantity).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm sm:text-base">
-                      <span className="text-gray-600 dark:text-gray-400">Shipping</span>
-                      <span className="font-medium font-mono text-gray-900 dark:text-white tracking-wide">
-                        {!ghanaLocation.city ? (
-                          <span className="text-blue-600 dark:text-blue-400 italic">Select location</span>
-                        ) : (shipping === 0 ? 'Free' : `₵${shipping.toFixed(2)}`)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm sm:text-base">
-                      <span className="text-gray-600 dark:text-gray-400">Tax</span>
-                      <span className="font-medium font-mono text-gray-900 dark:text-white tracking-wide">₵{tax.toFixed(2)}</span>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between font-bold">
-                      <span>Total{!ghanaLocation.city && <span className="text-xs font-normal text-gray-500 ml-1">(+shipping)</span>}</span>
-                      <span className="font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent font-bold tracking-wider">₵{total.toFixed(2)}</span>
-                    </div>
-                  </div>
-
-                  {/* Out of Stock Warning */}
-                  {(selectedDesign?.isOutOfStock || selectedColor?.isOutOfStock) && (
-                    <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                      <div className="text-sm text-red-700 dark:text-red-400 flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4" />
-                        Some selected items are out of stock. Please choose different options to continue.
-                      </div>
-                    </div>
-                  )}
-
-                  <Button 
-                    className="w-full h-14 sm:h-12 md:h-14 bg-gradient-to-r from-scan-blue to-scan-purple text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all text-base sm:text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:scale-[0.98]"
-                    onClick={() => {
-                      // Check if all required selections are available
-                      if (!selectedDesign || !selectedColor) {
-                        toast.error('Please complete your card selection');
-                        return;
-                      }
-                      
-                      if (selectedDesign.isOutOfStock || !selectedDesign.isAvailable) {
-                        toast.error('Selected design is out of stock');
-                        return;
-                      }
-                      
-                      if (selectedColor.isOutOfStock || !selectedColor.isAvailable) {
-                        toast.error('Selected color is out of stock');
-                        return;
-                      }
-                      
-                      setShowOrderForm(true);
-                      setCheckoutStep('location');
-                      // Scroll to top when opening checkout
-                      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
-                    }}
-                    disabled={
-                      !selectedDesign || !selectedColor ||
-                      selectedDesign.isOutOfStock || !selectedDesign.isAvailable ||
-                      selectedColor.isOutOfStock || !selectedColor.isAvailable
-                    }
-                  >
-                    <CreditCard className="w-5 h-5 mr-2" />
-                    <span className="hidden sm:inline">Proceed to Checkout</span>
-                    <span className="sm:hidden">Checkout</span>
-                  </Button>
-
-                  <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-center mt-4">
-                    <div className="flex items-center justify-center gap-4 sm:gap-6 flex-wrap">
-                      <div className="flex items-center gap-2">
-                        <Shield className="w-4 h-4 sm:w-3 sm:h-3" />
-                        <span>Secure Payment</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Truck className="w-4 h-4 sm:w-3 sm:h-3" />
-                        <span>Fast Shipping</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </motion.div>
             </div>
           </div>
         </>
       ) : (
-        /* Order Form */
+        <>
+          {checkoutStep === 'location' && !isEditMode && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                    <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                    <span>Delivery Location</span>
+                  </CardTitle>
+                  <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                    Select your delivery location to calculate shipping costs
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+                  <div className="space-y-4 sm:space-y-6">
+                    <DeliveryLocationNotice />
+                    <GhanaLocationSelector
+                      onLocationSelect={handleGhanaLocationSelect}
+                      orderTotal={selectedDesign ? selectedDesign.price * quantity : 0}
+                      quantity={quantity}
+                    />
+                    
+                    {ghanaLocation.city && (
+                      <div className="p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
+                          <div className="flex justify-between">
+                            <span>Location:</span>
+                            <span className="font-medium">{ghanaLocation.city}, {ghanaLocation.region}</span>
+                    </div>
+                          <div className="flex justify-between">
+                            <span>Shipping Cost:</span>
+                            <span className="font-medium">₵{ghanaLocation.shippingCost}</span>
+                  </div>
+                          <div className="flex justify-between">
+                            <span>Estimated Delivery:</span>
+                            <span className="font-medium">{ghanaLocation.deliveryDays}</span>
+                    </div>
+                  </div>
+                </div>
+                    )}
+
+                    <div className="flex gap-2 sm:gap-3">
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowOrderForm(false)}
+                        className="flex-1 h-10 sm:h-12 font-medium rounded-lg"
+                      >
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Back
+                      </Button>
+                      <Button
+                        onClick={handleLocationStepContinue}
+                        disabled={!ghanaLocation.city}
+                        className="flex-1 h-10 sm:h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"
+                      >
+                        Continue
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
+                          </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {checkoutStep === 'shipping' && (
       <motion.div
           initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl mx-auto w-full"
-        >
-          <Card className="border-0 sm:border shadow-none sm:shadow-sm">
-            <CardHeader className="pb-4 sm:pb-6">
-              <div className="flex items-center gap-3 mb-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowOrderForm(false)}
-                  className="sm:hidden h-10 w-10 rounded-full"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-                <div>
-                  <CardTitle className="text-xl sm:text-2xl">
-                    {isEditMode ? 'Update Order' : 
-                     checkoutStep === 'location' ? 'Checkout - Select Location' : 
-                     'Checkout - Shipping Information'}
+              transition={{ delay: 0.1 }}
+            >
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                    <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                    <span>Shipping Information</span>
                   </CardTitle>
-                  <CardDescription className="text-sm sm:text-base">
-                {isEditMode 
-                  ? 'Modify your order details and complete payment'
-                      : checkoutStep === 'location' 
-                        ? 'Choose your delivery location in Ghana'
-                        : 'Enter your shipping details and complete payment'
-                }
+                  <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                    Enter your shipping details for delivery
               </CardDescription>
-                </div>
-              </div>
             </CardHeader>
-            <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6">
-              {/* Step Progress Indicator */}
-              {!isEditMode && (
-                <div className="flex items-center justify-center mb-6">
-                  <div className="flex items-center gap-4">
-                    <div className={`flex items-center gap-2 ${checkoutStep === 'location' ? 'text-blue-600' : 'text-green-600'}`}>
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                        checkoutStep === 'location' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
-                      }`}>
-                        {checkoutStep === 'shipping' ? '✓' : '1'}
-                      </div>
-                      <span className="text-sm font-medium">Location</span>
-                    </div>
-                    <div className={`w-8 h-0.5 ${checkoutStep === 'shipping' ? 'bg-green-200' : 'bg-gray-200'}`}></div>
-                    <div className={`flex items-center gap-2 ${checkoutStep === 'shipping' ? 'text-blue-600' : 'text-gray-400'}`}>
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                        checkoutStep === 'shipping' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'
-                      }`}>
-                        2
-                      </div>
-                      <span className="text-sm font-medium">Shipping</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* International User Notice */}
-              <DeliveryLocationNotice />
-
-              {/* Step 1: Location Selection */}
-              {checkoutStep === 'location' && (
-                <>
-                  <div className="max-w-2xl mx-auto">
-                    <GhanaLocationSelector
-                      onLocationSelect={handleGhanaLocationSelect}
-                      orderTotal={subtotal}
-                      quantity={quantity}
-                      currentCity={ghanaLocation.city}
-                      currentRegion={ghanaLocation.region}
-                    />
-                  </div>
-
-                  {/* Quick Order Summary for Location Step */}
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 sm:p-6 max-w-2xl mx-auto">
-                    <h3 className="font-semibold mb-4 text-base sm:text-lg">Order Summary</h3>
-                    <div className="space-y-3 text-sm sm:text-base">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700 dark:text-gray-300">{selectedDesign?.name || 'Design'} × {quantity}</span>
-                        <span className="font-mono text-gray-900 dark:text-white tracking-wide font-medium">₵{(basePrice * quantity).toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between items-start">
-                        <div className="flex flex-col">
-                          <span className="text-gray-700 dark:text-gray-300">Shipping {ghanaLocation.city && `to ${ghanaLocation.city}`}</span>
-                          {ghanaLocation.deliveryDays && (
-                            <span className="text-xs text-gray-500 mt-1">
-                              ({ghanaLocation.deliveryDays})
-                            </span>
-                          )}
-                        </div>
-                        <span className="font-mono text-gray-900 dark:text-white tracking-wide font-medium">
-                          {!ghanaLocation.city ? (
-                            <span className="text-blue-600 dark:text-blue-400 italic text-sm">Select location</span>
-                          ) : (shipping === 0 ? 'FREE' : `₵${shipping.toFixed(2)}`)}
-                        </span>
-                      </div>
-                      {shipping === 0 && ghanaLocation.city && (
-                        <div className="text-xs sm:text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-md">
-                          🎉 {quantity >= 5 ? 'Free shipping for 5+ cards!' : 'Free shipping applied!'}
-                        </div>
-                      )}
-                      <Separator className="my-3" />
-                      <div className="flex justify-between items-center font-bold text-lg sm:text-xl">
-                        <span className="text-gray-900 dark:text-white">Total{!ghanaLocation.city && <span className="text-xs font-normal text-gray-500 ml-1">(+shipping)</span>}</span>
-                        <span className="font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent font-bold tracking-wider">₵{total.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Location Step Action Buttons */}
-                  <div className="flex flex-col gap-3 sm:gap-4 max-w-2xl mx-auto">
-                    <Button 
-                      onClick={handleLocationStepContinue}
-                      disabled={!ghanaLocation.city}
-                      className="w-full h-14 sm:h-12 bg-gradient-to-r from-scan-blue to-scan-purple text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all text-base disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:scale-[0.98]"
-                    >
-                      {!ghanaLocation.city ? (
-                        'Select Location to Continue'
-                      ) : (
-                        <>
-                                                     <ArrowLeft className="w-5 h-5 mr-2 rotate-180" />
-                          Continue to Shipping Information
-                        </>
-                      )}
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setShowOrderForm(false)}
-                      className="w-full h-12 sm:h-10 border-2 hover:bg-gray-50 dark:hover:bg-gray-800 touch-manipulation active:scale-[0.98]"
-                    >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back to Design
-                    </Button>
-                  </div>
-
-                  {!ghanaLocation.city && (
-                    <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 max-w-2xl mx-auto">
-                      <p className="text-sm text-amber-700 dark:text-amber-300">
-                        📍 Please select your city to calculate shipping costs and continue
-                      </p>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Step 2: Shipping Information */}
-              {checkoutStep === 'shipping' && (
-                <>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-                {/* Left Column - Customer Information */}
-                <div className="space-y-4 sm:space-y-6">
+                <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+                  <div className="space-y-4 sm:space-y-6">
                   {/* Personal Information */}
-                  <div>
-                    <h3 className="font-semibold mb-3 text-lg">Customer Information</h3>
-                    <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">First Name *</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                      <div className="space-y-1 sm:space-y-2">
+                        <label className="text-xs sm:text-sm font-medium">First Name *</label>
                         <Input
                           value={orderForm.firstName}
                           onChange={(e) => handleOrderFormChange('firstName', e.target.value)}
-                          placeholder="John"
-                          className="h-12 sm:h-10"
+                          placeholder="Enter first name"
+                          className="h-10 sm:h-12 text-xs sm:text-sm"
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Last Name *</label>
+                      <div className="space-y-1 sm:space-y-2">
+                        <label className="text-xs sm:text-sm font-medium">Last Name *</label>
                         <Input
                           value={orderForm.lastName}
                           onChange={(e) => handleOrderFormChange('lastName', e.target.value)}
-                          placeholder="Doe"
-                          className="h-12 sm:h-10"
+                          placeholder="Enter last name"
+                          className="h-10 sm:h-12 text-xs sm:text-sm"
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Email *</label>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                      <div className="space-y-1 sm:space-y-2">
+                        <label className="text-xs sm:text-sm font-medium">Email *</label>
                         <Input
                           type="email"
                           value={orderForm.email}
                           onChange={(e) => handleOrderFormChange('email', e.target.value)}
-                          placeholder="john@example.com"
-                          className="h-12 sm:h-10"
+                          placeholder="Enter email address"
+                          className="h-10 sm:h-12 text-xs sm:text-sm"
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Phone</label>
+                      <div className="space-y-1 sm:space-y-2">
+                        <label className="text-xs sm:text-sm font-medium">Phone *</label>
                         <Input
                           type="tel"
                           value={orderForm.phone}
                           onChange={(e) => handleOrderFormChange('phone', e.target.value)}
-                          placeholder="+233 20 123 4567"
-                          className="h-12 sm:h-10"
+                          placeholder="Enter phone number"
+                          className="h-10 sm:h-12 text-xs sm:text-sm"
                         />
-                      </div>
                     </div>
                   </div>
 
-                  {/* Ghana Delivery Address */}
-                  <div>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
-                      <h3 className="font-semibold text-lg">Ghana Delivery Address</h3>
-                      <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300 w-fit">
-                        🇬🇭 Ghana Only
-                      </Badge>
-                    </div>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Street Address *</label>
+                    {/* Address Information */}
+                    <div className="space-y-3 sm:space-y-4">
+                      <div className="space-y-1 sm:space-y-2">
+                        <label className="text-xs sm:text-sm font-medium">Address *</label>
                         <Input
                           value={orderForm.address}
                           onChange={(e) => handleOrderFormChange('address', e.target.value)}
-                          placeholder="123 Main Street, Neighborhood"
-                          className="h-12 sm:h-10"
+                          placeholder="Enter street address"
+                          className="h-10 sm:h-12 text-xs sm:text-sm"
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">ZIP/Postal Code</label>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                        <div className="space-y-1 sm:space-y-2">
+                          <label className="text-xs sm:text-sm font-medium">City</label>
+                          <Input
+                            value={orderForm.city}
+                            onChange={(e) => handleOrderFormChange('city', e.target.value)}
+                            placeholder="City"
+                            className="h-10 sm:h-12 text-xs sm:text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1 sm:space-y-2">
+                          <label className="text-xs sm:text-sm font-medium">Region</label>
+                          <Input
+                            value={orderForm.state}
+                            onChange={(e) => handleOrderFormChange('state', e.target.value)}
+                            placeholder="Region"
+                            className="h-10 sm:h-12 text-xs sm:text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1 sm:space-y-2">
+                          <label className="text-xs sm:text-sm font-medium">Postal Code</label>
                         <Input
                           value={orderForm.zipCode}
                           onChange={(e) => handleOrderFormChange('zipCode', e.target.value)}
-                          placeholder="Optional"
-                          className="h-12 sm:h-10"
+                            placeholder="Postal code"
+                            className="h-10 sm:h-12 text-xs sm:text-sm"
                         />
                       </div>
-                      {/* Show selected location */}
-                      {ghanaLocation.city && (
-                        <div className="p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                          <div className="text-sm text-green-700 dark:text-green-300">
-                            📍 <strong>Delivering to:</strong> {ghanaLocation.city}, {ghanaLocation.region}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
 
                   {/* Special Instructions */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Special Instructions</label>
+                    <div className="space-y-1 sm:space-y-2">
+                      <label className="text-xs sm:text-sm font-medium">Special Instructions (Optional)</label>
                     <Textarea
                       value={orderForm.specialInstructions}
                       onChange={(e) => handleOrderFormChange('specialInstructions', e.target.value)}
                       placeholder="Any special delivery instructions..."
-                      rows={3}
-                      className="resize-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Right Column - Ghana Location Selection */}
-                <div>
-                  <GhanaLocationSelector
-                    onLocationSelect={handleGhanaLocationSelect}
-                    orderTotal={subtotal}
-                    quantity={quantity}
-                    currentCity={ghanaLocation.city}
-                    currentRegion={ghanaLocation.region}
-                  />
-                </div>
+                        className="min-h-[80px] text-xs sm:text-sm resize-none"
+                      />
               </div>
 
               {/* Order Summary */}
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 sm:p-6">
-                <h3 className="font-semibold mb-4 text-base sm:text-lg">Order Summary</h3>
-                <div className="space-y-3 text-sm sm:text-base">
-                    <div className="flex justify-between items-center">
-                        <span className="text-gray-700 dark:text-gray-300">{selectedDesign?.name || 'Design'} × {quantity}</span>
-                        <span className="font-mono text-gray-900 dark:text-white tracking-wide font-medium">₵{(basePrice * quantity).toFixed(2)}</span>
+                    {selectedDesign && selectedColor && (
+                      <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2 sm:space-y-3">
+                        <h4 className="text-sm sm:text-base font-semibold">Order Summary</h4>
+                        <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
+                    <div className="flex justify-between">
+                            <span>{quantity}x {selectedDesign.name} ({selectedColor.name})</span>
+                            <span>₵{(selectedDesign.price * quantity).toFixed(2)}</span>
                       </div>
-                      <div className="flex justify-between items-start">
-                        <div className="flex flex-col">
-                          <span className="text-gray-700 dark:text-gray-300">Shipping {ghanaLocation.city && `to ${ghanaLocation.city}`}</span>
-                          {ghanaLocation.deliveryDays && (
-                            <span className="text-xs text-gray-500 mt-1">
-                              ({ghanaLocation.deliveryDays})
-                            </span>
-                          )}
-                        </div>
-                        <span className="font-mono text-gray-900 dark:text-white tracking-wide font-medium">
-                          {!ghanaLocation.city ? (
-                            <span className="text-blue-600 dark:text-blue-400 italic text-sm">Select location</span>
-                          ) : (shipping === 0 ? 'FREE' : `₵${shipping.toFixed(2)}`)}
-                        </span>
+                      <div className="flex justify-between">
+                            <span>Shipping</span>
+                            <span>₵{ghanaLocation.shippingCost.toFixed(2)}</span>
                       </div>
-                      {shipping === 0 && ghanaLocation.city && (
-                        <div className="text-xs sm:text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-md">
-                          🎉 {quantity >= 5 ? 'Free shipping for 5+ cards!' : 'Free shipping applied!'}
-                        </div>
-                      )}
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700 dark:text-gray-300">Tax</span>
-                        <span className="font-mono text-gray-900 dark:text-white tracking-wide font-medium">₵{tax.toFixed(2)}</span>
-                      </div>
-                      <Separator className="my-3" />
-                      <div className="flex justify-between items-center font-bold text-lg sm:text-xl">
-                        <span className="text-gray-900 dark:text-white">Total{!ghanaLocation.city && <span className="text-xs font-normal text-gray-500 ml-1">(+shipping)</span>}</span>
-                        <span className="font-mono bg-gradient-to-r from-scan-blue via-scan-purple to-scan-blue bg-clip-text text-transparent font-bold tracking-wider">₵{total.toFixed(2)}</span>
+                      <Separator />
+                          <div className="flex justify-between font-semibold">
+                        <span>Total</span>
+                            <span>₵{((selectedDesign.price * quantity) + ghanaLocation.shippingCost).toFixed(2)}</span>
                       </div>
                 </div>
               </div>
-
-              {/* Payment Security Notice */}
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 sm:p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                </div>
-                  <span className="font-semibold text-blue-900 dark:text-blue-100 text-base">Secure Payment</span>
-                </div>
-                <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
-                  Your payment is processed securely through Paystack. We never store your payment information.
-                </p>
-              </div>
+                    )}
 
               {/* Action Buttons */}
-              <div className="flex flex-col gap-3 sm:gap-4">
+                    <div className="flex gap-2 sm:gap-3">
+                      {!isEditMode && (
+                <Button 
+                  variant="outline" 
+                          onClick={handleBackToLocation}
+                          className="flex-1 h-10 sm:h-12 font-medium rounded-lg"
+                >
+                          <ArrowLeft className="w-4 h-4 mr-2" />
+                          Back
+                </Button>
+                      )}
+                      
                 <Button 
                   onClick={handlePlaceOrder}
-                  disabled={isSubmittingOrder || !ghanaLocation.city}
-                  className="w-full h-14 sm:h-12 bg-gradient-to-r from-scan-blue to-scan-purple text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all text-base disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:scale-[0.98]"
+                        disabled={isSubmittingOrder}
+                        className={`${!isEditMode ? 'flex-1' : 'w-full'} h-10 sm:h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg`}
                 >
                   {isSubmittingOrder ? (
                     <>
-                      <Loading size="sm" />
-                      <span className="ml-2">Processing Payment...</span>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            {isEditMode ? 'Updating...' : 'Processing...'}
                     </>
-                  ) : !ghanaLocation.city ? (
-                    'Select Location to Continue'
                   ) : (
                     <>
-                      <Zap className="w-5 h-5 mr-2" />
-                      <span className="font-mono tracking-wide">Pay ₵{total.toFixed(2)} with Paystack</span>
+                            {isEditMode ? 'Update Order' : 'Place Order & Pay'}
+                            <ArrowRight className="w-4 h-4 ml-2" />
                     </>
                   )}
                 </Button>
-                
-                <Button 
-                  variant="outline" 
-                  onClick={isEditMode ? () => setShowOrderForm(false) : handleBackToLocation}
-                  className="w-full h-12 sm:h-10 border-2 hover:bg-gray-50 dark:hover:bg-gray-800 touch-manipulation active:scale-[0.98]"
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  {isEditMode ? 'Back to Design' : 'Back to Location'}
-                </Button>
               </div>
               
-              {!ghanaLocation.city && (
-                <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                  <p className="text-sm text-amber-700 dark:text-amber-300">
-                    📍 Please select your city to calculate shipping costs and continue
-                </p>
-                </div>
-              )}
-                </>
-              )}
+                    {isEditMode && editingOrder && (
+                      <Button
+                        variant="outline"
+                        onClick={() => handleCancelOrder(editingOrder.id)}
+                        disabled={isCancellingOrder}
+                        className="w-full h-10 sm:h-12 border-red-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium rounded-lg"
+                      >
+                        {isCancellingOrder ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Cancelling...
+                          </>
+                        ) : (
+                          'Cancel Order'
+                        )}
+                      </Button>
+                    )}
+                  </div>
             </CardContent>
           </Card>
         </motion.div>
       )}
-
+        </>
+      )}
     </div>
   );
 } 

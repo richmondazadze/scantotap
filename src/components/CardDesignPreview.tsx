@@ -37,7 +37,7 @@ export const CardDesignPreview: React.FC<CardDesignPreviewProps> = ({
 
   // Get card design name (handle both string names and UUIDs) - normalize to lowercase for comparison
   const designName = design?.name?.toLowerCase().trim() || '';
-  
+
   // Debug logging to help identify issues
   console.log('CardDesignPreview - Design:', design, 'Design Name:', designName);
 

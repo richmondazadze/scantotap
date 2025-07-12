@@ -731,7 +731,7 @@ function PlanStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting 
       { name: "Unlimited links", included: true },
       { name: "All profile layout options", included: true },
       { name: "Profile analytics", included: true },
-      { name: "Coming soon: Custom themes", included: true },
+      { name: "Custom themes", included: true },
     ]
   };
 
@@ -1308,10 +1308,13 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
 
 // Step 6: Additional URLs Component
 function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting }: OnboardingStepProps) {
-  const [additionalUrls, setAdditionalUrls] = useState<Array<{ label: string; url: string }>>([
+  const { session } = useAuth();
+  const [additionalUrls, setAdditionalUrls] = useState<Array<{ label: string; url: string; thumbnail?: string }>>([
     { label: '', url: '' }
   ]);
   const [selectedPlan, setSelectedPlan] = useState<{planType: 'free' | 'pro'; billingCycle: string | null}>({ planType: 'free', billingCycle: null });
+  const [thumbnailFiles, setThumbnailFiles] = useState<Record<number, File>>({});
+  const [uploadingThumbnails, setUploadingThumbnails] = useState<Record<number, boolean>>({});
 
   // Load plan and calculate current usage
   useEffect(() => {
@@ -1321,14 +1324,60 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
     }
   }, []);
 
+  // Helper function to upload thumbnail
+  const uploadThumbnail = async (file: File, userId: string, linkId: string): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${userId}/link-thumbnails/${linkId}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: file.type
+        });
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        return null;
+      }
+
+      const { data } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading thumbnail:', error);
+      return null;
+    }
+  };
+
   const handleUrlChange = (index: number, field: 'label' | 'url', value: string) => {
     const updated = [...additionalUrls];
-      updated[index] = { ...updated[index], [field]: value };
+    updated[index] = { ...updated[index], [field]: value };
     setAdditionalUrls(updated);
     
     // Update session storage immediately for accurate cross-step calculations
     const validUrls = updated.filter(item => item.label.trim() && item.url.trim());
     sessionStorage.setItem('onboarding_additional_urls', JSON.stringify(validUrls));
+  };
+
+  const handleThumbnailChange = (index: number, file: File | null) => {
+    if (file) {
+      setThumbnailFiles(prev => ({ ...prev, [index]: file }));
+    } else {
+      setThumbnailFiles(prev => {
+        const newFiles = { ...prev };
+        delete newFiles[index];
+        return newFiles;
+      });
+    }
+  };
+
+  const removeThumbnail = (index: number) => {
+    handleThumbnailChange(index, null);
   };
 
   const addUrl = () => {
@@ -1357,10 +1406,16 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
   const removeUrl = (index: number) => {
     if (additionalUrls.length > 1) {
       setAdditionalUrls(prev => prev.filter((_, i) => i !== index));
+      // Also remove thumbnail file if exists
+      setThumbnailFiles(prev => {
+        const newFiles = { ...prev };
+        delete newFiles[index];
+        return newFiles;
+      });
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     // Filter out empty entries
     const validUrls = additionalUrls.filter(item => item.label.trim() && item.url.trim());
     
@@ -1377,7 +1432,21 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
       }
     }
 
-    sessionStorage.setItem('onboarding_additional_urls', JSON.stringify(validUrls));
+    // Upload thumbnails for links that have them
+    const finalUrls = [...validUrls];
+    for (let i = 0; i < finalUrls.length; i++) {
+      const thumbnailFile = thumbnailFiles[i];
+      if (thumbnailFile && session?.user?.id) {
+        setUploadingThumbnails(prev => ({ ...prev, [i]: true }));
+        const thumbnailUrl = await uploadThumbnail(thumbnailFile, session.user.id, `link-${i}-${Date.now()}`);
+        if (thumbnailUrl) {
+          finalUrls[i].thumbnail = thumbnailUrl;
+        }
+        setUploadingThumbnails(prev => ({ ...prev, [i]: false }));
+      }
+    }
+
+    sessionStorage.setItem('onboarding_additional_urls', JSON.stringify(finalUrls));
     onNext(); // This will trigger the final completion
   };
 
@@ -1467,6 +1536,61 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
                   onChange={(e) => handleUrlChange(index, 'url', e.target.value)}
                   className="h-12 text-base"
                 />
+                
+                {/* Thumbnail Upload Section */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Upload className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Thumbnail</span>
+                  </div>
+                  
+                  {thumbnailFiles[index] ? (
+                    <div className="flex items-center gap-2 flex-1 w-full">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 flex-shrink-0">
+                        <img 
+                          src={URL.createObjectURL(thumbnailFiles[index])} 
+                          alt="Thumbnail preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeThumbnail(index)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 h-7 w-7 sm:h-8 sm:w-8 p-0 flex-shrink-0"
+                      >
+                        <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 flex-1 w-full">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleThumbnailChange(index, file);
+                          }
+                        }}
+                        className="hidden"
+                        id={`thumbnail-upload-${index}`}
+                      />
+                      <label
+                        htmlFor={`thumbnail-upload-${index}`}
+                        className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-colors flex-shrink-0"
+                      >
+                        <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="hidden sm:inline">Upload Icon</span>
+                        <span className="sm:hidden">Upload</span>
+                      </label>
+                      <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex-1">
+                        Optional - Add a custom icon for your link
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -1512,13 +1636,13 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
         {/* Complete Button */}
         <Button
           onClick={handleComplete}
-          disabled={submitting}
+          disabled={submitting || Object.values(uploadingThumbnails).some(Boolean)}
           className="w-full h-14 text-base font-semibold bg-gradient-to-r from-blue-600 via-blue-700 to-purple-600 hover:from-blue-700 hover:via-blue-800 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl border-0 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {submitting ? (
+          {submitting || Object.values(uploadingThumbnails).some(Boolean) ? (
             <>
               <Loading size="sm" />
-              Setting up...
+              {Object.values(uploadingThumbnails).some(Boolean) ? 'Uploading thumbnails...' : 'Setting up...'}
             </>
           ) : (
             <>
@@ -1685,11 +1809,12 @@ export default function OnboardingPage() {
       });
 
       // Add additional URLs
-      additionalUrlsData.forEach((item: { label: string; url: string }) => {
+      additionalUrlsData.forEach((item: { label: string; url: string; thumbnail?: string }) => {
         if (item.label?.trim() && item.url?.trim()) {
           allLinks.push({
             label: item.label, // Keep as custom link
-            url: item.url.startsWith('http') ? item.url : `https://${item.url}`
+            url: item.url.startsWith('http') ? item.url : `https://${item.url}`,
+            thumbnail: item.thumbnail // Include thumbnail if present
           });
         }
       });

@@ -381,6 +381,7 @@ export type Database = {
           email_marketing: boolean
           custom_theme: Json | null
           theme_settings: Json | null
+          theme_preference: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -410,6 +411,7 @@ export type Database = {
           email_marketing?: boolean
           custom_theme?: Json | null
           theme_settings?: Json | null
+          theme_preference?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -439,6 +441,7 @@ export type Database = {
           email_marketing?: boolean
           custom_theme?: Json | null
           theme_settings?: Json | null
+          theme_preference?: string | null
         }
         Relationships: []
       }

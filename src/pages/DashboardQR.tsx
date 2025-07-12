@@ -11,30 +11,24 @@ import {
   Download,
   Share2,
   Copy,
-  RefreshCw,
   QrCode,
   Mail,
   MessageSquare,
-  Users,
-  Link,
-  Zap,
-  Rocket,
-  Leaf,
-  Infinity,
-  Smartphone
+  Smartphone,
+  Sparkles,
+  ExternalLink
 } from 'lucide-react';
 import Loading from '@/components/ui/loading';
 
 export default function DashboardQR() {
-  useAuthGuard(); // Ensure user is authenticated
+  useAuthGuard();
   const { profile } = useProfile();
   const [loading, setLoading] = useState(false);
   const qrRef = useRef<any>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
 
   if (!profile) {
     return (
-      <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col h-full pb-16 gap-6 mt-6 px-4 overflow-x-hidden">
+      <div className="space-y-3 sm:space-y-4 lg:space-y-6 pb-20 lg:pb-8 pt-3 sm:pt-4 lg:pt-6 overflow-x-hidden">
         <div className="flex justify-center items-center min-h-[400px]">
           <Loading size="lg" text="Loading profile..." />
         </div>
@@ -44,7 +38,7 @@ export default function DashboardQR() {
 
   if (loading) {
     return (
-      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-12 sm:pb-16 gap-8 mt-6 px-4 sm:px-6">
+      <div className="space-y-3 sm:space-y-4 lg:space-y-6 pb-20 lg:pb-8 pt-3 sm:pt-4 lg:pt-6 overflow-x-hidden">
         <div className="flex justify-center items-center min-h-[400px]">
           <Loading size="lg" text="Loading QR code..." />
         </div>
@@ -79,8 +73,8 @@ export default function DashboardQR() {
     if (navigator.share) {
       try {
         await navigator.share({
-                title: `${profile?.name || 'Digital Profile'} - QR Code`,
-      text: 'Scan this QR code to view my digital profile',
+          title: `${profile?.name || 'Digital Profile'} - QR Code`,
+          text: 'Scan this QR code to view my digital profile',
           url: profileUrl,
         });
       } catch (error) {
@@ -92,156 +86,111 @@ export default function DashboardQR() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto pb-8 sm:pb-16 gap-8 mt-6 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 space-y-8">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6 pb-20 lg:pb-8 pt-3 sm:pt-4 lg:pt-6 overflow-x-hidden">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center sm:text-left"
+        className="mb-4 sm:mb-6 lg:mb-8"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
-          <div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent mb-3">
+        <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-2">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+            <QrCode className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 dark:text-white leading-tight">
               Your QR Code
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-              Share your digital profile with others
+            <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
+              Share your digital profile with others instantly
             </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0">
-            <Button 
-              onClick={downloadQRCode} 
-              disabled={loading}
-              className="w-full sm:w-auto h-12 px-6 bg-scan-blue hover:bg-scan-blue-dark shadow-lg hover:shadow-xl transition-all rounded-xl font-medium"
-            >
-              <Download className={`w-5 h-5 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              {loading ? 'Downloading...' : 'Download'}
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={shareQRCode}
-              className="w-full sm:w-auto h-12 px-6 border-2 border-scan-blue/20 hover:border-scan-blue/40 hover:bg-scan-blue/5 transition-all rounded-xl font-medium"
-            >
-              <Share2 className="w-5 h-5 mr-2" />
-              Share
-            </Button>
           </div>
         </div>
       </motion.div>
 
-      {/* Main Content */}
+      {/* QR Code Display Card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="overflow-hidden rounded-xl shadow-xl bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl">
-          <CardHeader className="p-6 sm:p-8 lg:p-10">
-            <CardTitle className="flex items-center gap-3 text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-scan-blue/10 dark:bg-scan-blue/20 rounded-xl flex items-center justify-center">
-                <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-scan-blue" />
-              </div>
-              QR Code Preview
+        <Card className="border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 overflow-hidden">
+          <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+            <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-blue-600 flex-shrink-0" />
+              <span>Your Personal QR Code</span>
             </CardTitle>
-            <CardDescription className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed mt-2">
-              Anyone can scan this code to view your digital profile
+            <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+              Anyone can scan this code to instantly view your digital profile. 
+              Download, share, or print it on your business cards.
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-6 sm:p-8 lg:p-10 space-y-8 sm:space-y-10">
-            {/* QR Code Section */}
-            <div className="flex flex-col xl:flex-row gap-8 sm:gap-10 lg:gap-12 items-start overflow-x-hidden">
+          <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+            <div className="flex flex-col xl:flex-row gap-4 sm:gap-6 lg:gap-8 items-start">
               {/* QR Code Display */}
-              <div className="w-full xl:w-1/2 flex justify-center min-w-0">
-                <div className="w-full max-w-sm p-6 sm:p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg">
-                  <div className="w-full aspect-square max-w-[300px] sm:max-w-[320px] mx-auto">
-                    <QRCodeGenerator 
-                      ref={qrRef}
-                      profileUrl={profileUrl} 
-                      username={profile.slug || profile.id} 
-                    />
-                  </div>
+              <div className="w-full xl:w-1/2 flex justify-center">
+                <div className="w-full aspect-square max-w-[240px] sm:max-w-[280px] lg:max-w-[320px] mx-auto">
+                  <QRCodeGenerator 
+                    ref={qrRef}
+                    profileUrl={profileUrl} 
+                    username={profile.slug || profile.id} 
+                  />
                 </div>
               </div>
 
-              {/* Info Section */}
-              <div className="w-full xl:w-1/2 space-y-6 sm:space-y-8 min-w-0">
+              {/* QR Code Actions */}
+              <div className="w-full xl:w-1/2 space-y-3 sm:space-y-4 lg:space-y-6 min-w-0">
+                {/* Quick Actions */}
+                <div className="space-y-2 sm:space-y-3">
+                  <Button 
+                    onClick={downloadQRCode} 
+                    disabled={loading}
+                    className="w-full h-10 sm:h-12 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all rounded-lg font-medium text-sm"
+                  >
+                    <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    Download QR Code
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={shareQRCode}
+                    className="w-full h-10 sm:h-12 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all rounded-lg font-medium text-sm"
+                  >
+                    <Share2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    Share QR Code
+                  </Button>
+                </div>
+
                 {/* Profile URL */}
-                <div className="space-y-3 sm:space-y-4">
-                  <label className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300">
+                <div className="space-y-2 sm:space-y-3">
+                  <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                     Your Profile URL
                   </label>
-                  <div className="flex gap-2 sm:gap-3">
+                  <div className="flex gap-1.5 sm:gap-2 min-w-0">
                     <Input 
                       value={profileUrl} 
                       readOnly 
-                      className="text-xs sm:text-sm bg-gray-50 dark:bg-gray-800/50 font-mono min-w-0 flex-1 rounded-xl border-gray-200 dark:border-gray-700 py-3 sm:py-4 overflow-hidden"
+                      className="text-xs sm:text-sm bg-gray-50 dark:bg-gray-800/50 font-mono flex-1 rounded-lg border-gray-200 dark:border-gray-700 min-w-0 pr-1"
                     />
                     <Button 
                       variant="outline" 
                       size="sm"
                       onClick={() => copyToClipboard(profileUrl)}
-                      className="shrink-0 h-10 sm:h-12 px-3 sm:px-4 rounded-xl border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className="px-2 sm:px-3 rounded-lg border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 flex-shrink-0"
                     >
-                      <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </Button>
                     <Button 
                       variant="outline" 
                       size="sm"
                       onClick={() => window.open(profileUrl, '_blank')}
-                      className="shrink-0 h-10 sm:h-12 px-3 sm:px-4 rounded-xl border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className="px-2 sm:px-3 rounded-lg border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 flex-shrink-0"
                     >
-                      View
+                      <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </Button>
                   </div>
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     This URL opens your digital profile
                   </p>
-                </div>
-
-                {/* Instructions */}
-                <div className="p-6 sm:p-8 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 dark:from-scan-blue/10 dark:to-scan-purple/10 border border-scan-blue/20 dark:border-scan-blue/30 rounded-xl backdrop-blur-sm">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
-                    <h4 className="font-semibold text-scan-blue dark:text-scan-blue-light text-base sm:text-lg">How to use:</h4>
-                    <Button 
-                      variant="default" 
-                      size="sm"
-                      onClick={() => window.open(profileUrl, '_blank')}
-                      className="w-full sm:w-auto bg-scan-blue hover:bg-scan-blue-dark shadow-lg hover:shadow-xl transition-all rounded-xl font-medium h-10 sm:h-12 px-4 sm:px-6"
-                    >
-                      Preview Your Profile
-                    </Button>
-                  </div>
-                  <ul className="text-sm sm:text-base text-gray-600 dark:text-gray-400 space-y-1 leading-relaxed">
-                    <li>• Show the QR code to others to scan</li>
-                    <li>• Share the link via email or messaging</li>
-                    <li>• Preview how your profile looks to visitors</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile Share Section */}
-            <div className="lg:hidden border-t pt-6">
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-700 dark:text-gray-300">Share Options</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    variant="outline" 
-                    className="flex items-center gap-2 p-4 h-auto justify-center"
-                    onClick={() => window.open(`mailto:?subject=My Digital Profile&body=Check out my digital profile: ${profileUrl}`, '_blank')}
-                  >
-                    <Mail className="w-4 h-4" />
-                    <span>Email</span>
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="flex items-center gap-2 p-4 h-auto justify-center"
-                    onClick={() => window.open(`sms:?body=Check out my digital profile: ${profileUrl}`, '_blank')}
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span>SMS</span>
-                  </Button>
                 </div>
               </div>
             </div>
@@ -249,205 +198,115 @@ export default function DashboardQR() {
         </Card>
       </motion.div>
 
-      {/* Additional Information Section */}
+      {/* Share Options Card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="space-y-6 sm:space-y-8"
       >
-        {/* Platform Features */}
-        <div className="relative rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 md:p-8 lg:p-10 bg-white/98 dark:bg-[#1A1D24]/98 border border-gray-200/30 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-500 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/50 dark:hover:border-scan-blue/30 group overflow-hidden">
-          {/* Background decoration */}
-          <div className="absolute inset-0 bg-gradient-to-br from-scan-blue/3 via-transparent to-scan-purple/3 dark:from-scan-blue/5 dark:to-scan-purple/5"></div>
-          <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 bg-gradient-to-bl from-scan-blue/10 to-transparent rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 sm:w-36 sm:h-36 bg-gradient-to-tr from-scan-purple/10 to-transparent rounded-full blur-3xl"></div>
-          
-          <div className="relative z-10">
-            <div className="text-center mb-6 sm:mb-8 lg:mb-12">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 dark:from-scan-blue/20 dark:to-scan-purple/20 text-scan-blue dark:text-scan-blue-light px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 border border-scan-blue/20 dark:border-scan-blue/30 backdrop-blur-sm">
-                <Rocket className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden xs:inline">Digital Excellence</span>
-                <span className="xs:hidden">Excellence</span>
-              </div>
-              <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-black mb-3 sm:mb-4 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent leading-tight px-2">
-                <span className="block xs:hidden">Maximize Your Digital Presence</span>
-                <span className="hidden xs:block">Maximize Your Digital Presence</span>
-            </h2>
-              <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base md:text-lg lg:text-lg leading-relaxed max-w-4xl mx-auto px-2 sm:px-4">
-                <span className="block sm:hidden">Transform how you network with powerful digital identity tools</span>
-                <span className="hidden sm:block">Unlock the full potential of your SCAN2TAP digital identity and transform how you network</span>
-            </p>
-          </div>
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+            <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+              <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+              <span>Share Your Profile</span>
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+              Multiple ways to share your digital profile with others
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+              {/* Email Share */}
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-6 h-auto rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all min-w-0"
+                onClick={() => window.open(`mailto:?subject=My Digital Profile&body=Check out my digital profile: ${profileUrl}`, '_blank')}
+              >
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="text-center min-w-0">
+                  <div className="font-medium text-gray-900 dark:text-white text-sm">Email</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Send via email</div>
+                </div>
+              </Button>
 
-            {/* Mobile: Single column layout */}
-            <div className="block lg:hidden space-y-4 sm:space-y-6">
-              <div className="group/item flex items-start gap-3 sm:gap-4 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition-all duration-300 border border-transparent hover:border-blue-500/20 dark:hover:border-blue-400/20">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-blue-500/10 to-blue-600/20 dark:from-blue-500/20 dark:to-blue-600/30 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 border border-blue-500/20 dark:border-blue-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
-                  <Users className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-blue-600 dark:text-blue-400" />
+              {/* SMS Share */}
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-6 h-auto rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-300 dark:hover:border-green-600 transition-all min-w-0"
+                onClick={() => window.open(`sms:?body=Check out my digital profile: ${profileUrl}`, '_blank')}
+              >
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white group-hover/item:text-blue-600 dark:group-hover/item:text-blue-400 transition-colors duration-300 leading-tight">Lead Generation</h4>
-                  <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                    <span className="block sm:hidden">Turn scans into business opportunities with smart analytics</span>
-                    <span className="hidden sm:block">Turn every scan into a potential business opportunity. Capture leads directly from your digital profile with smart analytics.</span>
-                  </p>
+                <div className="text-center min-w-0">
+                  <div className="font-medium text-gray-900 dark:text-white text-sm">SMS</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Send via text</div>
+                </div>
+              </Button>
+
+              {/* Mobile Share */}
+              <Button 
+                variant="outline" 
+                className="flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-6 h-auto rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-300 dark:hover:border-purple-600 transition-all min-w-0 sm:col-span-2 lg:col-span-1"
+                onClick={() => window.open(profileUrl, '_blank')}
+              >
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Smartphone className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="text-center min-w-0">
+                  <div className="font-medium text-gray-900 dark:text-white text-sm">Preview</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">View your profile</div>
+                </div>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* QR Code Features */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+            <CardTitle className="text-sm sm:text-base lg:text-lg">QR Code Features</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+            <div className="space-y-3 sm:space-y-4 lg:space-y-5 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex gap-2 sm:gap-3 lg:gap-4">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-blue-600 dark:text-blue-400 font-bold text-xs">1</span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm lg:text-base mb-1">Universal Compatibility</p>
+                  <p className="leading-relaxed">Works with any smartphone camera or QR code scanner app.</p>
                 </div>
               </div>
-
-              <div className="group/item flex items-start gap-3 sm:gap-4 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition-all duration-300 border border-transparent hover:border-purple-500/20 dark:hover:border-purple-400/20">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-500/10 to-purple-600/20 dark:from-purple-500/20 dark:to-purple-600/30 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 border border-purple-500/20 dark:border-purple-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
-                  <Link className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-purple-600 dark:text-purple-400" />
+              <div className="flex gap-2 sm:gap-3 lg:gap-4">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-purple-600 dark:text-purple-400 font-bold text-xs">2</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white group-hover/item:text-purple-600 dark:group-hover/item:text-purple-400 transition-colors duration-300 leading-tight">Social Integration</h4>
-                  <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                    <span className="block sm:hidden">Connect all your profiles in one unified digital identity</span>
-                    <span className="hidden sm:block">Connect all your social profiles, websites, and contact methods in one powerful, unified digital identity.</span>
-                  </p>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm lg:text-base mb-1">Always Up-to-Date</p>
+                  <p className="leading-relaxed">Your QR code automatically reflects any changes you make to your profile.</p>
                 </div>
               </div>
-
-              <div className="group/item flex items-start gap-3 sm:gap-4 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition-all duration-300 border border-transparent hover:border-emerald-500/20 dark:hover:border-emerald-400/20">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-emerald-500/10 to-emerald-600/20 dark:from-emerald-500/20 dark:to-emerald-600/30 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 border border-emerald-500/20 dark:border-emerald-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
-                  <Zap className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-emerald-600 dark:text-emerald-400" />
+              <div className="flex gap-2 sm:gap-3 lg:gap-4">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-green-600 dark:text-green-400 font-bold text-xs">3</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white group-hover/item:text-emerald-600 dark:group-hover/item:text-emerald-400 transition-colors duration-300 leading-tight">Instant Updates</h4>
-                  <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                    <span className="block sm:hidden">Update once, changes everywhere instantly</span>
-                    <span className="hidden sm:block">Change your contact info once, and it updates everywhere instantly. No more outdated business cards or missed connections.</span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="group/item flex items-start gap-3 sm:gap-4 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition-all duration-300 border border-transparent hover:border-orange-500/20 dark:hover:border-orange-400/20">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-orange-500/10 to-orange-600/20 dark:from-orange-500/20 dark:to-orange-600/30 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 border border-orange-500/20 dark:border-orange-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
-                  <Rocket className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-orange-600 dark:text-orange-400" />
-                  </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 text-gray-900 dark:text-white group-hover/item:text-orange-600 dark:group-hover/item:text-orange-400 transition-colors duration-300 leading-tight">Scale Your Network</h4>
-                  <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                    <span className="block sm:hidden">Build connections faster than traditional networking</span>
-                    <span className="hidden sm:block">Build meaningful connections faster than traditional networking. One scan opens doors to unlimited opportunities.</span>
-                  </p>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm lg:text-base mb-1">High Quality</p>
+                  <p className="leading-relaxed">Optimized for printing on business cards, flyers, and other materials.</p>
                 </div>
               </div>
             </div>
-
-            {/* Desktop: Two column layout */}
-            <div className="hidden lg:grid lg:grid-cols-2 gap-8 xl:gap-12">
-              <div className="space-y-8">
-                <div className="group/item flex items-start gap-5 p-5 rounded-2xl hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition-all duration-300 border border-transparent hover:border-blue-500/20 dark:hover:border-blue-400/20">
-                  <div className="w-16 h-16 xl:w-18 xl:h-18 bg-gradient-to-br from-blue-500/10 to-blue-600/20 dark:from-blue-500/20 dark:to-blue-600/30 rounded-2xl flex items-center justify-center flex-shrink-0 border border-blue-500/20 dark:border-blue-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
-                    <Users className="w-7 h-7 xl:w-8 xl:h-8 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-xl xl:text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-blue-600 dark:group-hover/item:text-blue-400 transition-colors duration-300">Lead Generation</h4>
-                    <p className="text-base xl:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Turn every scan into a potential business opportunity. Capture leads directly from your digital profile with smart analytics.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="group/item flex items-start gap-5 p-5 rounded-2xl hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition-all duration-300 border border-transparent hover:border-purple-500/20 dark:hover:border-purple-400/20">
-                  <div className="w-16 h-16 xl:w-18 xl:h-18 bg-gradient-to-br from-purple-500/10 to-purple-600/20 dark:from-purple-500/20 dark:to-purple-600/30 rounded-2xl flex items-center justify-center flex-shrink-0 border border-purple-500/20 dark:border-purple-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
-                    <Link className="w-7 h-7 xl:w-8 xl:h-8 text-purple-600 dark:text-purple-400" />
-                  </div>
-                <div className="flex-1 min-w-0">
-                    <h4 className="text-xl xl:text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-purple-600 dark:group-hover/item:text-purple-400 transition-colors duration-300">Social Integration</h4>
-                    <p className="text-base xl:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Connect all your social profiles, websites, and contact methods in one powerful, unified digital identity.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-8">
-                <div className="group/item flex items-start gap-5 p-5 rounded-2xl hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition-all duration-300 border border-transparent hover:border-emerald-500/20 dark:hover:border-emerald-400/20">
-                  <div className="w-16 h-16 xl:w-18 xl:h-18 bg-gradient-to-br from-emerald-500/10 to-emerald-600/20 dark:from-emerald-500/20 dark:to-emerald-600/30 rounded-2xl flex items-center justify-center flex-shrink-0 border border-emerald-500/20 dark:border-emerald-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
-                    <Zap className="w-7 h-7 xl:w-8 xl:h-8 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                <div className="flex-1 min-w-0">
-                    <h4 className="text-xl xl:text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-emerald-600 dark:group-hover/item:text-emerald-400 transition-colors duration-300">Instant Updates</h4>
-                    <p className="text-base xl:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Change your contact info once, and it updates everywhere instantly. No more outdated profile or missed connections.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="group/item flex items-start gap-5 p-5 rounded-2xl hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition-all duration-300 border border-transparent hover:border-orange-500/20 dark:hover:border-orange-400/20">
-                  <div className="w-16 h-16 xl:w-18 xl:h-18 bg-gradient-to-br from-orange-500/10 to-orange-600/20 dark:from-orange-500/20 dark:to-orange-600/30 rounded-2xl flex items-center justify-center flex-shrink-0 border border-orange-500/20 dark:border-orange-500/30 group-hover/item:scale-110 group-hover/item:shadow-lg transition-all duration-300">
-                    <Rocket className="w-7 h-7 xl:w-8 xl:h-8 text-orange-600 dark:text-orange-400" />
-                  </div>
-                <div className="flex-1 min-w-0">
-                    <h4 className="text-xl xl:text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover/item:text-orange-600 dark:group-hover/item:text-orange-400 transition-colors duration-300">Scale Your Network</h4>
-                    <p className="text-base xl:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Build meaningful connections faster than traditional networking. One scan opens doors to unlimited opportunities.
-                    </p>
-                  </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-        </div>
-
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          <div className="group relative rounded-2xl sm:rounded-3xl shadow-xl p-5 sm:p-6 md:p-8 bg-white/98 dark:bg-[#1A1D24]/98 border border-gray-200/30 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-500 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-emerald-300/50 dark:hover:border-emerald-500/30 text-center hover:-translate-y-2 overflow-hidden">
-            {/* Background decoration */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-emerald-600/5 dark:from-emerald-500/10 dark:to-emerald-600/10"></div>
-            <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-bl from-emerald-500/20 to-transparent rounded-full blur-2xl"></div>
-            
-            <div className="relative z-10">
-              <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-emerald-500/10 to-emerald-600/20 dark:from-emerald-500/20 dark:to-emerald-600/30 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-5 md:mb-6 border border-emerald-500/20 dark:border-emerald-500/30 group-hover:scale-110 group-hover:shadow-xl transition-all duration-300">
-                <Leaf className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <h3 className="text-base sm:text-lg md:text-xl font-bold mb-3 sm:mb-4 text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300 leading-tight">Eco-Friendly</h3>
-              <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                <span className="block sm:hidden">Reduce paper waste with digital cards</span>
-                <span className="hidden sm:block lg:hidden">Digital cards reduce paper waste and promote sustainability</span>
-                <span className="hidden lg:block">Digital profiles reduce paper waste and promote environmental sustainability for conscious networking</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="group relative rounded-2xl sm:rounded-3xl shadow-xl p-5 sm:p-6 md:p-8 bg-white/98 dark:bg-[#1A1D24]/98 border border-gray-200/30 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-500 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-blue-300/50 dark:hover:border-blue-500/30 text-center hover:-translate-y-2 overflow-hidden">
-            {/* Background decoration */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-blue-600/5 dark:from-blue-500/10 dark:to-blue-600/10"></div>
-            <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-bl from-blue-500/20 to-transparent rounded-full blur-2xl"></div>
-            
-            <div className="relative z-10">
-              <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-blue-500/10 to-blue-600/20 dark:from-blue-500/20 dark:to-blue-600/30 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-5 md:mb-6 border border-blue-500/20 dark:border-blue-500/30 group-hover:scale-110 group-hover:shadow-xl transition-all duration-300">
-                <Infinity className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="text-base sm:text-lg md:text-xl font-bold mb-3 sm:mb-4 text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300 leading-tight">Always Updated</h3>
-              <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                <span className="block sm:hidden">Information stays current automatically</span>
-                <span className="hidden sm:block lg:hidden">Your information stays current when you update your profile</span>
-                <span className="hidden lg:block">Your information stays current automatically when you update your profile - no reprinting ever needed</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="group relative rounded-2xl sm:rounded-3xl shadow-xl p-5 sm:p-6 md:p-8 bg-white/98 dark:bg-[#1A1D24]/98 border border-gray-200/30 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-500 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-purple-300/50 dark:hover:border-purple-500/30 text-center hover:-translate-y-2 overflow-hidden sm:col-span-2 lg:col-span-1">
-            {/* Background decoration */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-purple-600/5 dark:from-purple-500/10 dark:to-purple-600/10"></div>
-            <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-bl from-purple-500/20 to-transparent rounded-full blur-2xl"></div>
-            
-            <div className="relative z-10">
-              <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-purple-500/10 to-purple-600/20 dark:from-purple-500/20 dark:to-purple-600/30 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-5 md:mb-6 border border-purple-500/20 dark:border-purple-500/30 group-hover:scale-110 group-hover:shadow-xl transition-all duration-300">
-                <Smartphone className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="text-base sm:text-lg md:text-xl font-bold mb-3 sm:mb-4 text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300 leading-tight">Mobile Ready</h3>
-              <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                <span className="block sm:hidden">Optimized for all smartphone cameras</span>
-                <span className="hidden sm:block lg:hidden">Optimized for all smartphone cameras and QR scanners</span>
-                <span className="hidden lg:block">Optimized for all smartphone cameras and QR code scanner apps with lightning-fast recognition</span>
-              </p>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </motion.div>
     </div>
   );

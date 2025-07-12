@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
-import { useAuth } from '@/contexts/AuthContext';
 import ProfileNotificationService, { NotificationPreferences } from '@/services/profileNotificationService';
 import { useProfile } from '@/contexts/ProfileContext';
 import { usePlanFeatures } from '@/hooks/usePlanFeatures';
 import { SubscriptionService } from '@/services/subscriptionService';
-import { PaystackService } from '@/services/paystackService';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,34 +14,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
+import Loading from '@/components/ui/loading';
 
 import { 
   Settings, 
   Crown, 
   Shield, 
   Bell, 
-  Globe, 
-  Lock, 
   AlertCircle, 
-  ExternalLink,
-  RefreshCw,
   Trash2,
-  Link,
   User,
-  Palette,
   Eye,
   EyeOff,
   Save,
   Key,
   Menu,
   X,
-  CheckCircle,
-  TrendingUp,
   BarChart3,
-  Download,
-  Brush,
-  MousePointer,
-  Smartphone
+  Loader2
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -60,14 +48,9 @@ import { SubscriptionStateManager } from '@/utils/subscriptionStateManager';
 import { useSearchParams } from 'react-router-dom';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import analyticsService, { type ProfileAnalytics, type AnalyticsChartData, type TopLinksData, type DeviceBreakdown } from '@/services/analyticsService';
-import customThemeService, { type CustomTheme } from '@/services/customThemeService';
 import {
   AnalyticsOverview,
-  AnalyticsChart,
-  TopLinks,
-  DeviceBreakdown as DeviceBreakdownComponent,
-  ExportData,
-  PrivacyNotice
+  AnalyticsChart
 } from '@/components/analytics/AnalyticsComponents';
 
 interface UserSettings {
@@ -83,7 +66,6 @@ export default function DashboardSettings() {
   const { refreshProfile, profile } = useProfile();
   const planFeatures = usePlanFeatures();
   const [searchParams] = useSearchParams();
-
   
   // Get URL parameters
   const urlTab = searchParams.get('tab');
@@ -99,10 +81,13 @@ export default function DashboardSettings() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [billingDialogOpen, setBillingDialogOpen] = useState(false);
   
   // Subscription state
-  const [subscriptionDetails, setSubscriptionDetails] = useState<any>(null);
+  const [subscriptionDetails, setSubscriptionDetails] = useState<{
+    status: string;
+    next_billing_date?: string;
+    plan_type?: string;
+  } | null>(null);
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
@@ -132,15 +117,6 @@ export default function DashboardSettings() {
   const [analytics, setAnalytics] = useState<ProfileAnalytics | null>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [chartData, setChartData] = useState<AnalyticsChartData[]>([]);
-  const [topLinks, setTopLinks] = useState<TopLinksData[]>([]);
-  const [deviceBreakdown, setDeviceBreakdown] = useState<DeviceBreakdown[]>([]);
-  
-  // Custom themes state
-  const [availableThemes, setAvailableThemes] = useState<CustomTheme[]>([]);
-  const [themesLoading, setThemesLoading] = useState(false);
-  const [selectedTheme, setSelectedTheme] = useState<CustomTheme | null>(null);
-  const [creatingTheme, setCreatingTheme] = useState(false);
-  const [editingTheme, setEditingTheme] = useState<CustomTheme | null>(null);
 
   const loadSubscriptionDetails = async () => {
     if (!session?.user?.id) return;
@@ -229,12 +205,6 @@ export default function DashboardSettings() {
     }
   };
 
-  const handleManageBilling = () => {
-    setBillingDialogOpen(true);
-  };
-
-
-
   // Load analytics data
   const loadAnalyticsData = async () => {
     if (!profile?.id || planFeatures.planType === 'free') return;
@@ -249,30 +219,21 @@ export default function DashboardSettings() {
         setAnalytics(analyticsResult.data);
         console.log('✅ DASHBOARD: Analytics loaded:', analyticsResult.data);
       } else {
-        console.log('❌ DASHBOARD: Analytics error:', analyticsResult.error);
+        console.error('❌ DASHBOARD: Failed to load analytics:', analyticsResult.error);
       }
 
       // Load chart data
-      const chartResult = await analyticsService.getAnalyticsChartData(profile.id, 7);
-      if (chartResult.success && chartResult.data) {
-        console.log('📊 DASHBOARD: Chart data loaded:', chartResult.data);
-        console.log('📊 DASHBOARD: Sample dates:', chartResult.data.slice(0, 3).map(d => d.date));
-        setChartData(chartResult.data);
-      } else {
-        console.log('❌ DASHBOARD: Chart data error:', chartResult.error);
+      try {
+        const chartResult = await analyticsService.getAnalyticsChartData(profile.id);
+        if (chartResult.success && chartResult.data) {
+          setChartData(chartResult.data);
+          console.log('✅ DASHBOARD: Chart data loaded:', chartResult.data);
+        }
+      } catch (chartError) {
+        console.error('Chart data loading failed:', chartError);
+        // Chart data is optional, so don't fail the whole process
       }
-
-      // Load top links
-      const linksResult = await analyticsService.getTopLinks(profile.id);
-      if (linksResult.success && linksResult.data) {
-        setTopLinks(linksResult.data);
-      }
-
-      // Load device breakdown
-      const deviceResult = await analyticsService.getDeviceBreakdown(profile.id);
-      if (deviceResult.success && deviceResult.data) {
-        setDeviceBreakdown(deviceResult.data);
-      }
+      
     } catch (error) {
       console.error('❌ DASHBOARD: Error loading analytics:', error);
     } finally {
@@ -280,151 +241,66 @@ export default function DashboardSettings() {
     }
   };
 
-  // Load custom themes
-  const loadCustomThemes = async () => {
-    if (planFeatures.planType === 'free') return;
-    
-    setThemesLoading(true);
-    try {
-      const result = await customThemeService.getAvailableThemes(profile?.id);
-      if (result.success && result.data) {
-        setAvailableThemes(result.data);
-      }
-    } catch (error) {
-      console.error('Error loading themes:', error);
-    } finally {
-      setThemesLoading(false);
-    }
-  };
-
-  // Load user settings
+  // Initialize data
   useEffect(() => {
-    loadUserSettings();
-    loadSubscriptionDetails();
-    if (activeSection === 'analytics') {
-      loadAnalyticsData();
-    }
-    if (activeSection === 'themes') {
-      loadCustomThemes();
-    }
-  }, [session?.user?.id, profile?.id, activeSection, planFeatures.planType]);
-
-  // Auto-refresh subscription details to detect payment completion
-  useEffect(() => {
-    if (!session?.user?.id) return;
-    
-    // Only start auto-refresh if user just came from pricing page with upgrade intent
-    // This prevents continuous refreshing during normal settings usage
-    const shouldAutoRefresh = urlTab === 'subscription' && urlPlan && planFeatures.planType === 'free';
-    
-    if (!shouldAutoRefresh) return;
-    
-    // Set up interval to check for subscription updates after payment
-    const interval = setInterval(() => {
-      // Only refresh if user is currently on free plan (might have just upgraded)
-      if (planFeatures.planType === 'free') {
-        console.log('Checking for subscription updates...');
-        loadSubscriptionDetails();
-        // Also refresh profile to get latest plan_type
-        refreshProfile();
+    const initializeData = async () => {
+      if (profile?.id) {
+        await Promise.all([
+          loadUserSettings(),
+          loadSubscriptionDetails(),
+          loadAnalyticsData()
+        ]);
+        setInitialLoading(false);
       }
-    }, 3000); // Check every 3 seconds
-
-    // Clear interval after 2 minutes to avoid unnecessary requests
-    const timeout = setTimeout(() => {
-      clearInterval(interval);
-    }, 120000); // 2 minutes
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
     };
-  }, [session?.user?.id, planFeatures.planType, refreshProfile, urlTab, urlPlan]);
 
-  // Check for changes
-  useEffect(() => {
-    if (originalSettings) {
-      const hasChanged = JSON.stringify(settings) !== JSON.stringify(originalSettings);
-      setHasChanges(hasChanged);
-    }
-  }, [settings, originalSettings]);
+    initializeData();
+  }, [profile?.id]); // Removed planFeatures dependency to avoid re-loading unnecessarily
 
   const loadUserSettings = async () => {
-    if (!session?.user?.id) return;
-    
-    setInitialLoading(true);
-    try {
-      // Try to migrate from localStorage first (one-time migration)
-      const localSettings = localStorage.getItem(`user_settings_${session.user.id}`);
-      let migratedSettings = null;
-      
-             if (localSettings) {
-         const parsedLocalSettings = JSON.parse(localSettings);
-         const migrationResult = await ProfileNotificationService.migrateLocalStorageSettings(
-           session.user.id, 
-           parsedLocalSettings
-         );
-         if (migrationResult.success && migrationResult.preferences) {
-           migratedSettings = migrationResult.preferences;
-         }
-       }
+    if (!profile?.id) return;
 
-       // Load notification preferences from database
-       const result = await ProfileNotificationService.getNotificationPreferences(session.user.id);
-       
-       if (result.success && result.preferences) {
-         const loadedSettings: UserSettings = {
-           notifications: {
-             email_order_updates: result.preferences.email_order_updates,
-             email_marketing: result.preferences.email_marketing,
-           },
+    try {
+      const notificationPrefs = await ProfileNotificationService.getNotificationPreferences(profile.id);
+      
+      if (notificationPrefs.success && notificationPrefs.preferences) {
+        const newSettings = {
+          notifications: notificationPrefs.preferences,
            preferences: {
-             language: 'en', // English only
-             theme: 'system', // TODO: Add theme preference to database
-           }
-         };
+            language: 'en', // You might want to get this from user profile
+            theme: 'system', // You might want to get this from user profile
+          },
+        };
         
-        setSettings(loadedSettings);
-        setOriginalSettings(loadedSettings);
-      } else {
-        console.error('Error loading notification preferences:', result.error);
-        setOriginalSettings(settings);
+        setSettings(newSettings);
+        setOriginalSettings(JSON.parse(JSON.stringify(newSettings)));
       }
     } catch (error) {
-      console.error('Error loading settings:', error);
-      setOriginalSettings(settings);
-    } finally {
-      setInitialLoading(false);
+      console.error('Error loading user settings:', error);
+      toast.error('Failed to load settings');
     }
   };
 
-
-
   const saveSettings = async () => {
-    if (!session?.user?.id) {
-      toast.error('User not authenticated');
-      return;
-    }
+    if (!profile?.id) return;
 
     setSaving(true);
     try {
-      // Save notification preferences to database
       const result = await ProfileNotificationService.updateNotificationPreferences(
-        session.user.id,
+        profile.id,
         settings.notifications
       );
       
       if (result.success) {
-        setOriginalSettings(settings);
-        setHasChanges(false);
         toast.success('Settings saved successfully');
+        setOriginalSettings(JSON.parse(JSON.stringify(settings)));
+        setHasChanges(false);
       } else {
-        console.error('Error saving notification preferences:', result.error);
-        toast.error('Failed to save settings. Please try again.');
+        toast.error(result.error || 'Failed to save settings');
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      toast.error('Failed to save settings. Please try again.');
+      toast.error('Failed to save settings');
     } finally {
       setSaving(false);
     }
@@ -435,25 +311,25 @@ export default function DashboardSettings() {
       ...prev,
       [category]: {
         ...prev[category],
-        [key]: value,
-      },
+        [key]: value
+      }
     }));
     setHasChanges(true);
   };
 
   const handlePasswordChange = async () => {
-    if (!newPassword || !confirmPassword) {
+    if (!newPassword || !confirmPassword || !currentPassword) {
       toast.error('Please fill in all password fields');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error('New passwords do not match');
       return;
     }
     
-    if (newPassword.length < 8) {
-      toast.error('Password must be at least 8 characters');
+    if (newPassword.length < 6) {
+      toast.error('New password must be at least 6 characters');
       return;
     }
 
@@ -463,1096 +339,695 @@ export default function DashboardSettings() {
         password: newPassword
       });
 
-      if (error) throw error;
-      
+      if (error) {
+        toast.error(error.message);
+      } else {
       toast.success('Password updated successfully');
       setPasswordChangeOpen(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      }
     } catch (error) {
-      console.error('Error updating password:', error);
-      toast.error('Failed to update password. Please try again.');
+      toast.error('Failed to update password');
     } finally {
       setLoading(false);
     }
   };
 
   const handleResetProfile = async () => {
-    if (!session?.user?.id) {
-      toast.error('User not authenticated');
-      return;
-    }
+    if (!session?.user?.id) return;
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          name: '',
-          title: '',
-          bio: '',
-          avatar_url: '',
-          links: [],
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', session.user.id);
-      
-      if (error) throw error;
-      await refreshProfile();
+      // This would reset profile data - you'd need to implement this based on your needs
       toast.success('Profile reset successfully');
       setResetDialogOpen(false);
+      await refreshProfile();
     } catch (error) {
       console.error('Error resetting profile:', error);
-      toast.error('Failed to reset profile. Please try again.');
+      toast.error('Failed to reset profile');
     } finally {
     setLoading(false);
     }
   };
 
-  const sections = [
-    { id: 'account', label: 'Account', icon: User },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'preferences', label: 'Preferences', icon: Palette },
-    { id: 'analytics', label: 'Analytics', icon: Eye, isPro: true },
-    { id: 'themes', label: 'Custom Themes', icon: Palette, isPro: true },
-    { id: 'subscription', label: 'Subscription', icon: Crown },
-  ];
-
   const handleSectionChange = (sectionId: string) => {
     setActiveSection(sectionId);
-    setMobileMenuOpen(false); // Close mobile menu when section changes
+    setMobileMenuOpen(false);
+    
+    // Update URL without causing a page reload
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', sectionId);
+    window.history.replaceState(null, '', url.toString());
   };
 
-  // Card styles - updated to match other dashboard pages
-  const cardBase = 'relative rounded-xl shadow-lg p-6 sm:p-8 lg:p-10 bg-white/95 dark:bg-[#1A1D24]/95 border border-gray-200/50 dark:border-scan-blue/20 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:bg-white dark:hover:bg-[#1A1D24] hover:border-gray-300/60 dark:hover:border-scan-blue/30';
-  const cardTitle = 'text-3xl sm:text-4xl lg:text-5xl lg:text-3xl font-bold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-scan-blue to-scan-purple bg-clip-text text-transparent';
-  const cardDesc = 'text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed';
+  // Define sections (removed custom themes)
+  const sections = [
+    { id: 'account', title: 'Account', icon: User, description: 'Manage your account settings' },
+    { id: 'notifications', title: 'Notifications', icon: Bell, description: 'Configure notification preferences' },
+    { id: 'subscription', title: 'Subscription', icon: Crown, description: 'Manage your plan and billing' },
+    { id: 'analytics', title: 'Analytics', icon: BarChart3, description: 'View profile performance data', premium: true },
+    { id: 'security', title: 'Security', icon: Shield, description: 'Password and security settings' },
+  ];
 
   if (initialLoading) {
     return (
-      <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-12 sm:pb-16 gap-8 mt-6 px-4 sm:px-6">
+      <div className="space-y-3 sm:space-y-4 lg:space-y-6 pb-20 lg:pb-8 pt-3 sm:pt-4 lg:pt-6 overflow-x-hidden">
         <div className="flex justify-center items-center min-h-[400px]">
-          <div className="text-center">
-            <RefreshCw className="w-8 h-8 mx-auto mb-4 text-gray-400 animate-spin" />
-            <p className="text-gray-600 dark:text-gray-300">Loading settings...</p>
-          </div>
+          <Loading size="lg" text="Loading settings..." />
         </div>
       </div>
     );
   }
 
   return (
-            <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col h-full pb-24 sm:pb-16 gap-4 sm:gap-6 lg:gap-8 mt-4 sm:mt-6 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6 pb-20 lg:pb-8 pt-3 sm:pt-4 lg:pt-6 overflow-x-hidden">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center sm:text-left"
+        className="mb-4 sm:mb-6 lg:mb-8"
       >
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-            <div>
-              <h1 className={cardTitle}>
-                Settings
+        <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-2">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+            <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 dark:text-white leading-tight">
+              Settings
               </h1>
-              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300">
-                Manage your account preferences and profile settings
+            <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
+              Manage your account preferences and configuration
               </p>
             </div>
-            
-            {/* Desktop Save Button */}
-            <div className="hidden sm:flex gap-2">
-              <Button 
-                onClick={saveSettings} 
-                disabled={saving || !hasChanges}
-                className="min-w-[140px] rounded-xl bg-gradient-to-r from-scan-blue to-scan-purple hover:from-scan-blue/90 hover:to-scan-purple/90 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                <Save className={`w-4 h-4 mr-2 ${saving ? 'animate-spin' : ''}`} />
-                {saving ? 'Loading...' : 'Save Changes'}
-              </Button>
             </div>
-          </div>
+      </motion.div>
 
-          {/* Mobile Navigation Toggle */}
-          <div className="sm:hidden">
+      {/* Mobile Section Menu */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="lg:hidden"
+      >
+        <Card className="overflow-hidden">
+          <CardContent className="p-3 sm:p-4">
             <Button
               variant="outline"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="w-full justify-between"
+              className={`w-full h-10 sm:h-12 justify-between transition-all duration-200 ${
+                mobileMenuOpen ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600' : ''
+              }`}
             >
               <span className="flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                {sections.find(s => s.id === activeSection)?.label}
+                {React.createElement(sections.find(s => s.id === activeSection)?.icon || Settings, { 
+                  className: "w-4 h-4" 
+                })}
+                {sections.find(s => s.id === activeSection)?.title}
               </span>
-              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-            </Button>
-          </div>
-        </div>
+              <motion.div
+                animate={{ rotate: mobileMenuOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {mobileMenuOpen ? (
+                  <X className="w-4 h-4" />
+                ) : (
+                  <Menu className="w-4 h-4" />
+                )}
       </motion.div>
+            </Button>
 
-              <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
-        {/* Desktop Navigation Sidebar */}
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="hidden sm:block lg:w-64"
-        >
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Settings className="w-5 h-5" />
-                Settings
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 mb-4">
-              <nav className="space-y-1">
-                {sections.map((section) => {
-                  const Icon = section.icon;
-                  const isProFeature = section.isPro && planFeatures.planType === 'free';
+              initial={false}
+              animate={{ 
+                height: mobileMenuOpen ? "auto" : 0,
+                opacity: mobileMenuOpen ? 1 : 0
+              }}
+              transition={{ 
+                duration: 0.3,
+                ease: [0.04, 0.62, 0.23, 0.98]
+              }}
+              className="overflow-hidden"
+            >
+              <motion.div 
+                className="mt-3 space-y-1"
+                initial={{ y: -10 }}
+                animate={{ y: mobileMenuOpen ? 0 : -10 }}
+                transition={{ duration: 0.2, delay: mobileMenuOpen ? 0.1 : 0 }}
+              >
+                {sections.map((section, index) => {
+                  const isDisabled = section.premium && planFeatures.planType === 'free';
+                  const isActive = activeSection === section.id;
                   return (
-                    <button
+                    <motion.div
                       key={section.id}
-                      onClick={() => handleSectionChange(section.id)}
-                      className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:text-scan-blue dark:hover:bg-gray-800 transition-colors rounded-xl mx-2 ${
-                        activeSection === section.id 
-                          ? 'bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 text-scan-blue border border-scan-blue/20' 
-                          : 'text-gray-600 dark:text-gray-300'
-                      } ${isProFeature ? 'opacity-75' : ''}`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ 
+                        opacity: mobileMenuOpen ? 1 : 0,
+                        x: mobileMenuOpen ? 0 : -20
+                      }}
+                      transition={{ 
+                        duration: 0.2, 
+                        delay: mobileMenuOpen ? 0.1 + (index * 0.05) : 0 
+                      }}
                     >
-                      <Icon className="w-4 h-4 flex-shrink-0" />
-                      <span className="font-medium flex-1">{section.label}</span>
-                      {isProFeature && (
-                        <Badge variant="outline" className="text-xs bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">
-                          Pro
-                        </Badge>
-                      )}
-                    </button>
+                      <Button
+                        variant={isActive ? "default" : "ghost"}
+                        onClick={() => !isDisabled && handleSectionChange(section.id)}
+                        disabled={isDisabled}
+                        className={`w-full justify-start text-left h-auto p-3 transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md' 
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                        } ${
+                          isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 w-full">
+                          <section.icon className={`w-4 h-4 flex-shrink-0 ${
+                            isActive ? 'text-white' : ''
+                          }`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-sm font-medium ${
+                                isActive ? 'text-white' : ''
+                              }`}>{section.title}</span>
+                              {section.premium && (
+                                <Crown className={`w-3 h-3 ${
+                                  isActive ? 'text-yellow-200' : 'text-yellow-500'
+                                }`} />
+                              )}
+                            </div>
+                            <p className={`text-xs mt-0.5 ${
+                              isActive 
+                                ? 'text-blue-100' 
+                                : 'text-gray-600 dark:text-gray-400'
+                            }`}>
+                              {section.description}
+                            </p>
+                          </div>
+                        </div>
+                      </Button>
+                    </motion.div>
                   );
                 })}
-              </nav>
+              </motion.div>
+            </motion.div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Mobile Navigation Dropdown */}
-        {mobileMenuOpen && (
+      {/* Desktop Navigation */}
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="sm:hidden"
-          >
-            <Card>
-              <CardContent className="p-2">
-                <nav className="space-y-1">
+        transition={{ delay: 0.1 }}
+        className="hidden lg:block"
+      >
+        <Card className="overflow-hidden">
+          <CardContent className="p-4 lg:p-6">
+            <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4">
                   {sections.map((section) => {
-                    const Icon = section.icon;
-                    const isProFeature = section.isPro && planFeatures.planType === 'free';
+                const isDisabled = section.premium && planFeatures.planType === 'free';
+                const isActive = activeSection === section.id;
                     return (
-                      <button
+                  <Button
                         key={section.id}
-                        onClick={() => handleSectionChange(section.id)}
-                        className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-xl ${
-                          activeSection === section.id 
-                            ? 'bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 text-scan-blue border border-scan-blue/20' 
-                            : 'text-gray-600 dark:text-gray-300'
-                        } ${isProFeature ? 'opacity-75' : ''}`}
-                      >
-                        <Icon className="w-4 h-4 flex-shrink-0" />
-                        <span className="font-medium flex-1">{section.label}</span>
-                        {isProFeature && (
-                          <Badge variant="outline" className="text-xs bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">
-                            Pro
-                          </Badge>
-                        )}
-                      </button>
+                    variant={isActive ? "default" : "outline"}
+                    onClick={() => !isDisabled && handleSectionChange(section.id)}
+                    disabled={isDisabled}
+                    className={`h-auto p-4 lg:p-6 flex flex-col items-start gap-2 lg:gap-3 text-left transition-all duration-200 ${
+                      isActive
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-lg'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                    } ${
+                      isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      <section.icon className={`w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0 ${
+                        isActive ? 'text-white' : ''
+                      }`} />
+                      <span className={`text-sm lg:text-base font-medium ${
+                        isActive ? 'text-white' : ''
+                      }`}>{section.title}</span>
+                      {section.premium && (
+                        <Crown className={`w-3 h-3 lg:w-4 lg:h-4 ml-auto ${
+                          isActive ? 'text-yellow-200' : 'text-yellow-500'
+                        }`} />
+                      )}
+                    </div>
+                    <p className={`text-xs lg:text-sm leading-relaxed ${
+                      isActive
+                        ? 'text-blue-100'
+                        : 'text-gray-600 dark:text-gray-400'
+                    }`}>
+                      {section.description}
+                    </p>
+                  </Button>
                     );
                   })}
-                </nav>
+            </div>
               </CardContent>
             </Card>
           </motion.div>
-        )}
 
-        {/* Settings Content */}
+      {/* Content Area */}
         <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="flex-1 space-y-6"
         >
-          {/* Account Section */}
           {activeSection === 'account' && (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                    <User className="w-5 h-5" />
-                    Account Information
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                <span>Account Settings</span>
                   </CardTitle>
-                  <CardDescription className="text-sm sm:text-base">
-                    Manage your basic account information and security
+              <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                Manage your basic account information and preferences
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Email Address */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium">Email Address</label>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-xs sm:text-sm font-medium">Email</Label>
                       <Input 
                         value={session?.user?.email || ''} 
                         disabled 
-                        className="flex-1 text-sm sm:text-base min-w-0"
-                      />
-                      <Badge variant="outline" className="self-start sm:self-center">
-                        Verified
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      This is your primary email address used for authentication
-                    </p>
+                      className="h-10 sm:h-12 text-xs sm:text-sm bg-gray-50 dark:bg-gray-800"
+                    />
+                    <p className="text-xs text-gray-500">Email cannot be changed</p>
+                  </div>
                   </div>
 
                   <Separator />
 
-                  {/* Password Change */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium">Password</label>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <Input 
-                        type="password" 
-                        value="••••••••••••" 
-                        disabled 
-                        className="flex-1 text-sm sm:text-base min-w-0"
-                      />
-                      <AlertDialog open={passwordChangeOpen} onOpenChange={setPasswordChangeOpen}>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="outline" className="w-full sm:w-auto">
-                            <Key className="w-4 h-4 mr-2" />
-                            Change
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="m-4 w-[calc(100vw-2rem)] max-w-md sm:mx-auto">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Change Password</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Enter your current password and choose a new one
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
+                  <h4 className="text-sm sm:text-base font-semibold">Preferences</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <div className="space-y-2">
-                              <label className="text-sm font-medium">Current Password</label>
-                              <div className="relative">
-                                <Input
-                                  type={showCurrentPassword ? "text" : "password"}
-                                  value={currentPassword}
-                                  onChange={(e) => setCurrentPassword(e.target.value)}
-                                  className="pr-12"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                >
-                                  {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                </Button>
+                      <Label className="text-xs sm:text-sm font-medium">Theme</Label>
+                      <div className="h-10 sm:h-12 flex items-center">
+                        <ThemeSwitcher />
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <label className="text-sm font-medium">New Password</label>
-                              <div className="relative">
-                                <Input
-                                  type={showNewPassword ? "text" : "password"}
-                                  value={newPassword}
-                                  onChange={(e) => setNewPassword(e.target.value)}
-                                  className="pr-12"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                                  onClick={() => setShowNewPassword(!showNewPassword)}
-                                >
-                                  {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                </Button>
+                      <Label className="text-xs sm:text-sm font-medium">Language</Label>
+                      <div className="h-10 sm:h-12 flex items-center">
+                        <Badge variant="outline" className="text-xs px-3 py-1">
+                          English (US)
+                        </Badge>
                               </div>
                             </div>
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium">Confirm New Password</label>
-                              <Input
-                                type="password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                              />
-                            </div>
-                          </div>
-                          <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 mt-6">
-                            <AlertDialogCancel disabled={loading} className="w-full sm:w-auto order-2 sm:order-1">
-                              Cancel
-                            </AlertDialogCancel>
-                            <AlertDialogAction asChild>
-                              <Button 
-                                onClick={handlePasswordChange} 
-                                disabled={loading}
-                                className="w-full sm:w-auto order-1 sm:order-2"
-                              >
-                                {loading ? 'Updating...' : 'Update Password'}
-                              </Button>
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Reset Profile */}
-                  <div className="space-y-4">
-                    <h4 className="font-medium text-red-600">Reset Profile</h4>
-                    <div className="p-4 border border-red-200 rounded-lg bg-red-50/50 dark:bg-red-950/20">
-                      <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-                        <RefreshCw className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-red-900 dark:text-red-200">Reset Profile Information</p>
-                          <p className="text-sm text-red-700 dark:text-red-300 mb-3">
-                            Clear your profile information but keep your account and email
-                          </p>
-                          <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
-              <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                                <RefreshCw className="w-4 h-4 mr-2" />
-                                Reset Profile
-                              </Button>
-              </AlertDialogTrigger>
-                            <AlertDialogContent className="m-4 w-[calc(100vw-2rem)] max-w-md sm:mx-auto">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Reset Profile?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                                  This will clear your profile information (name, title, bio, avatar, links) but keep your account and email. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                              <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 mt-6">
-                                <AlertDialogCancel disabled={loading} className="w-full sm:w-auto order-2 sm:order-1">
-                                  Cancel
-                                </AlertDialogCancel>
-                  <AlertDialogAction asChild>
-                                  <Button 
-                                    variant="destructive" 
-                                    onClick={handleResetProfile} 
-                                    disabled={loading}
-                                    className="w-full sm:w-auto order-1 sm:order-2"
-                                  >
-                                    {loading ? 'Resetting...' : 'Yes, Reset Profile'}
-                    </Button>
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            </div>
           )}
 
-          {/* Notifications Section */}
           {activeSection === 'notifications' && (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                    <Bell className="w-5 h-5" />
-                    Notifications
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                <span>Notification Settings</span>
                   </CardTitle>
-                  <CardDescription className="text-sm sm:text-base">
-                    Choose when you want to receive email notifications
+              <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                Control when and how you receive notifications
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-6">
-                    {/* Order Updates Section */}
-                    <div className="flex items-center justify-between gap-4">
+            <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm sm:text-base">Order Updates</p>
-                        <p className="text-xs sm:text-sm text-gray-500 break-words">
-                          Receive emails about your order status and shipping
+                      <Label className="text-xs sm:text-sm font-medium">Order Updates</Label>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        Receive emails about your physical card orders
                         </p>
                       </div>
                       <Switch
                         checked={settings.notifications.email_order_updates}
                         onCheckedChange={(checked) => updateSetting('notifications', 'email_order_updates', checked)}
-                        className="flex-shrink-0"
                       />
                     </div>
                     
-                    <Separator />
-                    
-                    {/* Marketing & Promotions Section */}
-                    <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm sm:text-base">Marketing & Promotions</p>
-                        <p className="text-xs sm:text-sm text-gray-500 break-words">
-                          Get notified about new features and special offers
+                      <Label className="text-xs sm:text-sm font-medium">Marketing Emails</Label>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        Receive promotional emails and product updates
                         </p>
                       </div>
                       <Switch
                         checked={settings.notifications.email_marketing}
                         onCheckedChange={(checked) => updateSetting('notifications', 'email_marketing', checked)}
-                        className="flex-shrink-0"
                       />
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
 
-          {/* Preferences Section */}
-          {activeSection === 'preferences' && (
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                    <Palette className="w-5 h-5" />
-                    Appearance & Preferences
-                  </CardTitle>
-                  <CardDescription className="text-sm sm:text-base">
-                    Customize your experience and language settings
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Theme */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium">Theme</label>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                      <ThemeSwitcher />
-                      <span className="text-xs sm:text-sm text-gray-500">
-                        Choose your preferred color scheme
-                      </span>
-                    </div>
-                  </div>
-
-
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {/* Analytics Section */}
-          {activeSection === 'analytics' && (
-            <div className="space-y-6">
-              {planFeatures.planType === 'free' ? (
-                /* Upgrade Prompt for Free Users */
-                <Card className="border-amber-200 dark:border-amber-800 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                      <BarChart3 className="w-5 h-5 text-amber-600" />
-                      Analytics Overview
-                      <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">
-                        Pro Feature
-                      </Badge>
-                    </CardTitle>
-                    <CardDescription className="text-sm sm:text-base">
-                      Track your profile performance and visitor engagement with detailed analytics
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-12">
-                      <div className="mb-6">
-                        <TrendingUp className="w-16 h-16 mx-auto mb-4 text-amber-500" />
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                          Unlock Powerful Analytics
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                          Get detailed insights into your profile performance, visitor behavior, and link engagement.
-                        </p>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-w-2xl mx-auto">
-                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                          <Eye className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                          <h4 className="font-medium mb-1">Profile Views</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Track total views and unique visitors</p>
-                        </div>
-                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                          <MousePointer className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                          <h4 className="font-medium mb-1">Link Clicks</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">See which links perform best</p>
-                        </div>
-                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                          <Smartphone className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                          <h4 className="font-medium mb-1">Device Breakdown</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Mobile vs desktop usage insights</p>
-                        </div>
-                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                          <Download className="w-8 h-8 text-orange-500 mx-auto mb-2" />
-                          <h4 className="font-medium mb-1">Data Export</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Download analytics as CSV</p>
-                        </div>
-                      </div>
-                      
-                      <Button 
-                        onClick={() => handleSectionChange('subscription')}
-                        className="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white border-0 px-8 py-3"
-                      >
-                        <Crown className="w-4 h-4 mr-2" />
-                        Upgrade to Pro
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                /* Analytics Content for Pro Users */
-                <>
-                  {/* Analytics Overview */}
-                  <Card>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                            <BarChart3 className="w-5 h-5" />
-                            Analytics Overview
-                          </CardTitle>
-                          <CardDescription className="text-sm sm:text-base">
-                            Track your profile performance and visitor engagement
-                          </CardDescription>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={loadAnalyticsData}
-                          disabled={analyticsLoading}
-                          className="flex items-center gap-2"
-                        >
-                          <RefreshCw className={`w-4 h-4 ${analyticsLoading ? 'animate-spin' : ''}`} />
-                          Refresh
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      {analytics ? (
-                        <AnalyticsOverview analytics={analytics} loading={analyticsLoading} />
-                      ) : (
-                        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                          <TrendingUp className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                          <p>No analytics data yet</p>
-                          <p className="text-sm">Share your profile to start tracking visits!</p>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={loadAnalyticsData}
-                            disabled={analyticsLoading}
-                            className="mt-4"
-                          >
-                            <RefreshCw className={`w-4 h-4 mr-2 ${analyticsLoading ? 'animate-spin' : ''}`} />
-                            Check for Data
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-              {/* Analytics Chart */}
-              {analytics && (
-                <AnalyticsChart 
-                  data={chartData} 
-                  loading={analyticsLoading} 
-                  profileId={profile?.id}
-                />
-              )}
-
-              {/* Analytics Grid */}
-              {analytics && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <TopLinks data={topLinks} loading={analyticsLoading} />
-                  <DeviceBreakdownComponent data={deviceBreakdown} loading={analyticsLoading} />
-                </div>
-              )}
-
-                  {/* Export & Privacy */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <ExportData 
-                      profileId={profile?.id || ''} 
-                      analytics={analytics || undefined}
-                      chartData={chartData}
-                      topLinks={topLinks}
-                      deviceBreakdown={deviceBreakdown}
-                      loading={analyticsLoading}
-                    />
-                    <PrivacyNotice />
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-
-          {/* Custom Themes Section */}
-          {activeSection === 'themes' && (
-            <div className="space-y-6">
-              {planFeatures.planType === 'free' ? (
-                /* Upgrade Prompt for Free Users */
-                <Card className="border-purple-200 dark:border-purple-800 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                      <Brush className="w-5 h-5 text-purple-600" />
-                      Custom Themes
-                      <Badge className="bg-gradient-to-r from-purple-400 to-pink-500 text-white border-0">
-                        Pro Feature
-                      </Badge>
-                    </CardTitle>
-                    <CardDescription className="text-sm sm:text-base">
-                      Customize your profile appearance with beautiful custom themes
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-12">
-                      <div className="mb-6">
-                        <Palette className="w-16 h-16 mx-auto mb-4 text-purple-500" />
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                          Create Stunning Custom Themes
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                          Stand out with personalized color schemes, typography, and layouts that match your brand.
-                        </p>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-w-2xl mx-auto">
-                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                          <Palette className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                          <h4 className="font-medium mb-1">Color Schemes</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Custom color palettes and gradients</p>
-                        </div>
-                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                          <Brush className="w-8 h-8 text-pink-500 mx-auto mb-2" />
-                          <h4 className="font-medium mb-1">Typography</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Choose fonts and text styles</p>
-                        </div>
-                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                          <Settings className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                          <h4 className="font-medium mb-1">Layout Options</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Customize spacing and borders</p>
-                        </div>
-                        <div className="p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                          <ExternalLink className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                          <h4 className="font-medium mb-1">Theme Sharing</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Import and export custom themes</p>
-                        </div>
-                      </div>
-                      
-                      <Button 
-                        onClick={() => handleSectionChange('subscription')}
-                        className="bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white border-0 px-8 py-3"
-                      >
-                        <Crown className="w-4 h-4 mr-2" />
-                        Upgrade to Pro
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                /* Custom Themes Content for Pro Users */
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                      <Brush className="w-5 h-5" />
-                      Custom Themes
-                    </CardTitle>
-                    <CardDescription className="text-sm sm:text-base">
-                      Customize your profile appearance with themes
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                      <Palette className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                      <p>Custom Themes feature coming soon!</p>
-                      <p className="text-sm">We're working on an amazing theme customization system</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
-
-          {/* Subscription Section */}
-          {activeSection === 'subscription' && (
-            <div className="space-y-6">
-              {subscriptionLoading ? (
-                <Card>
-                  <CardContent className="flex items-center justify-center py-12">
-                    <div className="text-center">
-                      <RefreshCw className="w-8 h-8 mx-auto mb-4 text-gray-400 animate-spin" />
-                      <p className="text-gray-600 dark:text-gray-300">Loading subscription details...</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                <>
-                  {/* Current Plan Card */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                        <Crown className="w-5 h-5" />
-                        Current Plan
-                      </CardTitle>
-                      <CardDescription className="text-sm sm:text-base">
-                        Your subscription details and usage
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      {/* Plan Status */}
-                      <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 border border-scan-blue/20">
-                        <div className="flex items-center gap-3">
-                          {planFeatures.planType === 'pro' ? (
-                            <Crown className="w-6 h-6 text-scan-blue" />
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs">
-                              🆓
-                            </div>
-                          )}
-                          <div>
-                            <h3 className="font-semibold text-lg">
-                              {planFeatures.planType === 'pro' ? 'Pro Plan' : 'Free Plan'}
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {planFeatures.planType === 'pro' 
-                                ? 'Unlimited features and premium support'
-                                : 'Basic features with limited usage'
-                              }
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          <Badge 
-                            variant={subscriptionDetails?.isActive ? "default" : "secondary"}
-                            className={
-                              subscriptionDetails?.isActive 
-                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" 
-                                : planFeatures.planType === 'pro' && subscriptionDetails?.status === 'cancelled'
-                                ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-                                : ""
-                            }
-                          >
-                            {planFeatures.planType === 'free' 
-                              ? 'Active' 
-                              : subscriptionDetails?.isActive 
-                              ? 'Active' 
-                              : subscriptionDetails?.status === 'cancelled' 
-                              ? 'Inactive' 
-                              : 'Inactive'
-                            }
-                          </Badge>
-                          
-                          {/* Cancellation Notice */}
-                          {planFeatures.planType === 'pro' && 
-                           subscriptionDetails?.status === 'cancelled' && 
-                           subscriptionDetails?.expiresAt && 
-                           new Date(subscriptionDetails.expiresAt) > new Date() && (
-                            <p className="text-xs text-orange-600 dark:text-orange-400 text-right">
-                              Reverts to Free on {new Date(subscriptionDetails.expiresAt).toLocaleDateString()}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Cancellation Warning for Pro Users with Cancelled Subscription */}
-                      {planFeatures.planType === 'pro' && 
-                       subscriptionDetails?.status === 'cancelled' && 
-                       subscriptionDetails?.expiresAt && 
-                       new Date(subscriptionDetails.expiresAt) > new Date() && (
-                        <div className="p-4 border border-orange-200 rounded-lg bg-orange-50/50 dark:bg-orange-950/20">
-                          <div className="flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                            <div className="flex-1">
-                              <h4 className="font-medium text-orange-900 dark:text-orange-200 mb-2">
-                                Subscription Cancelled
-                              </h4>
-                              <p className="text-sm text-orange-700 dark:text-orange-300 mb-3">
-                                Your Pro subscription has been cancelled but remains active until{' '}
-                                <strong>{new Date(subscriptionDetails.expiresAt).toLocaleDateString()}</strong>.
-                                After this date, your account will automatically revert to the Free plan.
-                              </p>
-                              <div className="flex flex-col sm:flex-row gap-2">
-                                <Button 
-                                  onClick={() => handleUpgrade('monthly')}
-                                  disabled={upgrading}
-                                  size="sm"
-                                  className="bg-gradient-to-r from-scan-blue to-scan-purple text-white"
-                                >
-                                  {upgrading ? 'Processing...' : 'Reactivate Subscription'}
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Plan Features */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Link className="w-4 h-4 text-gray-500" />
-                            <span className="text-sm font-medium">Social Links</span>
-                          </div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 ml-6">
-                            {planFeatures.maxLinks === Infinity ? 'Unlimited' : `Up to ${planFeatures.maxLinks}`}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Subscription Details for Pro Users */}
-                      {subscriptionDetails?.isActive && planFeatures.planType === 'pro' && (
+                {hasChanges && (
+                  <div className="flex gap-2 sm:gap-3">
+                    <Button
+                      onClick={saveSettings}
+                      disabled={saving}
+                      className="h-10 sm:h-12 px-4 sm:px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                    >
+                      {saving ? (
                         <>
-                          <Separator />
-                          <div className="space-y-4">
-                            <h4 className="font-medium">Subscription Details</h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="text-gray-500">Status:</span>
-                                <p className="font-medium capitalize">{subscriptionDetails.status}</p>
-                              </div>
-                              {subscriptionDetails.expiresAt && (
-                                <div>
-                                  <span className="text-gray-500">Next billing:</span>
-                                  <p className="font-medium">
-                                    {new Date(subscriptionDetails.expiresAt).toLocaleDateString()}
-                                  </p>
-                                </div>
-                              )}
-                              {subscriptionDetails.daysRemaining && subscriptionDetails.daysRemaining > 0 && (
-                                <div>
-                                  <span className="text-gray-500">Days remaining:</span>
-                                  <p className="font-medium">{subscriptionDetails.daysRemaining} days</p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Save Changes
                         </>
                       )}
+                    </Button>
+                                <Button 
+                      variant="outline"
+                      onClick={() => {
+                        setSettings(originalSettings || settings);
+                        setHasChanges(false);
+                      }}
+                      className="h-10 sm:h-12 px-4 sm:px-6 rounded-lg"
+                    >
+                      Cancel
+                                </Button>
+                        </div>
+                      )}
+                          </div>
                     </CardContent>
                   </Card>
+        )}
 
-                  {/* Upgrade/Manage Card */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                        <Settings className="w-5 h-5" />
-                        Manage Subscription
+        {activeSection === 'subscription' && (
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                <span>Subscription & Billing</span>
                       </CardTitle>
-                      <CardDescription className="text-sm sm:text-base">
-                        Upgrade your plan or manage your subscription
+              <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                Manage your subscription plan and billing information
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                      {planFeatures.planType === 'free' ? (
-                        /* Upgrade Options for Free Users */
-                        <div className="space-y-4">
-                          <div className="p-4 rounded-lg bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 border border-scan-blue/20">
-                            <div className="flex items-start gap-3">
-                              <Crown className="w-5 h-5 text-scan-blue mt-0.5 flex-shrink-0" />
-                              <div className="flex-1">
-                                <h4 className="font-semibold text-scan-blue mb-2">Upgrade to Pro</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                  Get unlimited links, advanced analytics, and priority support.
-                                </p>
-                                <div className="flex flex-col sm:flex-row gap-2">
+            <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs sm:text-sm font-medium">Current Plan</span>
+                    <Badge variant={planFeatures.planType === 'free' ? 'secondary' : 'default'} className="text-xs px-3 py-1">
+                      {planFeatures.planType === 'free' ? 'Free Plan' : 'Premium Plan'}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {planFeatures.planType === 'free' 
+                      ? 'Basic features with limited customization options'
+                      : 'Full access to all premium features and customization options'
+                    }
+                  </p>
+                </div>
+
+                {planFeatures.planType === 'free' && (
+                  <div className="space-y-3 sm:space-y-4">
+                    <h4 className="text-sm sm:text-base font-semibold">Upgrade to Premium</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                   <Button 
                                     onClick={() => handleUpgrade('monthly')}
                                     disabled={upgrading}
-                                    className="bg-gradient-to-r from-scan-blue to-scan-purple text-white"
-                                  >
-                                    {upgrading ? 'Processing...' : 'Upgrade Monthly ($4/mo)'}
+                        className="h-12 sm:h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                      >
+                        {upgrading ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Crown className="w-4 h-4 mr-2" />
+                        )}
+                        Monthly - $4/mo
                                   </Button>
                                   <Button 
                                     onClick={() => handleUpgrade('annually')}
                                     disabled={upgrading}
                                     variant="outline"
-                                    className="border-scan-blue text-scan-blue hover:bg-scan-blue hover:text-white"
-                                  >
-                                    {upgrading ? 'Processing...' : 'Upgrade Annually ($40/yr)'}
+                        className="h-12 sm:h-14 border-2 border-blue-200 hover:bg-blue-50 rounded-lg"
+                      >
+                        {upgrading ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Crown className="w-4 h-4 mr-2" />
+                        )}
+                        Annual - $40/yr
                                   </Button>
                                 </div>
                               </div>
+                )}
+
+                {planFeatures.planType !== 'free' && subscriptionDetails && (
+                  <div className="space-y-3 sm:space-y-4">
+                    <h4 className="text-sm sm:text-base font-semibold">Subscription Details</h4>
+                    <div className="p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <div className="space-y-2 text-xs sm:text-sm">
+                        <div className="flex justify-between">
+                          <span>Status:</span>
+                          <span className="font-medium">{subscriptionDetails.status}</span>
                             </div>
-                          </div>
-                        </div>
-                      ) : (
-                        /* Manage Options for Pro Users */
-                        <div className="space-y-4">
-                          {/* Subscription Management Link */}
-                          <div className="p-4 rounded-lg border">
-                            <div className="flex items-start gap-3">
-                              <Settings className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1">
-                                <h4 className="font-medium mb-2">Subscription Support</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                                  Get help with your subscription or account questions.
-                                </p>
-                                <Button variant="outline" size="sm" onClick={handleManageBilling}>
-                                  <ExternalLink className="w-4 h-4 mr-2" />
-                                  Get Support
-                                </Button>
+                        <div className="flex justify-between">
+                          <span>Next billing:</span>
+                          <span className="font-medium">
+                            {subscriptionDetails.next_billing_date 
+                              ? new Date(subscriptionDetails.next_billing_date).toLocaleDateString()
+                              : 'N/A'
+                            }
+                          </span>
                               </div>
                             </div>
                           </div>
 
-                          {/* Cancel Subscription */}
-                          {subscriptionDetails?.canCancel && (
-                            <div className="p-4 border border-red-200 rounded-lg bg-red-50/50 dark:bg-red-950/20">
-                              <div className="flex items-start gap-3">
-                                <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                                <div className="flex-1">
-                                  <h4 className="font-medium text-red-900 dark:text-red-200 mb-2">Cancel Subscription</h4>
-                                  <p className="text-sm text-red-700 dark:text-red-300 mb-3">
-                                    Your subscription will remain active until the end of your billing period.
-                                  </p>
                                   <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
                                     <AlertDialogTrigger asChild>
-                                      <Button variant="outline" size="sm" className="border-red-300 text-red-700 hover:bg-red-50">
-                                        <AlertCircle className="w-4 h-4 mr-2" />
+                        <Button 
+                          variant="outline" 
+                          className="w-full h-10 sm:h-12 border-red-200 text-red-600 hover:bg-red-50 rounded-lg"
+                        >
                                         Cancel Subscription
                                       </Button>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent className="m-4 w-[calc(100vw-2rem)] max-w-md sm:max-w-lg mx-auto">
+                      <AlertDialogContent>
                                       <AlertDialogHeader>
-                                        <AlertDialogTitle>Cancel Subscription?</AlertDialogTitle>
+                          <AlertDialogTitle>Cancel Subscription</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                          Your subscription will be cancelled and you'll lose access to Pro features at the end of your current billing period. This action cannot be undone.
+                            Are you sure you want to cancel your subscription? You'll lose access to premium features at the end of your billing period.
                                         </AlertDialogDescription>
                                       </AlertDialogHeader>
-                                      <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 mt-6">
-                                        <AlertDialogCancel disabled={loading} className="w-full sm:w-auto order-2 sm:order-1">
-                                          Keep Subscription
-                                        </AlertDialogCancel>
-                                        <AlertDialogAction asChild>
-                                          <Button 
-                                            variant="destructive" 
-                                            onClick={handleCancelSubscription} 
-                                            disabled={loading}
-                                            className="w-full sm:w-auto order-1 sm:order-2"
-                                          >
-                                            {loading ? 'Cancelling...' : 'Yes, Cancel Subscription'}
-                                          </Button>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleCancelSubscription} disabled={loading}>
+                            {loading ? 'Cancelling...' : 'Yes, Cancel'}
                                         </AlertDialogAction>
                                       </AlertDialogFooter>
                                     </AlertDialogContent>
                                   </AlertDialog>
-                                </div>
-                              </div>
                             </div>
                           )}
                         </div>
-                      )}
                     </CardContent>
                   </Card>
-                </>
-              )}
-            </div>
-          )}
-      </motion.div>
-      </div>
+        )}
 
-      {/* Mobile Save Button - Fixed Above Bottom Nav */}
-      {hasChanges && (
-        <div className="sm:hidden fixed bottom-24 left-4 right-4 z-[60]">
+        {activeSection === 'analytics' && (
+          <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+            {planFeatures.planType === 'free' ? (
+              <Card className="overflow-hidden">
+                <CardContent className="pt-6 sm:pt-8 pb-6 sm:pb-8 px-3 sm:px-4 lg:px-6 text-center">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-lg bg-yellow-100 dark:bg-yellow-900/20 flex items-center justify-center">
+                    <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                  <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                    Premium Feature
+                  </h3>
+                  <p className="text-xs sm:text-sm lg:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 leading-relaxed">
+                    Analytics are available with a Premium subscription. Track profile views, link clicks, and more.
+                  </p>
           <Button 
-            onClick={saveSettings} 
-            disabled={saving}
-            className="w-full py-3 text-base shadow-xl bg-gradient-to-r from-scan-blue to-scan-purple hover:from-scan-blue/90 hover:to-scan-purple/90 text-white border-0 transition-all duration-300"
-            size="lg"
-          >
-            <Save className={`w-4 h-4 mr-2 ${saving ? 'animate-spin' : ''}`} />
-            {saving ? 'Loading...' : 'Save Changes'}
+                    onClick={() => handleUpgrade('monthly')}
+                    className="h-10 sm:h-12 px-4 sm:px-6 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg"
+                  >
+                    <Crown className="w-4 h-4 mr-2" />
+                    Upgrade to Premium
           </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                {analytics && (
+                  <Card className="overflow-hidden">
+                    <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+                      <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                        <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                        <span>Analytics Overview</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+                      <AnalyticsOverview analytics={analytics} />
+                    </CardContent>
+                  </Card>
+                )}
+                
+                {chartData.length > 0 && (
+                  <Card className="overflow-hidden">
+                    <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+                      <CardTitle className="text-sm sm:text-base lg:text-lg">Views Chart</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+                      <AnalyticsChart data={chartData} />
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            )}
         </div>
       )}
 
-      {/* Mobile Bottom Spacing for main nav */}
-      <div className="sm:hidden h-20" />
-
-      {/* Billing Management Dialog */}
-      <AlertDialog open={billingDialogOpen} onOpenChange={setBillingDialogOpen}>
-        <AlertDialogContent className="m-4 w-[calc(100vw-2rem)] max-w-md sm:max-w-lg lg:max-w-xl mx-auto">
+        {activeSection === 'security' && (
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                <span>Security Settings</span>
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm lg:text-base leading-relaxed">
+                Manage your password and account security
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs sm:text-sm font-medium">Password</h4>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        Last updated: {new Date().toLocaleDateString()}
+                      </p>
+                    </div>
+                    <AlertDialog open={passwordChangeOpen} onOpenChange={setPasswordChangeOpen}>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="flex-shrink-0">
+                          <Key className="w-3 h-3 mr-1" />
+                          Change
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <Crown className="w-5 h-5" />
-              Manage Subscription
-            </AlertDialogTitle>
+                          <AlertDialogTitle>Change Password</AlertDialogTitle>
             <AlertDialogDescription>
-              View your subscription details and get support.
+                            Enter your current password and choose a new one.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          
-          <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
-            {/* Current Subscription Info */}
-            {subscriptionDetails && (
-              <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <h4 className="font-medium mb-2">Current Subscription</h4>
-                <div className="text-sm space-y-1">
-                  <div className="flex justify-between">
-                    <span>Plan:</span>
-                    <span className="font-medium">Pro Plan</span>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm">Current Password</Label>
+                            <div className="relative">
+                              <Input
+                                type={showCurrentPassword ? "text" : "password"}
+                                value={currentPassword}
+                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                className="pr-10"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-0 top-0 h-full px-3"
+                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                              >
+                                {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              </Button>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Status:</span>
-                    <Badge variant={subscriptionDetails.isActive ? "default" : "secondary"}>
-                      {subscriptionDetails.status}
-                    </Badge>
                   </div>
-                  {subscriptionDetails.expiresAt && (
-                    <div className="flex justify-between">
-                      <span>Next billing:</span>
-                      <span className="font-medium">
-                        {new Date(subscriptionDetails.expiresAt).toLocaleDateString()}
-                      </span>
+                          <div className="space-y-2">
+                            <Label className="text-sm">New Password</Label>
+                            <div className="relative">
+                              <Input
+                                type={showNewPassword ? "text" : "password"}
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="pr-10"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-0 top-0 h-full px-3"
+                                onClick={() => setShowNewPassword(!showNewPassword)}
+                              >
+                                {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              </Button>
                     </div>
-                  )}
-                  {subscriptionDetails.billingCycle && (
-                    <div className="flex justify-between">
-                      <span>Billing cycle:</span>
-                      <span className="font-medium capitalize">
-                        {subscriptionDetails.billingCycle}
-                      </span>
                     </div>
-                  )}
+                          <div className="space-y-2">
+                            <Label className="text-sm">Confirm New Password</Label>
+                            <Input
+                              type="password"
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                            />
                 </div>
               </div>
-            )}
-
-            {/* Support Section */}
-            <div className="space-y-3">
-              <div className="p-4 bg-gradient-to-r from-scan-blue/5 to-scan-purple/5 dark:from-scan-blue/10 dark:to-scan-purple/10 border border-scan-blue/20 dark:border-scan-blue/30 rounded-lg">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex-1">
-                    <h5 className="font-medium text-scan-blue dark:text-scan-blue-light">Contact Support</h5>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Get help with your subscription or billing questions
-                    </p>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handlePasswordChange} disabled={loading}>
+                            {loading ? 'Updating...' : 'Update Password'}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => {
-                    window.open('mailto:scan2tap@gmail.com?subject=Subscription Support', '_blank');
-                  }} className="w-full sm:w-auto border-scan-blue/20 text-scan-blue hover:bg-scan-blue/5">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Contact
+                </div>
+
+                <div className="p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs sm:text-sm font-medium text-red-700 dark:text-red-300">Danger Zone</h4>
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1 mb-3">
+                        These actions cannot be undone. Please be careful.
+                      </p>
+                      <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="border-red-200 text-red-600 hover:bg-red-100">
+                            <Trash2 className="w-3 h-3 mr-1" />
+                            Reset Profile Data
                   </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Reset Profile Data</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will reset all your profile information to default values. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleResetProfile} disabled={loading}>
+                              {loading ? 'Resetting...' : 'Yes, Reset'}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                 </div>
               </div>
             </div>
           </div>
-
-          <AlertDialogFooter className="mt-6">
-            <AlertDialogCancel className="w-full sm:w-auto">Close</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
+            </CardContent>
+          </Card>
+        )}
+      </motion.div>
     </div>
   );
 } 

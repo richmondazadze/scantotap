@@ -11,7 +11,7 @@ export default function DashboardLayout() {
       <div className="lg:pl-64 flex-1 flex flex-col h-full">
         <DashboardNavbar />
         <main className="flex-1 flex flex-col h-full pt-20 pb-32 lg:pb-10 overflow-auto overflow-x-hidden">
-          <div className="w-full flex-1 flex flex-col h-full overflow-x-hidden">
+          <div className="w-full flex-1 flex flex-col h-full overflow-x-hidden px-3 xs:px-4 sm:px-6 lg:px-8">
             <Outlet />
           </div>
         </main>

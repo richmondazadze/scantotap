@@ -11,7 +11,8 @@ import {
   X,
   LogOut,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Palette
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -37,6 +38,7 @@ const DashboardSidebar = () => {
   const sidebarItems = [
     { name: 'Profile', path: '/dashboard/profile', icon: User, description: 'Manage your profile', mobileLabel: 'Profile' },
     { name: 'QR Code', path: '/dashboard/qr', icon: QrCode, description: 'Generate & download', mobileLabel: 'QR' },
+    { name: 'Themes', path: '/dashboard/themes', icon: Palette, description: 'Customize appearance', mobileLabel: 'Themes' },
     { name: 'Order', path: '/dashboard/order', icon: CreditCard, description: 'Place new orders', mobileLabel: 'Order' },
     { name: 'Shipping', path: '/dashboard/shipping', icon: Package, description: 'Track deliveries', mobileLabel: 'Shipping' },
     { name: 'Settings', path: '/dashboard/settings', icon: Settings, description: 'Account preferences', mobileLabel: 'Settings' },
@@ -142,7 +144,7 @@ const DashboardSidebar = () => {
                   <ProtectedLink
                   to={item.path}
                   className={cn(
-                      "relative flex items-center px-4 py-4 rounded-2xl transition-all duration-300 group overflow-hidden",
+                      "relative flex items-center px-4 py-4 rounded-lg transition-all duration-300 group overflow-hidden",
                       isActive
                         ? "bg-gradient-to-r from-scan-blue to-scan-purple text-white shadow-lg shadow-scan-blue/25"
                         : "text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-[#1A1D24]/80 hover:shadow-lg"
@@ -153,7 +155,7 @@ const DashboardSidebar = () => {
                     {/* Active indicator */}
                     {isActive && (
                       <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-scan-blue/20 to-scan-purple/20 rounded-2xl"
+                        className="absolute inset-0 bg-gradient-to-r from-scan-blue/20 to-scan-purple/20 rounded-lg"
                         layoutId="activeTab"
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                       />
@@ -162,7 +164,7 @@ const DashboardSidebar = () => {
                     {/* Hover effect */}
                     {hoveredItem === item.name && !isActive && (
                       <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-gray-100/50 to-gray-50/50 dark:from-gray-800/50 dark:to-gray-700/50 rounded-2xl"
+                        className="absolute inset-0 bg-gradient-to-r from-gray-100/50 to-gray-50/50 dark:from-gray-800/50 dark:to-gray-700/50 rounded-lg"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -271,8 +273,8 @@ const DashboardSidebar = () => {
           {/* Floating glow effects */}
           <div className="absolute -top-2 left-1/4 w-16 h-1 bg-gradient-to-r from-scan-blue/20 to-scan-purple/20 rounded-full blur-sm" />
           
-          <nav className="relative px-2 pt-2 pb-3" style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
-            <div className="flex justify-around items-center max-w-sm mx-auto">
+          <nav className="relative px-1 xs:px-2 pt-2 pb-3" style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
+            <div className="flex justify-around items-center max-w-sm mx-auto gap-0.5 xs:gap-1">
               {sidebarItems.map((item, index) => {
                 const isActive = location.pathname === item.path;
                 return (
@@ -284,14 +286,14 @@ const DashboardSidebar = () => {
                   >
                     <ProtectedLink
                       to={item.path}
-                      className="relative flex flex-col items-center justify-center px-2 py-2 rounded-2xl transition-all duration-300 group min-w-[58px] min-h-[58px]"
+                      className="relative flex flex-col items-center justify-center px-1 xs:px-2 py-2 rounded-lg transition-all duration-300 group min-w-[48px] xs:min-w-[58px] min-h-[52px] xs:min-h-[58px]"
                       aria-label={`Navigate to ${item.name}`}
                       onClick={triggerHaptic}
                     >
                       {/* Active background with enhanced styling */}
                       {isActive && (
                         <motion.div
-                          className="absolute inset-0 bg-gradient-to-br from-scan-blue via-scan-blue to-scan-purple rounded-2xl shadow-lg shadow-scan-blue/30"
+                          className="absolute inset-0 bg-gradient-to-br from-scan-blue via-scan-blue to-scan-purple rounded-lg shadow-lg shadow-scan-blue/30"
                           layoutId="mobileActiveTab"
                           transition={{ type: "spring", stiffness: 300, damping: 30 }}
                         />
@@ -300,14 +302,14 @@ const DashboardSidebar = () => {
                       {/* Hover background */}
                       {!isActive && (
                         <motion.div
-                          className="absolute inset-0 bg-gradient-to-br from-gray-100/50 to-gray-50/30 dark:from-gray-800/30 dark:to-gray-700/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          className="absolute inset-0 bg-gradient-to-br from-gray-100/50 to-gray-50/30 dark:from-gray-800/30 dark:to-gray-700/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         />
                       )}
                       
                       {/* Icon container with enhanced styling */}
                       <motion.div
                         className={cn(
-                          "relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 mb-1",
+                          "relative w-8 h-8 xs:w-9 xs:h-9 rounded-xl flex items-center justify-center transition-all duration-300 mb-0.5 xs:mb-1",
                           isActive 
                             ? "bg-white/20 shadow-lg" 
                             : "bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 group-hover:from-scan-blue/20 group-hover:to-scan-purple/20"
@@ -319,9 +321,9 @@ const DashboardSidebar = () => {
                         transition={{ duration: 0.4, ease: "easeInOut" }}
                       >
                         <item.icon 
-                          size={20} 
+                          size={18} 
                           className={cn(
-                            "relative z-10 transition-all duration-300",
+                            "relative z-10 transition-all duration-300 xs:w-5 xs:h-5",
                             isActive 
                               ? "text-white drop-shadow-sm" 
                               : "text-scan-blue dark:text-scan-blue-light group-hover:text-scan-purple"
@@ -338,10 +340,10 @@ const DashboardSidebar = () => {
                         )}
                       </motion.div>
                       
-                      {/* Label with enhanced typography */}
+                      {/* Label with enhanced typography - always visible on all screens */}
                       <motion.span 
                         className={cn(
-                          "text-xs font-semibold transition-all duration-300 relative z-10 text-center leading-tight",
+                          "block text-xs font-semibold transition-all duration-300 relative z-10 text-center leading-tight",
                           isActive 
                             ? "text-white drop-shadow-sm" 
                             : "text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -376,47 +378,6 @@ const DashboardSidebar = () => {
                   </motion.div>
                 );
               })}
-              
-              {/* Enhanced Sign Out button for mobile */}
-              <motion.div
-                className="flex-1 flex justify-center"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <button
-                  onClick={() => {
-                    triggerHaptic();
-                    handleSignOut();
-                  }}
-                  className="relative flex flex-col items-center justify-center px-2 py-2 rounded-2xl transition-all duration-300 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 group min-w-[58px] min-h-[58px]"
-                  aria-label="Sign out of your account"
-                >
-                  {/* Hover background */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-br from-red-50/50 to-red-100/30 dark:from-red-950/20 dark:to-red-900/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  />
-                  
-                  <motion.div
-                    className="relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 mb-1 bg-gradient-to-br from-red-50/30 to-red-100/20 dark:from-red-950/20 dark:to-red-900/10 group-hover:from-red-100/50 group-hover:to-red-200/30 dark:group-hover:from-red-900/30 dark:group-hover:to-red-800/20"
-                    whileHover={{ rotate: 12, scale: 1.1 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  >
-                    <LogOut size={18} className="relative z-10" />
-                  </motion.div>
-                  
-                  <span className="text-xs font-semibold transition-all duration-300 relative z-10 text-center leading-tight">
-                    Exit
-                  </span>
-                  
-                  {/* Ripple effect on tap */}
-                  <motion.div
-                    className="absolute inset-0 bg-red-100/20 rounded-2xl"
-                    initial={{ scale: 0, opacity: 0 }}
-                    whileTap={{ scale: 1.2, opacity: 1 }}
-                    transition={{ duration: 0.2 }}
-                  />
-                </button>
-              </motion.div>
             </div>
           </nav>
         </div>

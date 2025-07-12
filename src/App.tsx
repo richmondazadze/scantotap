@@ -23,6 +23,7 @@ import DashboardQR from './pages/DashboardQR';
 import DashboardOrder from './pages/DashboardOrder';
 import DashboardShipping from './pages/DashboardShipping';
 import DashboardSettings from './pages/DashboardSettings';
+import DashboardThemes from './pages/DashboardThemes';
 import AuthCallback from './pages/AuthCallback';
 import OnboardingPage from './pages/OnboardingPage';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -128,6 +129,7 @@ const App = () => {
                       <Route path="order" element={<DashboardOrder />} />
                       <Route path="shipping" element={<DashboardShipping />} />
                       <Route path="settings" element={<DashboardSettings />} />
+                      <Route path="themes" element={<DashboardThemes />} />
                     </Route>
                   
                   {/* Admin Route - Protected but doesn't require onboarding */}
