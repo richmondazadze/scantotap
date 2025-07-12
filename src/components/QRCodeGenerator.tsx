@@ -151,8 +151,8 @@ const QRCodeGenerator = forwardRef(function QRCodeGenerator(
   }));
 
   return (
-    <div className="flex flex-col items-center space-y-6">
-      <div className="p-4 bg-white rounded-lg shadow-lg relative">
+    <div className="flex flex-col items-center space-y-6 w-full">
+      <div className="p-4 relative flex flex-col items-center w-full">
         <QRCodeSVG
           ref={svgRef}
           id="qr-code-svg"
