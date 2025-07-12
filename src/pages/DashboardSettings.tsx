@@ -619,9 +619,9 @@ export default function DashboardSettings() {
                         value={session?.user?.email || ''} 
                         disabled 
                       className="h-10 sm:h-12 text-xs sm:text-sm bg-gray-50 dark:bg-gray-800"
-                    />
+                      />
                     <p className="text-xs text-gray-500">Email cannot be changed</p>
-                  </div>
+                    </div>
                   </div>
 
                   <Separator />

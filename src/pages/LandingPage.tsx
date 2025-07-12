@@ -25,6 +25,7 @@ import {
   Rocket,
 } from "lucide-react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { useMediaQuery } from 'react-responsive';
 
 
 const LandingPage = () => {
@@ -35,6 +36,7 @@ const LandingPage = () => {
   const isHeroInView = useInView(heroRef, { once: true });
   const featuresRef = useRef(null);
   const isFeaturesInView = useInView(featuresRef, { once: true });
+  const isMobile = useMediaQuery({ maxWidth: 640 });
 
   // Smooth scroll utility
   const scrollToSection = (sectionId: string) => {
@@ -160,30 +162,37 @@ const LandingPage = () => {
     <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 overflow-x-hidden scroll-smooth" style={{ overflow: 'visible', height: 'auto' }}>
       {/* Animated background elements - contained and non-interfering */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{
-            rotate: [0, 360],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
-        />
-        <motion.div
-        animate={{
-            rotate: [360, 0],
-            scale: [1, 1.3, 1],
-        }}
-        transition={{
-            duration: 25,
-          repeat: Infinity,
-            ease: "linear"
-        }}
-          className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"
-        />
+        {isMobile ? (
+          // Static background for mobile
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl" />
+        ) : (
+          <>
+            <motion.div
+              animate={{
+                rotate: [0, 360],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 20,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+              className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
+            />
+            <motion.div
+              animate={{
+                rotate: [360, 0],
+                scale: [1, 1.3, 1],
+              }}
+              transition={{
+                duration: 25,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+              className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"
+            />
+          </>
+        )}
       </div>
 
       <Navigation />
@@ -191,7 +200,7 @@ const LandingPage = () => {
       {/* Hero Section - enhanced mobile layout */}
       <motion.section 
         ref={heroRef}
-        style={{ y: heroY, opacity: heroOpacity }}
+        style={isMobile ? {} : { y: heroY, opacity: heroOpacity }}
         className="relative flex items-center min-h-[80vh] lg:min-h-screen pt-24 sm:pt-28 lg:pt-20 pb-12 lg:pb-20 px-6 sm:px-8 lg:px-12 z-10"
       >
         <div className="w-full max-w-7xl mx-auto">
@@ -322,58 +331,69 @@ const LandingPage = () => {
               className="relative flex justify-center items-center px-4 sm:px-0"
             >
               <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl">
-            <motion.img
-              src="/card_model.png"
-                  alt="Scan2Tap Digital Card"
-                  className="relative w-full h-auto object-contain rounded-xl shadow-lg drop-shadow-2xl"
-                  style={{ borderRadius: '12px' }}
-              animate={{
-                    y: [0, -20, 0],
-                    rotateY: [0, 5, 0, -5, 0],
-              }}
-              transition={{
-                    duration: 6,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-                  whileHover={{
-                    scale: 1.05,
-                    rotateY: 15,
-                  }}
-                />
-
-                {/* Floating elements - properly contained */}
-                <motion.div
-                  animate={{
-                    y: [0, -10, 0],
-                    rotate: [0, 5, 0],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 1
-                  }}
-                  className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white dark:bg-slate-800 rounded-full p-2.5 shadow-lg"
-                >
-                  <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
-                </motion.div>
-
-                <motion.div
-                  animate={{
-                    y: [0, 10, 0],
-                    rotate: [0, -5, 0],
-                  }}
-                  transition={{
-                    duration: 5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 2
-                  }}
-                  className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white dark:bg-slate-800 rounded-full p-2.5 shadow-lg"
-                >
-                  <Share2 className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
-          </motion.div>
+                {isMobile ? (
+                  <img
+                    src="/card_model.png"
+                    alt="Scan2Tap Digital Card"
+                    className="relative w-full h-auto object-contain rounded-xl shadow-lg drop-shadow-2xl"
+                    style={{ borderRadius: '12px' }}
+                  />
+                ) : (
+                  <motion.img
+                    src="/card_model.png"
+                    alt="Scan2Tap Digital Card"
+                    className="relative w-full h-auto object-contain rounded-xl shadow-lg drop-shadow-2xl"
+                    style={{ borderRadius: '12px' }}
+                    animate={{
+                      y: [0, -20, 0],
+                      rotateY: [0, 5, 0, -5, 0],
+                    }}
+                    transition={{
+                      duration: 6,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    whileHover={{
+                      scale: 1.05,
+                      rotateY: 15,
+                    }}
+                  />
+                )}
+                {/* Floating elements - only on desktop */}
+                {!isMobile && (
+                  <>
+                    <motion.div
+                      animate={{
+                        y: [0, -10, 0],
+                        rotate: [0, 5, 0],
+                      }}
+                      transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 1
+                      }}
+                      className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white dark:bg-slate-800 rounded-full p-2.5 shadow-lg"
+                    >
+                      <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
+                    </motion.div>
+                    <motion.div
+                      animate={{
+                        y: [0, 10, 0],
+                        rotate: [0, -5, 0],
+                      }}
+                      transition={{
+                        duration: 5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 2
+                      }}
+                      className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white dark:bg-slate-800 rounded-full p-2.5 shadow-lg"
+                    >
+                      <Share2 className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
+                    </motion.div>
+                  </>
+                )}
               </div>
             </motion.div>
           </div>

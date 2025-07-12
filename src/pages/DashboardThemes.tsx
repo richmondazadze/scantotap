@@ -270,15 +270,14 @@ export default function DashboardThemes() {
                   <img
                     src={customBackground}
                     alt="Custom background"
-                    className="w-full h-32 sm:h-40 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                    className="w-full h-32 sm:h-40 object-cover object-center rounded-lg border border-gray-200 dark:border-gray-700"
                   />
                   <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
                     <span className="text-white text-sm font-medium">Current Background</span>
                   </div>
                 </div>
-                
-                {/* Actions */}
-                <div className="flex gap-2">
+                {/* Actions - stack vertically on mobile */}
+                <div className="flex flex-col sm:flex-row gap-2 w-full">
                   <Button
                     variant="outline"
                     onClick={removeCustomBackground}
@@ -287,7 +286,6 @@ export default function DashboardThemes() {
                     <X className="w-4 h-4 mr-2" />
                     Remove Background
                   </Button>
-                  
                   <label className="flex-1">
                     <Button
                       variant="outline"
@@ -308,6 +306,9 @@ export default function DashboardThemes() {
                       disabled={uploadingBackground || planFeatures.isFreeUser}
                     />
                   </label>
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">
+                  On mobile, your background image will be centered and best-fit for your screen.
                 </div>
               </div>
             ) : (

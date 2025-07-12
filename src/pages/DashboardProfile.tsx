@@ -813,6 +813,7 @@ export default function DashboardProfile() {
                     placeholder="Label (e.g. Portfolio)"
                     value={newLink.label}
                     onChange={e => setNewLink({ ...newLink, label: e.target.value })}
+                    // maxLength removed to allow longer labels
                   />
                   <Input
                     className="flex-1 text-sm"
@@ -834,18 +835,25 @@ export default function DashboardProfile() {
                       <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 flex-shrink-0">
                         <img 
                           src={URL.createObjectURL(thumbnailFile)} 
-                          alt="Thumbnail preview"
+                          alt="Thumbnail preview" 
                           className="w-full h-full object-cover"
                         />
                       </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {thumbnailFile.name}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {(thumbnailFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
                       <Button
-                        type="button"
                         variant="ghost"
                         size="sm"
                         onClick={removeThumbnail}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 h-7 w-7 sm:h-8 sm:w-8 p-0 flex-shrink-0"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0"
                       >
-                        <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <X className="w-4 h-4" />
                       </Button>
                     </div>
                   ) : (
@@ -929,10 +937,14 @@ export default function DashboardProfile() {
                       )}
                     </div>
                     
-                    {/* Link Info */}
+                    {/* Link Info - Fixed responsiveness */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs sm:text-sm font-medium truncate text-gray-900 dark:text-white">{link.label}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{link.url}</div>
+                      <div className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white break-words line-clamp-1" title={link.label}>
+                        {link.label}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 break-all line-clamp-1" title={link.url}>
+                        {link.url}
+                      </div>
                     </div>
                     
                     {/* Remove Button */}
