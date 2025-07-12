@@ -126,20 +126,20 @@ export default function DashboardQR() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
-            <div className="flex flex-col xl:flex-row gap-4 sm:gap-6 lg:gap-8 items-start">
+            <div className="flex flex-col xl:flex-row gap-6 lg:gap-8 items-stretch">
               {/* QR Code Display */}
-              <div className="w-full xl:w-1/2 flex justify-center">
+              <div className="w-full flex justify-center mb-4 xl:mb-0 xl:w-1/2">
                 <div className="w-full aspect-square max-w-[240px] sm:max-w-[280px] lg:max-w-[320px] mx-auto">
-                    <QRCodeGenerator 
-                      ref={qrRef}
-                      profileUrl={profileUrl} 
-                      username={profile.slug || profile.id} 
-                    />
-                  </div>
+                  <QRCodeGenerator 
+                    ref={qrRef}
+                    profileUrl={profileUrl} 
+                    username={profile.slug || profile.id} 
+                  />
                 </div>
+              </div>
 
               {/* QR Code Actions */}
-              <div className="w-full xl:w-1/2 space-y-3 sm:space-y-4 lg:space-y-6 min-w-0">
+              <div className="w-full xl:w-1/2 flex flex-col justify-center space-y-3 sm:space-y-4 lg:space-y-6 min-w-0">
                 {/* Quick Actions */}
                 <div className="space-y-2 sm:space-y-3">
                   <Button 
