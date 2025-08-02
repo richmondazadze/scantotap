@@ -24,7 +24,7 @@ interface Profile {
   social_layout_style?: string;
   show_email?: boolean;
   show_phone?: boolean;
-  show_whatsapp?: boolean;
+  // Remove show_whatsapp field
   paystack_customer_code?: string;
   paystack_subscription_code?: string;
   plan_type?: PlanType;
@@ -99,7 +99,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       .from('profiles')
       .select('*')
       .eq('id', session.user.id)
-      .single();
+      .maybeSingle();
               
               if (updatedData) {
                 const updatedProfile: Profile = {
@@ -108,79 +108,71 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
                   subscription_status: updatedData.subscription_status as SubscriptionStatus | undefined,
                 };
                 setProfile(updatedProfile);
-                console.log(`[ProfileContext] Plan synced and profile updated:`, {
-                  oldPlan: data.plan_type,
-                  newPlan: syncResult.newPlan,
-                  userId: session.user.id
-                });
               }
             }
           } catch (error) {
-            console.error('[ProfileContext] Error syncing plan type:', error);
+            console.error('Error syncing plan type:', error);
           }
-        } else {
-          console.log(`[ProfileContext] Skipping plan sync:`, {
-            hasActiveSubscriptionStatus,
-            isExplicitFreePlan,
-            userId: session.user.id
-          });
         }
       } else {
-        // No profile found - this is expected for new OAuth users
-        console.log('No profile found for user:', session.user.id, '- this is expected for new users');
+        console.log('No profile found for user:', session.user.id);
         setProfile(null);
       }
     } catch (error) {
-      console.error('Unexpected error in fetchProfile:', error);
+      console.error('Error in fetchProfile:', error);
       setProfile(null);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, [session?.user.id]);
+
+  const refreshProfile = () => {
+    fetchProfile();
   };
 
   const createProfile = async (profileData: Partial<Profile>): Promise<Profile | null> => {
     if (!session?.user.id) return null;
     
-    const { data, error } = await supabase
-      .from('profiles')
-      .insert({
-        id: session.user.id,
-        user_id: session.user.id,
-        email: session.user.email,
-        name: '',
-        onboarding_complete: false,
-        plan_type: 'free', // Default to free plan
-        social_layout_style: 'horizontal', // Default to horizontal layout
-        ...profileData
-      })
-      .select()
-      .single();
-    
-    if (!error && data) {
-      // Cast database types to our typed interface
-      const profile: Profile = {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert({
+          id: session.user.id,
+          user_id: session.user.id,
+          email: session.user.email,
+          ...profileData,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newProfile: Profile = {
         ...data,
         plan_type: (data.plan_type as PlanType) || 'free',
         subscription_status: data.subscription_status as SubscriptionStatus | undefined,
       };
-      setProfile(profile);
-      return profile;
+
+      setProfile(newProfile);
+      return newProfile;
+    } catch (error) {
+      console.error('Error creating profile:', error);
+      return null;
     }
-    return null;
   };
 
-  useEffect(() => {
-    if (session?.user.id) {
-      fetchProfile();
-    } else {
-      setProfile(null);
-      setLoading(false);
-    }
-    // eslint-disable-next-line
-  }, [session?.user.id]);
-
   return (
-    <ProfileContext.Provider value={{ profile, loading, refreshProfile: fetchProfile, setProfile, createProfile }}>
+    <ProfileContext.Provider value={{
+      profile,
+      loading,
+      refreshProfile,
+      setProfile,
+      createProfile,
+    }}>
       {children}
     </ProfileContext.Provider>
   );
@@ -188,6 +180,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
 export function useProfile() {
   const context = useContext(ProfileContext);
-  if (!context) throw new Error('useProfile must be used within a ProfileProvider');
+  if (context === undefined) {
+    throw new Error('useProfile must be used within a ProfileProvider');
+  }
   return context;
 }

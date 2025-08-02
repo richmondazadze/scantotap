@@ -1156,12 +1156,12 @@ const ProfilePage = () => {
                         <a
                           href={`tel:${profile.phone}`}
                           className="w-full"
-                          aria-label="Call now"
-                          onClick={() => trackLinkClick({ platform: 'phone', label: 'Call', url: `tel:${profile.phone}` }, 'contact')}
+                          aria-label="Call"
+                          onClick={() => trackLinkClick({ platform: 'phone', label: 'Phone', url: `tel:${profile.phone}` }, 'contact')}
                         >
                           <Button className="w-full transition-all duration-200 hover:scale-105 hover:shadow-lg bg-white/10 backdrop-blur-sm border border-white/20 hover:border-white/40 hover:bg-white/20" style={{ color: "white" }}>
                             <Phone className="w-4 h-4 mr-2" />
-                            Call Now
+                            Call
                           </Button>
                         </a>
                       )}
@@ -1180,21 +1180,7 @@ const ProfilePage = () => {
                         </a>
                       )}
                       
-                      {profile.phone && profile.show_phone !== false && profile.show_whatsapp !== false && (
-                        <a
-                          href={`https://wa.me/${profile.phone.replace(/\D/g, '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full"
-                          aria-label="WhatsApp"
-                          onClick={() => trackLinkClick({ platform: 'whatsapp', label: 'WhatsApp', url: `https://wa.me/${profile.phone.replace(/\D/g, '')}` }, 'contact')}
-                        >
-                          <Button className="w-full transition-all duration-200 hover:scale-105 hover:shadow-lg bg-white/10 backdrop-blur-sm border border-white/20 hover:border-white/40 hover:bg-white/20" style={{ color: "white" }}>
-                            <FaWhatsapp className="w-4 h-4 mr-2" />
-                            WhatsApp
-                          </Button>
-                        </a>
-                      )}
+
                       
                       <Button
                         onClick={() => {

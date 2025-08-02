@@ -5,6 +5,8 @@ import { useProfile } from '../contexts/ProfileContext';
 import { LightLogin } from '../components/ui/sign-in';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function AuthPage() {
   const { session, loading } = useAuth();
@@ -113,62 +115,24 @@ export default function AuthPage() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-blue-50/80 via-white to-purple-50/50 dark:from-scan-dark dark:via-scan-dark/95 dark:to-scan-dark/90 flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Animated Background Blobs */}
-      <motion.svg 
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 0.15, scale: 1 }}
-        transition={{ duration: 1, ease: "easeOut" }}
-        className="absolute -top-32 -left-32 w-[400px] h-[300px] sm:w-[600px] sm:h-[400px] blur-2xl z-0 pointer-events-none" 
-        viewBox="0 0 600 400" 
-        fill="none"
-      >
-        <ellipse cx="300" cy="200" rx="300" ry="200" fill="url(#auth-gradient)" >
-          <animate attributeName="rx" values="300;320;300" dur="8s" repeatCount="indefinite" />
-          <animate attributeName="ry" values="200;220;200" dur="8s" repeatCount="indefinite" />
-        </ellipse>
-        <defs>
-          <radialGradient id="auth-gradient" cx="0" cy="0" r="1" gradientTransform="translate(300 200) scale(300 200)" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#3B82F6" />
-            <stop offset="1" stopColor="#8B5CF6" stopOpacity="0.2" />
-          </radialGradient>
-        </defs>
-      </motion.svg>
-
-      <motion.svg 
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 0.1, scale: 1 }}
-        transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
-        className="absolute -bottom-32 -right-32 w-[300px] h-[200px] sm:w-[500px] sm:h-[300px] blur-2xl z-0 pointer-events-none" 
-        viewBox="0 0 500 300" 
-        fill="none"
-      >
-        <ellipse cx="250" cy="150" rx="250" ry="150" fill="url(#auth-gradient-2)" >
-          <animate attributeName="rx" values="250;270;250" dur="10s" repeatCount="indefinite" />
-          <animate attributeName="ry" values="150;170;150" dur="10s" repeatCount="indefinite" />
-        </ellipse>
-        <defs>
-          <radialGradient id="auth-gradient-2" cx="0" cy="0" r="1" gradientTransform="translate(250 150) scale(250 150)" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#8B5CF6" />
-            <stop offset="1" stopColor="#3B82F6" stopOpacity="0.2" />
-          </radialGradient>
-        </defs>
-      </motion.svg>
+      {/* Back Arrow - Fixed position for mobile, absolute for desktop */}
+      <div className="fixed top-6 left-6 z-50 sm:absolute sm:top-8 sm:left-8">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/')}
+          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+      </div>
 
       {/* Auth Form */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="w-full max-w-md mx-auto relative z-10"
-      >
+      <div className="w-full max-w-md mx-auto relative z-10">
         <div className="glassmorphism-card p-6 sm:p-8 shadow-2xl backdrop-blur-xl border border-white/20 dark:border-white/10">
           {/* Show Pro plan intent message */}
           {intendedPlan === 'pro' && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 border border-scan-blue/20 rounded-xl"
-            >
+            <div className="mb-6 p-4 bg-gradient-to-r from-scan-blue/10 to-scan-purple/10 border border-scan-blue/20 rounded-xl">
               <div className="flex items-center gap-2 text-scan-blue mb-2">
                 <span className="text-lg">👑</span>
                 <span className="font-semibold">Pro Plan Selected</span>
@@ -176,21 +140,16 @@ export default function AuthPage() {
               <p className="text-sm text-gray-600 dark:text-gray-300">
                 Sign in to continue with your Pro subscription setup.
               </p>
-            </motion.div>
+            </div>
           )}
           <LightLogin />
         </div>
-      </motion.div>
+      </div>
 
       {/* Footer */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1 }}
-        className="mt-6 sm:mt-8 text-center text-sm text-gray-500 dark:text-gray-400 relative z-10 px-4"
-      >
-                  <p>Transform your networking with smart digital profiles</p>
-      </motion.div>
+      <div className="mt-6 sm:mt-8 text-center text-sm text-gray-500 dark:text-gray-400 relative z-10 px-4">
+        <p>Transform your networking with smart digital profiles</p>
+      </div>
     </div>
   );
 } 

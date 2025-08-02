@@ -96,12 +96,12 @@ const PricingPage = () => {
       features: [
         { name: "Create a digital profile", included: true, description: "Build your personalized digital profile" },
         { name: "Custom scan2tap link", included: true, description: "Get your own scan2tap.vercel.app/username URL" },
-        { name: "Add up to 7 social or custom links", included: true, description: "Instagram, LinkedIn, website, etc." },
+        { name: "Add up to 6 social or custom links", included: true, description: "Instagram, LinkedIn, website, etc." },
         { name: "Dynamic QR code & download", included: true, description: "Generate and download your QR code" },
         { name: "Basic profile layout", included: true, description: "Clean, professional design" },
         { name: "Show/hide contact info", included: true, description: "Control what information is visible" },
         { name: "Manage profile from dashboard", included: true, description: "Easy-to-use profile management" },
-        { name: "Unlimited links", included: false, description: "Limited to 7 links total" },
+        { name: "Unlimited links", included: false, description: "Limited to 6 links total" },
         { name: "Profile analytics", included: false, description: "Available for Pro users" },
         { name: "Custom themes", included: false, description: "Available for Pro users" },
       ],
@@ -547,7 +547,7 @@ const PricingPage = () => {
                   },
                   {
                     question: "What's the difference between Free and Pro?",
-                    answer: "Free gives you the essentials: a digital profile, 7 links, and basic features. Pro unlocks unlimited links, advanced analytics, custom themes, priority support, and upcoming features like custom domains.",
+                    answer: "Free gives you the essentials: a digital profile, 6 links, and basic features. Pro unlocks unlimited links, advanced analytics, custom themes, priority support, and upcoming features like custom domains.",
                     icon: Star,
                     gradient: "from-purple-500 to-purple-600"
                   },
@@ -626,7 +626,7 @@ const PricingPage = () => {
                 },
                 {
                   question: "What's the difference between Free and Pro?",
-                  answer: "Free gives you the essentials: a digital profile, 7 links, and basic features. Pro unlocks unlimited links, advanced analytics, custom themes, priority support, and upcoming features like custom domains.",
+                  answer: "Free gives you the essentials: a digital profile, 6 links, and basic features. Pro unlocks unlimited links, advanced analytics, custom themes, priority support, and upcoming features like custom domains.",
                   icon: Star,
                   gradient: "from-purple-500 to-purple-600"
                 },

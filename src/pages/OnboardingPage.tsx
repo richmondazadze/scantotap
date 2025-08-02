@@ -721,7 +721,7 @@ function PlanStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting 
     free: [
       { name: "Create a digital profile", included: true },
       { name: "Custom scan2tap link", included: true },
-      { name: "Add up to 7 social or custom links", included: true },
+      { name: "Add up to 6 social or custom links", included: true },
       { name: "Dynamic QR code & download", included: true },
       { name: "Basic profile layout", included: true },
       { name: "Unlimited links", included: false },
@@ -993,8 +993,8 @@ function PlatformStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
         return prev.filter(id => id !== platformId);
       } else {
         // Check plan limits before adding
-        if (selectedPlan.planType === 'free' && prev.length >= 7) {
-          toast.error('Free plan is limited to 7 platforms. Upgrade to Pro for unlimited platforms!');
+        if (selectedPlan.planType === 'free' && prev.length >= 6) {
+          toast.error('Free plan is limited to 6 platforms. Upgrade to Pro for unlimited platforms!');
           return prev;
         }
         return [...prev, platformId];
@@ -1041,9 +1041,9 @@ function PlatformStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
               <p className="text-sm text-blue-700 dark:text-blue-300">
                 <strong>Free Plan:</strong> You selected {selectedPlatforms.length} platforms. 
                 Add your usernames or links for each platform next.
-                {selectedPlatforms.length === 7 && (
+                {selectedPlatforms.length === 6 && (
                   <span className="block mt-1 text-blue-600 dark:text-blue-400">
-                    You're using all 7 available platforms. Upgrade to Pro for unlimited platforms!
+                    You're using all 6 available platforms. Upgrade to Pro for unlimited platforms!
                   </span>
                 )}
               </p>
@@ -1056,7 +1056,7 @@ function PlatformStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
           {PLATFORMS.map((platform) => {
             const IconComponent = platform.icon;
             const isSelected = selectedPlatforms.includes(platform.id);
-            const isDisabled = selectedPlan.planType === 'free' && !isSelected && selectedPlatforms.length >= 7;
+            const isDisabled = selectedPlan.planType === 'free' && !isSelected && selectedPlatforms.length >= 6;
             
             return (
               <button
@@ -1111,13 +1111,13 @@ function PlatformStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
             <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
               {selectedPlatforms.length} platform{selectedPlatforms.length !== 1 ? 's' : ''} selected
-              {selectedPlan.planType === 'free' && ` (${selectedPlatforms.length}/7)`}
+              {selectedPlan.planType === 'free' && ` (${selectedPlatforms.length}/6)`}
             </p>
           </div>
         </div>
 
         {/* Upgrade prompt for free users at limit */}
-        {selectedPlan.planType === 'free' && selectedPlatforms.length >= 7 && (
+        {selectedPlan.planType === 'free' && selectedPlatforms.length >= 6 && (
           <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
             <div className="flex items-start gap-3">
               <Crown className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -1126,7 +1126,7 @@ function PlatformStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
                   Platform Limit Reached
                 </h4>
                 <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                  You've reached the 7-platform limit for free accounts. Upgrade to Pro to add unlimited platforms!
+                  You've reached the 6-platform limit for free accounts. Upgrade to Pro to add unlimited platforms!
                 </p>
                 <Button 
                   size="sm"
@@ -1237,9 +1237,9 @@ function SocialLinksStep({ currentStep, totalSteps, onNext, onBack, onSkip, subm
               <p className="text-sm text-blue-700 dark:text-blue-300">
                 <strong>Free Plan:</strong> You selected {selectedPlatforms.length} platforms. 
                 Add your usernames or links for each platform below.
-                {selectedPlatforms.length === 7 && (
+                {selectedPlatforms.length === 6 && (
                   <span className="block mt-1 text-blue-600 dark:text-blue-400">
-                    You're using all 7 available platforms. Upgrade to Pro for unlimited platforms!
+                    You're using all 6 available platforms. Upgrade to Pro for unlimited platforms!
                   </span>
                 )}
               </p>
@@ -1390,8 +1390,8 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
       const additionalLinkCount = additionalUrls.filter(item => item.label.trim() && item.url.trim()).length;
       const totalLinks = socialLinkCount + additionalLinkCount;
 
-      if (totalLinks >= 7) {
-        toast.error('Free plan is limited to 7 links total. Upgrade to Pro for unlimited links!');
+      if (totalLinks >= 6) {
+        toast.error('Free plan is limited to 6 links total. Upgrade to Pro for unlimited links!');
         return;
       }
     }
@@ -1426,8 +1426,8 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
       const socialLinkCount = Object.values(socialLinksData).filter(link => link && (link as string).trim()).length;
       const totalLinks = socialLinkCount + validUrls.length;
 
-      if (totalLinks > 7) {
-        toast.error('Free plan is limited to 7 links total. Please remove some links or upgrade to Pro.');
+      if (totalLinks > 6) {
+        toast.error('Free plan is limited to 6 links total. Please remove some links or upgrade to Pro.');
         return;
       }
     }
@@ -1456,7 +1456,7 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
   const socialLinkCount: number = Object.values(socialLinksData).filter(link => link && (link as string).trim()).length;
   const additionalLinkCount: number = additionalUrls.filter(item => item.label.trim() && item.url.trim()).length;
   const totalLinkCount: number = socialLinkCount + additionalLinkCount;
-  const canAddMoreLinks: boolean = selectedPlan.planType === 'pro' || totalLinkCount < 7;
+  const canAddMoreLinks: boolean = selectedPlan.planType === 'pro' || totalLinkCount < 6;
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4">
@@ -1490,12 +1490,12 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
             <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <p className="text-sm text-blue-700 dark:text-blue-300">
                 <strong>Free Plan:</strong> You have {socialLinkCount} social links. 
-                {socialLinkCount < 7 ? (
-                  <>You can add up to {7 - socialLinkCount} additional links</>
+                {socialLinkCount < 6 ? (
+                  <>You can add up to {6 - socialLinkCount} additional links</>
                 ) : (
-                  <>You've reached the maximum of 7 links</>
+                  <>You've reached the maximum of 6 links</>
                 )}
-                {' '}(Total: {totalLinkCount} of 7 links used).
+                {' '}(Total: {totalLinkCount} of 6 links used).
                 {!canAddMoreLinks && (
                   <span className="block mt-1 text-blue-600 dark:text-blue-400">
                     Upgrade to Pro for unlimited links!
@@ -1607,7 +1607,7 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
           )}
 
           {/* Upgrade prompt for free users reaching limit */}
-          {selectedPlan.planType === 'free' && totalLinkCount >= 7 && (
+          {selectedPlan.planType === 'free' && totalLinkCount >= 6 && (
             <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
               <div className="flex items-start gap-3">
                 <Crown className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -1616,7 +1616,7 @@ function AdditionalUrlsStep({ currentStep, totalSteps, onNext, onBack, onSkip, s
                     Link Limit Reached
                   </h4>
                   <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                    You've reached the 7-link limit for free accounts. Upgrade to Pro to add unlimited links!
+                    You've reached the 6-link limit for free accounts. Upgrade to Pro to add unlimited links!
                   </p>
                   <Button 
                     size="sm"
@@ -1819,8 +1819,8 @@ export default function OnboardingPage() {
         }
       });
       
-      // For free users, limit to 7 links total
-      const maxLinks = planData.planType === 'pro' ? 200 : 7;
+      // For free users, limit to 6 links total
+      const maxLinks = planData.planType === 'pro' ? 200 : 6;
       const finalLinks = allLinks.slice(0, maxLinks);
 
       // Create profile with the selected plan type

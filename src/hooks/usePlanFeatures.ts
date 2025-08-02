@@ -29,7 +29,7 @@ export const usePlanFeatures = (): PlanFeatures => {
 
   return {
     // Link limits
-    maxLinks: isProUser ? Infinity : 7,
+    maxLinks: isProUser ? Infinity : 6,
     canAddUnlimitedLinks: isProUser,
     
     // Future features (all Pro-only)
@@ -49,13 +49,13 @@ export const usePlanFeatures = (): PlanFeatures => {
 // Helper function to check if user can add more links
 export const canAddMoreLinks = (currentLinkCount: number, planType: PlanType = 'free'): boolean => {
   if (planType === 'pro') return true;
-  return currentLinkCount < 7;
+  return currentLinkCount < 6;
 };
 
 // Helper function to get upgrade message for specific features
 export const getUpgradeMessage = (feature: string): string => {
   const messages: Record<string, string> = {
-    links: 'Upgrade to Pro to add unlimited links to your profile (free users limited to 7 links)',
+    links: 'Upgrade to Pro to add unlimited links to your profile (free users limited to 6 links)',
     analytics: 'Upgrade to Pro to access detailed profile analytics',
     themes: 'Upgrade to Pro to customize your profile with premium themes',
     domains: 'Upgrade to Pro to use your own custom domain',

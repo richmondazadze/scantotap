@@ -115,7 +115,6 @@ export default function DashboardProfile() {
   const [socialLayoutStyle, setSocialLayoutStyle] = useState(profile?.social_layout_style || 'horizontal');
   const [showEmail, setShowEmail] = useState(profile?.show_email ?? true);
   const [showPhone, setShowPhone] = useState(profile?.show_phone ?? true);
-  const [showWhatsapp, setShowWhatsapp] = useState(profile?.show_whatsapp ?? true);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   
   // New states for thumbnail functionality
@@ -146,7 +145,6 @@ export default function DashboardProfile() {
       setSocialLayoutStyle(profile.social_layout_style || 'horizontal');
       setShowEmail(profile.show_email ?? true);
       setShowPhone(profile.show_phone ?? true);
-      setShowWhatsapp(profile.show_whatsapp ?? true);
     }
   }, [profile]);
 
@@ -230,53 +228,11 @@ export default function DashboardProfile() {
 
 
 
-  const handlePrivacySettingChange = async (setting: 'show_email' | 'show_phone' | 'show_whatsapp', value: boolean) => {
+  const handlePrivacySettingChange = (setting: 'show_email' | 'show_phone', value: boolean) => {
     if (setting === 'show_email') {
       setShowEmail(value);
     } else if (setting === 'show_phone') {
       setShowPhone(value);
-      if (!value) setShowWhatsapp(false);
-    } else if (setting === 'show_whatsapp') {
-      setShowWhatsapp(value);
-    }
-
-    if (profile?.id) {
-      try {
-        const updateData: any = { [setting]: value };
-        if (setting === 'show_phone' && !value) {
-          updateData.show_whatsapp = false;
-        }
-
-        const { error } = await supabase
-          .from('profiles')
-          .update(updateData)
-          .eq('id', profile.id);
-        
-        if (error) throw error;
-        
-        const updatedProfile = { ...profile, ...updateData };
-        setProfile(updatedProfile);
-        
-        const settingLabels = {
-          show_email: 'Email visibility',
-          show_phone: 'Phone visibility',
-          show_whatsapp: 'WhatsApp visibility'
-        };
-        
-        toast.success(`${settingLabels[setting]} updated`);
-      } catch (err) {
-        console.error('Failed to update privacy setting:', err);
-        toast.error('Failed to update privacy setting');
-        
-        if (setting === 'show_email') {
-          setShowEmail(profile.show_email ?? true);
-        } else if (setting === 'show_phone') {
-          setShowPhone(profile.show_phone ?? true);
-          setShowWhatsapp(profile.show_whatsapp ?? true);
-        } else if (setting === 'show_whatsapp') {
-          setShowWhatsapp(profile.show_whatsapp ?? true);
-        }
-      }
     }
   };
 
@@ -372,7 +328,6 @@ export default function DashboardProfile() {
           social_layout_style: socialLayoutStyle,
           show_email: showEmail,
           show_phone: showPhone,
-          show_whatsapp: showWhatsapp,
         }).select().single());
       } else {
         ({ data, error } = await supabase.from('profiles').update({
@@ -386,7 +341,6 @@ export default function DashboardProfile() {
           social_layout_style: socialLayoutStyle,
           show_email: showEmail,
           show_phone: showPhone,
-          show_whatsapp: showWhatsapp,
         }).eq('id', profile.id).select().single());
       }
       if (error) throw error;
@@ -408,7 +362,6 @@ export default function DashboardProfile() {
       setSocialLayoutStyle(data.social_layout_style || 'horizontal');
       setShowEmail(data.show_email ?? true);
       setShowPhone(data.show_phone ?? true);
-      setShowWhatsapp(data.show_whatsapp ?? true);
       toast.success(profile ? 'Profile updated!' : 'Profile created successfully!');
     } catch (err) {
       toast.error(err.message || 'Failed to save profile');
@@ -633,36 +586,19 @@ export default function DashboardProfile() {
                   
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
-                        Show Phone Number
+                    <label className={`text-xs sm:text-sm font-medium ${!showPhone ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-200'}`}>
+                        Phone Number
                       </label>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        Display your phone number on your public profile
+                      <p className={`text-xs mt-1 ${!showPhone ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'}`}>
+                        {!showPhone 
+                          ? 'Phone number is hidden from your profile'
+                          : 'Your phone number will be visible on your profile'
+                        }
                       </p>
                     </div>
                     <Switch
                       checked={showPhone}
                       onCheckedChange={(checked) => handlePrivacySettingChange('show_phone', checked)}
-                    className="ml-2 sm:ml-4 flex-shrink-0"
-                    />
-                  </div>
-                  
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <label className={`text-xs sm:text-sm font-medium ${!showPhone ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-200'}`}>
-                        Show WhatsApp Link
-                      </label>
-                      <p className={`text-xs mt-1 ${!showPhone ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'}`}>
-                        {!showPhone 
-                          ? 'Automatically disabled when phone number is hidden'
-                          : 'Create a WhatsApp link using your phone number'
-                        }
-                      </p>
-                    </div>
-                    <Switch
-                      checked={showWhatsapp && showPhone}
-                      onCheckedChange={(checked) => handlePrivacySettingChange('show_whatsapp', checked)}
-                      disabled={!showPhone}
                     className="ml-2 sm:ml-4 flex-shrink-0"
                     />
                   </div>
@@ -1081,7 +1017,7 @@ export default function DashboardProfile() {
         <UpgradePrompt
           variant="modal"
           title="Link Limit Reached"
-          description="You've reached the 7-link limit for free accounts. Upgrade to Pro for unlimited links and premium features."
+          description="You've reached the 6-link limit for free accounts. Upgrade to Pro for unlimited links and premium features."
           feature="links"
           onClose={() => setShowUpgradePrompt(false)}
           showCloseButton={true}

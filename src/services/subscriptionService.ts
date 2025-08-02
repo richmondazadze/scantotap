@@ -192,7 +192,7 @@ export class SubscriptionService {
   static getPlanFeatures(plan: PlanType) {
     const features = {
       free: {
-        maxLinks: 7,
+        maxLinks: 6,
         premiumCards: false,
         analytics: false,
         customDomain: false,

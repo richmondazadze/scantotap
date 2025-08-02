@@ -182,89 +182,34 @@ const Navigation = () => {
             <ThemeSwitcher />
             <Drawer open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <DrawerTrigger asChild>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
+                <button
                   className="inline-flex items-center justify-center p-3 rounded-xl bg-white/20 dark:bg-slate-800/50 backdrop-blur-sm border border-white/30 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-white/30 dark:hover:bg-slate-700/50 focus:outline-none focus:ring-2 focus:ring-scan-blue/50 transition-all duration-200 shadow-lg"
                   aria-expanded={isMobileMenuOpen}
                   aria-label="Open navigation menu"
                 >
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={isMobileMenuOpen ? 'close' : 'menu'}
-                      initial={{ rotate: 0, opacity: 1 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: 90, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-                    </motion.div>
-                  </AnimatePresence>
-                </motion.button>
+                  {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                </button>
               </DrawerTrigger>
-              <DrawerContent className="border-0 bg-gradient-to-b from-white/95 via-white/90 to-white/85 dark:from-slate-900/95 dark:via-slate-900/90 dark:to-slate-800/85 backdrop-blur-xl shadow-2xl shadow-black/10 dark:shadow-black/30">
-                {/* Animated background gradients */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      rotate: [0, 180, 360],
-                    }}
-                    transition={{
-                      duration: 20,
-                      repeat: Infinity,
-                      ease: "linear"
-                    }}
-                    className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-2xl motion-reduce:animate-none"
-                  />
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.3, 1],
-                      rotate: [360, 180, 0],
-                    }}
-                    transition={{
-                      duration: 25,
-                      repeat: Infinity,
-                      ease: "linear"
-                    }}
-                    className="absolute -bottom-20 -left-20 w-32 h-32 bg-gradient-to-tr from-purple-400/20 to-pink-400/20 rounded-full blur-2xl motion-reduce:animate-none"
-                  />
-                </div>
-
+              <DrawerContent className="border-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl">
                 <div className="relative px-5 pt-6 pb-6" style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}>
                   {/* Header with logo and close button */}
-                  <motion.div 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex items-center justify-between mb-6"
-                  >
+                  <div className="flex items-center justify-between mb-6">
                     <Link to="/" className="flex-shrink-0 flex items-center gap-2">
                       <Scan2TapLogo />
                     </Link>
                     <DrawerClose asChild>
-                      <motion.button
-                        whileTap={{ scale: 0.95 }}
+                      <button
                         className="p-2.5 rounded-xl bg-slate-100/60 dark:bg-slate-800/60 backdrop-blur-sm border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-all duration-200"
                       >
                         <X size={18} />
-                      </motion.button>
+                      </button>
                     </DrawerClose>
-                  </motion.div>
+                  </div>
 
                   {/* Navigation Links */}
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.1 }}
-                    className="flex flex-col space-y-1.5 mb-6"
-                  >
-                    {navLinks.map((link, index) => (
-                      <motion.div
-                        key={link.name}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.08 }}
-                      >
+                  <div className="flex flex-col space-y-1.5 mb-6">
+                    {navLinks.map((link) => (
+                      <div key={link.name}>
                         <Link 
                         to={link.path}
                         onClick={(e) => {
@@ -275,115 +220,60 @@ const Navigation = () => {
                               handleNavigation(link.path);
                           }
                         }}
-                          className={`group relative flex items-center gap-3 px-5 py-3.5 rounded-xl font-semibold text-base transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-scan-blue/50 ${
+                          className={`group relative flex items-center gap-3 px-5 py-3.5 rounded-xl font-semibold text-base transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-scan-blue/50 ${
                           isActive(link.path) 
-                              ? 'text-white bg-gradient-to-r from-scan-blue to-scan-purple shadow-md shadow-blue-500/20' 
+                              ? 'text-white bg-gradient-to-r from-scan-blue to-scan-purple shadow-md' 
                               : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100/60 dark:hover:bg-slate-800/60 hover:text-scan-blue dark:hover:text-scan-blue-light'
                         }`}
                           aria-label={`Navigate to ${link.name}`}
                       >
                           {/* Active indicator */}
                         {isActive(link.path) && (
-                          <motion.div
-                              layoutId="mobileActiveIndicator"
-                              className="absolute left-3 top-1/4 -translate-y-1/2 w-0.5 h-6 bg-white rounded-full"
-                              initial={{ opacity: 0, scale: 0 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.3 }}
-                          />
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-white rounded-full" />
                         )}
                           
-                          {/* Hover background */}
-                          {!isActive(link.path) && (
-                        <motion.div
-                              className="absolute inset-0 rounded-xl bg-gradient-to-r from-scan-blue/8 to-scan-purple/8 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                          initial={false}
-                            />
-                          )}
-                          
                           {/* Icon */}
-                          <motion.div
-                            initial={{ scale: 1 }}
-                            whileHover={{ scale: 1.1 }}
-                            className="flex-shrink-0 relative z-10"
-                          >
+                          <div className="flex-shrink-0 relative z-10">
                             <link.icon size={18} className={isActive(link.path) ? 'text-white' : 'text-current opacity-70'} />
-                          </motion.div>
+                          </div>
                           
                           <span className="relative z-10 flex-1">{link.name}</span>
                       </Link>
-                      </motion.div>
+                      </div>
                     ))}
-                  </motion.div>
+                  </div>
 
                   {/* Divider */}
-                  <motion.div
-                    initial={{ opacity: 0, scaleX: 0 }}
-                    animate={{ opacity: 1, scaleX: 1 }}
-                    transition={{ duration: 0.4, delay: 0.25 }}
-                    className="h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent mb-5"
-                  />
+                  <div className="h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent mb-5" />
 
                   {/* Action Buttons */}
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.3 }}
-                    className="space-y-3"
-                  >
-                    <motion.div 
-                      whileTap={{ scale: 0.98 }}
-                      whileHover={{ y: -1 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  <div className="space-y-3">
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-12 text-sm font-semibold bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm border border-slate-200/60 dark:border-slate-700/60 hover:bg-slate-50/80 dark:hover:bg-slate-700/80 hover:border-scan-blue/40 transition-all duration-200 rounded-xl text-slate-700 dark:text-slate-300 hover:text-scan-blue dark:hover:text-scan-blue-light shadow-sm"
+                      onClick={() => handleNavigation(session ? "/dashboard/profile" : "/auth")}
                     >
-                      <Button 
-                        variant="outline" 
-                        className="w-full h-12 text-sm font-semibold bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm border border-slate-200/60 dark:border-slate-700/60 hover:bg-slate-50/80 dark:hover:bg-slate-700/80 hover:border-scan-blue/40 transition-all duration-300 rounded-xl text-slate-700 dark:text-slate-300 hover:text-scan-blue dark:hover:text-scan-blue-light shadow-sm hover:shadow-md hover:shadow-scan-blue/10"
-                        onClick={() => handleNavigation(session ? "/dashboard/profile" : "/auth")}
-                      >
-                        {session ? 'Profile' : 'Sign In'}
-                      </Button>
-                    </motion.div>
+                      {session ? 'Profile' : 'Sign In'}
+                    </Button>
                     
-                    <motion.div 
-                      whileTap={{ scale: 0.98 }}
-                      whileHover={{ y: -2 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    <Button 
+                      className="w-full h-12 text-sm font-bold bg-gradient-to-r from-scan-blue to-scan-purple hover:from-scan-blue/90 hover:to-scan-purple/90 text-white shadow-md hover:shadow-lg transition-all duration-200 rounded-xl"
+                      onClick={() => handleNavigation(session ? "/dashboard/profile" : "/auth")}
                     >
-                      <Button 
-                        className="w-full h-12 text-sm font-bold bg-gradient-to-r from-scan-blue to-scan-purple hover:from-scan-blue/90 hover:to-scan-purple/90 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300 rounded-xl"
-                        onClick={() => handleNavigation(session ? "/dashboard/profile" : "/auth")}
-                      >
-                        <motion.span
-                          className="flex items-center justify-center gap-2"
-                          initial={{ x: 0 }}
-                          whileHover={{ x: 1 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          {session ? 'Go to Dashboard' : 'Get Started'}
-                          <motion.div
-                            animate={{ x: [0, 2, 0] }}
-                            transition={{ duration: 1.5, repeat: Infinity }}
-                          >
-                            →
-                          </motion.div>
-                        </motion.span>
-                        </Button>
-                    </motion.div>
-                  </motion.div>
+                      <span className="flex items-center justify-center gap-2">
+                        {session ? 'Go to Dashboard' : 'Get Started'}
+                        →
+                      </span>
+                    </Button>
+                  </div>
 
                   {/* Bottom brand element */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.4, delay: 0.35 }}
-                    className="flex justify-center mt-5 pt-4 border-t border-slate-200/40 dark:border-slate-700/40"
-                  >
+                  <div className="flex justify-center mt-5 pt-4 border-t border-slate-200/40 dark:border-slate-700/40">
                     <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                       <QrCode className="w-3.5 h-3.5" />
                       <span className="font-medium">Your Digital Identity</span>
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
               </DrawerContent>
             </Drawer>
