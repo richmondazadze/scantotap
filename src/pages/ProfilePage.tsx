@@ -1532,13 +1532,13 @@ const ProfilePage = () => {
         </DialogContent>
       </Dialog>
 
-      <div className="relative z-10 w-full max-w-3xl lg:max-w-3xl mx-auto flex-1 flex flex-col min-h-screen py-4 sm:py-6 lg:py-10 px-2 xs:px-3 sm:px-4 lg:px-8 overflow-x-hidden">
+      <div className="relative z-10 w-full max-w-3xl lg:max-w-3xl mx-auto flex-1 flex flex-col min-h-screen py-1 sm:py-2 lg:py-4 px-2 xs:px-3 sm:px-4 lg:px-8 overflow-x-hidden">
         
         {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-1 sm:mb-2"
+          className="mb-1"
         >
           <div className="overflow-hidden rounded-3xl shadow-2xl relative border border-white/20"
                style={{ 
@@ -1574,13 +1574,13 @@ const ProfilePage = () => {
           </div>
           
             {/* Centered content */}
-            <div className="relative p-8 sm:p-10 lg:p-12 flex flex-col items-center text-center">
+            <div className="relative p-4 sm:p-6 lg:p-8 flex flex-col items-center text-center">
               {/* Avatar with theme border/glow */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
-                className="relative flex-shrink-0 mb-3"
+                className="relative flex-shrink-0 mb-1"
                 >
                 <div className="relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden shadow-2xl border-4 transition-all duration-500 hover:scale-110 hover:rotate-3 group"
                   style={{ 
@@ -1616,7 +1616,7 @@ const ProfilePage = () => {
                   </div>
                 </motion.div>
               {/* Name, title, bio with perfect text contrast */}
-              <div className="flex flex-col items-center gap-2">
+              <div className="flex flex-col items-center gap-1">
                 <h1 className={`text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight`}
                     style={{ 
                     color: getPerfectTextColor(profile.wallpaper_preference, profile.theme_preference, profile.style_settings, 'topCard'),
@@ -1633,7 +1633,7 @@ const ProfilePage = () => {
                     </p>
                   )}
                   {profile.bio && (
-                  <p className={`text-sm sm:text-base leading-relaxed w-full font-medium mt-2`} 
+                  <p className={`text-sm sm:text-base leading-relaxed w-full font-medium mt-1`} 
                      style={{ 
                        color: getPerfectTextColor(profile.wallpaper_preference, profile.theme_preference, profile.style_settings, 'topCard')
                      }}>
@@ -1647,13 +1647,13 @@ const ProfilePage = () => {
                 </div>
         </motion.div>
 
-        <div className="space-y-12 lg:space-y-16">
+        <div className="space-y-6 lg:space-y-8">
           {/* Contact & Actions */}
-          <div className="space-y-8">
+          <div className="space-y-4">
             
             {/* Horizontal Divider Before Contact */}
             {((profile.phone && profile.show_phone !== false) || (profile.email && profile.show_email !== false)) && (
-              <div className="flex justify-center py-2">
+              <div className="flex justify-center py-1">
                 <div className={`w-24 h-0.5 rounded-full ${isLightTheme(profile.theme_preference) ? 'bg-gray-300' : 'bg-white/30'}`}></div>
               </div>
             )}
@@ -1666,7 +1666,7 @@ const ProfilePage = () => {
                 transition={{ delay: 0.4 }}
               >
                 <div className="pb-1 px-1 sm:px-2 pt-2">
-                  <div className="space-y-3">
+                  <div className="space-y-1.5">
                     <div className="text-center">
                       <h3 className={`flex items-center justify-center gap-2 text-lg sm:text-xl font-semibold mb-1`}
                         style={{ color: getPerfectTextColor(profile.wallpaper_preference, profile.theme_preference, profile.style_settings, 'primary') }}>
@@ -1677,11 +1677,11 @@ const ProfilePage = () => {
                       Get in touch directly
                       </p>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                     {/* Contact Details */}
-                    <div className="grid grid-cols-1 gap-3">
+                                          <div className="grid grid-cols-1 gap-1.5">
                       {profile.phone && profile.show_phone !== false && (
-                          <div className={`flex items-center gap-3 p-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl backdrop-blur-sm border ${getStyleClasses(profile.style_settings, 'corners')} ${getStyleClasses(profile.style_settings, 'shadow')} ${getFillStyles(profile.style_settings, isLightTheme(profile.theme_preference))} ${isLightTheme(profile.theme_preference) ? 'border-gray-200 hover:border-gray-300' : 'border-white/20 hover:border-white/30'}`}>
+                          <div className={`flex items-center gap-3 p-2 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl backdrop-blur-sm border ${getStyleClasses(profile.style_settings, 'corners')} ${getStyleClasses(profile.style_settings, 'shadow')} ${getFillStyles(profile.style_settings, isLightTheme(profile.theme_preference))} ${isLightTheme(profile.theme_preference) ? 'border-gray-200 hover:border-gray-300' : 'border-white/20 hover:border-white/30'}`}>
                             <div className={`w-10 h-10 flex-shrink-0 rounded-lg flex items-center justify-center shadow-md ${isLightTheme(profile.theme_preference) ? 'bg-blue-100' : 'bg-white/20'}`}>
                               <Phone className={`w-5 h-5`} style={{ color: getPerfectTextColor(profile.wallpaper_preference, profile.theme_preference, profile.style_settings, 'secondary') }} />
                           </div>
@@ -1702,7 +1702,7 @@ const ProfilePage = () => {
               )}
               
                       {profile.email && profile.show_email !== false && (
-                          <div className={`flex items-center gap-3 p-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl backdrop-blur-sm border ${getStyleClasses(profile.style_settings, 'corners')} ${getStyleClasses(profile.style_settings, 'shadow')} ${getFillStyles(profile.style_settings, isLightTheme(profile.theme_preference))} ${isLightTheme(profile.theme_preference) ? 'border-gray-200 hover:border-gray-300' : 'border-white/20 hover:border-white/30'}`}>
+                          <div className={`flex items-center gap-3 p-2 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl backdrop-blur-sm border ${getStyleClasses(profile.style_settings, 'corners')} ${getStyleClasses(profile.style_settings, 'shadow')} ${getFillStyles(profile.style_settings, isLightTheme(profile.theme_preference))} ${isLightTheme(profile.theme_preference) ? 'border-gray-200 hover:border-gray-300' : 'border-white/20 hover:border-white/30'}`}>
                             <div className={`w-10 h-10 flex-shrink-0 rounded-lg flex items-center justify-center shadow-md ${isLightTheme(profile.theme_preference) ? 'bg-green-100' : 'bg-white/20'}`}>
                               <Mail className={`w-5 h-5`} style={{ color: getPerfectTextColor(profile.wallpaper_preference, profile.theme_preference, profile.style_settings, 'secondary') }} />
                   </div>
@@ -1826,7 +1826,7 @@ END:VCARD`;
 
             {/* Horizontal Divider */}
             {((profile.phone && profile.show_phone !== false) || (profile.email && profile.show_email !== false)) && mainLinks.length > 0 && (
-              <div className="flex justify-center py-2">
+              <div className="flex justify-center py-1">
                 <div className={`w-16 h-0.5 rounded-full ${isLightTheme(profile.theme_preference) ? 'bg-gray-300' : 'bg-white/30'}`}></div>
               </div>
             )}
@@ -1838,8 +1838,8 @@ END:VCARD`;
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <div className="pb-1 px-1 sm:px-2 lg:px-2 pt-2">
-                  <div className="space-y-3">
+                <div className="pb-1 px-1 sm:px-2 lg:px-2 pt-1">
+                  <div className="space-y-2">
                     <div className="text-center">
                       <h3 className={`flex items-center justify-center gap-2 text-lg sm:text-xl font-semibold mb-1`}
                         style={{ color: getPerfectTextColor(profile.wallpaper_preference, profile.theme_preference, profile.style_settings, 'primary') }}>
@@ -1850,7 +1850,7 @@ END:VCARD`;
                       Explore my digital presence
                       </p>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                     {mainLinks.map((link: any, idx: number) => (
                       <motion.div
                         key={idx}
@@ -1861,7 +1861,7 @@ END:VCARD`;
                       >
                         <Button
                           variant="outline"
-                            className={`w-full justify-between text-left h-auto p-3 group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl backdrop-blur-sm border overflow-hidden ${getStyleClasses(profile.style_settings, 'corners')} ${getStyleClasses(profile.style_settings, 'shadow')} ${getFillStyles(profile.style_settings, isLightTheme(profile.theme_preference))} ${isLightTheme(profile.theme_preference) ? 'border-gray-200 hover:border-gray-300' : 'border-white/20 hover:border-white/30'}`}
+                            className={`w-full justify-between text-left h-auto p-2 group transition-all duration-300 hover:scale-[1.02] hover:shadow-xl backdrop-blur-sm border overflow-hidden ${getStyleClasses(profile.style_settings, 'corners')} ${getStyleClasses(profile.style_settings, 'shadow')} ${getFillStyles(profile.style_settings, isLightTheme(profile.theme_preference))} ${isLightTheme(profile.theme_preference) ? 'border-gray-200 hover:border-gray-300' : 'border-white/20 hover:border-white/30'}`}
                           onClick={() => window.open(link.url, '_blank')}
                         >
                           <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -1917,8 +1917,8 @@ END:VCARD`;
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <div className="pb-1 px-1 sm:px-2 lg:px-2 pt-2">
-                <div className="space-y-3">
+              <div className="pb-1 px-1 sm:px-2 lg:px-2 pt-1">
+                <div className="space-y-1.5">
                   <div className="text-center">
                     <h3 className={`flex items-center justify-center gap-2 text-lg sm:text-xl font-semibold mb-1`}
                       style={{ color: getPerfectTextColor(profile.wallpaper_preference, profile.theme_preference, profile.style_settings, 'primary') }}>
@@ -1971,7 +1971,7 @@ END:VCARD`;
                         >
                           {profile.social_layout_style === 'horizontal' ? (
                             /* Horizontal layout - full width cards */
-                            <div className={`flex items-center gap-3 p-3 sm:p-4 border transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl ${getStyleClasses(profile.style_settings, 'corners')} ${getStyleClasses(profile.style_settings, 'shadow')} ${getFillStyles(profile.style_settings, isLightTheme(profile.theme_preference))} ${isLightTheme(profile.theme_preference) ? 'border-gray-200 hover:border-gray-300' : 'border-white/20 hover:border-white/30'}`}>
+                            <div className={`flex items-center gap-3 p-2 sm:p-2.5 border transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl ${getStyleClasses(profile.style_settings, 'corners')} ${getStyleClasses(profile.style_settings, 'shadow')} ${getFillStyles(profile.style_settings, isLightTheme(profile.theme_preference))} ${isLightTheme(profile.theme_preference) ? 'border-gray-200 hover:border-gray-300' : 'border-white/20 hover:border-white/30'}`}>
                               {/* Horizontal Icon Container */}
                               <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${platformColors.bg} ${platformColors.hover} ${platformColors.text} flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg`}>
                                 <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -1994,7 +1994,7 @@ END:VCARD`;
                             </div>
                           ) : (
                             /* Grid layout - more compact square cards on large screens */
-                            <div className={`aspect-square border transition-all duration-300 flex flex-col items-center justify-center text-center group-hover:scale-105 group-hover:shadow-xl p-3 sm:p-4 lg:p-2 lg:w-28 lg:h-28 ${getGridCornerStyles(profile.style_settings)} ${getStyleClasses(profile.style_settings, 'shadow')} ${getFillStyles(profile.style_settings, isLightTheme(profile.theme_preference))} ${isLightTheme(profile.theme_preference) ? 'border-gray-200 hover:border-gray-300' : 'border-white/20 hover:border-white/30'}`}>
+                            <div className={`aspect-square border transition-all duration-300 flex flex-col items-center justify-center text-center group-hover:scale-105 group-hover:shadow-xl p-2 sm:p-2.5 lg:p-2 lg:w-28 lg:h-28 ${getGridCornerStyles(profile.style_settings)} ${getStyleClasses(profile.style_settings, 'shadow')} ${getFillStyles(profile.style_settings, isLightTheme(profile.theme_preference))} ${isLightTheme(profile.theme_preference) ? 'border-gray-200 hover:border-gray-300' : 'border-white/20 hover:border-white/30'}`}>
                               {/* Grid Icon Container */}
                               <div className={`w-10 h-10 sm:w-12 sm:h-12 lg:w-8 lg:h-8 rounded-lg ${platformColors.bg} ${platformColors.hover} ${platformColors.text} flex items-center justify-center transition-all duration-300 mb-2 group-hover:scale-110 shadow-lg`}>
                                 <Icon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-5 lg:h-5" />
