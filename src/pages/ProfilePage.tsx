@@ -1873,7 +1873,25 @@ END:VCARD`;
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                  <MoreHorizontal className={`w-5 h-5`} style={{ color: getPerfectTextColor(profile.wallpaper_preference, profile.theme_preference, profile.style_settings, 'secondary') }} />
+                                <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+                                  {/* Dynamic gradient background based on link type */}
+                                  <div className={`absolute inset-0 rounded-lg ${
+                                    (link.platform || link.label || '').toLowerCase().includes('portfolio') ? 'bg-gradient-to-br from-purple-500 to-pink-600' :
+                                    (link.platform || link.label || '').toLowerCase().includes('blog') ? 'bg-gradient-to-br from-green-500 to-blue-600' :
+                                    (link.platform || link.label || '').toLowerCase().includes('website') ? 'bg-gradient-to-br from-blue-500 to-cyan-600' :
+                                    (link.platform || link.label || '').toLowerCase().includes('project') ? 'bg-gradient-to-br from-orange-500 to-red-600' :
+                                    'bg-gradient-to-br from-indigo-500 to-purple-600'
+                                  } opacity-90`}></div>
+                                  {/* Subtle pattern overlay */}
+                                  <div className="absolute inset-0 bg-black/10 rounded-lg"></div>
+                                  {/* Icon composition */}
+                                  <div className="relative flex items-center justify-center">
+                                    <Globe className="w-3 h-3 text-white drop-shadow-sm" />
+                                    <ExternalLink className="w-2 h-2 text-white absolute -top-0.5 -right-0.5 drop-shadow-sm" />
+                                  </div>
+                                  {/* Subtle shine effect */}
+                                  <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/20 to-transparent rounded-t-lg"></div>
+                                </div>
                               )}
                             </div>
                               <span className={`font-medium break-words whitespace-normal min-w-0 flex-1`} style={{ color: getPerfectTextColor(profile.wallpaper_preference, profile.theme_preference, profile.style_settings, 'primary') }}>{link.platform || link.label}</span>
