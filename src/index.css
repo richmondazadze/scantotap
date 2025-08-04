@@ -783,6 +783,27 @@ p, span, div, a, li, td, th, label {
   display: none;  /* Safari and Chrome */
 }
 
+/* Additional scrollbar hiding for mobile preview */
+.mobile-preview-container {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+  overflow: hidden !important;
+}
+
+.mobile-preview-container::-webkit-scrollbar {
+  display: none !important;
+}
+
+.mobile-preview-iframe {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+  overflow: hidden !important;
+}
+
+.mobile-preview-iframe::-webkit-scrollbar {
+  display: none !important;
+}
+
 /* Slide up animation for mobile modal - Enhanced and Gradual */
 @keyframes slide-up {
   0% {
