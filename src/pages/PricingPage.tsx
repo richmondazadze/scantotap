@@ -444,6 +444,43 @@ const PricingPage = () => {
             ))}
           </div>
 
+          {/* Payment Method Notice */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="mt-8 max-w-4xl mx-auto"
+          >
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-700 rounded-2xl p-6 text-center">
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Secure Subscription Payments
+                </h3>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                Pro subscriptions require credit/debit card payments for secure recurring billing. 
+                Mobile money and bank transfers are not supported for monthly subscriptions.
+              </p>
+              <div className="flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                <span className="flex items-center gap-1">
+                  <Check className="w-3 h-3 text-green-500" />
+                  Credit/Debit Cards
+                </span>
+                <span className="flex items-center gap-1">
+                  <X className="w-3 h-3 text-red-500" />
+                  Mobile Money
+                </span>
+                <span className="flex items-center gap-1">
+                  <X className="w-3 h-3 text-red-500" />
+                  Bank Transfers
+                </span>
+              </div>
+            </div>
+          </motion.div>
+
           {/* Enterprise Section */}
           <motion.div 
             initial={{ opacity: 0, y: 30 }}

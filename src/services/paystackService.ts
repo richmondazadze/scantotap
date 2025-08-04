@@ -56,7 +56,7 @@ export class PaystackService {
     amount: number,
     planCode: string,
     metadata: any = {}
-  ): Promise<{ authorization_url: string; access_code: string; reference: string }> {
+  ): Promise<{ authorization_url: string; access_code: string; reference: string; authorization?: string }> {
     return new Promise((resolve, reject) => {
       // Load Paystack inline script if not already loaded
       if (!window.PaystackPop) {
@@ -83,17 +83,29 @@ export class PaystackService {
       email: email,
       amount: amount,
       plan: planCode,
-      currency: 'USD', // or your preferred currency
+      currency: 'USD',
+      channels: ['card'], // Restrict to card payments only for subscriptions
       metadata: {
         ...metadata,
         cancel_action: window.location.href
       },
       callback: function(response: any) {
-        resolve({
-          authorization_url: '',
-          access_code: response.trxref,
-          reference: response.reference
-        });
+        // Check if we have authorization for subscription
+        if (response.authorization && response.authorization.authorization_code) {
+          resolve({
+            authorization_url: '',
+            access_code: response.trxref,
+            reference: response.reference,
+            authorization: response.authorization.authorization_code
+          });
+        } else {
+          // For non-subscription payments, still allow other methods
+          resolve({
+            authorization_url: '',
+            access_code: response.trxref,
+            reference: response.reference
+          });
+        }
       },
       onClose: function() {
         reject(new Error('Payment cancelled by user'));
@@ -242,7 +254,7 @@ export class PaystackService {
     try {
       const plan = planType === 'monthly' ? this.PLANS.pro_monthly : this.PLANS.pro_annually;
       
-      // Initialize payment
+      // Initialize payment with card-only restriction
       const paymentResult = await this.initializePayment(
         userEmail,
         plan.amount,
@@ -254,7 +266,30 @@ export class PaystackService {
         }
       );
 
-      return paymentResult;
+      // Verify we have authorization token for subscription
+      if (!paymentResult.authorization) {
+        throw new Error('Card authorization required for subscription. Please use a credit/debit card.');
+      }
+
+      // Create customer first
+      const customer = await this.createCustomer({
+        email: userEmail,
+        first_name: userName.split(' ')[0] || 'User',
+        last_name: userName.split(' ').slice(1).join(' ') || 'User'
+      });
+
+      // Create subscription with authorization token
+      const subscription = await this.createSubscription(
+        customer.customer_code,
+        plan.plan_code,
+        paymentResult.authorization
+      );
+
+      return {
+        success: true,
+        subscription: subscription,
+        reference: paymentResult.reference
+      };
     } catch (error) {
       console.error('Error upgrading subscription:', error);
       throw error;
@@ -331,6 +366,45 @@ export class PaystackService {
     }
     
     return subscription_status === 'active';
+  }
+
+  // Validate payment method for subscription
+  static async validatePaymentMethod(reference: string): Promise<{ isValid: boolean; channel: string; error?: string }> {
+    try {
+      const response = await fetch(`${this.baseUrl}/transaction/verify/${reference}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+
+      const transaction = data.data;
+      
+      // For subscriptions, only card payments are valid
+      if (transaction.channel === 'card' || transaction.channel === 'card') {
+        return {
+          isValid: true,
+          channel: transaction.channel
+        };
+      } else {
+        return {
+          isValid: false,
+          channel: transaction.channel,
+          error: `Payment method ${transaction.channel} is not supported for subscriptions. Please use a credit/debit card.`
+        };
+      }
+    } catch (error) {
+      console.error('Error validating payment method:', error);
+      return {
+        isValid: false,
+        channel: 'unknown',
+        error: 'Failed to validate payment method'
+      };
+    }
   }
 
   // Get plan display info

@@ -734,6 +734,62 @@ export default function DashboardOrder() {
                   </CardContent>
                 </Card>
               </motion.div>
+
+              {/* Continue Button - Only show when design and color are selected */}
+              {selectedDesign && selectedColor && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="xl:col-span-4"
+                >
+                  <Card className="overflow-hidden">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="text-center space-y-4">
+                        <div className="space-y-2">
+                          <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                            Ready to Continue?
+                          </h3>
+                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                            You've selected {selectedDesign.name} in {selectedColor.name}. 
+                            Click continue to set your delivery location.
+                          </p>
+                        </div>
+                        
+                        {/* Order Summary Preview */}
+                        <div className="p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                          <div className="space-y-2 text-xs sm:text-sm">
+                            <div className="flex justify-between">
+                              <span>Selected Design:</span>
+                              <span className="font-medium">{selectedDesign.name}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Color Scheme:</span>
+                              <span className="font-medium">{selectedColor.name}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Quantity:</span>
+                              <span className="font-medium">{quantity}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Base Price:</span>
+                              <span className="font-medium">₵{(selectedDesign.price * quantity).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <Button
+                          onClick={() => setShowOrderForm(true)}
+                          className="w-full h-12 sm:h-14 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm sm:text-base"
+                        >
+                          Continue to Delivery
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
             </div>
           </div>
         </>

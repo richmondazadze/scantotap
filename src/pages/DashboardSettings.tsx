@@ -123,10 +123,12 @@ export default function DashboardSettings() {
     
     setSubscriptionLoading(true);
     try {
+      console.log('🔍 Loading subscription details for user:', session.user.id);
       const details = await SubscriptionService.getSubscriptionDetails(session.user.id);
+      console.log('✅ Subscription details loaded:', details);
       setSubscriptionDetails(details);
     } catch (error) {
-      console.error('Error loading subscription details:', error);
+      console.error('❌ Error loading subscription details:', error);
       toast.error('Failed to load subscription details');
     } finally {
       setSubscriptionLoading(false);
@@ -758,6 +760,20 @@ export default function DashboardSettings() {
                 {planFeatures.planType === 'free' && (
                   <div className="space-y-3 sm:space-y-4">
                     <h4 className="text-sm sm:text-base font-semibold">Upgrade to Premium</h4>
+                    
+                    {/* Payment Method Notice */}
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Shield className="w-4 h-4 text-blue-600" />
+                        <span className="text-xs font-medium text-blue-800 dark:text-blue-200">
+                          Secure Subscription Payments
+                        </span>
+                      </div>
+                      <p className="text-xs text-blue-700 dark:text-blue-300">
+                        Pro subscriptions require credit/debit card payments for secure recurring billing.
+                      </p>
+                    </div>
+                    
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                   <Button 
                                     onClick={() => handleUpgrade('monthly')}
@@ -795,19 +811,34 @@ export default function DashboardSettings() {
                       <div className="space-y-2 text-xs sm:text-sm">
                         <div className="flex justify-between">
                           <span>Status:</span>
-                          <span className="font-medium">{subscriptionDetails.status}</span>
-                            </div>
+                          <span className="font-medium capitalize">{subscriptionDetails.status || 'Active'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Plan:</span>
+                          <span className="font-medium capitalize">{subscriptionDetails.plan}</span>
+                        </div>
                         <div className="flex justify-between">
                           <span>Next billing:</span>
                           <span className="font-medium">
                             {subscriptionDetails.next_billing_date 
-                              ? new Date(subscriptionDetails.next_billing_date).toLocaleDateString()
-                              : 'N/A'
+                              ? new Date(subscriptionDetails.next_billing_date).toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric'
+                                })
+                              : subscriptionDetails.status === 'active' 
+                                ? 'Calculating...'
+                                : 'Not available'
                             }
                           </span>
-                              </div>
-                            </div>
+                        </div>
+                        {subscriptionDetails.next_billing_date && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                            * Estimated billing date based on subscription status
                           </div>
+                        )}
+                      </div>
+                    </div>
 
                                   <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
                                     <AlertDialogTrigger asChild>

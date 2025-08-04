@@ -122,8 +122,17 @@ export class WebhookHandler {
       return;
     }
 
-    // If this is a subscription payment, activate the subscription
+    // If this is a subscription payment, validate payment method
     if (data.metadata?.plan_type === 'pro') {
+      // Validate that payment was made with a card for subscription
+      const paymentValidation = await PaystackService.validatePaymentMethod(data.reference);
+      
+      if (!paymentValidation.isValid) {
+        console.error(`Invalid payment method for subscription: ${paymentValidation.error}`);
+        // Don't activate subscription for non-card payments
+        return;
+      }
+
       const startDate = new Date();
       const endDate = new Date();
       
@@ -147,7 +156,7 @@ export class WebhookHandler {
       // Sync plan type to ensure consistency
       await SubscriptionService.syncUserPlanType(userId);
 
-      console.log(`Activated Pro subscription for user ${userId}`);
+      console.log(`Activated Pro subscription for user ${userId} with valid card payment`);
     }
   }
 

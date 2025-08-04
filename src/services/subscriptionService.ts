@@ -138,19 +138,83 @@ export class SubscriptionService {
     isActive: boolean;
     canUpgrade: boolean;
     canCancel: boolean;
+    next_billing_date?: string;
   }> {
-    const subscription = await this.getUserSubscription(userId);
-    const plan = subscription?.plan_type || 'free';
-    const status = subscription?.subscription_status || null;
-    const isActive = this.isSubscriptionActive(status);
+    try {
+      // Get subscription data from database - only use columns that exist
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('plan_type, subscription_status')
+        .eq('id', userId)
+        .single();
 
-    return {
-      plan,
-      status,
-      isActive,
-      canUpgrade: !isActive,
-      canCancel: isActive,
-    };
+      if (error) {
+        console.error('Error fetching subscription details:', error);
+        return {
+          plan: 'free',
+          status: null,
+          isActive: false,
+          canUpgrade: true,
+          canCancel: false,
+        };
+      }
+
+      const plan = (profile.plan_type as PlanType) || 'free';
+      const status = profile.subscription_status as SubscriptionStatus | null;
+      const isActive = this.isSubscriptionActive(status);
+
+      const result = {
+        plan,
+        status,
+        isActive,
+        canUpgrade: !isActive,
+        canCancel: isActive,
+        // Since subscription_expires_at doesn't exist in the database,
+        // we'll calculate a next billing date based on subscription status
+        next_billing_date: this.calculateNextBillingDate(status),
+      };
+
+      console.log('📊 Subscription details for user:', userId, {
+        raw_profile: profile,
+        processed_result: result
+      });
+
+      return result;
+    } catch (error) {
+      console.error('Error in getSubscriptionDetails:', error);
+      return {
+        plan: 'free',
+        status: null,
+        isActive: false,
+        canUpgrade: true,
+        canCancel: false,
+      };
+    }
+  }
+
+  /**
+   * Calculate next billing date based on subscription status
+   */
+  private static calculateNextBillingDate(status: SubscriptionStatus | null): string | undefined {
+    if (!status || status === 'free') {
+      return undefined;
+    }
+
+    if (status === 'active') {
+      // For active subscriptions, assume next billing is 30 days from now
+      const nextBilling = new Date();
+      nextBilling.setDate(nextBilling.getDate() + 30);
+      return nextBilling.toISOString();
+    }
+
+    if (status === 'cancelled') {
+      // For cancelled subscriptions, assume they expire in 30 days from now
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 30);
+      return expiryDate.toISOString();
+    }
+
+    return undefined;
   }
 
   /**

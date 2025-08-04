@@ -169,36 +169,36 @@ export default function DashboardThemes() {
         transition={{ delay: 0.1 }}
       >
         <Card>
-          <CardHeader className="pb-4 sm:pb-6">
-            <CardTitle className="text-base sm:text-lg">How Themes Work</CardTitle>
+          <CardHeader className="pb-2 sm:pb-3">
+            <CardTitle className="text-sm sm:text-base">How Themes Work</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-4 sm:space-y-5 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-              <div className="flex gap-3 sm:gap-4">
-                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm">1</span>
+          <CardContent className="pt-0 pb-3 sm:pb-4">
+            <div className="space-y-2 sm:space-y-3 text-xs text-gray-600 dark:text-gray-400">
+              <div className="flex gap-2 sm:gap-3">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-blue-600 dark:text-blue-400 font-bold text-xs">1</span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium text-gray-900 dark:text-white text-sm sm:text-base mb-1">Choose Your Theme</p>
-                  <p className="leading-relaxed">Select from our curated collection of professional color themes.</p>
+                  <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm mb-0.5">Choose Your Theme</p>
+                  <p className="leading-tight">Select from our curated collection of professional color themes.</p>
                 </div>
               </div>
-              <div className="flex gap-3 sm:gap-4">
-                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-purple-600 dark:text-purple-400 font-bold text-xs sm:text-sm">2</span>
+              <div className="flex gap-2 sm:gap-3">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-purple-600 dark:text-purple-400 font-bold text-xs">2</span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium text-gray-900 dark:text-white text-sm sm:text-base mb-1">Automatic Application</p>
-                  <p className="leading-relaxed">Your theme is instantly applied to your public profile with optimized colors.</p>
+                  <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm mb-0.5">Automatic Application</p>
+                  <p className="leading-tight">Your theme is instantly applied to your public profile with optimized colors.</p>
                 </div>
               </div>
-              <div className="flex gap-3 sm:gap-4">
-                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-green-600 dark:text-green-400 font-bold text-xs sm:text-sm">3</span>
+              <div className="flex gap-2 sm:gap-3">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-green-600 dark:text-green-400 font-bold text-xs">3</span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium text-gray-900 dark:text-white text-sm sm:text-base mb-1">Share & Impress</p>
-                  <p className="leading-relaxed">Your contacts will see your beautifully themed profile when they visit your link.</p>
+                  <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm mb-0.5">Share & Impress</p>
+                  <p className="leading-tight">Your contacts will see your beautifully themed profile when they visit your link.</p>
                 </div>
               </div>
             </div>

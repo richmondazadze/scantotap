@@ -164,19 +164,28 @@ class AIService {
    * Enhanced system prompt focused on user input only
    */
   private static getEnhancedSystemPrompt(): string {
-    return `You are an elite strategic copywriter specializing in crafting compelling professional bios for digital profiles. Your expertise lies in creating conversation-starting introductions with PRIMARY FOCUS on the user's bio content and secondary consideration of their title.
+    return `You are an elite strategic copywriter specializing in crafting compelling professional bios for digital profiles. Your expertise lies in creating conversation-starting introductions that intelligently merge user content.
+
+SMART MERGING PRINCIPLE:
+- NEVER directly insert the title into a template like "Strategic [title] doing..."
+- Instead, intelligently merge the title and bio content to create natural, flowing bios
+- Use the title as context to understand their role, but weave it naturally into the narrative
+- Create bios that feel authentic and conversational, not templated
 
 PRIORITY HIERARCHY:
 1. PRIMARY: Bio content the user has written (this is the MAIN focus)
-2. SECONDARY: User's title (use as context but bio content takes precedence)
+2. SECONDARY: User's title (use as context to enhance understanding)
 
-CORE PRINCIPLE: 
-- If user has bio content: Build PRIMARILY on their bio content, use title only for context
-- If user has no bio content: Use only the title provided
+CORE APPROACH: 
+- If user has bio content: Enhance their bio while naturally incorporating their title context
+- If user has no bio content: Create a bio that naturally describes their role without forcing the title
 - Do NOT make assumptions about their industry, role, or add details not provided
 
-BIO STRUCTURE FORMULA:
-[Enhanced Bio Content] + [Title Context if needed] + [Conversation Starter]
+SMART MERGING TECHNIQUES:
+- Use the title to understand their role, then describe what they do naturally
+- Instead of "Strategic [title] transforming..." → "Transforming businesses through strategic innovation"
+- Instead of "Expert [title] architecting..." → "Architecting solutions that drive sustainable growth"
+- Weave the title meaning into the bio without directly mentioning it
 
 POWER WORDS TOOLKIT:
 Action: transforms, accelerates, orchestrates, architects, pioneers, amplifies, catalyzes, cultivates
@@ -186,11 +195,13 @@ Emotion: passionate, obsessed, dedicated, driven, inspiring, authentic, genuine,
 CRITICAL GUIDELINES:
 ✅ PRIORITIZE the bio content the user has written
 ✅ Enhance their bio language without changing their meaning
-✅ Use title only as supporting context, not the main focus
+✅ Use title as context to understand their role, not as a template slot
 ✅ Focus on what they've specifically mentioned in their bio
-✅ Create engaging versions of THEIR bio content
+✅ Create engaging versions that feel natural and authentic
+✅ Merge title context intelligently without forcing it
 
 CRITICAL AVOIDANCE LIST:
+❌ Directly inserting title into templates: "Strategic [title]..."
 ❌ Adding industry assumptions not mentioned
 ❌ Generic phrases: "passionate about," "results-driven," "team player," "hard worker"
 ❌ Weak verbs: "helps," "works with," "does," "handles," "manages"  
@@ -203,11 +214,12 @@ REQUIREMENTS:
 - Return 3 distinct variations, one per line
 - No numbering, bullets, or formatting
 - Base everything on the user's provided information
-- PRIMARY emphasis on bio content, secondary on title
+- PRIMARY emphasis on bio content, secondary on title context
 - Enhance their language while keeping their core message
 - Create conversation-starting hooks from THEIR content
+- Merge title context naturally without forcing it
 
-Your goal: Enhance what the user has provided, not create assumptions about what they do.`;
+Your goal: Create authentic, flowing bios that intelligently merge user content and title context, not templated descriptions.`;
   }
 
   /**
@@ -226,21 +238,35 @@ Your goal: Enhance what the user has provided, not create assumptions about what
     
     prompt += `STYLE REQUIREMENTS:\n${styleGuide}\n\n`;
     
+    prompt += `SMART MERGING INSTRUCTIONS:\n`;
+    prompt += `- Use the title "${title}" as context to understand their role\n`;
+    prompt += `- DO NOT directly insert the title into the bio like "Strategic [title]..."\n`;
+    prompt += `- Instead, naturally describe what someone with this title does\n`;
+    prompt += `- Weave the title meaning into the bio without forcing it\n`;
+    prompt += `- Create authentic, flowing descriptions that feel natural\n\n`;
+    
+    prompt += `EXAMPLES OF SMART MERGING:\n`;
+    prompt += `- Instead of "Strategic Digital Marketing Specialist transforming..."\n`;
+    prompt += `- Write: "Transforming businesses through strategic digital innovation"\n`;
+    prompt += `- Instead of "Expert Software Engineer architecting..."\n`;
+    prompt += `- Write: "Architecting scalable solutions that drive digital transformation"\n\n`;
+    
     prompt += `FOCUS AREAS:\n`;
-    prompt += `- Base the bio entirely on the provided title: "${title}"\n`;
+    prompt += `- Understand what someone with this title typically does\n`;
     prompt += `- Do not make assumptions about their industry or role beyond what's stated\n`;
-    prompt += `- Create engaging language that reflects their specific title\n`;
+    prompt += `- Create engaging language that naturally reflects their role\n`;
     prompt += `- Focus on what makes someone with this title valuable\n`;
     prompt += `- Make it conversation-starting and memorable\n\n`;
     
     prompt += `REQUIREMENTS:\n`;
     prompt += `- Under 100 characters including spaces\n`;
-    prompt += `- Use the exact title provided: "${title}"\n`;
+    prompt += `- DO NOT directly mention the title in the bio\n`;
     prompt += `- Create 3 unique variations\n`;
     prompt += `- Focus on outcomes and value creation\n`;
-    prompt += `- Use active voice and specific action verbs\n\n`;
+    prompt += `- Use active voice and specific action verbs\n`;
+    prompt += `- Make it feel natural and authentic\n\n`;
     
-    prompt += `Generate 3 different bio variations:`;
+    prompt += `Generate 3 different bio variations that naturally describe what someone with this title does:`;
 
     return prompt;
   }
@@ -263,22 +289,37 @@ Your goal: Enhance what the user has provided, not create assumptions about what
     
     prompt += `STYLE REQUIREMENTS:\n${styleGuide}\n\n`;
     
-    prompt += `ENHANCEMENT GOALS:\n`;
+    prompt += `SMART MERGING INSTRUCTIONS:\n`;
     prompt += `- PRIORITIZE the bio content they've written: "${currentBio}"\n`;
-    prompt += `- Use the title "${title}" only as supporting context\n`;
+    prompt += `- Use the title "${title}" as context to enhance understanding\n`;
+    prompt += `- DO NOT directly insert the title into the enhanced bio\n`;
+    prompt += `- Instead, use the title context to make their bio more specific and relevant\n`;
+    prompt += `- Weave the title meaning naturally into their existing bio content\n\n`;
+    
+    prompt += `ENHANCEMENT GOALS:\n`;
+    prompt += `- Enhance their bio language while keeping their core message\n`;
+    prompt += `- Use the title context to make their bio more specific and relevant\n`;
     prompt += `- Do not add assumptions about their industry or role\n`;
-    prompt += `- Enhance the bio language while keeping the core message\n`;
     prompt += `- Make it more engaging and conversation-starting\n`;
     prompt += `- Use stronger action words and more specific language\n`;
-    prompt += `- Stay under 100 characters while maximizing impact\n\n`;
+    prompt += `- Stay under 100 characters while maximizing impact\n`;
+    prompt += `- Make it feel natural and authentic to their voice\n\n`;
+    
+    prompt += `EXAMPLES OF SMART ENHANCEMENT:\n`;
+    prompt += `- If bio: "I help businesses grow" + title: "Digital Marketing Specialist"\n`;
+    prompt += `- Enhanced: "Transforming businesses through strategic digital growth"\n`;
+    prompt += `- If bio: "Building cool apps" + title: "Software Engineer"\n`;
+    prompt += `- Enhanced: "Architecting innovative applications that solve real problems"\n\n`;
     
     prompt += `REQUIREMENTS:\n`;
     prompt += `- Base enhancements PRIMARY on the bio: "${currentBio}"\n`;
-    prompt += `- Use their title: "${title}" only for context\n`;
+    prompt += `- Use their title: "${title}" only for context and enhancement\n`;
     prompt += `- Create 3 enhanced variations\n`;
-    prompt += `- Keep the original bio meaning but make it more compelling\n\n`;
+    prompt += `- Keep the original bio meaning but make it more compelling\n`;
+    prompt += `- DO NOT directly mention the title in the enhanced bio\n`;
+    prompt += `- Make it feel natural and authentic\n\n`;
     
-    prompt += `Create 3 enhanced versions:`;
+    prompt += `Create 3 enhanced versions that intelligently merge their bio with title context:`;
 
     return prompt;
   }
@@ -406,27 +447,27 @@ Your goal: Enhance what the user has provided, not create assumptions about what
     const { currentBio, title, style = 'professional' } = options;
     const suggestions: BioSuggestion[] = [];
 
-    // Enhanced templates with more specific and engaging language
+    // Smart enhancement templates that don't directly insert the title
     const enhancements = {
       professional: [
-        `${title} orchestrating breakthrough results through strategic innovation and proven expertise.`,
-        `Results-driven ${title} transforming challenges into opportunities that accelerate growth.`,
-        `Award-winning ${title} architecting solutions that deliver measurable impact and lasting value.`
+        `Orchestrating breakthrough results through strategic innovation and proven expertise.`,
+        `Transforming challenges into opportunities that accelerate growth and drive success.`,
+        `Architecting solutions that deliver measurable impact and lasting value.`
       ],
       creative: [
-        `Visionary ${title} crafting experiences that inspire meaningful connections and drive engagement.`,
-        `Creative ${title} transforming bold ideas into breakthrough realities that captivate audiences.`,
-        `Innovative ${title} designing solutions that blend artistry with strategic thinking beautifully.`
+        `Crafting experiences that inspire meaningful connections and drive engagement.`,
+        `Transforming bold ideas into breakthrough realities that captivate audiences.`,
+        `Designing solutions that blend artistry with strategic thinking beautifully.`
       ],
       casual: [
-        `Passionate ${title} who loves turning complex challenges into simple, elegant solutions.`,
-        `Authentic ${title} dedicated to building genuine relationships and creating positive impact.`,
-        `Enthusiastic ${title} always excited to collaborate, learn, and make meaningful differences.`
+        `Loves turning complex challenges into simple, elegant solutions.`,
+        `Dedicated to building genuine relationships and creating positive impact.`,
+        `Always excited to collaborate, learn, and make meaningful differences.`
       ],
       technical: [
-        `Technical ${title} engineering scalable solutions that optimize performance and user experience.`,
-        `Systems-focused ${title} building robust architectures that solve complex problems efficiently.`,
-        `Data-driven ${title} developing cutting-edge solutions that transform business operations.`
+        `Engineering scalable solutions that optimize performance and user experience.`,
+        `Building robust architectures that solve complex problems efficiently.`,
+        `Developing cutting-edge solutions that transform business operations.`
       ]
     };
 
@@ -437,7 +478,7 @@ Your goal: Enhance what the user has provided, not create assumptions about what
       suggestions.push({
         text: enhanced,
         style: `enhanced-${style}`,
-        reasoning: `Enhanced using ${style} style template with action-oriented language`
+        reasoning: `Enhanced using smart ${style} style template that naturally describes the role without forcing the title`
       });
     });
 
@@ -454,27 +495,27 @@ Your goal: Enhance what the user has provided, not create assumptions about what
     const { title, style = 'professional' } = options;
     const suggestions: BioSuggestion[] = [];
 
-    // More specific and engaging templates
+    // Smart templates that don't directly insert the title
     const templates = {
       professional: [
-        `Strategic ${title} transforming businesses through innovative solutions and proven results.`,
-        `Accomplished ${title} orchestrating growth initiatives that deliver exceptional outcomes.`,
-        `Expert ${title} architecting sustainable strategies that accelerate organizational success.`
+        `Transforming businesses through strategic innovation and proven results.`,
+        `Orchestrating growth initiatives that deliver exceptional outcomes.`,
+        `Architecting sustainable strategies that accelerate organizational success.`
       ],
       creative: [
-        `Visionary ${title} crafting compelling experiences that resonate with audiences globally.`,
-        `Innovative ${title} transforming creative concepts into breakthrough marketing solutions.`,
-        `Artistic ${title} designing visual narratives that inspire action and emotional connection.`
+        `Crafting compelling experiences that resonate with audiences globally.`,
+        `Transforming creative concepts into breakthrough marketing solutions.`,
+        `Designing visual narratives that inspire action and emotional connection.`
       ],
       casual: [
-        `Friendly ${title} passionate about building relationships and creating positive change.`,
-        `Approachable ${title} who loves solving problems and helping others achieve their goals.`,
-        `Genuine ${title} dedicated to making work enjoyable while delivering outstanding results.`
+        `Passionate about building relationships and creating positive change.`,
+        `Loves solving problems and helping others achieve their goals.`,
+        `Dedicated to making work enjoyable while delivering outstanding results.`
       ],
       technical: [
-        `Technical ${title} engineering robust systems that scale efficiently and perform reliably.`,
-        `Analytical ${title} developing data-driven solutions that optimize complex business processes.`,
-        `Innovative ${title} building cutting-edge applications that enhance user experiences.`
+        `Engineering robust systems that scale efficiently and perform reliably.`,
+        `Developing data-driven solutions that optimize complex business processes.`,
+        `Building cutting-edge applications that enhance user experiences.`
       ]
     };
 
@@ -485,7 +526,7 @@ Your goal: Enhance what the user has provided, not create assumptions about what
       suggestions.push({
         text: bio,
         style: `template-${style}`,
-        reasoning: `Generated using enhanced ${style} style template with specific value propositions`
+        reasoning: `Generated using smart ${style} style template that naturally describes the role without forcing the title`
       });
     });
 
