@@ -46,8 +46,8 @@ export default function DashboardQR() {
     );
   }
 
-  // Generate profile URL for QR code
-  const profileUrl = `${window.location.origin}/${profile.slug || profile.id}`;
+  // Generate profile URL for QR code - use user_id for reliability
+  const profileUrl = `${window.location.origin}/u/${profile.user_id}`;
 
   // Copy URL to clipboard
   const copyToClipboard = async (text: string) => {
@@ -133,7 +133,7 @@ export default function DashboardQR() {
                   <QRCodeGenerator 
                     ref={qrRef}
                     profileUrl={profileUrl} 
-                    username={profile.slug || profile.id} 
+                    username={profile.slug || profile.user_id} 
                   />
                 </div>
               </div>

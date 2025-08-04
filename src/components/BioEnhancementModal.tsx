@@ -203,7 +203,7 @@ export default function BioEnhancementModal({
                           {suggestion.style}
                         </Badge>
                         <span className="text-xs text-gray-500">
-                          {suggestion.text.length}/100 chars
+                          {suggestion.text.length}/160 chars
                         </span>
                       </div>
                       {suggestion.reasoning && (
@@ -232,7 +232,7 @@ export default function BioEnhancementModal({
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">💡 Tips:</h4>
               <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                <li>• Keep it under 100 characters for maximum impact</li>
+                <li>• Keep it under 160 characters for maximum impact</li>
                 <li>• Use action words and show your personality</li>
                 <li>• Focus on what makes you unique</li>
                 <li>• You can always edit the generated bio</li>

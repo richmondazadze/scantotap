@@ -1,5 +1,56 @@
 @import url('https://fonts.googleapis.com/css2?family=Poetsen+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne+Mono:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
 @import 'react-easy-crop/react-easy-crop.css';
+
+/* Google Fonts @font-face declarations as fallback */
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/raleway/v28/1Ptug8zYS_SKggPNyC0IT4ttDfA.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Syne Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/synemono/v15/SynoMono-regular.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/spacemono/v12/i7dPIFZifjKcF5UAWdDRYEF8.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/manrope/v8/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk79FO_G.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/ibmplexsans/v14/zYXgKVElMYYaJe8bpLHnCwDKhd_eFb5N.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 @tailwind base;
 @tailwind components;
@@ -907,4 +958,365 @@ p, span, div, a, li, td, th, label {
 /* Dark mode support */
 .dark .share-modal-content {
   background: rgb(17 24 39) !important;
+}
+
+/* Theme Font Overrides - Must be at the end to override global font rules */
+[style*="font-family"] {
+  font-family: inherit !important;
+}
+
+/* Specific theme font classes */
+.theme-font-inter {
+  font-family: "Inter", sans-serif !important;
+}
+
+.theme-font-jetbrains-mono {
+  font-family: "JetBrains Mono", monospace !important;
+}
+
+.theme-font-playfair-display {
+  font-family: "Playfair Display", serif !important;
+}
+
+.theme-font-lora {
+  font-family: "Lora", serif !important;
+}
+
+.theme-font-outfit {
+  font-family: "Outfit", sans-serif !important;
+}
+
+.theme-font-albert-sans {
+  font-family: "Albert Sans", sans-serif !important;
+}
+
+/* Override for elements with inline font-family styles */
+[style*="font-family: Link Sans Medium"] {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+[style*="font-family: Raleway"] {
+  font-family: "Raleway", sans-serif !important;
+}
+
+[style*="font-family: Syne Mono"] {
+  font-family: "Syne Mono", monospace !important;
+}
+
+[style*="font-family: Space Mono"] {
+  font-family: "Space Mono", monospace !important;
+}
+
+[style*="font-family: Manrope"] {
+  font-family: "Manrope", sans-serif !important;
+}
+
+[style*="font-family: IBM Plex Sans"] {
+  font-family: "IBM Plex Sans", sans-serif !important;
+}
+
+/* Force theme fonts to override global font rules */
+.min-h-screen[style*="font-family"] {
+  font-family: inherit !important;
+}
+
+/* Ensure theme preview fonts work */
+[class*="theme-preview"] {
+  font-family: inherit !important;
+}
+
+/* Override global font rules for theme elements */
+[data-theme-font] {
+  font-family: inherit !important;
+}
+
+/* Specific overrides for theme selector */
+.theme-selector-preview {
+  font-family: inherit !important;
+}
+
+/* Override for profile page theme fonts */
+.profile-page-theme {
+  font-family: inherit !important;
+}
+
+/* Theme preview specific overrides for theme selector */
+.theme-preview-air {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.theme-preview-blocks {
+  font-family: "Raleway", sans-serif !important;
+}
+
+.theme-preview-bloom {
+  font-family: "Syne Mono", monospace !important;
+}
+
+.theme-preview-breeze {
+  font-family: "Space Mono", monospace !important;
+}
+
+.theme-preview-lake {
+  font-family: "Manrope", sans-serif !important;
+}
+
+.theme-preview-mineral {
+  font-family: "IBM Plex Sans", sans-serif !important;
+}
+
+/* Legacy theme preview support */
+.theme-preview-default {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.theme-preview-confidence {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.theme-preview-creative {
+  font-family: "Raleway", sans-serif !important;
+}
+
+.theme-preview-fresh {
+  font-family: "Syne Mono", monospace !important;
+}
+
+.theme-preview-warm {
+  font-family: "Space Mono", monospace !important;
+}
+
+.theme-preview-energy {
+  font-family: "Manrope", sans-serif !important;
+}
+
+.theme-preview-luxury {
+  font-family: "IBM Plex Sans", sans-serif !important;
+}
+
+/* Force theme preview fonts to override any global font rules */
+[class*="theme-preview-"] {
+  font-family: inherit !important;
+}
+
+/* Specific overrides for each theme preview */
+[class*="theme-preview-air"] {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+[class*="theme-preview-blocks"] {
+  font-family: "Raleway", sans-serif !important;
+}
+
+[class*="theme-preview-bloom"] {
+  font-family: "Syne Mono", monospace !important;
+}
+
+[class*="theme-preview-breeze"] {
+  font-family: "Space Mono", monospace !important;
+}
+
+[class*="theme-preview-lake"] {
+  font-family: "Manrope", sans-serif !important;
+}
+
+[class*="theme-preview-mineral"] {
+  font-family: "IBM Plex Sans", sans-serif !important;
+}
+
+/* Override for theme preview elements with inline styles */
+[class*="theme-preview-"][style*="font-family"] {
+  font-family: inherit !important;
+}
+
+/* Force theme preview fonts with maximum specificity and !important */
+div[class*="theme-preview-air"] {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+div[class*="theme-preview-blocks"] {
+  font-family: "Raleway", sans-serif !important;
+}
+
+div[class*="theme-preview-bloom"] {
+  font-family: "Syne Mono", monospace !important;
+}
+
+div[class*="theme-preview-breeze"] {
+  font-family: "Space Mono", monospace !important;
+}
+
+div[class*="theme-preview-lake"] {
+  font-family: "Manrope", sans-serif !important;
+}
+
+div[class*="theme-preview-mineral"] {
+  font-family: "IBM Plex Sans", sans-serif !important;
+}
+
+/* Most aggressive override for profile page theme fonts */
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative {
+  font-family: inherit !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative * {
+  font-family: inherit !important;
+}
+
+/* Force specific theme fonts with maximum specificity for profile pages */
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative.theme-air {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative.theme-air * {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative.theme-blocks {
+  font-family: "Georgia", "Times New Roman", serif !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative.theme-blocks * {
+  font-family: "Georgia", "Times New Roman", serif !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative.theme-bloom {
+  font-family: "Courier New", "Courier", monospace !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative.theme-bloom * {
+  font-family: "Courier New", "Courier", monospace !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative.theme-breeze {
+  font-family: "Arial", "Helvetica", sans-serif !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative.theme-breeze * {
+  font-family: "Arial", "Helvetica", sans-serif !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative.theme-lake {
+  font-family: "Verdana", "Geneva", sans-serif !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative.theme-lake * {
+  font-family: "Verdana", "Geneva", sans-serif !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative.theme-mineral {
+  font-family: "Trebuchet MS", "Lucida Grande", sans-serif !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative.theme-mineral * {
+  font-family: "Trebuchet MS", "Lucida Grande", sans-serif !important;
+}
+
+/* Override the global * selector specifically for profile pages */
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative,
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative * {
+  font-family: inherit !important;
+}
+
+/* Nuclear option: Override any element with inline font-family style */
+div[style*="font-family"] {
+  font-family: inherit !important;
+}
+
+/* Force theme fonts to work by overriding the global font rule */
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative {
+  font-family: inherit !important;
+}
+
+html body div.min-h-screen.overflow-x-hidden.flex.flex-col.relative * {
+  font-family: inherit !important;
+}
+
+/* Use CSS custom properties for theme fonts */
+div[style*="--theme-font-family"] {
+  font-family: var(--theme-font-family) !important;
+}
+
+div[style*="--theme-font-family"] * {
+  font-family: var(--theme-font-family) !important;
+}
+
+/* Specific overrides for each theme using custom properties */
+div[style*="--theme-font-family: \"Link Sans Medium\""] {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+div[style*="--theme-font-family: \"Georgia\""] {
+  font-family: "Georgia", "Times New Roman", serif !important;
+}
+
+div[style*="--theme-font-family: \"Courier New\""] {
+  font-family: "Courier New", "Courier", monospace !important;
+}
+
+div[style*="--theme-font-family: \"Arial\""] {
+  font-family: "Arial", "Helvetica", sans-serif !important;
+}
+
+div[style*="--theme-font-family: \"Verdana\""] {
+  font-family: "Verdana", "Geneva", sans-serif !important;
+}
+
+div[style*="--theme-font-family: \"Trebuchet MS\""] {
+  font-family: "Trebuchet MS", "Lucida Grande", sans-serif !important;
+}
+
+/* Theme selector preview specific overrides */
+div.text-2xl.sm\:text-3xl.font-bold[class*="theme-preview-"] {
+  font-family: inherit !important;
+}
+
+/* Specific theme preview overrides */
+div.text-2xl.sm\:text-3xl.font-bold.theme-preview-air {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+div.text-2xl.sm\:text-3xl.font-bold.theme-preview-blocks {
+  font-family: "Georgia", "Times New Roman", serif !important;
+}
+
+div.text-2xl.sm\:text-3xl.font-bold.theme-preview-bloom {
+  font-family: "Courier New", "Courier", monospace !important;
+}
+
+div.text-2xl.sm\:text-3xl.font-bold.theme-preview-breeze {
+  font-family: "Arial", "Helvetica", sans-serif !important;
+}
+
+div.text-2xl.sm\:text-3xl.font-bold.theme-preview-lake {
+  font-family: "Verdana", "Geneva", sans-serif !important;
+}
+
+div.text-2xl.sm\:text-3xl.font-bold.theme-preview-mineral {
+  font-family: "Trebuchet MS", "Lucida Grande", sans-serif !important;
+}
+
+/* Force theme preview fonts with maximum specificity */
+div[class*="theme-preview-air"] {
+  font-family: "Link Sans Medium", ui-sans-serif, system-ui, sans-serif !important;
+}
+
+div[class*="theme-preview-blocks"] {
+  font-family: "Georgia", "Times New Roman", serif !important;
+}
+
+div[class*="theme-preview-bloom"] {
+  font-family: "Courier New", "Courier", monospace !important;
+}
+
+div[class*="theme-preview-breeze"] {
+  font-family: "Arial", "Helvetica", sans-serif !important;
+}
+
+div[class*="theme-preview-lake"] {
+  font-family: "Verdana", "Geneva", sans-serif !important;
+}
+
+div[class*="theme-preview-mineral"] {
+  font-family: "Trebuchet MS", "Lucida Grande", sans-serif !important;
 }

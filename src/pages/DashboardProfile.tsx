@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabaseClient';
+import { UsernameHistoryService } from '@/services/usernameHistoryService';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { processSocialInput, SOCIAL_PLATFORMS, getDisplayUsername } from '@/lib/socialUrlParser';
 import { usePlanFeatures, canAddMoreLinks } from '@/hooks/usePlanFeatures';
@@ -116,6 +117,7 @@ export default function DashboardProfile() {
   const [showEmail, setShowEmail] = useState(profile?.show_email ?? true);
   const [showPhone, setShowPhone] = useState(profile?.show_phone ?? true);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [useUsernameInsteadOfName, setUseUsernameInsteadOfName] = useState(profile?.use_username_instead_of_name ?? false);
   
   // New states for thumbnail functionality
   const [showThumbnailModal, setShowThumbnailModal] = useState(false);
@@ -145,6 +147,7 @@ export default function DashboardProfile() {
       setSocialLayoutStyle(profile.social_layout_style || 'horizontal');
       setShowEmail(profile.show_email ?? true);
       setShowPhone(profile.show_phone ?? true);
+      setUseUsernameInsteadOfName(profile.use_username_instead_of_name ?? false);
     }
   }, [profile]);
 
@@ -180,13 +183,20 @@ export default function DashboardProfile() {
     setCheckingSlug(true);
     if (slugCheckTimeout.current) clearTimeout(slugCheckTimeout.current);
     slugCheckTimeout.current = setTimeout(async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('slug', slug)
-        .neq('id', profile?.id || '')
-        .maybeSingle();
-      setSlugAvailable(!data);
+      try {
+        // Check if username is available using UsernameHistoryService
+        const { available, error } = await UsernameHistoryService.isUsernameAvailable(slug, session?.user?.id);
+        
+        if (error) {
+          console.error('Error checking username availability:', error);
+          setSlugAvailable(false);
+        } else {
+          setSlugAvailable(available);
+        }
+      } catch (err) {
+        console.error('Exception checking username availability:', err);
+        setSlugAvailable(false);
+      }
       setCheckingSlug(false);
     }, 500);
   }, [slug]);
@@ -228,11 +238,78 @@ export default function DashboardProfile() {
 
 
 
-  const handlePrivacySettingChange = (setting: 'show_email' | 'show_phone', value: boolean) => {
+  const handlePrivacySettingChange = async (setting: 'show_email' | 'show_phone', value: boolean) => {
+    if (!profile) return;
+    
+    // Update local state immediately
     if (setting === 'show_email') {
       setShowEmail(value);
     } else if (setting === 'show_phone') {
       setShowPhone(value);
+    }
+    
+    try {
+      const updateData = setting === 'show_email' 
+        ? { show_email: value }
+        : { show_phone: value };
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', profile.id);
+      
+      if (error) {
+        toast.error('Failed to update privacy setting');
+        // Revert the state if save failed
+        if (setting === 'show_email') {
+          setShowEmail(!value);
+        } else if (setting === 'show_phone') {
+          setShowPhone(!value);
+        }
+      } else {
+        toast.success('Privacy setting updated!');
+        // Update the profile context
+        if (setProfile) {
+          setProfile({ ...profile, ...updateData });
+        }
+      }
+    } catch (err) {
+      toast.error('Failed to update privacy setting');
+      // Revert the state if save failed
+      if (setting === 'show_email') {
+        setShowEmail(!value);
+      } else if (setting === 'show_phone') {
+        setShowPhone(!value);
+      }
+    }
+  };
+
+  const handleUsernamePreferenceChange = async (value: boolean) => {
+    if (!profile) return;
+    
+    setUseUsernameInsteadOfName(value);
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ use_username_instead_of_name: value })
+        .eq('id', profile.id);
+      
+      if (error) {
+        toast.error('Failed to update preference');
+        // Revert the state if save failed
+        setUseUsernameInsteadOfName(!value);
+      } else {
+        toast.success('Preference updated!');
+        // Update the profile context
+        if (setProfile) {
+          setProfile({ ...profile, use_username_instead_of_name: value });
+        }
+      }
+    } catch (err) {
+      toast.error('Failed to update preference');
+      // Revert the state if save failed
+      setUseUsernameInsteadOfName(!value);
     }
   };
 
@@ -314,7 +391,10 @@ export default function DashboardProfile() {
     setSaving(true);
     try {
       let data, error;
-      if (!profile) {
+      const oldSlug = profile?.slug;
+      const isNewProfile = !profile;
+      
+      if (isNewProfile) {
         ({ data, error } = await supabase.from('profiles').insert({
           id: session.user.id,
           user_id: session.user.id,
@@ -344,6 +424,15 @@ export default function DashboardProfile() {
         }).eq('id', profile.id).select().single());
       }
       if (error) throw error;
+      
+      // Handle username history tracking
+      if (isNewProfile) {
+        // For new profiles, add the username to history
+        await UsernameHistoryService.addUsernameHistory(session.user.id, slug, true);
+      } else if (oldSlug && oldSlug !== slug) {
+        // For existing profiles, update username history if changed
+        await UsernameHistoryService.updateUsername(session.user.id, slug, oldSlug);
+      }
       
       const savedProfile = {
         ...data,
@@ -482,6 +571,22 @@ export default function DashboardProfile() {
                       placeholder="Your full name"
               />
             </div>
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={useUsernameInsteadOfName}
+                    onCheckedChange={handleUsernamePreferenceChange}
+                  />
+                  <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
+                    Use username instead of full name on profile
+                  </label>
+                </div>
+                {useUsernameInsteadOfName && (
+                  <Badge variant="secondary" className="text-xs sm:text-sm self-start sm:self-auto">
+                    Will show @{slug || 'username'}
+                  </Badge>
+                )}
+              </div>
             <div>
                     <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 text-gray-700 dark:text-gray-200">Title / Role</label>
               <Input
@@ -496,10 +601,13 @@ export default function DashboardProfile() {
               <Textarea
                       className="w-full min-h-[100px] sm:min-h-[120px] resize-none text-sm"
                 value={bio}
-                onChange={e => setBio(e.target.value)}
+                onChange={e => setBio(e.target.value.slice(0, 160))}
                   rows={4}
                       placeholder="Tell people about yourself..."
                 />
+                <div className="mt-1.5 sm:mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-end">
+                  {bio.length}/160 characters
+                </div>
               </div>
               <div>
                     <label className="block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 text-gray-700 dark:text-gray-200 flex items-center gap-1.5 sm:gap-2">
@@ -568,7 +676,7 @@ export default function DashboardProfile() {
             </CardHeader>
             <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
               <div className="space-y-3 sm:space-y-4 lg:space-y-6">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
                   <div className="flex-1 min-w-0">
                     <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
                         Show Email Address
@@ -576,15 +684,15 @@ export default function DashboardProfile() {
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Display your email address on your public profile
                       </p>
-                    </div>
-                    <Switch
-                      checked={showEmail}
-                      onCheckedChange={(checked) => handlePrivacySettingChange('show_email', checked)}
-                    className="ml-2 sm:ml-4 flex-shrink-0"
-                    />
                   </div>
+                  <Switch
+                    checked={showEmail}
+                    onCheckedChange={(checked) => handlePrivacySettingChange('show_email', checked)}
+                    className="self-start sm:self-auto ml-0 sm:ml-4 flex-shrink-0"
+                  />
+                </div>
                   
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
                   <div className="flex-1 min-w-0">
                     <label className={`text-xs sm:text-sm font-medium ${!showPhone ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-200'}`}>
                         Phone Number
@@ -595,13 +703,13 @@ export default function DashboardProfile() {
                           : 'Your phone number will be visible on your profile'
                         }
                       </p>
-                    </div>
-                    <Switch
-                      checked={showPhone}
-                      onCheckedChange={(checked) => handlePrivacySettingChange('show_phone', checked)}
-                    className="ml-2 sm:ml-4 flex-shrink-0"
-                    />
                   </div>
+                  <Switch
+                    checked={showPhone}
+                    onCheckedChange={(checked) => handlePrivacySettingChange('show_phone', checked)}
+                    className="self-start sm:self-auto ml-0 sm:ml-4 flex-shrink-0"
+                  />
+                </div>
                 </div>
             </CardContent>
           </Card>

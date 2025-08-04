@@ -20,7 +20,7 @@ export interface AIResponse {
 }
 
 class AIService {
-  private static readonly MAX_BIO_LENGTH = 100;
+  private static readonly MAX_BIO_LENGTH = 160;
   private static openai: OpenAI | null = null;
 
   // Initialize OpenRouter client

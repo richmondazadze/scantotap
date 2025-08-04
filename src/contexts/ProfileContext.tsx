@@ -24,6 +24,9 @@ interface Profile {
   social_layout_style?: string;
   show_email?: boolean;
   show_phone?: boolean;
+  use_username_instead_of_name?: boolean;
+  wallpaper_preference?: string | null;
+  style_settings?: Json;
   // Remove show_whatsapp field
   paystack_customer_code?: string;
   paystack_subscription_code?: string;

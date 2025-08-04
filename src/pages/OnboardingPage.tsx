@@ -19,6 +19,7 @@ import { usePlanFeatures } from '@/hooks/usePlanFeatures';
 import AIService from '@/services/aiService';
 import BioEnhancementModal from '@/components/BioEnhancementModal';
 import { EmailTriggers, EmailUtils } from '@/utils/emailHelpers';
+import { UsernameHistoryService } from '@/services/usernameHistoryService';
 
 // Simple Threads icon component
 const ThreadsIcon = ({ className }: { className?: string }) => (
@@ -228,16 +229,17 @@ function UsernameStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitt
     setError("");
     
     try {
-      const { data } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("slug", value)
-        .neq("id", profile?.id || "")
-        .maybeSingle();
+      // Use UsernameHistoryService to check availability (includes historical usernames)
+      const { available, error } = await UsernameHistoryService.isUsernameAvailable(value);
       
-      setAvailable(!data);
-      if (data) {
-        setError("This username is already taken. Try another one!");
+      if (error) {
+        setError("Unable to check username availability. Please try again.");
+        setAvailable(false);
+      } else {
+        setAvailable(available);
+        if (!available) {
+          setError("This username is already taken. Try another one!");
+        }
       }
     } catch (err) {
       setError("Unable to check username availability. Please try again.");
@@ -603,11 +605,11 @@ function ProfileStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitti
             id="bio"
             placeholder="Tell people about yourself..."
             value={bio}
-            onChange={(e) => setBio(e.target.value.slice(0, 100))}
+            onChange={(e) => setBio(e.target.value.slice(0, 160))}
             className="resize-none h-20 text-base"
             rows={3}
           />
-          <p className="text-sm text-gray-400 mt-2">{bio.length}/100</p>
+          <p className="text-sm text-gray-400 mt-2">{bio.length}/160</p>
         </div>
 
         {/* Continue Button */}
@@ -1843,6 +1845,9 @@ export default function OnboardingPage() {
         .single();
 
       if (error) throw error;
+
+      // Add username to history for new profiles
+      await UsernameHistoryService.addUsernameHistory(session?.user?.id || '', finalUsername, true);
 
       // Clear session storage
       [

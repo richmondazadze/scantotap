@@ -146,7 +146,8 @@ const App = () => {
                   <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/auth" element={<AuthPage />} />
                   
-                  {/* Public Profile Pages - Must be last to avoid conflicts */}
+                  {/* Public Profile Pages - Support both username and user_id URLs */}
+                  <Route path="/u/:userId" element={<ProfilePage />} />
                   <Route path="/:username" element={<ProfilePage />} />
                   
                   {/* 404 */}

@@ -375,6 +375,7 @@ export type Database = {
           show_email: boolean | null
           show_phone: boolean | null
           show_whatsapp: boolean | null
+          use_username_instead_of_name: boolean | null
           paystack_customer_code: string | null
           paystack_subscription_code: string | null
           email_order_updates: boolean
@@ -382,6 +383,8 @@ export type Database = {
           custom_theme: Json | null
           theme_settings: Json | null
           theme_preference: string | null
+          wallpaper_preference: string | null
+          style_settings: Json | null
         }
         Insert: {
           avatar_url?: string | null
@@ -405,6 +408,7 @@ export type Database = {
           show_email?: boolean | null
           show_phone?: boolean | null
           show_whatsapp?: boolean | null
+          use_username_instead_of_name?: boolean | null
           paystack_customer_code?: string | null
           paystack_subscription_code?: string | null
           email_order_updates?: boolean
@@ -412,6 +416,7 @@ export type Database = {
           custom_theme?: Json | null
           theme_settings?: Json | null
           theme_preference?: string | null
+          style_settings?: Json | null
         }
         Update: {
           avatar_url?: string | null
@@ -435,6 +440,7 @@ export type Database = {
           show_email?: boolean | null
           show_phone?: boolean | null
           show_whatsapp?: boolean | null
+          use_username_instead_of_name?: boolean | null
           paystack_customer_code?: string | null
           paystack_subscription_code?: string | null
           email_order_updates?: boolean
@@ -442,6 +448,7 @@ export type Database = {
           custom_theme?: Json | null
           theme_settings?: Json | null
           theme_preference?: string | null
+          style_settings?: Json | null
         }
         Relationships: []
       }
@@ -810,6 +817,38 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      username_history: {
+        Row: {
+          id: number
+          user_id: string
+          username: string
+          created_at: string
+          is_current: boolean
+        }
+        Insert: {
+          id?: number
+          user_id: string
+          username: string
+          created_at?: string
+          is_current?: boolean
+        }
+        Update: {
+          id?: number
+          user_id?: string
+          username?: string
+          created_at?: string
+          is_current?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "username_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
 
     }
