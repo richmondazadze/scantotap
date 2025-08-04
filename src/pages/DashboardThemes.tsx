@@ -34,14 +34,16 @@ export default function DashboardThemes() {
   // Auto-refresh preview when profile changes
   useEffect(() => {
     if (profile) {
-      // Small delay to ensure changes are saved
-      const timer = setTimeout(() => {
-        setPreviewKey(prev => prev + 1);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
+      // Instant refresh for all theme-related changes
+      setPreviewKey(prev => prev + 1);
     }
-  }, [profile?.theme_preference, profile?.wallpaper_preference, profile?.style_settings]);
+  }, [
+    profile?.theme_preference, 
+    profile?.wallpaper_preference, 
+    profile?.style_settings,
+    profile?.social_layout_style,
+    profile?.custom_background
+  ]);
 
   const refreshPreview = () => {
     setPreviewKey(prev => prev + 1);
