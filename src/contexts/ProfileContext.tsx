@@ -54,7 +54,11 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async () => {
-    if (!session?.user.id) return;
+    if (!session?.user.id) {
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     
     try {

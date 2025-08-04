@@ -28,12 +28,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     getSession();
 
-    // Listen for auth changes
+    // Listen for auth changes - FIXED: Don't set loading to false here
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-  
         setSession(session);
-        setLoading(false);
+        // Remove the setLoading(false) that was causing race conditions
       }
     );
 
