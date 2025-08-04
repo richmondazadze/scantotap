@@ -36,7 +36,7 @@ export default function DeliveryLocationNotice() {
           setIsInternational(true);
         }
       } catch (error) {
-        console.log('Could not detect location');
+
       }
     };
 

@@ -671,7 +671,7 @@ const ProfilePage = () => {
       try {
         if (userId) {
           // Direct user_id lookup - most reliable
-          console.log('🔍 PROFILE: Fetching by user_id:', userId);
+      
           const { data: userData, error: userError } = await supabase
             .from('profiles')
             .select('*')
@@ -682,11 +682,11 @@ const ProfilePage = () => {
             console.error('❌ PROFILE: Error fetching by user_id:', userError);
           } else if (userData) {
             data = userData;
-            console.log('✅ PROFILE: Found profile by user_id');
+
           }
         } else if (username) {
           // Username lookup with redirect logic
-          console.log('🔍 PROFILE: Fetching by username:', username);
+          
           
           // First, try to find by current username
           let { data: currentData, error: currentError } = await supabase
@@ -699,10 +699,10 @@ const ProfilePage = () => {
             console.error('❌ PROFILE: Error fetching by current username:', currentError);
           } else if (currentData) {
             data = currentData;
-            console.log('✅ PROFILE: Found profile by current username');
+
           } else {
             // Check username history for redirect
-            console.log('🔍 PROFILE: Checking username history for redirect');
+            
             const historyResult = await UsernameHistoryService.getUserIdByUsername(username);
             
             if (historyResult.userId && !historyResult.error) {
@@ -714,7 +714,7 @@ const ProfilePage = () => {
                 .single();
 
               if (!redirectError && redirectData?.slug) {
-                console.log('🔄 PROFILE: Redirecting from old username to current:', redirectData.slug);
+
                 navigate(`/${redirectData.slug}`, { replace: true });
                 return;
               }
@@ -731,7 +731,7 @@ const ProfilePage = () => {
               console.error('❌ PROFILE: Error fetching by profile id:', idError);
             } else if (idData) {
               data = idData;
-              console.log('✅ PROFILE: Found profile by profile id');
+  
             }
           }
       }
@@ -741,10 +741,10 @@ const ProfilePage = () => {
       // Track profile visit after successful profile load
       if (data?.id) {
         try {
-          console.log('🔍 PROFILE: Attempting to track visit for profile:', data.id);
+  
           const result = await analyticsService.trackProfileVisit(data.id);
           if (result.success) {
-            console.log('✅ PROFILE: Visit tracked successfully');
+            
           } else {
             console.error('❌ PROFILE: Visit tracking failed:', result.error);
           }
@@ -764,16 +764,14 @@ const ProfilePage = () => {
   // Debug: Log the applied CSS class
   useEffect(() => {
     if (profile?.theme_preference) {
-      console.log('🔍 CSS CLASS DEBUG: Applied class:', `theme-${profile.theme_preference || 'air'}`);
+      
       
       // Check computed styles after a short delay
       setTimeout(() => {
         const mainContainer = document.querySelector('.min-h-screen.overflow-x-hidden.flex.flex-col.relative');
         if (mainContainer) {
           const computedStyle = window.getComputedStyle(mainContainer);
-          console.log('🔍 COMPUTED STYLES DEBUG:');
-          console.log('Applied font-family:', computedStyle.fontFamily);
-          console.log('Applied CSS class:', mainContainer.className);
+          
         }
       }, 100);
     }
@@ -811,7 +809,7 @@ const ProfilePage = () => {
     if (!profile?.id) return;
     
     try {
-      console.log('🔍 PROFILE: Attempting to track link click for profile:', profile.id, 'Link:', link.label || link.platform || 'Unknown', 'Type:', linkType);
+      
       const result = await analyticsService.trackLinkClick(
         profile.id,
         linkType,
@@ -820,7 +818,7 @@ const ProfilePage = () => {
         linkType === 'social' ? (link.platform || link.label) : undefined
       );
       if (result.success) {
-        console.log('✅ PROFILE: Link click tracked successfully');
+        
       } else {
         console.error('❌ PROFILE: Link click tracking failed:', result.error);
       }
@@ -971,11 +969,7 @@ const ProfilePage = () => {
   const themeColors = getThemeColors(profile.theme_preference);
   
   // Debug: Log theme information
-  console.log('🔍 THEME DEBUG:');
-  console.log('Profile theme_preference from DB:', profile.theme_preference);
-  console.log('Applied theme colors:', themeColors);
-  console.log('Font family being applied:', themeColors.fontFamily);
-  console.log('Profile data:', profile);
+  
   
   // Debug: Check if fonts are loaded
   if (typeof document !== 'undefined') {
@@ -991,17 +985,17 @@ const ProfilePage = () => {
     fonts.forEach(font => {
       if (document.fonts && document.fonts.check) {
         const isLoaded = document.fonts.check(`12px "${font}"`);
-        console.log(`🔍 FONT DEBUG: ${font} loaded:`, isLoaded);
+  
         
         // Additional debugging for font loading
         if (!isLoaded) {
-          console.log(`⚠️ FONT WARNING: ${font} is not loaded. Checking if it's being requested...`);
+
           
           // Check if the font is in the document's font list
           if (document.fonts && document.fonts.ready) {
             document.fonts.ready.then(() => {
               const isReady = document.fonts.check(`12px "${font}"`);
-              console.log(`🔍 FONT READY CHECK: ${font} ready:`, isReady);
+  
             });
           }
         }
@@ -1023,7 +1017,7 @@ const ProfilePage = () => {
         // Check if the font is actually applied
         const computedStyle = window.getComputedStyle(testElement);
         const appliedFont = computedStyle.fontFamily;
-        console.log(`🔍 FONT TEST: ${font} applied as:`, appliedFont);
+
         
         document.body.removeChild(testElement);
       });

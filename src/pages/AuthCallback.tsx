@@ -35,7 +35,7 @@ export default function AuthCallback() {
           if (!profile) {
             // Create profile for new OAuth user
             try {
-              console.log('Creating profile for new OAuth user:', session.user.email);
+      
               
               const newProfile = await createProfile({
                 email: session.user.email,
@@ -50,7 +50,7 @@ export default function AuthCallback() {
                 throw new Error('Failed to create profile');
               }
               
-              console.log('Profile created successfully, redirecting to onboarding');
+              
               // Redirect to onboarding for new users
               navigate('/onboarding', { replace: true });
             } catch (profileCreationError) {
@@ -63,7 +63,7 @@ export default function AuthCallback() {
             }
           } else {
             // Existing user - check onboarding status
-            console.log('Existing user found, onboarding_complete:', profile.onboarding_complete);
+
             
             if (!profile.onboarding_complete) {
               navigate('/onboarding', { replace: true });

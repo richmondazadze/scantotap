@@ -225,7 +225,7 @@ export const LightLogin = () => {
     resetMessages();
 
     try {
-      console.log(`Initiating ${provider} OAuth...`);
+
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -250,7 +250,7 @@ export const LightLogin = () => {
           setError(`Failed to connect with ${provider === 'google' ? 'Google' : 'Apple'}. Please try again.`);
         }
       } else if (data) {
-        console.log('OAuth initiated successfully:', data);
+
         // Don't set loading to false here as the user will be redirected
         return;
       }
@@ -274,7 +274,7 @@ export const LightLogin = () => {
         console.error('Error getting session:', error);
         setError('Authentication failed. Please try again.');
       } else if (session) {
-        console.log('User authenticated:', session);
+
       }
     };
 

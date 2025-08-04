@@ -60,54 +60,60 @@ export const MobileProfilePreview: React.FC<MobileProfilePreviewProps> = ({ prof
     }
   };
 
-  return (
+    return (
     <div className={`relative ${className}`}>
-      {/* iPhone 15 Pro Max Frame - Clean square border */}
-      <div className="relative mx-auto w-72 h-[580px] bg-gray-900 rounded-[3.5rem] p-3 shadow-2xl">
+      {/* iPhone 15 Pro Max Frame - Enhanced design */}
+      <div className="relative mx-auto w-72 h-[580px] bg-gradient-to-b from-gray-900 to-gray-800 rounded-[3rem] p-1 shadow-2xl border border-gray-700">
         {/* Phone Screen */}
-        <div className="relative w-full h-full bg-white rounded-[3rem] overflow-hidden">
-          {/* Live Profile iframe - Clean square border */}
+        <div className="relative w-full h-full bg-white rounded-[2.5rem] overflow-hidden shadow-inner">
+          {/* Live Profile iframe - Enhanced container */}
           <div className="relative h-full overflow-hidden scrollbar-hide mobile-preview-container">
             {isLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-20">
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 z-20">
                 <div className="text-center">
-                  <RefreshCw className="w-6 h-6 mx-auto mb-2 animate-spin text-gray-400" />
-                  <p className="text-xs text-gray-500">Loading profile...</p>
+                  <div className="w-8 h-8 mx-auto mb-3">
+                    <RefreshCw className="w-full h-full animate-spin text-blue-500" />
+                  </div>
+                  <p className="text-sm font-medium text-gray-700">Loading preview...</p>
+                  <p className="text-xs text-gray-500 mt-1">This may take a moment</p>
                 </div>
               </div>
             )}
             
             {iframeError ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-20">
-                <div className="text-center p-4">
-                  <AlertCircle className="w-6 h-6 mx-auto mb-2 text-red-400" />
-                  <p className="text-xs text-gray-600 mb-2">Failed to load profile</p>
-                  <button
-                    onClick={refreshIframe}
-                    className="px-3 py-1 text-xs bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                  >
-                    Retry
-                  </button>
-                  <a
-                    href={profileUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block mt-2 text-xs text-blue-500 hover:text-blue-600"
-                  >
-                    <ExternalLink className="w-3 h-3 inline mr-1" />
-                    Open in new tab
-                  </a>
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 z-20">
+                <div className="text-center p-6">
+                  <AlertCircle className="w-8 h-8 mx-auto mb-3 text-red-500" />
+                  <p className="text-sm font-medium text-gray-800 mb-2">Failed to load profile</p>
+                  <p className="text-xs text-gray-600 mb-4">The preview couldn't be loaded</p>
+                  <div className="space-y-2">
+                    <button
+                      onClick={refreshIframe}
+                      className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                    >
+                      Try Again
+                    </button>
+                    <a
+                      href={profileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-xs text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      <ExternalLink className="w-3 h-3 inline mr-1" />
+                      Open in new tab
+                    </a>
+                  </div>
                 </div>
               </div>
             ) : (
-              <div className="flex justify-center items-start h-full scrollbar-hide mobile-preview-container">
+              <div className="flex justify-center items-center h-full scrollbar-hide mobile-preview-container">
                 <div 
-                  className="relative bg-white scrollbar-hide mobile-preview-container"
+                  className="relative bg-white scrollbar-hide mobile-preview-container shadow-lg"
                   style={{
-                    width: '260px', // 390 * 0.67 scale factor
-                    height: '566px', // 844 * 0.67 scale factor
+                    width: '264px',
+                    height: '572px',
                     overflow: 'hidden',
-                    borderRadius: '12px'
+                    borderRadius: '8px'
                   }}
                 >
                   <iframe
@@ -120,11 +126,14 @@ export const MobileProfilePreview: React.FC<MobileProfilePreviewProps> = ({ prof
                     style={{
                       width: '390px',
                       height: '844px',
-                      transform: 'scale(0.67)',
+                      transform: 'scale(0.68)',
                       transformOrigin: 'top left',
                       border: 'none',
-                      borderRadius: '12px',
-                      overflow: 'hidden'
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      margin: '0',
+                      padding: '0',
+                      display: 'block'
                     }}
                   />
                 </div>
@@ -133,11 +142,12 @@ export const MobileProfilePreview: React.FC<MobileProfilePreviewProps> = ({ prof
           </div>
         </div>
 
-        {/* Home Indicator */}
-        <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gray-400 rounded-full"></div>
+        {/* Enhanced Home Indicator */}
+        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full shadow-sm"></div>
+        
+        {/* Subtle reflection effect */}
+        <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-transparent via-transparent to-black/5 pointer-events-none"></div>
       </div>
-
-
     </div>
   );
 }; 

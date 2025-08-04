@@ -251,9 +251,7 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
   const chartData = localData;
 
   // Debug logging
-  console.log('📈 CHART: Received data:', chartData);
-  console.log('📈 CHART: Data length:', chartData?.length || 0);
-  console.log('📈 CHART: Loading state:', isLoading);
+  
 
   if (isLoading) {
     return (

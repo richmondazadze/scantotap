@@ -698,7 +698,7 @@ function PlanStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting 
         sessionStorage.setItem('onboarding_plan', JSON.stringify({
           planType: 'pro',
           billingCycle: isAnnual ? 'annually' : 'monthly',
-          paymentReference: result.access_code
+          paymentReference: result.reference
         }));
 
         // Payment successful, continue to next step
@@ -1715,7 +1715,7 @@ export default function OnboardingPage() {
               username
             );
             
-            console.log('Welcome email sent to:', session.user.email);
+    
             sessionStorage.setItem('welcome_email_sent', 'true');
           } catch (emailError) {
             console.error('Failed to send welcome email:', emailError);
@@ -1786,13 +1786,8 @@ export default function OnboardingPage() {
         avatarUrl = avatarOption?.url || null;
       }
 
-      // Debug logging to help identify issues
-      console.log('Avatar processing:', {
-        selectedAvatar: profileData.selectedAvatar,
-        avatarData: profileData.avatarData,
-        uploadedImage: profileData.uploadedImage,
-        finalAvatarUrl: avatarUrl
-      });
+              // Debug logging to help identify issues
+
 
       // Combine all links
       const allLinks = [];

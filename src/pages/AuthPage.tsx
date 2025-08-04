@@ -35,13 +35,11 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (!loading && !profileLoading && session) {
-      console.log('AuthPage: User authenticated, checking profile status...');
-      console.log('Profile:', profile);
-      console.log('Intended plan:', intendedPlan);
+      
       
       if (profile) {
         if (!profile.onboarding_complete) {
-          console.log('AuthPage: Profile exists but onboarding incomplete, redirecting to onboarding');
+
           // User has a profile but hasn't completed onboarding
           // Pass the intended plan through to onboarding if it exists
           if (intendedPlan === 'pro') {
@@ -57,7 +55,7 @@ export default function AuthPage() {
             navigate('/onboarding', { replace: true });
           }
         } else {
-          console.log('AuthPage: Profile complete, redirecting based on intended plan');
+
           // User has completed onboarding
           if (intendedPlan === 'pro') {
             // Redirect to pricing/upgrade flow with preserved billing cycle and auto-trigger
@@ -76,7 +74,7 @@ export default function AuthPage() {
           }
         }
       } else {
-        console.log('AuthPage: No profile exists, redirecting to onboarding');
+
         // No profile exists, redirect to onboarding to create one
         // Pass the intended plan through to onboarding if it exists
         if (intendedPlan === 'pro') {

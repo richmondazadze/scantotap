@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { ThemeService } from '@/services/themeService';
 import { usePlanFeatures } from '@/hooks/usePlanFeatures';
+import { useProfile } from '@/contexts/ProfileContext';
 
 interface Theme {
   id: string;
@@ -125,6 +126,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profileId }) => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const planFeatures = usePlanFeatures();
+  const { profile, setProfile } = useProfile();
 
   useEffect(() => {
     const loadCurrentTheme = async () => {
@@ -153,6 +155,12 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profileId }) => {
     
     if (result.success) {
       setSelectedTheme(themeId);
+      
+      // Update profile context to trigger live preview refresh
+      if (profile && setProfile) {
+        setProfile({ ...profile, theme_preference: themeId });
+      }
+      
       toast.success('Theme updated successfully!');
     } else {
       toast.error(result.error || 'Failed to update theme');

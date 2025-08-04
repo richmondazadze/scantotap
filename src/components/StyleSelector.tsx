@@ -96,7 +96,7 @@ const StyleSelector: React.FC<StyleSelectorProps> = ({
         console.error('Error saving style settings:', error);
         toast.error('Failed to save style settings');
       } else {
-        console.log('Style settings saved successfully:', settings);
+  
         toast.success('Style updated successfully!');
       }
     } catch (error) {

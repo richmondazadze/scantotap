@@ -36,7 +36,7 @@ export default function WallpaperSelector({
   }, [currentWallpaper]);
 
   const handleWallpaperSelect = async (wallpaperId: string | null) => {
-    console.log('Selecting wallpaper:', wallpaperId, 'Current:', selectedWallpaper);
+
     if (selectedWallpaper === wallpaperId) return;
 
     // Check if user is trying to select a Pro wallpaper without Pro plan
@@ -77,7 +77,7 @@ export default function WallpaperSelector({
       ? selectedWallpaper === null 
       : selectedWallpaper === wallpaperId;
     
-    console.log(`Checking selection for ${wallpaperId}:`, isSelected, 'Current selected:', selectedWallpaper);
+    
     return isSelected;
   };
 

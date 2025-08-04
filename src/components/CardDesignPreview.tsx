@@ -39,7 +39,7 @@ export const CardDesignPreview: React.FC<CardDesignPreviewProps> = ({
   const designName = design?.name?.toLowerCase().trim() || '';
 
   // Debug logging to help identify issues
-  console.log('CardDesignPreview - Design:', design, 'Design Name:', designName);
+  
 
   // Classic Design
   if (designName === 'classic') {
@@ -79,7 +79,7 @@ export const CardDesignPreview: React.FC<CardDesignPreviewProps> = ({
             console.error('Failed to load metal_card.png:', e);
           }}
           onLoad={() => {
-            console.log('Successfully loaded metal_card.png');
+    
           }}
         />
       </div>

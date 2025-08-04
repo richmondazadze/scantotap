@@ -31,23 +31,29 @@ export default function DashboardThemes() {
     }
   }, [profile]);
 
-  // Auto-refresh preview when profile changes
+  // Immediate refresh for all theme changes
   useEffect(() => {
     if (profile) {
-      // Instant refresh for all theme-related changes
-      setPreviewKey(prev => prev + 1);
+      // Force immediate refresh with timestamp to ensure uniqueness
+      const newKey = Date.now();
+      setPreviewKey(newKey);
     }
   }, [
     profile?.theme_preference, 
     profile?.wallpaper_preference, 
     profile?.style_settings,
     profile?.social_layout_style,
-    profile?.custom_background
+    profile?.custom_background,
+    profile?.name,
+    profile?.title,
+    profile?.bio,
+    profile?.avatar_url,
+    profile?.links
   ]);
 
   const refreshPreview = () => {
-    setPreviewKey(prev => prev + 1);
-    toast.success('Preview refreshed');
+    // Force immediate refresh with timestamp to ensure uniqueness
+    setPreviewKey(Date.now());
   };
 
   const handleSocialLayoutChange = async (newStyle: string) => {
@@ -189,12 +195,12 @@ export default function DashboardThemes() {
         {/* Two Column Layout */}
         <div className="flex gap-8">
           {/* Left Column - Theme Content - Responsive */}
-          <div className="flex-1 space-y-6 lg:pr-96">
+          <div className="flex-1 space-y-4 lg:pr-96">
             {/* How Themes Work */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 }}
+              transition={{ delay: 0.02, duration: 0.2 }}
             >
               <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg dark:shadow-2xl">
                 <CardHeader className="pb-4">
@@ -242,9 +248,9 @@ export default function DashboardThemes() {
 
             {/* Theme Selector */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
+              transition={{ delay: 0.05, duration: 0.2 }}
             >
               {profile?.id && (
                 <ThemeSelector profileId={profile.id} />
@@ -253,9 +259,9 @@ export default function DashboardThemes() {
 
             {/* Wallpaper Selector */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.08, duration: 0.2 }}
             >
               {profile?.id && (
                 <WallpaperSelector 
@@ -272,9 +278,9 @@ export default function DashboardThemes() {
 
             {/* Style Selector */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
+              transition={{ delay: 0.1, duration: 0.2 }}
             >
               {profile?.id && (
                 <StyleSelector 
@@ -294,9 +300,9 @@ export default function DashboardThemes() {
 
             {/* Custom Background Upload */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.12, duration: 0.2 }}
             >
               <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg dark:shadow-2xl">
                 <CardHeader className="pb-4">

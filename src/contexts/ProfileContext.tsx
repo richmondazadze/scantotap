@@ -74,7 +74,6 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       
       if (data) {
         // Profile exists - process normally
-        console.log('Profile found for user:', session.user.id);
         
         // Cast database types to our typed interface
         const profile: Profile = {
@@ -120,7 +119,6 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           }
         }
       } else {
-        console.log('No profile found for user:', session.user.id);
         setProfile(null);
       }
     } catch (error) {

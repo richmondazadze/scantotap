@@ -174,10 +174,7 @@ export class SubscriptionService {
         next_billing_date: this.calculateNextBillingDate(status),
       };
 
-      console.log('📊 Subscription details for user:', userId, {
-        raw_profile: profile,
-        processed_result: result
-      });
+
 
       return result;
     } catch (error) {
@@ -409,7 +406,7 @@ export class SubscriptionService {
         break;
       
       case 'payment_failed':
-        console.log(`Payment failed for user ${profile.id}:`, eventData);
+
         break;
     }
   }

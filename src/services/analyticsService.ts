@@ -148,7 +148,7 @@ class AnalyticsService {
   // Track a profile visit
   async trackProfileVisit(profileId: string): Promise<{ success: boolean; error?: string }> {
     try {
-      console.log('🔍 ANALYTICS DEBUG: Starting to track profile visit for:', profileId);
+  
       
       const deviceType = this.getDeviceType();
       const { browser, os } = this.getBrowserInfo();
@@ -172,7 +172,7 @@ class AnalyticsService {
         session_duration: 0
       };
 
-      console.log('🔍 ANALYTICS DEBUG: Visit data to insert:', visitData);
+      
 
       const { error } = await supabase
         .from('profile_visits')
@@ -183,7 +183,7 @@ class AnalyticsService {
         return { success: false, error: error.message };
       }
 
-      console.log('✅ ANALYTICS SUCCESS: Profile visit tracked successfully');
+      
       return { success: true };
     } catch (error) {
       console.error('❌ ANALYTICS CATCH: Error tracking profile visit:', error);
@@ -200,7 +200,7 @@ class AnalyticsService {
     platform?: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      console.log('🔍 ANALYTICS DEBUG: Starting to track link click for:', profileId, 'Type:', linkType, 'Platform:', platform);
+
       
       const deviceType = this.getDeviceType();
       const visitorId = this.generateVisitorId();
@@ -216,7 +216,7 @@ class AnalyticsService {
         clicked_at: new Date().toISOString()
       };
 
-      console.log('🔍 ANALYTICS DEBUG: Click data to insert:', clickData);
+      
 
       const { error } = await supabase
         .from('link_clicks')
@@ -227,7 +227,7 @@ class AnalyticsService {
         return { success: false, error: error.message };
       }
 
-      console.log('✅ ANALYTICS SUCCESS: Link click tracked successfully');
+      
       return { success: true };
     } catch (error) {
       console.error('❌ ANALYTICS CATCH: Error tracking link click:', error);
@@ -287,9 +287,7 @@ class AnalyticsService {
       const startDate = new Date();
       startDate.setDate(endDate.getDate() - days);
 
-      console.log('📅 ANALYTICS: Date range for chart data:');
-      console.log('📅 Start date:', startDate.toISOString());
-      console.log('📅 End date:', endDate.toISOString());
+
 
       // Get daily views - remove time filters to get all data first
       const { data: visitsData, error: visitsError } = await supabase
@@ -313,28 +311,14 @@ class AnalyticsService {
         return { success: false, error: clicksError.message };
       }
 
-      console.log('📊 ANALYTICS: Raw visits data count:', visitsData?.length || 0);
-      console.log('📊 ANALYTICS: Raw clicks data count:', clicksData?.length || 0);
 
-      // Debug: Show actual dates in the data
-      if (visitsData && visitsData.length > 0) {
-        console.log('📊 ANALYTICS: Sample visit dates:', visitsData.slice(0, 3).map(v => v.visited_at));
-      }
-      if (clicksData && clicksData.length > 0) {
-        console.log('📊 ANALYTICS: Sample click dates:', clicksData.slice(0, 3).map(c => c.clicked_at));
-      }
 
       // If we have no raw data but analytics show totals, get analytics data and distribute it
       if ((!visitsData || visitsData.length === 0) && (!clicksData || clicksData.length === 0)) {
-        console.log('📊 ANALYTICS: No raw visit/click data found, checking analytics totals...');
         
         const analyticsResult = await this.getProfileAnalytics(profileId);
         if (analyticsResult.success && analyticsResult.data) {
           const analytics = analyticsResult.data;
-          console.log('📊 ANALYTICS: Found analytics totals:', {
-            total_views: analytics.total_views,
-            total_clicks: analytics.total_link_clicks
-          });
 
           // If we have analytics totals, create sample distribution over the time period
           if (analytics.total_views > 0 || analytics.total_link_clicks > 0) {
@@ -372,7 +356,7 @@ class AnalyticsService {
               });
             }
 
-            console.log('📈 ANALYTICS: Generated chart data from analytics totals:', chartData.slice(-3));
+
             return { success: true, data: chartData };
           }
         }
@@ -382,7 +366,7 @@ class AnalyticsService {
       const chartData: AnalyticsChartData[] = [];
       const today = new Date();
       
-      console.log('📊 ANALYTICS: Generating dates for last', days, 'days from today:', today.toISOString().split('T')[0]);
+
       
       for (let i = 0; i < days; i++) {
         // Generate dates going backward from today
@@ -406,15 +390,10 @@ class AnalyticsService {
           clicks: clicksCount
         });
 
-        // Debug specific days with data
-        if (viewsCount > 0 || clicksCount > 0) {
-          console.log(`📊 ANALYTICS: Found data for ${dateStr}: ${viewsCount} views, ${clicksCount} clicks`);
-        }
+
       }
 
-      console.log('📈 ANALYTICS: Generated chart data from raw data:');
-      console.log('📈 First 3 dates:', chartData.slice(0, 3));
-      console.log('📈 Last 3 dates:', chartData.slice(-3));
+
 
       return { success: true, data: chartData };
     } catch (error) {
@@ -601,7 +580,7 @@ class AnalyticsService {
   // Test function to verify analytics are working (for debugging only)
   async testAnalyticsInsertion(profileId: string): Promise<{ success: boolean; error?: string }> {
     try {
-      console.log('🧪 TEST: Inserting test analytics data for profile:', profileId);
+  
       
       // Insert a test visit
       const testVisit = {
@@ -650,7 +629,7 @@ class AnalyticsService {
         return { success: false, error: clickError.message };
       }
 
-      console.log('✅ TEST: Test analytics data inserted successfully');
+      
       return { success: true };
     } catch (error) {
       console.error('❌ TEST: Exception during test insertion:', error);

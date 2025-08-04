@@ -123,9 +123,9 @@ export default function DashboardSettings() {
     
     setSubscriptionLoading(true);
     try {
-      console.log('🔍 Loading subscription details for user:', session.user.id);
+  
       const details = await SubscriptionService.getSubscriptionDetails(session.user.id);
-      console.log('✅ Subscription details loaded:', details);
+      
       setSubscriptionDetails(details);
     } catch (error) {
       console.error('❌ Error loading subscription details:', error);
@@ -154,7 +154,7 @@ export default function DashboardSettings() {
       if (result.success) {
         // Don't show confusing toast message - Paystack will handle the payment flow
         // After payment completion, webhook will update the database
-        console.log('Payment initiated successfully');
+
       } else {
         toast.error(result.error || 'Failed to initiate upgrade');
       }
@@ -213,13 +213,13 @@ export default function DashboardSettings() {
     
     setAnalyticsLoading(true);
     try {
-      console.log('🔍 DASHBOARD: Loading analytics data for profile:', profile.id);
+
       
       // Load analytics summary
       const analyticsResult = await analyticsService.getProfileAnalytics(profile.id);
       if (analyticsResult.success && analyticsResult.data) {
         setAnalytics(analyticsResult.data);
-        console.log('✅ DASHBOARD: Analytics loaded:', analyticsResult.data);
+
       } else {
         console.error('❌ DASHBOARD: Failed to load analytics:', analyticsResult.error);
       }
@@ -229,7 +229,7 @@ export default function DashboardSettings() {
         const chartResult = await analyticsService.getAnalyticsChartData(profile.id);
         if (chartResult.success && chartResult.data) {
           setChartData(chartResult.data);
-          console.log('✅ DASHBOARD: Chart data loaded:', chartResult.data);
+  
         }
       } catch (chartError) {
         console.error('Chart data loading failed:', chartError);
