@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     }
 
     if (!profile.email_order_updates) {
-      console.log(`Order email skipped - user ${userId} has disabled order notifications`);
+
       return res.status(200).json({ 
         success: true, 
         skipped: true, 

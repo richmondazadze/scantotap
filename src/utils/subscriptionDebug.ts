@@ -10,9 +10,6 @@ export class SubscriptionDebug {
    * Debug a user's subscription data
    */
   static async debugUserSubscription(userId: string) {
-    console.log('=== SUBSCRIPTION DEBUG ===');
-    console.log('User ID:', userId);
-    
     try {
       // Get raw database data
       const { data: rawData, error } = await supabase
@@ -30,36 +27,11 @@ export class SubscriptionDebug {
         .eq('id', userId)
         .single();
 
-      console.log('Raw database data:', rawData);
-      console.log('Database error:', error);
-
       // Get processed subscription data
       const subscription = await SubscriptionService.getUserSubscription(userId);
-      console.log('Processed subscription data:', subscription);
 
       // Get subscription details
       const details = await SubscriptionService.getSubscriptionDetails(userId);
-      console.log('Subscription details:', details);
-
-      // Check if subscription is active
-      if (subscription) {
-        const isActive = SubscriptionService.isSubscriptionActive(
-          subscription.subscription_status,
-          subscription.subscription_expires_at
-        );
-        console.log('Is subscription active?', isActive);
-        
-        // Check expiry
-        if (subscription.subscription_expires_at) {
-          const expiryDate = new Date(subscription.subscription_expires_at);
-          const now = new Date();
-          const daysUntilExpiry = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-          console.log('Days until expiry:', daysUntilExpiry);
-          console.log('Expiry date:', expiryDate.toISOString());
-        }
-      }
-
-      console.log('=== END DEBUG ===');
 
       return {
         rawData,
@@ -69,7 +41,6 @@ export class SubscriptionDebug {
         error: null
       };
     } catch (error) {
-      console.error('Debug error:', error);
       return { error };
     }
   }
@@ -82,7 +53,6 @@ export class SubscriptionDebug {
       const details = await SubscriptionService.getSubscriptionDetails(userId);
       return details.canCancel;
     } catch (error) {
-      console.error('Error checking if user can cancel:', error);
       return false;
     }
   }
@@ -136,7 +106,6 @@ export class SubscriptionDebug {
 
       return issues;
     } catch (error) {
-      console.error('Error getting subscription issues:', error);
       return ['Error checking subscription data'];
     }
   }

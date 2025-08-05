@@ -60,7 +60,6 @@ export default async function handler(req, res) {
 
     // Parse the webhook event
     const event = req.body;
-    console.log('Received Paystack webhook:', event.event, 'Reference:', event.data?.reference);
 
     // Route to appropriate handler based on event type
     switch (event.event) {
@@ -93,14 +92,14 @@ export default async function handler(req, res) {
         break;
       
       default:
-        console.log('Unhandled webhook event:', event.event);
+        // Unhandled webhook event
+        break;
     }
 
     // Respond to Paystack
     res.status(200).json({ received: true, processed: true });
 
   } catch (error) {
-    console.error('Webhook processing error:', error);
     res.status(500).json({ 
       success: false, 
       error: 'Internal server error' 
@@ -116,7 +115,7 @@ async function handleChargeSuccess(event, supabase) {
   const reference = data.reference;
   const metadata = data.metadata || {};
   
-  console.log('Processing charge.success:', reference, 'Metadata:', metadata);
+
 
   // CASE 1: E-commerce Order Payment (existing logic)
   if (metadata.order_id) {
@@ -133,7 +132,7 @@ async function handleChargeSuccess(event, supabase) {
     return await handleSubscriptionPaymentByEmail(data, supabase);
   }
 
-  console.log('Charge success - no matching handler found for:', metadata);
+
 }
 
 // ============================================================================
@@ -144,11 +143,8 @@ async function handleOrderPayment(data, supabase) {
   const reference = data.reference;
   
   if (!orderId) {
-    console.error('No order_id found in payment metadata:', data.metadata);
     throw new Error('Invalid payment metadata - missing order_id');
   }
-
-  console.log(`Processing ORDER payment for order ID: ${orderId}, payment reference: ${reference}`);
 
   // Update order status to confirmed (your existing logic)
   const { data: updatedOrder, error } = await supabase
@@ -164,16 +160,11 @@ async function handleOrderPayment(data, supabase) {
   } 
 
   if (!updatedOrder) {
-    console.error(`No order found with ID: ${orderId}`);
     throw new Error('Order not found');
   }
 
-  console.log(`Order ${updatedOrder.order_number} (ID: ${updatedOrder.id}) for ${updatedOrder.customer_first_name} ${updatedOrder.customer_last_name} marked as confirmed. Payment reference: ${reference}`);
-
   // Send order confirmation email
   try {
-    console.log(`Sending order confirmation email for order ${updatedOrder.order_number}`);
-    
     // Prepare email data
     const orderEmailData = {
       orderNumber: updatedOrder.order_number,
@@ -200,19 +191,11 @@ async function handleOrderPayment(data, supabase) {
       }),
     });
 
-    if (emailResponse.ok) {
-      const emailResult = await emailResponse.json();
-      if (emailResult.skipped) {
-        console.log(`Order confirmation email skipped for user ${updatedOrder.user_id} - notifications disabled`);
-      } else {
-        console.log(`Order confirmation email sent successfully for order ${updatedOrder.order_number}`);
-      }
-    } else {
+    if (!emailResponse.ok) {
       const emailError = await emailResponse.text();
-      console.error(`Failed to send order confirmation email: ${emailError}`);
+      // Don't fail the payment processing if email fails
     }
   } catch (emailError) {
-    console.error('Error sending order confirmation email:', emailError);
     // Don't fail the payment processing if email fails
   }
 }
@@ -225,7 +208,7 @@ async function handleSubscriptionPayment(data, supabase) {
   const planType = data.metadata.plan_type;
   const billingCycle = data.metadata.billing_cycle || 'monthly';
   
-  console.log(`Processing SUBSCRIPTION payment for user: ${userId}, plan: ${planType}, billing: ${billingCycle}`);
+
 
   try {
     // First check if user exists
@@ -236,21 +219,12 @@ async function handleSubscriptionPayment(data, supabase) {
       .single();
 
     if (userError) {
-      console.error('Error finding user:', userError);
       throw userError;
     }
 
     if (!existingUser) {
-      console.error('User not found with ID:', userId);
       throw new Error('User not found');
     }
-
-    console.log('User found:', {
-      id: existingUser.id,
-      currentPlan: existingUser.plan_type,
-      currentStatus: existingUser.subscription_status,
-      email: existingUser.email
-    });
 
     // Update user subscription (simplified - no date tracking)
     const { data: updateResult, error } = await supabase
@@ -279,10 +253,8 @@ async function handleSubscriptionPayment(data, supabase) {
       throw new Error('Database update failed - no rows affected');
     }
 
-    console.log('Database update successful:', updateResult[0]);
-    console.log(`Successfully activated Pro subscription for user: ${userId} - Plan changed from ${existingUser.plan_type} to ${updateResult[0].plan_type}`);
+
   } catch (error) {
-    console.error('Error in handleSubscriptionPayment:', error);
     throw error;
   }
 }
@@ -290,7 +262,7 @@ async function handleSubscriptionPayment(data, supabase) {
 async function handleSubscriptionPaymentByEmail(data, supabase) {
   const customerEmail = data.customer.email;
   
-  console.log(`Processing SUBSCRIPTION payment by email: ${customerEmail}`);
+
   
   // Find user by email
   const { data: profile } = await supabase
@@ -300,7 +272,6 @@ async function handleSubscriptionPaymentByEmail(data, supabase) {
     .single();
 
   if (!profile) {
-    console.log('No user found for subscription payment email:', customerEmail);
     return;
   }
 
@@ -311,7 +282,6 @@ async function handleSubscriptionPaymentByEmail(data, supabase) {
                        profile.subscription_status === 'active';
 
   if (!shouldUpgrade) {
-    console.log(`Skipping auto-upgrade for user ${profile.id} - explicitly chose free plan during onboarding`);
     return;
   }
 
@@ -326,11 +296,8 @@ async function handleSubscriptionPaymentByEmail(data, supabase) {
     .eq('id', profile.id);
 
   if (error) {
-    console.error('Failed to update subscription by email:', error);
     throw error;
   }
-
-  console.log(`Successfully activated Pro subscription for user by email: ${customerEmail} (${profile.id})`);
 }
 
 // ============================================================================
@@ -338,12 +305,10 @@ async function handleSubscriptionPaymentByEmail(data, supabase) {
 // ============================================================================
 async function handleSubscriptionCreate(event, supabase) {
   const { data } = event;
-  console.log('Subscription created:', data);
   
   // Find user by customer email
   const customerEmail = data.customer?.email;
   if (!customerEmail) {
-    console.error('No customer email found in subscription create event');
     return;
   }
 
@@ -354,7 +319,6 @@ async function handleSubscriptionCreate(event, supabase) {
     .single();
 
   if (!profile) {
-    console.log('No user found for subscription create:', customerEmail);
     return;
   }
 
@@ -369,21 +333,16 @@ async function handleSubscriptionCreate(event, supabase) {
     .eq('id', profile.id);
 
   if (error) {
-    console.error('Failed to update user on subscription create:', error);
     return;
   }
-
-  console.log(`Subscription created and user ${profile.id} upgraded to Pro`);
 }
 
 async function handleSubscriptionDisable(event, supabase) {
   const { data } = event;
-  console.log('Subscription disabled:', data);
   
   // Find user by customer email
   const customerEmail = data.customer?.email;
   if (!customerEmail) {
-    console.error('No customer email found in subscription disable event');
     return;
   }
 
@@ -394,7 +353,6 @@ async function handleSubscriptionDisable(event, supabase) {
     .single();
 
   if (!profile) {
-    console.log('No user found for subscription disable:', customerEmail);
     return;
   }
 
@@ -409,21 +367,16 @@ async function handleSubscriptionDisable(event, supabase) {
     .eq('id', profile.id);
 
   if (error) {
-    console.error('Failed to update user on subscription disable:', error);
     return;
   }
-
-  console.log(`Subscription disabled and user ${profile.id} downgraded to Free`);
 }
 
 async function handleSubscriptionNotRenew(event, supabase) {
   const { data } = event;
-  console.log('Subscription not renewing:', data);
   
   // Find user by customer email
   const customerEmail = data.customer?.email;
   if (!customerEmail) {
-    console.error('No customer email found in subscription not renew event');
     return;
   }
 
@@ -434,7 +387,6 @@ async function handleSubscriptionNotRenew(event, supabase) {
     .single();
 
   if (!profile) {
-    console.log('No user found for subscription not renew:', customerEmail);
     return;
   }
 
@@ -449,16 +401,12 @@ async function handleSubscriptionNotRenew(event, supabase) {
     .eq('id', profile.id);
 
   if (error) {
-    console.error('Failed to update user on subscription not renew:', error);
     return;
   }
-
-  console.log(`Subscription not renewing and user ${profile.id} downgraded to Free`);
 }
 
 async function handleInvoiceCreate(event, supabase) {
   const { data } = event;
-  console.log('Invoice created for customer:', data.customer?.email);
   
   // You can send email notifications here about upcoming payment
   // This is fired when a subscription invoice is created
@@ -466,7 +414,6 @@ async function handleInvoiceCreate(event, supabase) {
 
 async function handleInvoiceUpdate(event, supabase) {
   const { data } = event;
-  console.log('Invoice updated:', data.reference);
   
   // Handle invoice status changes
   if (data.status === 'success') {
@@ -507,7 +454,7 @@ async function handleInvoiceUpdate(event, supabase) {
       })
       .eq('id', profile.id);
 
-    console.log(`Extended subscription for user ${profile.id} until ${newExpiry.toISOString()}`);
+
   }
 }
 
@@ -517,7 +464,7 @@ async function handleInvoicePaymentFailed(event, supabase) {
   
   if (!customerEmail) return;
 
-  console.log('Payment failed for:', customerEmail);
+
   
   // Find user by email
   const { data: profile } = await supabase
@@ -533,7 +480,6 @@ async function handleInvoicePaymentFailed(event, supabase) {
   // You might want to implement a 3-day grace period before downgrading
   
   // Optional: Send notification email to user about failed payment
-  console.log(`Payment failed for user ${profile.id}, implementing grace period`);
 }
 
 // Force deployment - Unified webhook handler

@@ -63,7 +63,6 @@ export interface PaystackWebhookEvent {
 export class WebhookHandler {
   // Handle Paystack webhook events
   static async handlePaystackWebhook(event: PaystackWebhookEvent) {
-    console.log('Processing Paystack webhook:', event.event, 'for reference:', event.data.reference);
 
     try {
       switch (event.event) {
@@ -104,10 +103,10 @@ export class WebhookHandler {
           break;
         
         default:
-          console.log('Unhandled webhook event:', event.event);
+          // Unhandled webhook event
+          break;
       }
     } catch (error) {
-      console.error('Error processing webhook:', error);
       throw error;
     }
   }
@@ -118,7 +117,6 @@ export class WebhookHandler {
     const userId = data.metadata?.user_id;
     
     if (!userId) {
-      console.log('No user_id in metadata, skipping charge.success');
       return;
     }
 
@@ -128,7 +126,6 @@ export class WebhookHandler {
       const paymentValidation = await PaystackService.validatePaymentMethod(data.reference);
       
       if (!paymentValidation.isValid) {
-        console.error(`Invalid payment method for subscription: ${paymentValidation.error}`);
         // Don't activate subscription for non-card payments
         return;
       }
@@ -156,7 +153,7 @@ export class WebhookHandler {
       // Sync plan type to ensure consistency
       await SubscriptionService.syncUserPlanType(userId);
 
-      console.log(`Activated Pro subscription for user ${userId} with valid card payment`);
+
     }
   }
 
@@ -228,12 +225,9 @@ export class WebhookHandler {
       };
       
       await emailService.sendUpgradeConfirmationEmail(emailData);
-      console.log('Upgrade confirmation email sent to:', customerEmail);
     } catch (emailError) {
-      console.error('Failed to send upgrade confirmation email:', emailError);
+      // Email sending failed, but don't fail the webhook
     }
-
-    console.log(`Created subscription for user ${profile.id} with code ${subscription.subscription_code}`);
   }
 
   // Handle subscription disable/cancellation
@@ -242,14 +236,12 @@ export class WebhookHandler {
     const subscription = data.subscription;
     
     if (!subscription) {
-      console.error('No subscription data in disable webhook');
       return;
     }
 
     const customerEmail = data.customer?.email || subscription.customer?.email;
     
     if (!customerEmail) {
-      console.error('No customer email found in disable webhook');
       return;
     }
     
@@ -260,7 +252,6 @@ export class WebhookHandler {
       .single();
 
     if (!profile) {
-      console.error('No user found for email:', customerEmail);
       return;
     }
 
@@ -300,12 +291,9 @@ export class WebhookHandler {
         };
         
         await emailService.sendSubscriptionCancelledEmail(emailData);
-        console.log('Subscription cancelled email sent to:', customerEmail);
       } catch (emailError) {
-        console.error('Failed to send subscription cancelled email:', emailError);
+        // Email sending failed, but don't fail the webhook
       }
-      
-      console.log(`Marked subscription as cancelled for user ${profile.id}, will expire on ${expiryDate.toISOString()}`);
     } else {
       // Subscription has already expired, downgrade immediately
       await PaystackService.updateUserSubscription(profile.id, {
@@ -320,7 +308,7 @@ export class WebhookHandler {
       // Sync plan type to ensure consistency
       await SubscriptionService.syncUserPlanType(profile.id);
       
-      console.log(`Downgraded user ${profile.id} to free plan`);
+
     }
   }
 
@@ -330,7 +318,6 @@ export class WebhookHandler {
     const customerEmail = data.customer?.email;
     
     if (!customerEmail) {
-      console.error('No customer email found in not_renew webhook');
       return;
     }
     
@@ -341,7 +328,6 @@ export class WebhookHandler {
       .single();
 
     if (!profile) {
-      console.error('No user found for email:', customerEmail);
       return;
     }
 
@@ -358,13 +344,12 @@ export class WebhookHandler {
     // Sync plan type to ensure consistency
     await SubscriptionService.syncUserPlanType(profile.id);
 
-    console.log(`Expired subscription for user ${profile.id} - will not renew`);
+
   }
 
   // Handle invoice creation (upcoming payment)
   private static async handleInvoiceCreate(event: PaystackWebhookEvent) {
     const { data } = event;
-    console.log('Invoice created for customer:', data.customer?.email);
     
     // You can send email notifications here about upcoming payment
     // This is fired when a subscription invoice is created
@@ -373,7 +358,6 @@ export class WebhookHandler {
   // Handle invoice updates
   private static async handleInvoiceUpdate(event: PaystackWebhookEvent) {
     const { data } = event;
-    console.log('Invoice updated:', data.reference);
     
     // Handle invoice status changes
     if (data.status === 'success') {
@@ -422,7 +406,7 @@ export class WebhookHandler {
     // Sync plan type to ensure consistency
     await SubscriptionService.syncUserPlanType(profile.id);
 
-    console.log(`Extended subscription for user ${profile.id} until ${newExpiry.toISOString()}`);
+
   }
 
   // Handle failed payment
@@ -432,8 +416,6 @@ export class WebhookHandler {
     
     if (!customerEmail) return;
 
-    console.log('Payment failed for:', customerEmail);
-    
     // Find user by email
     const { data: profile } = await supabase
       .from('profiles')
@@ -448,13 +430,12 @@ export class WebhookHandler {
     // You might want to implement a 3-day grace period before downgrading
     
     // Optional: Send notification email to user about failed payment
-    console.log(`Payment failed for user ${profile.id}, implementing grace period`);
   }
 
   // Handle customer identification success
   private static async handleCustomerIdentificationSuccess(event: PaystackWebhookEvent) {
     const { data } = event;
-    console.log('Customer identification successful:', data.customer?.email);
+
     
     // This event is fired when a customer completes KYC
     // You can update customer verification status here

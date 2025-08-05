@@ -14,7 +14,7 @@ export class SubscriptionMaintenanceService {
     syncResults: { processed: number; updated: number; errors: number };
     timestamp: string;
   }> {
-    console.log('Starting subscription maintenance tasks...');
+
     
     const timestamp = new Date().toISOString();
     
@@ -25,11 +25,7 @@ export class SubscriptionMaintenanceService {
       // Task 2: Sync all user plan types
       const syncResults = await SubscriptionService.batchSyncAllUsers();
       
-      console.log('Subscription maintenance completed:', {
-        expiredSubscriptions,
-        syncResults,
-        timestamp
-      });
+
       
       return {
         expiredSubscriptions,
@@ -37,7 +33,6 @@ export class SubscriptionMaintenanceService {
         timestamp
       };
     } catch (error) {
-      console.error('Error during subscription maintenance:', error);
       throw error;
     }
   }
@@ -85,7 +80,6 @@ export class SubscriptionMaintenanceService {
         inconsistentData: 0
       };
     } catch (error) {
-      console.error('Error getting subscription stats:', error);
       throw error;
     }
   }
@@ -98,7 +92,6 @@ export class SubscriptionMaintenanceService {
     try {
       await this.runMaintenanceTasks();
     } catch (error) {
-      console.error('Scheduled maintenance failed:', error);
       // In production, you might want to send alerts here
     }
   }

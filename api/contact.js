@@ -299,7 +299,7 @@ async function sendThankYouEmail(data) {
       html: html,
     });
 
-    console.log('✅ Thank you email sent successfully to:', data.email);
+    
     return { success: true, referenceId };
   } catch (error) {
     console.error('❌ Error sending thank you email:', error);
@@ -726,23 +726,19 @@ export default async function handler(req, res) {
       message: message.trim()
     };
 
-    console.log(`📧 Processing contact form submission from ${contactData.email}`);
+
 
     // Send emails using the contact email service
     const emailResult = await sendContactEmails(contactData);
 
     // Return response based on email sending results
     if (emailResult.thankYouSent && emailResult.adminNotificationSent) {
-      console.log(`✅ Both emails sent successfully for ${contactData.email} (Ref: ${emailResult.referenceId})`);
-      
       return res.status(200).json({
         success: true,
         message: 'Thank you for your message! We\'ll get back to you soon.',
         referenceId: emailResult.referenceId
       });
     } else if (emailResult.thankYouSent) {
-      console.log(`⚠️ Thank you email sent but admin notification failed for ${contactData.email}`);
-      
       return res.status(200).json({
         success: true,
         message: 'Thank you for your message! We\'ll get back to you soon.',
@@ -750,8 +746,6 @@ export default async function handler(req, res) {
         warning: 'Admin notification may be delayed.'
       });
     } else {
-      console.error(`❌ Failed to send emails for ${contactData.email}`);
-      
       return res.status(500).json({
         success: false,
         error: 'Unable to send confirmation email. Please try again or contact us directly.',
@@ -760,8 +754,6 @@ export default async function handler(req, res) {
     }
 
   } catch (error) {
-    console.error('Contact form submission error:', error);
-    
     return res.status(500).json({
       success: false,
       error: 'An unexpected error occurred. Please try again later.'

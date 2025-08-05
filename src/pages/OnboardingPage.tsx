@@ -1871,9 +1871,8 @@ export default function OnboardingPage() {
           finalFullName,
           finalUsername
         );
-        console.log('Onboarding completion email sent');
+
       } catch (emailError) {
-        console.error('Failed to send onboarding completion email:', emailError);
         // Don't block the flow if email fails
       }
       
@@ -1882,7 +1881,6 @@ export default function OnboardingPage() {
       // Navigate to dashboard
       navigate('/dashboard/profile', { replace: true });
     } catch (error) {
-      console.error('Error completing onboarding:', error);
       toast.error('Failed to complete onboarding. Please try again.');
     } finally {
       setSubmitting(false);

@@ -396,8 +396,6 @@ Your goal: Create authentic, flowing bios that intelligently merge user content 
    */
   private static parseAIResponse(content: string, style: string): AIResponse {
     try {
-      console.log('Raw AI response:', content);
-      
       const lines = content.split('\n')
         .map(line => line.trim())
         .filter(line => line.length > 0)
@@ -424,8 +422,6 @@ Your goal: Create authentic, flowing bios that intelligently merge user content 
         }
       }
 
-      console.log('Parsed suggestions:', suggestions);
-
       if (suggestions.length > 0) {
         return {
           success: true,
@@ -435,7 +431,6 @@ Your goal: Create authentic, flowing bios that intelligently merge user content 
 
       throw new Error('No valid suggestions generated from AI response');
     } catch (error) {
-      console.error('Failed to parse AI response:', error);
       return { success: false, suggestions: [], error: 'Failed to parse AI response' };
     }
   }

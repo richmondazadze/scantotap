@@ -12,9 +12,7 @@ export const TestCropModal: React.FC = () => {
     const url = URL.createObjectURL(croppedFile);
     setCroppedImageUrl(url);
     
-    console.log('Cropped file:', croppedFile);
-    console.log('File size:', croppedFile.size, 'bytes');
-    console.log('File type:', croppedFile.type);
+
   };
 
   const openModal = () => {

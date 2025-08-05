@@ -19,13 +19,7 @@ export default async function handler(req, res) {
                                process.env.PAYSTACK_SECRET_KEY;
     const { reference } = req.body;
 
-    // Enhanced logging for debugging
-    console.log('Payment verification request:', {
-      reference,
-      hasSecretKey: !!PAYSTACK_SECRET_KEY,
-      method: req.method,
-      body: req.body
-    });
+
 
     if (!reference) {
       console.error('No reference provided in request body');
@@ -44,7 +38,7 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log(`Verifying payment with reference: ${reference}`);
+
 
     const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
       method: 'GET',
@@ -56,15 +50,10 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    console.log('Paystack API response:', {
-      status: response.status,
-      ok: response.ok,
-      dataStatus: data.status,
-      dataMessage: data.message
-    });
+
 
     if (response.ok && data.status && data.data && data.data.status === 'success') {
-      console.log(`Payment verification successful for reference: ${reference}`);
+
       res.json({
         success: true,
         data: {
@@ -78,7 +67,7 @@ export default async function handler(req, res) {
         }
       });
     } else {
-      console.error('Payment verification failed:', data);
+
       res.status(400).json({
         success: false,
         error: data.message || 'Payment verification failed',
@@ -86,11 +75,6 @@ export default async function handler(req, res) {
       });
     }
   } catch (error) {
-    console.error('Payment verification error:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
     res.status(500).json({
       success: false,
       error: 'Internal server error',

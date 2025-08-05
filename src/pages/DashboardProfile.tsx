@@ -548,7 +548,7 @@ export default function DashboardProfile() {
                       const filePath = url.pathname.split('/').slice(-2).join('/');
                       supabase.storage.from('avatars').remove([filePath]);
                     } catch (error) {
-                      console.log('Could not delete old avatar:', error);
+                
                     }
                   }
                   setAvatarUrl(newUrl);

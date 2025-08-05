@@ -28,7 +28,7 @@ export async function uploadAvatar(file: File, userId: string) {
     const fileExt = file.name.split('.').pop();
     const filePath = `${userId}/${Date.now()}.${fileExt}`;
 
-    console.log(userId, filePath)
+
 
     // Upload file
     const { error: uploadError, data } = await supabase.storage

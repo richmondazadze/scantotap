@@ -104,8 +104,6 @@ export class PaystackService {
         cancel_action: window.location.href
       },
       callback: function(response: any) {
-        console.log('Paystack payment response:', response);
-        
         // Handle both test and live mode responses
         if (response.authorization && response.authorization.authorization_code) {
           resolve({
@@ -149,7 +147,6 @@ export class PaystackService {
       if (!response.ok) throw new Error(data.message);
       return data.data;
     } catch (error) {
-      console.error('Error creating customer:', error);
       throw error;
     }
   }
@@ -178,7 +175,6 @@ export class PaystackService {
       if (!response.ok) throw new Error(data.message);
       return data.data;
     } catch (error) {
-      console.error('Error creating subscription:', error);
       throw error;
     }
   }
@@ -202,7 +198,6 @@ export class PaystackService {
       if (!response.ok) throw new Error(data.message);
       return data.data;
     } catch (error) {
-      console.error('Error cancelling subscription:', error);
       throw error;
     }
   }
@@ -222,7 +217,6 @@ export class PaystackService {
       if (!response.ok) throw new Error(data.message);
       return data.data;
     } catch (error) {
-      console.error('Error fetching subscription:', error);
       throw error;
     }
   }
@@ -308,7 +302,6 @@ export class PaystackService {
             reference: paymentResult.reference
           };
         } catch (subscriptionError) {
-          console.warn('Subscription creation failed, will be handled by webhook:', subscriptionError);
           // Return success - webhook will handle subscription creation
           return {
             success: true,
@@ -325,7 +318,6 @@ export class PaystackService {
         };
       }
     } catch (error) {
-      console.error('Error upgrading subscription:', error);
       throw error;
     }
   }
@@ -383,7 +375,6 @@ export class PaystackService {
         throw new Error('Payment verification failed');
       }
     } catch (error) {
-      console.error('Error verifying payment:', error);
       throw error;
     }
   }
@@ -432,7 +423,6 @@ export class PaystackService {
         };
       }
     } catch (error) {
-      console.error('Error validating payment method:', error);
       return {
         isValid: false,
         channel: 'unknown',

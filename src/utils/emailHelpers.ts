@@ -60,9 +60,7 @@ export class EmailTriggers {
 
   private static async sendEmail(type: string, to: string, data: any): Promise<boolean> {
     try {
-      // For now, just log the email instead of making API calls
-      // since the API endpoint doesn't exist in development
-      console.log(`📧 ${type} email would be sent to:`, to, 'with data:', data);
+      // For now, just return success since the API endpoint doesn't exist in development
       return true; // Return success for now
       
       // Uncomment this when the API endpoint is available:
@@ -81,16 +79,13 @@ export class EmailTriggers {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error(`Failed to send ${type} email:`, errorData);
         return false;
       }
 
       const result = await response.json();
-      console.log(`${type} email sent successfully:`, result);
       return true;
       */
     } catch (error) {
-      console.error(`Error sending ${type} email:`, error);
       return false;
     }
   }
@@ -121,8 +116,6 @@ export class EmailTriggers {
 export class EmailTesting {
   
   static async testAllEmails(testEmail: string) {
-    console.log('🧪 Testing all email templates...');
-    
     const sampleUser = {
       name: 'John Doe',
       email: testEmail,
@@ -132,16 +125,12 @@ export class EmailTesting {
     try {
       // Test welcome email
       await EmailTriggers.sendWelcomeEmail(sampleUser.email, sampleUser.name, sampleUser.username);
-      console.log('✅ Welcome email sent');
 
       // Test onboarding complete
       await EmailTriggers.sendOnboardingCompleteEmail(sampleUser.email, sampleUser.name, sampleUser.username);
-      console.log('✅ Onboarding complete email sent');
 
-      console.log('🎉 All email tests completed successfully!');
       return true;
     } catch (error) {
-      console.error('❌ Email testing failed:', error);
       return false;
     }
   }

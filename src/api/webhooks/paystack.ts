@@ -53,7 +53,7 @@ export default async function handler(req: any, res: any) {
     );
 
     if (success) {
-      console.log('Webhook processed successfully');
+  
       return res.status(200).json({ message: 'Webhook processed' });
     } else {
       console.error('Failed to process webhook');

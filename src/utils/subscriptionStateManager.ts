@@ -106,12 +106,7 @@ export class SubscriptionStateManager {
   ) {
     const currentState = await this.getSubscriptionState(userId);
     
-    console.log('Subscription attempt:', {
-      userId,
-      currentState: currentState.state,
-      canSubscribe: currentState.canSubscribe,
-      canResubscribe: currentState.canResubscribe
-    });
+
 
     if (!currentState.canSubscribe && !currentState.canResubscribe) {
       return { 

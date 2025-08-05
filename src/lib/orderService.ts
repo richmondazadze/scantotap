@@ -151,7 +151,7 @@ export const orderService = {
 
       // If there's a unique constraint error, try with a fallback order number
       if (error && error.message.includes('duplicate key value violates unique constraint')) {
-        console.log('Database order number generation failed, using fallback...');
+  
         
         // Generate a fallback order number
         const fallbackOrderNumber = this.generateOrderNumber();
