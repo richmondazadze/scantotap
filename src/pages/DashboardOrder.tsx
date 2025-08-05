@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Lottie from 'lottie-react';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useProfile } from '@/contexts/ProfileContext';
 import { Button } from '@/components/ui/button';
@@ -186,6 +187,25 @@ export default function DashboardOrder() {
     shippingCost: 0,
     deliveryDays: ''
   });
+
+  // Animation state
+  const [showOrderAnimation, setShowOrderAnimation] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
+  const [animationData, setAnimationData] = useState(null);
+
+  // Load animation data
+  useEffect(() => {
+    const loadAnimationData = async () => {
+      try {
+        const response = await fetch('/order.json');
+        const data = await response.json();
+        setAnimationData(data);
+      } catch (error) {
+        console.error('Error loading animation data:', error);
+      }
+    };
+    loadAnimationData();
+  }, []);
 
   // Load inventory data
   useEffect(() => {
@@ -468,9 +488,20 @@ export default function DashboardOrder() {
       const paymentResult = await paymentService.processPayment(paymentData);
       
       if (paymentResult.success) {
-          // Optionally, show a success message or redirect to a thank you page
+          // Trigger order completion animation
+          setShowOrderAnimation(true);
+          setAnimationKey(prev => prev + 1);
+          
+          // Hide animation after 6 seconds (smooth animation)
+          setTimeout(() => {
+            setShowOrderAnimation(false);
+            // Reset to first order page screen after animation
+            setShowOrderForm(false);
+            setCheckoutStep('location');
+          }, 6000);
+          
+          // Show success message
           toast.success('Payment completed!');
-          // You may want to verify payment or redirect here
         } else {
           toast.error(paymentResult.error || 'Failed to initiate payment');
         }
@@ -497,6 +528,98 @@ export default function DashboardOrder() {
 
   return (
     <div className="space-y-3 sm:space-y-4 lg:space-y-6 pb-20 lg:pb-8 pt-3 sm:pt-4 lg:pt-6 overflow-x-hidden">
+            {/* Order Completion Animation */}
+      {showOrderAnimation && (
+        <motion.div
+          key={animationKey}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white"
+        >
+          {/* Background Pattern */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50"></div>
+          
+          {/* Main Animation Container */}
+          <motion.div
+            initial={{ scale: 0.8, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="relative flex flex-col items-center"
+          >
+            {/* Animation Card */}
+            <div className="relative">
+              <div className="w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96 bg-white rounded-3xl shadow-2xl flex items-center justify-center p-6 sm:p-8 lg:p-10 border border-gray-100">
+                {animationData && (
+                  <Lottie
+                    animationData={animationData}
+                    loop={true}
+                    autoplay={true}
+                    style={{ width: '100%', height: '100%' }}
+                  />
+                )}
+              </div>
+              
+              {/* Decorative Elements */}
+              <div className="absolute -top-4 -right-4 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                <div className="w-3 h-3 bg-white rounded-full"></div>
+              </div>
+              <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+            </div>
+            
+            {/* Content Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="mt-8 sm:mt-10 lg:mt-12 text-center max-w-md mx-auto px-4"
+            >
+              {/* Success Badge */}
+              <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium mb-4">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                Payment Successful
+              </div>
+              
+              {/* Main Title */}
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
+                Order Confirmed! 🎉
+              </h2>
+              
+              {/* Description */}
+              <p className="text-gray-600 text-base sm:text-lg lg:text-xl mb-6 leading-relaxed">
+                Your premium business cards are being prepared with care
+              </p>
+              
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                <a
+                  href="/dashboard/shipping"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Track Your Order
+                </a>
+                
+                <button
+                  onClick={() => setShowOrderAnimation(false)}
+                  className="inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 text-sm sm:text-base font-medium"
+                >
+                  Continue Shopping
+                </button>
+              </div>
+              
+              {/* Additional Info */}
+              <p className="text-gray-500 text-xs sm:text-sm mt-6">
+                You'll receive an email confirmation shortly
+              </p>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

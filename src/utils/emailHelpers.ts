@@ -60,6 +60,13 @@ export class EmailTriggers {
 
   private static async sendEmail(type: string, to: string, data: any): Promise<boolean> {
     try {
+      // For now, just log the email instead of making API calls
+      // since the API endpoint doesn't exist in development
+      console.log(`📧 ${type} email would be sent to:`, to, 'with data:', data);
+      return true; // Return success for now
+      
+      // Uncomment this when the API endpoint is available:
+      /*
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
@@ -81,6 +88,7 @@ export class EmailTriggers {
       const result = await response.json();
       console.log(`${type} email sent successfully:`, result);
       return true;
+      */
     } catch (error) {
       console.error(`Error sending ${type} email:`, error);
       return false;

@@ -701,8 +701,13 @@ function PlanStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting 
           paymentReference: result.reference
         }));
 
-        // Payment successful, continue to next step
-        toast.success('Payment successful! You now have Pro access.');
+        // Show appropriate message based on result
+        if (result.message) {
+          toast.success(result.message);
+        } else {
+          toast.success('Payment successful! You now have Pro access.');
+        }
+        
         onNext();
       } catch (error) {
         console.error('Payment error:', error);

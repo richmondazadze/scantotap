@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 
 export interface UsernameHistory {
-  id: string;
+  id: number;
   user_id: string;
   username: string;
   created_at: string;
@@ -14,6 +14,40 @@ export class UsernameHistoryService {
    */
   static async addUsernameHistory(userId: string, username: string, isCurrent: boolean = true): Promise<{ success: boolean; error?: string }> {
     try {
+      // First, check if this username already exists for this user
+      const { data: existingEntry, error: checkError } = await supabase
+        .from('username_history')
+        .select('id, is_current')
+        .eq('user_id', userId)
+        .eq('username', username)
+        .maybeSingle();
+
+      if (checkError) {
+        console.error('Error checking existing username:', checkError);
+        return { success: false, error: checkError.message };
+      }
+
+      // If the username already exists for this user
+      if (existingEntry) {
+        // If it's already current, no need to do anything
+        if (existingEntry.is_current === isCurrent) {
+          return { success: true };
+        }
+        
+        // If we need to update the current status, update instead of insert
+        const { error: updateError } = await supabase
+          .from('username_history')
+          .update({ is_current: isCurrent })
+          .eq('id', existingEntry.id);
+
+        if (updateError) {
+          console.error('Error updating existing username:', updateError);
+          return { success: false, error: updateError.message };
+        }
+
+        return { success: true };
+      }
+
       // First, mark all existing usernames for this user as not current
       if (isCurrent) {
         await supabase

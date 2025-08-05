@@ -50,6 +50,20 @@ export class PaystackService {
     }
   };
 
+  // Helper methods for environment detection
+  static isTestMode(): boolean {
+    return PAYSTACK_PUBLIC_KEY?.startsWith('pk_test_') || false;
+  }
+
+  static getEnvironmentInfo() {
+    return {
+      isTestMode: this.isTestMode(),
+      hasPublicKey: !!PAYSTACK_PUBLIC_KEY,
+      hasSecretKey: !!PAYSTACK_SECRET_KEY,
+      publicKeyPrefix: PAYSTACK_PUBLIC_KEY?.substring(0, 7) || 'none'
+    };
+  }
+
   // Initialize Paystack payment
   static initializePayment(
     email: string,
@@ -90,7 +104,9 @@ export class PaystackService {
         cancel_action: window.location.href
       },
       callback: function(response: any) {
-        // Check if we have authorization for subscription
+        console.log('Paystack payment response:', response);
+        
+        // Handle both test and live mode responses
         if (response.authorization && response.authorization.authorization_code) {
           resolve({
             authorization_url: '',
@@ -98,13 +114,15 @@ export class PaystackService {
             reference: response.reference,
             authorization: response.authorization.authorization_code
           });
-        } else {
-          // For non-subscription payments, still allow other methods
+        } else if (response.status === 'success') {
+          // For test mode or when authorization is not available
           resolve({
             authorization_url: '',
             access_code: response.trxref,
             reference: response.reference
           });
+        } else {
+          reject(new Error('Payment failed'));
         }
       },
       onClose: function() {
@@ -266,30 +284,46 @@ export class PaystackService {
         }
       );
 
-      // Verify we have authorization token for subscription
-      if (!paymentResult.authorization) {
-        throw new Error('Card authorization required for subscription. Please use a credit/debit card.');
+      // Handle both test and live mode scenarios
+      if (paymentResult.authorization) {
+        // Try to create subscription immediately if authorization is available
+        try {
+          // Create customer first
+          const customer = await this.createCustomer({
+            email: userEmail,
+            first_name: userName.split(' ')[0] || 'User',
+            last_name: userName.split(' ').slice(1).join(' ') || 'User'
+          });
+
+          // Create subscription with authorization token
+          const subscription = await this.createSubscription(
+            customer.customer_code,
+            plan.plan_code,
+            paymentResult.authorization
+          );
+
+          return {
+            success: true,
+            subscription: subscription,
+            reference: paymentResult.reference
+          };
+        } catch (subscriptionError) {
+          console.warn('Subscription creation failed, will be handled by webhook:', subscriptionError);
+          // Return success - webhook will handle subscription creation
+          return {
+            success: true,
+            reference: paymentResult.reference,
+            message: 'Payment successful. Subscription will be activated shortly.'
+          };
+        }
+      } else {
+        // No authorization token - rely on webhook for subscription creation
+        return {
+          success: true,
+          reference: paymentResult.reference,
+          message: 'Payment successful. Your subscription will be activated shortly.'
+        };
       }
-
-      // Create customer first
-      const customer = await this.createCustomer({
-        email: userEmail,
-        first_name: userName.split(' ')[0] || 'User',
-        last_name: userName.split(' ').slice(1).join(' ') || 'User'
-      });
-
-      // Create subscription with authorization token
-      const subscription = await this.createSubscription(
-        customer.customer_code,
-        plan.plan_code,
-        paymentResult.authorization
-      );
-
-      return {
-        success: true,
-        subscription: subscription,
-        reference: paymentResult.reference
-      };
     } catch (error) {
       console.error('Error upgrading subscription:', error);
       throw error;

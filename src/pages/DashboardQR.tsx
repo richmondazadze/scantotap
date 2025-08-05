@@ -46,8 +46,10 @@ export default function DashboardQR() {
     );
   }
 
-  // Generate profile URL for QR code - use user_id for reliability
-  const profileUrl = `${window.location.origin}/u/${profile.user_id}`;
+  // Generate profile URL for QR code - use slug for cleaner URLs
+  const profileUrl = profile.slug 
+    ? `${window.location.origin}/${profile.slug}`
+    : `${window.location.origin}/u/${profile.user_id}`;
 
   // Copy URL to clipboard
   const copyToClipboard = async (text: string) => {
