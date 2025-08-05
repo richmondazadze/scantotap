@@ -20,6 +20,7 @@ import AIService from '@/services/aiService';
 import BioEnhancementModal from '@/components/BioEnhancementModal';
 import { EmailTriggers, EmailUtils } from '@/utils/emailHelpers';
 import { UsernameHistoryService } from '@/services/usernameHistoryService';
+import { ErrorHandler } from '@/utils/errorHandling';
 
 // Simple Threads icon component
 const ThreadsIcon = ({ className }: { className?: string }) => (
@@ -709,13 +710,9 @@ function PlanStep({ currentStep, totalSteps, onNext, onBack, onSkip, submitting 
         }
         
         onNext();
-      } catch (error) {
-        console.error('Payment error:', error);
-        if (error instanceof Error && error.message === 'Payment cancelled by user') {
-          toast.error('Payment was cancelled. You can continue with the free plan or try again.');
-        } else {
-          toast.error('Payment failed. You can continue with the free plan and upgrade later.');
-        }
+              } catch (error) {
+          const errorMessage = ErrorHandler.getPaymentErrorMessage(error);
+          toast.error(errorMessage);
         // Allow user to continue with free plan on payment failure
         setSelectedPlan('free');
       } finally {

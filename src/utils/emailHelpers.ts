@@ -60,11 +60,16 @@ export class EmailTriggers {
 
   private static async sendEmail(type: string, to: string, data: any): Promise<boolean> {
     try {
-      // For now, just return success since the API endpoint doesn't exist in development
-      return true; // Return success for now
+      // Check if we're in development mode
+      const isDevelopment = process.env.NODE_ENV === 'development';
       
-      // Uncomment this when the API endpoint is available:
-      /*
+      // In development, log the email instead of sending
+      if (isDevelopment) {
+        console.log(`[DEV] Email would be sent:`, { type, to, data });
+        return true; // Return success for development
+      }
+      
+      // In production, send actual email
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
@@ -79,13 +84,14 @@ export class EmailTriggers {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Email sending failed:', errorData);
         return false;
       }
 
       const result = await response.json();
       return true;
-      */
     } catch (error) {
+      console.error('Email sending error:', error);
       return false;
     }
   }
