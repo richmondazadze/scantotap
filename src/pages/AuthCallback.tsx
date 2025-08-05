@@ -35,26 +35,11 @@ export default function AuthCallback() {
           if (!profile) {
             // Create profile for new OAuth user
             try {
-              // Generate a default username from name or email
-              const defaultName = session.user.user_metadata?.full_name || 
-                                session.user.user_metadata?.name ||
-                                session.user.email?.split('@')[0] || 'user';
-              
-              // Create a unique slug by removing special characters and adding timestamp
-              const baseSlug = defaultName
-                .toLowerCase()
-                .replace(/[^a-z0-9]/g, '')
-                .substring(0, 20);
-              
-              const timestamp = Date.now().toString().slice(-4);
-              const uniqueSlug = `${baseSlug}${timestamp}`;
-              
               const newProfile = await createProfile({
                 email: session.user.email,
                 name: session.user.user_metadata?.full_name || 
                       session.user.user_metadata?.name ||
                       session.user.email?.split('@')[0] || '',
-                slug: uniqueSlug, // Add the unique slug to prevent username_history constraint violation
                 plan_type: 'free',
                 onboarding_complete: false
               });

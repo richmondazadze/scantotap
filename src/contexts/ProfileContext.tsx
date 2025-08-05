@@ -145,34 +145,20 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     if (!session?.user.id) return null;
     
     try {
-      // Ensure we have a slug/username to prevent username_history constraint violation
-      let slug = profileData.slug;
-      if (!slug) {
-        // Generate a default username from name or email
-        const defaultName = profileData.name || 
-                          session.user.user_metadata?.full_name || 
-                          session.user.user_metadata?.name ||
-                          session.user.email?.split('@')[0] || 'user';
-        
-        // Create a unique slug by removing special characters and adding timestamp
-        const baseSlug = defaultName
-          .toLowerCase()
-          .replace(/[^a-z0-9]/g, '')
-          .substring(0, 20);
-        
-        const timestamp = Date.now().toString().slice(-4);
-        slug = `${baseSlug}${timestamp}`;
-      }
-      
+      // Ensure required fields are provided
+      const profileToCreate = {
+        id: session.user.id,
+        user_id: session.user.id,
+        email: session.user.email,
+        name: profileData.name || session.user.user_metadata?.full_name || 
+              session.user.user_metadata?.name || 
+              session.user.email?.split('@')[0] || 'User',
+        ...profileData,
+      };
+
       const { data, error } = await supabase
         .from('profiles')
-        .insert({
-          id: session.user.id,
-          user_id: session.user.id,
-          email: session.user.email,
-          slug, // Always provide a slug
-          ...profileData,
-        })
+        .insert(profileToCreate)
         .select()
         .single();
 
