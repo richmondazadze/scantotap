@@ -217,11 +217,11 @@ export default function DashboardQR() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0 px-3 sm:px-4 lg:px-6 pb-4 sm:pb-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+            <div className="flex flex-row flex-wrap gap-3 sm:gap-4 lg:gap-6 overflow-x-auto">
               {/* Email Share */}
                   <Button 
                     variant="outline" 
-                className="flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-6 h-auto rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all min-w-0"
+                className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 lg:p-6 h-auto rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all min-w-0 flex-1 basis-1/3"
                 onClick={() => window.open(`mailto:?subject=My Digital Profile&body=Check out my digital profile: ${profileUrl}`, '_blank')}
               >
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -236,7 +236,7 @@ export default function DashboardQR() {
               {/* SMS Share */}
                   <Button 
                     variant="outline" 
-                className="flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-6 h-auto rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-300 dark:hover:border-green-600 transition-all min-w-0"
+                className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 lg:p-6 h-auto rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-300 dark:hover:border-green-600 transition-all min-w-0 flex-1 basis-1/3"
                 onClick={() => window.open(`sms:?body=Check out my digital profile: ${profileUrl}`, '_blank')}
               >
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -251,7 +251,7 @@ export default function DashboardQR() {
               {/* Mobile Share */}
               <Button 
                 variant="outline" 
-                className="flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-6 h-auto rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-300 dark:hover:border-purple-600 transition-all min-w-0 sm:col-span-2 lg:col-span-1"
+                className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 lg:p-6 h-auto rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-300 dark:hover:border-purple-600 transition-all min-w-0 flex-1 basis-1/3"
                 onClick={() => window.open(profileUrl, '_blank')}
               >
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
