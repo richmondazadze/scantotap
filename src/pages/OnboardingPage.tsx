@@ -1843,8 +1843,8 @@ export default function OnboardingPage() {
 
       if (error) throw error;
 
-      // Add username to history for new profiles
-      await UsernameHistoryService.addUsernameHistory(session?.user?.id || '', finalUsername, true);
+      // Note: Username history will be added when user first visits dashboard
+      // This prevents duplicate entries and constraint violations during onboarding
 
       // Clear session storage
       [

@@ -1,5 +1,6 @@
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useProfile, type PlanType, type SubscriptionStatus } from '@/contexts/ProfileContext';
+import { ErrorHandler } from '@/utils/errorHandling';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { AvatarUploader } from '@/components/AvatarUploader';
 import { ImageCropModal } from '@/components/ImageCropModal';
@@ -150,6 +151,37 @@ export default function DashboardProfile() {
       setUseUsernameInsteadOfName(profile.use_username_instead_of_name ?? false);
     }
   }, [profile]);
+
+  // Effect to handle username history for profiles that just completed onboarding
+  useEffect(() => {
+    const handleUsernameHistory = async () => {
+      if (profile?.slug && session?.user?.id) {
+        try {
+          // Check if username already exists in history
+          const { usernames, error } = await UsernameHistoryService.getUserUsernames(session.user.id);
+          
+          if (error) {
+            console.error('Error checking username history:', error);
+            return;
+          }
+          
+          // If no username history exists for this user, add the current username
+          if (!usernames || usernames.length === 0) {
+            const result = await UsernameHistoryService.addUsernameHistory(session.user.id, profile.slug, true);
+            if (result.success) {
+              console.log('Username history added for new profile');
+            } else {
+              console.error('Failed to add username history:', result.error);
+            }
+          }
+        } catch (error) {
+          console.error('Error handling username history:', error);
+        }
+      }
+    };
+
+    handleUsernameHistory();
+  }, [profile?.slug, session?.user?.id]);
 
   // Effect to check for unsaved changes
   const hasUnsavedChanges = useMemo(() => {
@@ -453,7 +485,8 @@ export default function DashboardProfile() {
       setShowPhone(data.show_phone ?? true);
       toast.success(profile ? 'Profile updated!' : 'Profile created successfully!');
     } catch (err) {
-      toast.error(err.message || 'Failed to save profile');
+      const errorMessage = ErrorHandler.getDatabaseErrorMessage(err);
+      toast.error(errorMessage);
     }
     setSaving(false);
   };

@@ -40,6 +40,14 @@ export class ErrorHandler {
   static getDatabaseErrorMessage(error: any): string {
     const errorMessage = error?.message || error?.toString() || '';
     
+    // Handle 409 Conflict errors specifically
+    if (errorMessage.includes('409') || errorMessage.includes('Conflict')) {
+      if (errorMessage.includes('slug') || errorMessage.includes('username')) {
+        return 'This username is already taken. Please choose a different username.';
+      }
+      return 'This information already exists. Please try a different value.';
+    }
+    
     if (errorMessage.includes('duplicate key value violates unique constraint')) {
       if (errorMessage.includes('username_history')) {
         return 'This username is already taken. Please choose a different username.';
