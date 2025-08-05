@@ -400,8 +400,8 @@ Generate exactly 3 distinct bios now:`;
           'Engineering robust, scalable systems that optimize performance and deliver exceptional reliability',
           'Developing cutting-edge solutions that solve complex problems with precision and efficiency',
           'Architecting high-performance applications that scale seamlessly and exceed user expectations'
-        ],
-        creative: [
+      ],
+      creative: [
           'Building innovative digital platforms that merge technical excellence with creative vision',
           'Developing sophisticated tools that empower creative professionals to achieve breakthrough results',
           'Engineering elegant solutions that transform creative workflows and optimize artistic output'
@@ -458,7 +458,7 @@ Generate exactly 3 distinct bios now:`;
     // Smart truncation at word boundaries
     const words = bio.split(' ');
     let result = '';
-    
+
     for (const word of words) {
       const test = result ? `${result} ${word}` : word;
       if (test.length <= this.MAX_BIO_LENGTH - 3) {
@@ -467,7 +467,7 @@ Generate exactly 3 distinct bios now:`;
         break;
       }
     }
-    
+
     return result ? `${result}...` : bio.substring(0, this.MAX_BIO_LENGTH - 3) + '...';
   }
 
@@ -491,7 +491,7 @@ Generate exactly 3 distinct bios now:`;
         t.includes('community') || t.includes('coordinator')) {
       return 'casual';
     }
-    
+
     return 'professional';
   }
 

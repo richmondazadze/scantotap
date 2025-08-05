@@ -508,8 +508,8 @@ const getThemeColors = (themePreference: string | null) => {
     // NEW THEMES with distinctive fonts using system fonts
     air: {
       background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)',
-      text: '#1e293b',
-      textSecondary: '#64748b',
+      text: '#0f172a', // Darker text for better contrast
+      textSecondary: '#475569', // Darker secondary text for better contrast
       fontFamily: '"Link Sans Medium", ui-sans-serif, system-ui, sans-serif'
     },
     blocks: {
