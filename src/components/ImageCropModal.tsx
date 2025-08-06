@@ -355,66 +355,64 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
           </div>
         </div>
 
-        {/* Action buttons with compact mobile design */}
+        {/* Action buttons - All in one row for small screens */}
         <div className="p-2 sm:p-3">
-          <div className="flex flex-col gap-2 sm:gap-3">
-            {/* Tool buttons - Single row for space efficiency */}
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRotate}
-                className="flex-1 h-9 sm:h-10 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 group"
-              >
-                <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 group-hover:rotate-90 transition-transform duration-300" />
-                <span className="font-medium text-xs">Rotate</span>
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleReset}
-                className="flex-1 h-9 sm:h-10 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-200"
-              >
-                <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                <span className="font-medium text-xs">Reset</span>
-              </Button>
-            </div>
+          <div className="flex gap-1 sm:gap-2">
+            {/* Rotate Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRotate}
+              className="flex-1 h-9 sm:h-10 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 group"
+            >
+              <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 group-hover:rotate-90 transition-transform duration-300" />
+              <span className="font-medium text-xs">Rotate</span>
+            </Button>
             
-            {/* Primary actions - Single row for space efficiency */}
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setStep('select')}
-                className="flex-1 h-9 sm:h-10 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
-              >
-                <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                <span className="font-medium text-xs">Back</span>
-              </Button>
+            {/* Reset Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReset}
+              className="flex-1 h-9 sm:h-10 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-200"
+            >
+              <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              <span className="font-medium text-xs">Reset</span>
+            </Button>
+            
+            {/* Back Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setStep('select')}
+              className="flex-1 h-9 sm:h-10 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
+            >
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              <span className="font-medium text-xs">Back</span>
+            </Button>
+            
+            {/* Upload Button */}
+            <Button
+              onClick={handleCropConfirm}
+              disabled={isProcessing}
+              size="sm"
+              className="flex-[2] h-9 sm:h-10 rounded-lg bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 hover:from-blue-700 hover:via-purple-700 hover:to-blue-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative overflow-hidden group"
+            >
+              {/* Button animation overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-700/20 to-purple-700/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
               
-              <Button
-                onClick={handleCropConfirm}
-                disabled={isProcessing}
-                size="sm"
-                className="flex-[2] h-9 sm:h-10 rounded-lg bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 hover:from-blue-700 hover:via-purple-700 hover:to-blue-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative overflow-hidden group"
-              >
-                {/* Button animation overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-700/20 to-purple-700/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                
-                {isProcessing ? (
-                  <>
-                    <div className="w-3 h-3 sm:w-4 sm:h-4 mr-1 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                    <span className="font-semibold text-xs">Processing...</span>
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1 relative z-10" />
-                    <span className="font-semibold text-xs relative z-10">Upload Perfect Image</span>
-                  </>
-                )}
-              </Button>
-            </div>
+              {isProcessing ? (
+                <>
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 mr-1 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  <span className="font-semibold text-xs">Processing...</span>
+                </>
+              ) : (
+                <>
+                  <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1 relative z-10" />
+                  <span className="font-semibold text-xs relative z-10">Upload</span>
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </div>
