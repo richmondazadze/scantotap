@@ -1532,7 +1532,7 @@ const ProfilePage = () => {
         </DialogContent>
       </Dialog>
 
-      <div className="relative z-10 w-full max-w-3xl lg:max-w-3xl mx-auto flex-1 flex flex-col min-h-screen py-1 sm:py-2 lg:py-4 px-2 xs:px-3 sm:px-4 lg:px-8 overflow-x-hidden">
+      <div className="relative z-10 w-full max-w-3xl lg:max-w-3xl mx-auto flex-1 flex flex-col min-h-screen py-1 sm:py-2 lg:py-4 px-2 xs:px-3 sm:px-4 lg:px-8 overflow-x-hidden pt-4 sm:pt-1">
         
         {/* Header Section */}
         <motion.div
@@ -1574,7 +1574,10 @@ const ProfilePage = () => {
           </div>
           
             {/* Centered content */}
-            <div className="relative p-4 sm:p-6 lg:p-8 flex flex-col items-center text-center">
+            <div className="relative p-4 sm:p-6 lg:p-8 flex flex-col items-center text-center mt-8 sm:mt-0">
+              {/* Decorative line above profile card - mobile only */}
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent sm:hidden"></div>
+              
               {/* Avatar with theme border/glow */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -1838,7 +1841,11 @@ END:VCARD`;
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <div className="pb-1 px-1 sm:px-2 lg:px-2 pt-1">
+                <div className={`pb-1 px-1 sm:px-2 lg:px-2 ${
+                  ((profile.phone && profile.show_phone !== false) || (profile.email && profile.show_email !== false)) 
+                    ? 'pt-1' 
+                    : 'pt-6'
+                }`}>
                   <div className="space-y-2">
                     <div className="text-center">
                       <h3 className={`flex items-center justify-center gap-2 text-lg sm:text-xl font-semibold mb-1`}
@@ -2066,7 +2073,7 @@ END:VCARD`;
               className="h-4 w-4 sm:h-5 sm:w-5" 
             />
             <span className="text-sm sm:text-base font-['Link_Sans_Medium']">
-              Join <span className={`font-bold drop-shadow-sm ${isLightTheme(profile.theme_preference) ? 'text-blue-600' : 'text-yellow-300'}`}>@{profile.slug || profile.name?.toLowerCase().replace(/\s+/g, '') || 'user'}</span> on Scan2Tap
+              Join <span className="font-bold drop-shadow-sm bg-gradient-to-r from-gray-800 to-black bg-clip-text text-transparent">@{profile.slug || profile.name?.toLowerCase().replace(/\s+/g, '') || 'user'}</span> on Scan2Tap
             </span>
           </motion.button>
         </motion.div>

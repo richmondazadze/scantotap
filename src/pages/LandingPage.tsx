@@ -29,6 +29,7 @@ import { useMediaQuery } from 'react-responsive';
 
 const LandingPage = () => {
   const isMobile = useMediaQuery({ maxWidth: 640 });
+  const mockupRef = useRef<HTMLImageElement>(null);
 
   // Simple scroll utility
   const scrollToSection = (sectionId: string) => {
@@ -40,6 +41,26 @@ const LandingPage = () => {
       });
     }
   };
+
+  // Scroll twist effect for mockup
+  useEffect(() => {
+    const handleScroll = () => {
+      if (mockupRef.current) {
+        const scrolled = window.pageYOffset;
+        const rate = scrolled * -0.3;
+        const spinRate = scrolled * 0.1;
+        mockupRef.current.style.transform = `rotate(2deg) rotateY(${rate}deg) rotateZ(${spinRate}deg)`;
+      }
+    };
+
+    // Set initial transform
+    if (mockupRef.current) {
+      mockupRef.current.style.transform = 'rotate(2deg)';
+    }
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     // Scroll to section if hash is present in URL
@@ -212,33 +233,25 @@ const LandingPage = () => {
 
             {/* Right Column - Visual */}
             <div className="relative flex justify-center items-center px-4 sm:px-0 animate-fade-in-right animation-delay-300">
-              <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl">
+              <div className="relative w-full max-w-[200px] sm:max-w-[250px] md:max-w-[300px] lg:max-w-[350px]">
                 {isMobile ? (
                   <img
-                    src="/card_model.png"
-                    alt="Scan2Tap Digital Card"
-                    className="relative w-full h-auto object-contain rounded-xl shadow-lg drop-shadow-2xl animate-fade-in-up animation-delay-500"
+                    src="/mockup.webp"
+                    alt="Scan2Tap Digital Profile Mockup"
+                    className="relative w-full h-auto object-contain rounded-xl animate-fade-in-up animation-delay-500"
                     style={{ borderRadius: '12px' }}
+                    ref={mockupRef}
                   />
                 ) : (
                   <img
-                    src="/card_model.png"
-                    alt="Scan2Tap Digital Card"
-                    className="relative w-full h-auto object-contain rounded-xl shadow-lg drop-shadow-2xl hover:scale-105 transition-transform duration-200 animate-fade-in-up animation-delay-500"
+                    src="/mockup.webp"
+                    alt="Scan2Tap Digital Profile Mockup"
+                    className="relative w-full h-auto object-contain rounded-xl hover:scale-105 transition-transform duration-200 animate-fade-in-up animation-delay-500"
                     style={{ borderRadius: '12px' }}
+                    ref={mockupRef}
                   />
                 )}
-                {/* Animated floating elements - only on desktop */}
-                {!isMobile && (
-                  <>
-                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white dark:bg-slate-800 rounded-full p-2.5 shadow-lg animate-float animation-delay-1200">
-                      <QrCode className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
-                    </div>
-                    <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white dark:bg-slate-800 rounded-full p-2.5 shadow-lg animate-float animation-delay-1400">
-                      <Share2 className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
-                    </div>
-                  </>
-                )}
+                {/* Removed animated floating elements */}
               </div>
             </div>
           </div>
