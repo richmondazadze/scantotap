@@ -577,6 +577,42 @@ class AnalyticsService {
     }
   }
 
+  // Recalculate analytics for a specific profile (useful for fixing data inconsistencies)
+  async recalculateAnalytics(profileId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { error } = await supabase
+        .rpc('recalculate_profile_analytics', { profile_id_param: profileId });
+
+      if (error) {
+        console.error('❌ ANALYTICS: Failed to recalculate analytics:', error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('❌ ANALYTICS: Exception during recalculation:', error);
+      return { success: false, error: 'Failed to recalculate analytics' };
+    }
+  }
+
+  // Recalculate analytics for all profiles (maintenance function)
+  async recalculateAllAnalytics(): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { error } = await supabase
+        .rpc('recalculate_all_analytics');
+
+      if (error) {
+        console.error('❌ ANALYTICS: Failed to recalculate all analytics:', error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('❌ ANALYTICS: Exception during bulk recalculation:', error);
+      return { success: false, error: 'Failed to recalculate all analytics' };
+    }
+  }
+
   // Test function to verify analytics are working (for debugging only)
   async testAnalyticsInsertion(profileId: string): Promise<{ success: boolean; error?: string }> {
     try {

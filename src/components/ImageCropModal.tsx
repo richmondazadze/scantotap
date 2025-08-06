@@ -264,17 +264,17 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
   );
 
   const renderCropStep = () => (
-    <div className="flex flex-col h-full min-h-[450px] sm:min-h-[500px] lg:min-h-[550px] relative">
+    <div className="flex flex-col h-full min-h-[400px] sm:min-h-[450px] lg:min-h-[500px] relative">
       {/* Header with title */}
-      <div className="flex items-center justify-center p-3 sm:p-4 lg:p-6 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-200/30 dark:border-gray-700/30 relative z-20">
-        <h3 className="text-base sm:text-lg lg:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-1 sm:gap-2">
-          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
+      <div className="flex items-center justify-center p-2 sm:p-3 lg:p-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-200/30 dark:border-gray-700/30 relative z-20">
+        <h3 className="text-sm sm:text-base lg:text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-1 sm:gap-2">
+          <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-purple-500" />
           Crop & Perfect
         </h3>
       </div>
 
       {/* Crop area with enhanced styling */}
-      <div className="relative flex-1 bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 overflow-hidden">
+      <div className="relative flex-1 min-h-[200px] bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 overflow-hidden">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-30">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,_rgba(0,0,0,0.1)_1px,_transparent_0)] bg-[length:20px_20px]"></div>
@@ -313,12 +313,12 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
         />
       </div>
 
-      {/* Enhanced controls panel */}
+      {/* Enhanced controls panel - Compact design */}
       <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-700/50 relative z-20">
-        {/* Zoom control with modern design */}
-        <div className="p-3 sm:p-4 border-b border-gray-200/30 dark:border-gray-700/30">
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-1 sm:gap-2">
+        {/* Zoom control with compact design */}
+        <div className="p-2 sm:p-3 border-b border-gray-200/30 dark:border-gray-700/30">
+          <div className="flex items-center justify-between mb-1 sm:mb-2">
+            <label className="text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-1">
               <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
               Zoom
             </label>
@@ -336,7 +336,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
               step={0.1}
               value={zoom}
               onChange={(e) => setZoom(Number(e.target.value))}
-              className="w-full h-3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-500 rounded-full appearance-none cursor-pointer modern-slider"
+              className="w-full h-2 sm:h-3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-500 rounded-full appearance-none cursor-pointer modern-slider"
               style={{
                 background: `linear-gradient(to right, 
                   rgb(59, 130, 246) 0%, 
@@ -347,7 +347,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
             />
             
             {/* Zoom level indicators */}
-            <div className="flex justify-between text-xs text-gray-400 mt-2">
+            <div className="flex justify-between text-xs text-gray-400 mt-1 sm:mt-2">
               <span>1x</span>
               <span>2x</span>
               <span>3x</span>
@@ -355,62 +355,62 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
           </div>
         </div>
 
-        {/* Action buttons with enhanced mobile design */}
-        <div className="p-3 sm:p-4">
-          <div className="flex flex-col gap-3">
-            {/* Tool buttons */}
-            <div className="flex gap-2 sm:gap-3">
+        {/* Action buttons with compact mobile design */}
+        <div className="p-2 sm:p-3">
+          <div className="flex flex-col gap-2 sm:gap-3">
+            {/* Tool buttons - Single row for space efficiency */}
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleRotate}
-                className="flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 group"
+                className="flex-1 h-9 sm:h-10 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 group"
               >
-                <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 group-hover:rotate-90 transition-transform duration-300" />
-                <span className="font-medium text-xs sm:text-sm">Rotate</span>
+                <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 group-hover:rotate-90 transition-transform duration-300" />
+                <span className="font-medium text-xs">Rotate</span>
               </Button>
               
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleReset}
-                className="flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-200"
+                className="flex-1 h-9 sm:h-10 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-200"
               >
-                <X className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
-                <span className="font-medium text-xs sm:text-sm">Reset</span>
+                <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                <span className="font-medium text-xs">Reset</span>
               </Button>
             </div>
             
-            {/* Primary actions */}
-            <div className="flex gap-2 sm:gap-3">
+            {/* Primary actions - Single row for space efficiency */}
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setStep('select')}
-                className="flex-1 h-10 sm:h-12 rounded-lg sm:rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
+                className="flex-1 h-9 sm:h-10 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
               >
-                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
-                <span className="font-medium text-xs sm:text-sm">Back</span>
+                <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                <span className="font-medium text-xs">Back</span>
               </Button>
               
               <Button
                 onClick={handleCropConfirm}
                 disabled={isProcessing}
                 size="sm"
-                className="flex-[2] h-10 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 hover:from-blue-700 hover:via-purple-700 hover:to-blue-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative overflow-hidden group"
+                className="flex-[2] h-9 sm:h-10 rounded-lg bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 hover:from-blue-700 hover:via-purple-700 hover:to-blue-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative overflow-hidden group"
               >
                 {/* Button animation overlay */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-700/20 to-purple-700/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                 
                 {isProcessing ? (
                   <>
-                    <div className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                    <span className="font-semibold text-xs sm:text-sm">Processing...</span>
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 mr-1 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    <span className="font-semibold text-xs">Processing...</span>
                   </>
                 ) : (
                   <>
-                    <Check className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 relative z-10" />
-                    <span className="font-semibold text-xs sm:text-sm relative z-10">Upload Perfect Image</span>
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1 relative z-10" />
+                    <span className="font-semibold text-xs relative z-10">Upload Perfect Image</span>
                   </>
                 )}
               </Button>
@@ -423,7 +423,7 @@ export const ImageCropModal: React.FC<ImageCropModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-3xl w-full max-h-[90vh] sm:max-h-[85vh] p-0 gap-0 overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl border-0 bg-white/98 dark:bg-gray-900/98 backdrop-blur-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
+      <DialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-3xl w-full max-h-[95vh] sm:max-h-[90vh] lg:max-h-[85vh] p-0 gap-0 overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl border-0 bg-white/98 dark:bg-gray-900/98 backdrop-blur-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
         <DialogHeader className="sr-only">
           <DialogTitle>Image Crop Editor</DialogTitle>
           <DialogDescription>
