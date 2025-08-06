@@ -407,19 +407,24 @@ export default function DashboardThemes() {
           {/* Right Column - Mobile Preview - Responsive */}
           <div className="hidden lg:block w-80 flex-shrink-0 fixed right-8 top-8 bottom-8 overflow-hidden">
             <div className="h-full flex flex-col">
-              <div className="text-center mb-2 flex-shrink-0">
+              <div className="text-center mb-4 flex-shrink-0">
                 <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                   Preview
                 </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Responsive mobile view
+                </p>
               </div>
               
               {/* Vertical Separator Line */}
               <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
               
-              {/* Mobile Preview - Centered */}
-              <div className="flex-1 flex items-center justify-center px-2">
+              {/* Mobile Preview - Centered with responsive container */}
+              <div className="flex-1 flex items-center justify-center px-2 min-h-0">
                 {profile ? (
-                  <MobileProfilePreview key={previewKey} profile={profile} />
+                  <div className="w-full h-full flex items-center justify-center">
+                    <MobileProfilePreview key={previewKey} profile={profile} />
+                  </div>
                 ) : (
                   <div className="flex items-center justify-center h-48 text-gray-500 dark:text-gray-400">
                     <div className="text-center">

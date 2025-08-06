@@ -111,9 +111,9 @@ const DashboardSidebar = () => {
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-scan-blue/10 to-transparent rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-scan-purple/10 to-transparent rounded-full blur-2xl" />
 
-          {/* Enhanced Logo Section */}
+          {/* Enhanced Logo Section - Fixed height */}
           <motion.div 
-            className="relative p-6 border-b border-gray-200/50 dark:border-scan-blue/20"
+            className="relative p-6 border-b border-gray-200/50 dark:border-scan-blue/20 flex-shrink-0"
             variants={itemVariants}
           >
             <Link to="/" className="flex items-center gap-3 group">
@@ -127,112 +127,136 @@ const DashboardSidebar = () => {
             </Link>
           </motion.div>
 
-          {/* Enhanced Navigation */}
+          {/* Enhanced Navigation - Scrollable with proper height management */}
           <motion.nav 
-            className="flex-1 px-4 py-6 space-y-2 relative z-10"
+            className="flex-1 px-4 py-6 space-y-2 relative z-10 overflow-y-auto overflow-x-hidden min-h-0"
             variants={itemVariants}
+            style={{
+              // Ensure proper scrolling behavior
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(156, 163, 175, 0.5) transparent'
+            }}
           >
-            {sidebarItems.map((item, index) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <motion.div
-                  key={item.name}
-                  variants={itemVariants}
-                  whileHover={{ x: 4 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                >
-                  <ProtectedLink
-                  to={item.path}
-                  className={cn(
-                      "relative flex items-center px-4 py-4 rounded-lg transition-all duration-300 group overflow-hidden",
-                      isActive
-                        ? "bg-gradient-to-r from-scan-blue to-scan-purple text-white shadow-lg shadow-scan-blue/25"
-                        : "text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-[#1A1D24]/80 hover:shadow-lg"
-                    )}
-                    onMouseEnter={() => setHoveredItem(item.name)}
-                    onMouseLeave={() => setHoveredItem(null)}
+            {/* Custom scrollbar styling */}
+            <style jsx>{`
+              .sidebar-nav::-webkit-scrollbar {
+                width: 4px;
+              }
+              .sidebar-nav::-webkit-scrollbar-track {
+                background: transparent;
+              }
+              .sidebar-nav::-webkit-scrollbar-thumb {
+                background: rgba(156, 163, 175, 0.5);
+                border-radius: 2px;
+              }
+              .sidebar-nav::-webkit-scrollbar-thumb:hover {
+                background: rgba(156, 163, 175, 0.7);
+              }
+            `}</style>
+            
+            <div className="space-y-2">
+              {sidebarItems.map((item, index) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <motion.div
+                    key={item.name}
+                    variants={itemVariants}
+                    whileHover={{ x: 4 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   >
-                    {/* Active indicator */}
-                    {isActive && (
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-scan-blue/20 to-scan-purple/20 rounded-lg"
-                        layoutId="activeTab"
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                      />
-                    )}
-                    
-                    {/* Hover effect */}
-                    {hoveredItem === item.name && !isActive && (
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-gray-100/50 to-gray-50/50 dark:from-gray-800/50 dark:to-gray-700/50 rounded-lg"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                      />
-                    )}
-
-                    <div className="relative flex items-center w-full">
-                      <motion.div
-                        className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
-                          isActive 
-                            ? "bg-white/20 shadow-lg" 
-                            : "bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 group-hover:from-scan-blue/20 group-hover:to-scan-purple/20"
-                        )}
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      >
-                        <item.icon 
-                          size={20} 
-                          className={cn(
-                            "transition-all duration-300",
-                            isActive 
-                              ? "text-white" 
-                              : "text-scan-blue dark:text-scan-blue-light group-hover:text-scan-purple"
-                          )} 
+                    <ProtectedLink
+                    to={item.path}
+                    className={cn(
+                        "relative flex items-center px-4 py-4 rounded-lg transition-all duration-300 group overflow-hidden",
+                        isActive
+                          ? "bg-gradient-to-r from-scan-blue to-scan-purple text-white shadow-lg shadow-scan-blue/25"
+                          : "text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-[#1A1D24]/80 hover:shadow-lg"
+                      )}
+                      onMouseEnter={() => setHoveredItem(item.name)}
+                      onMouseLeave={() => setHoveredItem(null)}
+                    >
+                      {/* Active indicator */}
+                      {isActive && (
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-scan-blue/20 to-scan-purple/20 rounded-lg"
+                          layoutId="activeTab"
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
                         />
-                      </motion.div>
+                      )}
                       
-                      <div className="ml-4 flex-1">
-                        <span className={cn(
-                          "text-sm font-semibold transition-all duration-300",
-                          isActive ? "text-white" : "group-hover:text-gray-900 dark:group-hover:text-white"
-                        )}>
-                          {item.name}
-                        </span>
-                        <p className={cn(
-                          "text-xs mt-0.5 transition-all duration-300",
-                    isActive
-                            ? "text-white/80" 
-                            : "text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
-                        )}>
-                          {item.description}
-                        </p>
-                      </div>
-
-                      <motion.div
-                        className={cn(
-                          "opacity-0 transition-all duration-300",
-                          isActive ? "opacity-100" : "group-hover:opacity-60"
-                        )}
-                        animate={{ x: hoveredItem === item.name ? 2 : 0 }}
-                      >
-                        <ChevronRight 
-                          size={16} 
-                          className={isActive ? "text-white" : "text-gray-400"} 
+                      {/* Hover effect */}
+                      {hoveredItem === item.name && !isActive && (
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-gray-100/50 to-gray-50/50 dark:from-gray-800/50 dark:to-gray-700/50 rounded-lg"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.2 }}
                         />
-                      </motion.div>
-                    </div>
-                </ProtectedLink>
-                </motion.div>
-              );
-            })}
+                      )}
+
+                      <div className="relative flex items-center w-full">
+                        <motion.div
+                          className={cn(
+                            "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
+                            isActive 
+                              ? "bg-white/20 shadow-lg" 
+                              : "bg-gradient-to-br from-scan-blue/10 to-scan-purple/10 group-hover:from-scan-blue/20 group-hover:to-scan-purple/20"
+                          )}
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        >
+                          <item.icon 
+                            size={20} 
+                            className={cn(
+                              "transition-all duration-300",
+                              isActive 
+                                ? "text-white" 
+                                : "text-scan-blue dark:text-scan-blue-light group-hover:text-scan-purple"
+                            )} 
+                          />
+                        </motion.div>
+                        
+                        <div className="ml-4 flex-1 min-w-0">
+                          <span className={cn(
+                            "text-sm font-semibold transition-all duration-300 block truncate",
+                            isActive ? "text-white" : "group-hover:text-gray-900 dark:group-hover:text-white"
+                          )}>
+                            {item.name}
+                          </span>
+                          <p className={cn(
+                            "text-xs mt-0.5 transition-all duration-300 block truncate",
+                      isActive
+                              ? "text-white/80" 
+                              : "text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                          )}>
+                            {item.description}
+                          </p>
+                        </div>
+
+                        <motion.div
+                          className={cn(
+                            "opacity-0 transition-all duration-300 flex-shrink-0",
+                            isActive ? "opacity-100" : "group-hover:opacity-60"
+                          )}
+                          animate={{ x: hoveredItem === item.name ? 2 : 0 }}
+                        >
+                          <ChevronRight 
+                            size={16} 
+                            className={isActive ? "text-white" : "text-gray-400"} 
+                          />
+                        </motion.div>
+                      </div>
+                  </ProtectedLink>
+                  </motion.div>
+                );
+              })}
+            </div>
           </motion.nav>
 
-          {/* Enhanced Account Section */}
+          {/* Enhanced Account Section - Fixed at bottom */}
           <motion.div 
-            className="relative p-6 border-t border-gray-200/50 dark:border-scan-blue/20 bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-[#151821]/50 dark:to-[#1A1D24]/50"
+            className="relative p-6 border-t border-gray-200/50 dark:border-scan-blue/20 bg-gradient-to-r from-gray-50/50 to-white/50 dark:from-[#151821]/50 dark:to-[#1A1D24]/50 flex-shrink-0"
             variants={itemVariants}
           >
             <motion.div

@@ -11,6 +11,54 @@ export const MobileProfilePreview: React.FC<MobileProfilePreviewProps> = ({ prof
   const [iframeError, setIframeError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [urlAccessible, setUrlAccessible] = useState(false);
+  const [screenHeight, setScreenHeight] = useState(window.innerHeight);
+
+  // Listen for screen height changes
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenHeight(window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Calculate responsive dimensions based on screen height
+  const getResponsiveDimensions = () => {
+    const height = screenHeight;
+    
+    // Base dimensions for iPhone 15 Pro Max
+    const baseWidth = 288; // w-72 = 288px
+    const baseHeight = 580;
+    
+    // Scale factors based on screen height
+    let scaleFactor = 1;
+    
+    if (height < 600) {
+      // Very small screens (mobile landscape)
+      scaleFactor = 0.6;
+    } else if (height < 700) {
+      // Small screens
+      scaleFactor = 0.7;
+    } else if (height < 800) {
+      // Medium screens
+      scaleFactor = 0.8;
+    } else if (height < 900) {
+      // Large screens
+      scaleFactor = 0.9;
+    } else {
+      // Very large screens
+      scaleFactor = 1;
+    }
+    
+    return {
+      width: Math.round(baseWidth * scaleFactor),
+      height: Math.round(baseHeight * scaleFactor),
+      scaleFactor
+    };
+  };
+
+  const dimensions = getResponsiveDimensions();
 
   if (!profile?.slug) {
     return (
@@ -60,10 +108,16 @@ export const MobileProfilePreview: React.FC<MobileProfilePreviewProps> = ({ prof
     }
   };
 
-    return (
+  return (
     <div className={`relative ${className}`}>
-      {/* iPhone 15 Pro Max Frame - Enhanced design */}
-      <div className="relative mx-auto w-72 h-[580px] bg-gradient-to-b from-gray-900 to-gray-800 rounded-[3rem] p-1 shadow-2xl border border-gray-700">
+      {/* iPhone 15 Pro Max Frame - Responsive design */}
+      <div 
+        className="relative mx-auto bg-gradient-to-b from-gray-900 to-gray-800 rounded-[3rem] p-1 shadow-2xl border border-gray-700"
+        style={{
+          width: `${dimensions.width}px`,
+          height: `${dimensions.height}px`
+        }}
+      >
         {/* Phone Screen */}
         <div className="relative w-full h-full bg-white rounded-[2.5rem] overflow-hidden shadow-inner">
           {/* Live Profile iframe - Enhanced container */}
@@ -110,8 +164,8 @@ export const MobileProfilePreview: React.FC<MobileProfilePreviewProps> = ({ prof
                 <div 
                   className="relative bg-white scrollbar-hide mobile-preview-container shadow-lg"
                   style={{
-                    width: '264px',
-                    height: '572px',
+                    width: `${Math.round(264 * dimensions.scaleFactor)}px`,
+                    height: `${Math.round(572 * dimensions.scaleFactor)}px`,
                     overflow: 'hidden',
                     borderRadius: '8px'
                   }}
@@ -126,7 +180,7 @@ export const MobileProfilePreview: React.FC<MobileProfilePreviewProps> = ({ prof
                     style={{
                       width: '390px',
                       height: '844px',
-                      transform: 'scale(0.68)',
+                      transform: `scale(${0.68 * dimensions.scaleFactor})`,
                       transformOrigin: 'top left',
                       border: 'none',
                       borderRadius: '8px',
