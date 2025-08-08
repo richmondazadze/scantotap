@@ -29,7 +29,7 @@ export const usePlanFeatures = (): PlanFeatures => {
 
   return {
     // Link limits
-    maxLinks: isProUser ? Infinity : 6,
+    maxLinks: isProUser ? Infinity : 7,
     canAddUnlimitedLinks: isProUser,
     
     // Future features (all Pro-only)

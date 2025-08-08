@@ -25,6 +25,7 @@ import {
   Rocket,
 } from "lucide-react";
 import { useMediaQuery } from 'react-responsive';
+import { Helmet } from 'react-helmet-async';
 
 
 const LandingPage = () => {
@@ -143,6 +144,15 @@ const LandingPage = () => {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950 overflow-x-hidden">
+      <Helmet>
+        <title>Digital Business Cards in Ghana | NFC & QR | Scan2Tap</title>
+        <meta name="description" content="Create your digital business card in minutes. NFC & QR cards with analytics and beautiful profiles. Fast Ghana delivery." />
+        <link rel="canonical" href={`${window.location.origin}/`} />
+        <meta property="og:title" content="Scan2Tap — Your Digital Identity, One Tap Away" />
+        <meta property="og:description" content="NFC & QR business cards in Ghana. Build a beautiful profile, track clicks, and share instantly." />
+        <meta property="og:image" content={`${window.location.origin}/mockup.webp`} />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
       {/* Animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-float" />

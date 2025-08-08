@@ -3,7 +3,6 @@ import { PlanType, SubscriptionStatus } from '@/contexts/ProfileContext';
 
 // Paystack configuration
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-const PAYSTACK_SECRET_KEY = import.meta.env.VITE_PAYSTACK_SECRET_KEY;
 
 export interface PaystackCustomer {
   email: string;
@@ -37,14 +36,16 @@ export class PaystackService {
     pro_monthly: {
       name: 'Pro Monthly',
       plan_code: 'PLN_i256tzoat6rkqom', // Updated with new Paystack account plan code
-      amount: 40, // $4 in kobo (400 kobo = $4 for USD, adjust for your currency)
+      // IMPORTANT: amount must be in the smallest currency unit
+      // For USD this is cents; for NGN this is kobo. Adjust per your Paystack currency setup.
+      amount: 400, // $4.00 expressed in cents
       interval: 'monthly' as const,
       currency: 'USD'
     },
     pro_annually: {
       name: 'Pro Annual',
       plan_code: 'PLN_fdlwxe47s2x6ho1', // Updated with new Paystack account plan code
-      amount: 400, // $40 in kobo (4000 kobo = $40 for USD)
+      amount: 4000, // $40.00 expressed in cents
       interval: 'annually' as const,
       currency: 'USD'
     }
@@ -59,7 +60,8 @@ export class PaystackService {
     return {
       isTestMode: this.isTestMode(),
       hasPublicKey: !!PAYSTACK_PUBLIC_KEY,
-      hasSecretKey: !!PAYSTACK_SECRET_KEY,
+      // Frontend must never reference secret keys. Keep this false to avoid accidental usage checks.
+      hasSecretKey: false,
       publicKeyPrefix: PAYSTACK_PUBLIC_KEY?.substring(0, 7) || 'none'
     };
   }
@@ -131,96 +133,6 @@ export class PaystackService {
     handler.openIframe();
   }
 
-  // Create customer on Paystack
-  static async createCustomer(customer: PaystackCustomer): Promise<any> {
-    try {
-      const response = await fetch(`${this.baseUrl}/customer`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(customer),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-      return data.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Create subscription
-  static async createSubscription(
-    customerCode: string,
-    planCode: string,
-    authorization: string
-  ): Promise<any> {
-    try {
-      const response = await fetch(`${this.baseUrl}/subscription`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          customer: customerCode,
-          plan: planCode,
-          authorization: authorization,
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-      return data.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Cancel subscription
-  static async cancelSubscription(subscriptionCode: string): Promise<any> {
-    try {
-      const response = await fetch(`${this.baseUrl}/subscription/disable`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          code: subscriptionCode,
-          token: subscriptionCode, // Paystack requires this
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-      return data.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Get subscription details
-  static async getSubscription(subscriptionCode: string): Promise<any> {
-    try {
-      const response = await fetch(`${this.baseUrl}/subscription/${subscriptionCode}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-      return data.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
   // Update user's subscription in database
   static async updateUserSubscription(userId: string, subscriptionData: SubscriptionData) {
     const updateData: any = {
@@ -278,102 +190,12 @@ export class PaystackService {
         }
       );
 
-      // Handle both test and live mode scenarios
-      if (paymentResult.authorization) {
-        // Try to create subscription immediately if authorization is available
-        try {
-          // Create customer first
-          const customer = await this.createCustomer({
-            email: userEmail,
-            first_name: userName.split(' ')[0] || 'User',
-            last_name: userName.split(' ').slice(1).join(' ') || 'User'
-          });
-
-          // Create subscription with authorization token
-          const subscription = await this.createSubscription(
-            customer.customer_code,
-            plan.plan_code,
-            paymentResult.authorization
-          );
-
-          return {
-            success: true,
-            subscription: subscription,
-            reference: paymentResult.reference
-          };
-        } catch (subscriptionError) {
-          // Return success - webhook will handle subscription creation
-          return {
-            success: true,
-            reference: paymentResult.reference,
-            message: 'Payment successful. Subscription will be activated shortly.'
-          };
-        }
-      } else {
-        // No authorization token - rely on webhook for subscription creation
-        return {
-          success: true,
-          reference: paymentResult.reference,
-          message: 'Payment successful. Your subscription will be activated shortly.'
-        };
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Verify payment and activate subscription
-  static async verifyPaymentAndActivate(reference: string, userId: string) {
-    try {
-      // Verify payment with Paystack
-      const response = await fetch(`${this.baseUrl}/transaction/verify/${reference}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-
-      const transaction = data.data;
-      
-      if (transaction.status === 'success') {
-        // Calculate subscription dates
-        const startDate = new Date();
-        const endDate = new Date();
-        
-        // Determine subscription period based on plan
-        const isAnnual = transaction.metadata?.billing_cycle === 'annually';
-        if (isAnnual) {
-          endDate.setFullYear(endDate.getFullYear() + 1);
-        } else {
-          endDate.setMonth(endDate.getMonth() + 1);
-        }
-
-        // Update user subscription in database
-        await this.updateUserSubscription(userId, {
-          plan_type: 'pro',
-          subscription_status: 'active',
-          subscription_started_at: startDate.toISOString(),
-          subscription_expires_at: endDate.toISOString(),
-          paystack_customer_code: transaction.customer?.customer_code,
-          paystack_subscription_code: transaction.subscription?.subscription_code,
-        });
-
-        return {
-          success: true,
-          subscription: {
-            plan_type: 'pro',
-            status: 'active',
-            started_at: startDate.toISOString(),
-            expires_at: endDate.toISOString(),
-          }
-        };
-      } else {
-        throw new Error('Payment verification failed');
-      }
+      // Rely on webhook to activate subscription post-payment
+      return {
+        success: true,
+        reference: paymentResult.reference,
+        message: 'Payment initialized. Your subscription will be activated after confirmation.'
+      };
     } catch (error) {
       throw error;
     }
@@ -391,44 +213,6 @@ export class PaystackService {
     }
     
     return subscription_status === 'active';
-  }
-
-  // Validate payment method for subscription
-  static async validatePaymentMethod(reference: string): Promise<{ isValid: boolean; channel: string; error?: string }> {
-    try {
-      const response = await fetch(`${this.baseUrl}/transaction/verify/${reference}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message);
-
-      const transaction = data.data;
-      
-      // For subscriptions, only card payments are valid
-      if (transaction.channel === 'card' || transaction.channel === 'card') {
-        return {
-          isValid: true,
-          channel: transaction.channel
-        };
-      } else {
-        return {
-          isValid: false,
-          channel: transaction.channel,
-          error: `Payment method ${transaction.channel} is not supported for subscriptions. Please use a credit/debit card.`
-        };
-      }
-    } catch (error) {
-      return {
-        isValid: false,
-        channel: 'unknown',
-        error: 'Failed to validate payment method'
-      };
-    }
   }
 
   // Get plan display info

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from 'react-helmet-async';
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -1057,6 +1058,26 @@ const ProfilePage = () => {
         '--theme-font-family': themeColors.fontFamily // Add CSS custom property
       } as React.CSSProperties & { '--theme-font-family': string }}
     >
+      <Helmet>
+        <title>{`${profile.name || profile.slug} | Digital Profile`}</title>
+        <meta name="description" content={profile.bio || `${profile.name}'s digital business card and links`} />
+        <link rel="canonical" href={`${window.location.origin}/${profile.slug || userId || ''}`} />
+        <meta property="og:title" content={`${profile.name || profile.slug} | Scan2Tap`} />
+        <meta property="og:description" content={profile.bio || 'Connect instantly with my digital profile.'} />
+        <meta property="og:image" content={profile.avatar_url || `${window.location.origin}/fav.png`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Person",
+            name: profile.name,
+            url: `${window.location.origin}/${profile.slug || userId || ''}`,
+            description: profile.bio || undefined,
+            image: profile.avatar_url || undefined,
+            sameAs: (Array.isArray(profile.links) ? profile.links : []).map((l:any)=>l.url)
+          })}
+        </script>
+      </Helmet>
       {/* Smart overlay for custom background or wallpaper */}
       {(customBackground || wallpaperBackground) && (
         <div 

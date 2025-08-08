@@ -13,6 +13,7 @@ import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 import { ProfileProvider } from "./contexts/ProfileContext";
 import React from "react";
+import { HelmetProvider } from 'react-helmet-async';
 import ScrollToTop from "./ScrollToTop";
 import { AuthProvider } from "./contexts/AuthContext";
 import AuthPage from "./pages/AuthPage";
@@ -106,6 +107,7 @@ const App = () => {
         <AuthProvider>
         <ProfileProvider>
           <ThemeProvider attribute="class" defaultTheme="light">
+            <HelmetProvider>
             <TooltipProvider>
                 <style>{globalStyles}</style>
               <Toaster />
@@ -155,6 +157,7 @@ const App = () => {
                 </Routes>
               </BrowserRouter>
             </TooltipProvider>
+            </HelmetProvider>
           </ThemeProvider>
         </ProfileProvider>
         </AuthProvider>
