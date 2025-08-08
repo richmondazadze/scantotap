@@ -19,6 +19,13 @@ export interface AIResponse {
   error?: string;
 }
 
+// Lightweight product Q&A response shape
+export interface AIQAResponse {
+  success: boolean;
+  answer?: string;
+  error?: string;
+}
+
 class AIService {
   private static readonly MAX_BIO_LENGTH = 160;
   private static openai: OpenAI | null = null;
@@ -100,6 +107,58 @@ class AIService {
       console.error('Bio generation error:', error);
       return this.generateWithOptimizedTemplates({ title, name, style });
     }
+  }
+
+  /**
+   * Product Q&A: Use OpenRouter (if available) to answer based on provided KB context.
+   * Frontend-only; falls back to empty if no key. Keep answers short and product-accurate.
+   */
+  static async answerProductQuestion(question: string, context: string): Promise<AIQAResponse> {
+    const cacheKey = `qa_${question}\nctx:${context.length}`;
+    if (this.cache.has(cacheKey)) {
+      const cached = this.cache.get(cacheKey) as unknown as AIQAResponse;
+      if (cached) return cached;
+    }
+
+    try {
+      const openai = this.getOpenAI();
+      if (!openai) {
+        return { success: false, error: 'AI key missing' };
+      }
+
+      const completion = await openai.chat.completions.create({
+        model: 'anthropic/claude-3-haiku:beta',
+        messages: [
+          { role: 'system', content: this.getQASystemPrompt() },
+          { role: 'user', content: this.buildQAUserPrompt(question, context) },
+        ],
+        max_tokens: 220,
+        temperature: 0.2,
+      });
+
+      const content = completion.choices[0]?.message?.content?.trim();
+      if (!content) return { success: false, error: 'No answer' };
+      const resp: AIQAResponse = { success: true, answer: content };
+      this.cache.set(cacheKey, resp as unknown as AIResponse);
+      return resp;
+    } catch (error) {
+      console.error('AI QA error:', error);
+      return { success: false, error: 'AI unavailable' };
+    }
+  }
+
+  private static getQASystemPrompt(): string {
+    return (
+      'You are a precise product support assistant for Scan2Tap. '
+      + 'Answer ONLY from the provided CONTEXT. If the answer is not in the context, say "I do not have that information" and suggest contacting support. '
+      + 'Be concise (1-3 sentences), accurate, and avoid speculation. No markdown, just plain text.'
+    );
+  }
+
+  private static buildQAUserPrompt(question: string, context: string): string {
+    const q = (question || '').trim();
+    const ctx = (context || '').slice(0, 6000); // safety limit
+    return `CONTEXT:\n${ctx}\n\nQUESTION: ${q}\n\nANSWER:`;
   }
 
   /**

@@ -49,7 +49,7 @@ export const usePlanFeatures = (): PlanFeatures => {
 // Helper function to check if user can add more links
 export const canAddMoreLinks = (currentLinkCount: number, planType: PlanType = 'free'): boolean => {
   if (planType === 'pro') return true;
-  return currentLinkCount < 6;
+  return currentLinkCount < 7;
 };
 
 // Helper function to get upgrade message for specific features

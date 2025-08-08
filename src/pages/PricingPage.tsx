@@ -12,6 +12,7 @@ import { useProfile } from "@/contexts/ProfileContext";
 import { PaystackService } from "@/services/paystackService";
 import { toast } from "sonner";
 import { useMediaQuery } from 'react-responsive';
+import ChatWidget from '@/components/ChatWidget';
 
 interface PlanFeature {
   name: string;
@@ -761,6 +762,7 @@ const PricingPage = () => {
       </motion.section>
 
       <Footer />
+      <ChatWidget />
     </div>
   );
 };

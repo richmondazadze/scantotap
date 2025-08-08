@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useMediaQuery } from 'react-responsive';
 import { Helmet } from 'react-helmet-async';
+import ChatWidget from '@/components/ChatWidget';
 
 
 const LandingPage = () => {
@@ -502,6 +503,7 @@ const LandingPage = () => {
       </section>
 
       <Footer />
+      <ChatWidget />
     </div>
   );
 };
